@@ -1,0 +1,367 @@
+  #handPanel .handCharacterPriest .ritualTracker #endBtn{
+    min-width:49px !important;
+    width:49px !important;
+    max-width:49px !important;
+    min-height:18px !important;
+    height:18px !important;
+    padding:1px 2px !important;
+    font-size:6.2px !important;
+    line-height:1.05 !important;
+    border-radius:5px !important;
+    white-space:normal !important;
+  }
+
+  /* Remove remaining air between actions, Ritual title, gauge and cards. */
+  #handPanel .handCharacterPriest .ritualTracker{
+    gap:3px !important;
+    padding:0 !important;
+    margin:0 0 1px !important;
+    min-height:18px !important;
+  }
+  #handPanel .handCharacterPriest .ritualMain .ritualTitleWithBlood,
+  #handPanel .handCharacterPriest .ritualMain > h3{
+    margin:0 0 2px !important;
+  }
+  #handPanel .handCharacterPriest .ritualBloodGauge{
+    min-height:6px !important;
+    height:6px !important;
+  }
+  #handPanel .handCharacterPriest .ritualBloodGauge em{
+    font-size:5.5px !important;
+    line-height:1 !important;
+  }
+  #handPanel .handCharacterPriest .rituals{
+    margin-top:0 !important;
+  }
+}
+</style>
+
+
+<style id="iphoneLandscapeTighterPriestUiV2Patch">
+/* Dedicated iPhone landscape refinements requested after the tighter Priest UI pass. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+
+  /* XP bar: another 10% thinner than 12px => ~11px. */
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat{
+    min-height:11px !important;
+    height:11px !important;
+    padding:0 4px !important;
+    gap:2px !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat b{
+    font-size:7.2px !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat span{
+    font-size:5px !important;
+  }
+
+  /* Basic Attack / End Turn: another 25% smaller than the current 49x18 controls. */
+  #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+  #handPanel .handCharacterPriest .ritualTracker #endBtn{
+    min-width:37px !important;
+    width:37px !important;
+    max-width:37px !important;
+    min-height:14px !important;
+    height:14px !important;
+    padding:0 1px !important;
+    font-size:4.8px !important;
+    line-height:1 !important;
+    border-radius:4px !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker{
+    min-height:14px !important;
+    margin-bottom:0 !important;
+  }
+
+  /* Anchor Priest-card buttons to the actual bottom edge of each card. */
+  #handContent .hand.carouselTrack > .card{
+    position:relative !important;
+  }
+  #handContent .hand.carouselTrack > .card .cardBottom{
+    position:static !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions,
+  #handContent .hand.carouselTrack > .card .cardBottom .actions{
+    position:absolute !important;
+    left:3px !important;
+    right:3px !important;
+    bottom:2px !important;
+    margin:0 !important;
+    z-index:8 !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions button{
+    min-height:22px !important;
+    height:22px !important;
+    padding:1px 2px !important;
+    font-size:6.5px !important;
+  }
+
+  /* Preserve a small text-safe area above the now-bottom-anchored buttons. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    padding-bottom:27px !important;
+  }
+}
+</style>
+
+
+<style id="iphoneLandscapePriestCardTextFillPatch">
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardBottom,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardBottom{
+    display:flex !important;
+    flex:1 1 auto !important;
+    flex-direction:column !important;
+    min-height:0 !important;
+    position:static !important;
+    margin:0 -4px -4px !important;
+    padding:4px 4px 26px !important;
+  }
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardBottom p:last-of-type,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardBottom p:last-of-type{
+    margin-top:auto !important;
+    margin-bottom:0 !important;
+    padding-bottom:1px !important;
+  }
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardBottom .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardBottom .actions{
+    position:absolute !important;
+    left:3px !important;
+    right:3px !important;
+    bottom:2px !important;
+    margin:0 !important;
+    z-index:10 !important;
+  }
+}
+</style>
+
+
+<style id="iphoneLandscapeUniformParchmentPatch">
+/* Restore the original weathered parchment treatment across the whole lower
+   face of the two playable front Priest cards. Keep text tight to the buttons. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom{
+    position:relative !important;
+    display:flex !important;
+    flex:1 1 auto !important;
+    flex-direction:column !important;
+    min-height:0 !important;
+    margin:0 -4px -4px !important;
+    padding:4px 4px 26px !important;
+    border-radius:0 0 7px 7px !important;
+
+    /* Preserve the original embedded parchment image; only normalize its
+       sizing/blending so there is no flat-colored lower block. */
+    background-size:cover !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+    background-blend-mode:multiply !important;
+    border-top:1px solid rgba(111,78,30,.42) !important;
+    overflow:hidden !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.24),
+      inset 0 16px 24px rgba(120,85,35,.14),
+      inset 0 0 44px rgba(84,54,18,.36),
+      0 0 0 1px rgba(95,67,28,.22) !important;
+  }
+
+  /* Make the existing weathering overlays belong to the parchment panel again. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom::before,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom::before,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom::after,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom::after{
+    position:absolute !important;
+    inset:0 !important;
+    pointer-events:none !important;
+  }
+
+  /* Keep the final rules paragraph sitting immediately above the action row. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom p:last-of-type,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom p:last-of-type{
+    margin-top:auto !important;
+    margin-bottom:0 !important;
+    padding-bottom:1px !important;
+    background:transparent !important;
+  }
+
+  /* Buttons remain at the true bottom of the textured parchment face. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom .actions{
+    position:absolute !important;
+    left:3px !important;
+    right:3px !important;
+    bottom:2px !important;
+    margin:0 !important;
+    z-index:10 !important;
+    background:transparent !important;
+  }
+}
+</style>
+
+
+<style id="iphoneLandscapeTrueCardBottomFix">
+/* Final iPhone-landscape card fix: remove the redundant outer bottom padding.
+   The weathered parchment body now reaches the true card bottom, and the
+   action row remains directly beneath the final rules text. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    padding-bottom:4px !important;
+  }
+}
+</style>
+
+
+<style id="iphoneLandscapeCompactStatAndWiderPriestPatch">
+/* Dedicated iPhone landscape refinements:
+   - middle status/timer/altar bar ~50% thinner
+   - hand area centered in its pane, then nudged left
+   - Priest dashboard given slightly more width
+   - reduced vertical whitespace so everything below the board moves upward */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+
+  /* About half the previous 34px stat-card thickness. */
+  #topStatusBar.stats{
+    gap:2px !important;
+    margin:2px 0 !important;
+    padding:1px !important;
+    border-radius:5px !important;
+  }
+  #topStatusBar .stat{
+    min-height:18px !important;
+    height:18px !important;
+    padding:0 2px !important;
+    border-radius:4px !important;
+  }
+  #topStatusBar .stat b{
+    font-size:8px !important;
+    line-height:1 !important;
+    margin:0 !important;
+  }
+  #topStatusBar .stat > span{
+    font-size:4.6px !important;
+    line-height:1 !important;
+    letter-spacing:.15px !important;
+  }
+  #topStatusBar .runProgressStat{
+    padding:0 3px !important;
+  }
+  #topStatusBar .runProgressPair{
+    gap:2px !important;
+  }
+  #topStatusBar .runProgressChunk em{
+    font-size:4.3px !important;
+    line-height:1 !important;
+  }
+  #topStatusBar .runProgressChunk strong{
+    font-size:6.8px !important;
+    line-height:1 !important;
+  }
+  #topStatusBar .runProgressDivider{
+    height:10px !important;
+  }
+
+  /* Bring the whole hand/Priest block closer to the stat bar. */
+  #handPanel{
+    margin:2px 0 !important;
+    padding:4px !important;
+  }
+
+  /* Slightly wider Priest UI. */
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,52%) minmax(305px,48%) !important;
+    gap:4px !important;
+  }
+
+  /* Center the Priest-card fan in its own left pane, then nudge it left. */
+  #handPanel .handCharacterCards{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-width:0 !important;
+  }
+  #handPanel .handCharacterCards #handContent{
+    width:100% !important;
+    min-width:0 !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    margin-left:auto !important;
+    margin-right:auto !important;
+    transform:translateX(-10px) !important;
+  }
+}
+
+/* Keep the same proportions on shorter SE/8-class landscape screens. */
+@media (orientation:landscape) and (max-height:380px) and (max-width:850px){
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,52%) minmax(300px,48%) !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    transform:translateX(-8px) !important;
+  }
+}
+</style>
+
+
+<style id="iphoneLandscapeVerticalCenterPriestCardsPatch">
+/* Center the Priest-card fan vertically within the full left-side landscape pane. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #handPanel .handCharacterStage{
+    align-items:stretch !important;
+  }
+
+  #handPanel .handCharacterCards{
+    align-self:stretch !important;
+    height:100% !important;
+    min-height:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+
+  #handPanel .handCharacterCards #handContent{
+    width:100% !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:stretch !important;
+  }
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    margin-top:auto !important;
+    margin-bottom:auto !important;
+  }
+}
+</style>
+
+
+<script id="sanctumPwaRegistration">
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
+</script>
+
+</body>
+</html>
