@@ -671,6 +671,15 @@ body.sanctumViewportFullscreen > .app{
 })();
 </script>
 
+
+<style id="ritualFreeRollSizeV10Patch">
+/* Keep the Natural 20 line the same text size as the other Ritual roll lines. */
+#ritualPanel .ritualMain .ritual small .ritualFreeRoll{
+  font-size:inherit !important;
+  line-height:inherit !important;
+}
+</style>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
