@@ -497,6 +497,86 @@
 })();
 </script>
 
+
+<style id="iphoneRemoveFloatingNavEqualRitualsV4Patch">
+/* Final iPhone landscape cleanup:
+   remove the obsolete floating four/five-button mobile navigation completely,
+   reclaim its bottom space, and keep all Ritual cards equal to the tallest card. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .mobileNav{
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+
+  /* The floating nav no longer needs reserved space in pseudo-fullscreen mode. */
+  body.sanctumViewportFullscreen > .app{
+    padding-bottom:max(3px,env(safe-area-inset-bottom)) !important;
+  }
+
+  /* All three Priest Ritual boxes share the height of the tallest one. */
+  #ritualPanel .ritualMain .rituals{
+    align-items:stretch !important;
+    grid-auto-rows:1fr !important;
+  }
+  #ritualPanel .ritualMain .ritual{
+    height:100% !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  #ritualPanel .ritualMain .ritual > .btn,
+  #ritualPanel .ritualMain .ritual > button{
+    margin-top:auto !important;
+  }
+}
+</style>
+
+<script id="equalizePriestRitualHeightsV4Script">
+(()=>{
+  'use strict';
+
+  function equalizePriestRitualHeights(){
+    const groups=[...document.querySelectorAll('#ritualPanel .ritualMain .rituals')];
+    groups.forEach(group=>{
+      const cards=[...group.querySelectorAll(':scope > .ritual')];
+      if(!cards.length)return;
+
+      cards.forEach(card=>{
+        card.style.removeProperty('height');
+        card.style.removeProperty('min-height');
+      });
+
+      requestAnimationFrame(()=>{
+        const max=Math.ceil(Math.max(...cards.map(card=>card.getBoundingClientRect().height)));
+        if(!Number.isFinite(max)||max<=0)return;
+        cards.forEach(card=>{
+          card.style.setProperty('height',max+'px','important');
+          card.style.setProperty('min-height',max+'px','important');
+        });
+      });
+    });
+  }
+
+  if(typeof renderPlayer==='function'){
+    const priorRenderPlayer=renderPlayer;
+    renderPlayer=function(){
+      const out=priorRenderPlayer();
+      equalizePriestRitualHeights();
+      return out;
+    };
+  }
+
+  window.addEventListener('resize',equalizePriestRitualHeights);
+  window.addEventListener('orientationchange',()=>setTimeout(equalizePriestRitualHeights,60));
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',equalizePriestRitualHeights,{once:true});
+  }else{
+    equalizePriestRitualHeights();
+  }
+})();
+</script>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
