@@ -751,7 +751,7 @@ async function showRitualRollPopup(ritual,roll,opts={}){
  }
  num.textContent=String(roll);
  card.classList.add('is-final');
- let label = roll===20 ? 'Natural 20 • FREE — no Blood cost' : (roll>=10 ? `Greater effect • Blood Cost: ${ritual?.b ?? 0}` : `Lesser effect • Blood Cost: ${ritual?.b ?? 0}`);
+ let label = roll===20 ? 'FREE' : (roll>=10 ? `Greater effect • Blood Cost: ${ritual?.b ?? 0}` : `Lesser effect • Blood Cost: ${ritual?.b ?? 0}`);
  meta.textContent=label;
  await new Promise(r=>setTimeout(r, 2000));
  wrap.classList.add('hidden');
