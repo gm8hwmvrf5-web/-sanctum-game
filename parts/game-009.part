@@ -577,6 +577,100 @@
 })();
 </script>
 
+
+<style id="removeMobileNavAndFitPriestTitlesV5Patch">
+/* Hard-disable the obsolete floating mobile navigation at every viewport size. */
+.mobileNav{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+/* Reclaim any legacy mobile bottom spacing that existed only for .mobileNav. */
+@media(max-width:700px){
+  body{padding-bottom:max(0px,env(safe-area-inset-bottom)) !important;}
+}
+body.sanctumViewportFullscreen > .app{
+  padding-bottom:max(3px,env(safe-area-inset-bottom)) !important;
+}
+
+/* Priest card names must remain on exactly one line. */
+#handContent .hand.carouselTrack > .card h4,
+#handContent .hand > .card h4{
+  white-space:nowrap !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  line-height:1 !important;
+  letter-spacing:-0.1px !important;
+}
+</style>
+
+<script id="removeMobileNavAndFitPriestTitlesV5Script">
+(()=>{
+  'use strict';
+
+  function removeObsoleteMobileNav(){
+    document.querySelectorAll('.mobileNav').forEach(el=>el.remove());
+  }
+
+  function fitPriestCardTitles(){
+    const titles=[...document.querySelectorAll('#handContent .hand .card h4')];
+    titles.forEach(title=>{
+      title.style.setProperty('white-space','nowrap','important');
+      title.style.removeProperty('font-size');
+
+      // Start from the current computed size, then shrink only if necessary.
+      let size=parseFloat(getComputedStyle(title).fontSize)||9;
+      const minSize=5.5;
+      let guard=0;
+
+      while(title.scrollWidth>title.clientWidth+0.5 && size>minSize && guard<30){
+        size=Math.max(minSize,size-0.25);
+        title.style.setProperty('font-size',size+'px','important');
+        guard++;
+      }
+    });
+  }
+
+  function applyPhoneCleanup(){
+    removeObsoleteMobileNav();
+    requestAnimationFrame(fitPriestCardTitles);
+  }
+
+  if(typeof renderPlayer==='function'){
+    const priorRenderPlayer=renderPlayer;
+    renderPlayer=function(){
+      const out=priorRenderPlayer();
+      applyPhoneCleanup();
+      return out;
+    };
+  }
+
+  if(typeof rogueliteRenderHud==='function'){
+    const priorRogueHud=rogueliteRenderHud;
+    rogueliteRenderHud=function(){
+      const out=priorRogueHud();
+      applyPhoneCleanup();
+      return out;
+    };
+  }
+
+  // Catch any late-created legacy nav node as well.
+  const observer=new MutationObserver(()=>removeObsoleteMobileNav());
+  if(document.documentElement)observer.observe(document.documentElement,{childList:true,subtree:true});
+
+  window.addEventListener('resize',fitPriestCardTitles);
+  window.addEventListener('orientationchange',()=>setTimeout(applyPhoneCleanup,60));
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',applyPhoneCleanup,{once:true});
+  }else{
+    applyPhoneCleanup();
+  }
+})();
+</script>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
