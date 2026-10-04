@@ -51,7 +51,7 @@ button,.btn,select,input{min-height:36px;-webkit-tap-highlight-color:transparent
 .installHint{margin:8px 0;padding:10px 12px;border:1px solid #9a793e;border-radius:9px;background:#25190c;color:#f1d3a0;font-size:13px}
 .mobileNav{display:none}
 @media(max-width:700px){
- body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+ body{padding-bottom:max(0px,env(safe-area-inset-bottom))}
  button,.btn,select,input{min-height:44px}
  .app{padding:6px 6px 10px}.titlebar{gap:8px;align-items:flex-start}.subtitle{font-size:9px}.toolbar{justify-content:flex-end}.toolbar .btn{font-size:10px;padding:5px 7px;min-height:36px}.notice{font-size:11px}
  .stats{position:sticky;top:82px;z-index:20;grid-template-columns:repeat(3,1fr);gap:4px;background:#09090bea;padding:4px 0;margin:6px 0;backdrop-filter:blur(10px)}
@@ -65,7 +65,7 @@ button,.btn,select,input{min-height:36px;-webkit-tap-highlight-color:transparent
  .hand{display:flex;grid-template-columns:none;overflow-x:auto;gap:8px;scroll-snap-type:x mandatory;padding-bottom:8px;-webkit-overflow-scrolling:touch}.card{flex:0 0 82vw;min-height:158px;scroll-snap-align:center}.card p{font-size:12px}.card .actions button{min-height:38px}
  .log{height:220px}.controls{grid-template-columns:repeat(2,1fr)}
  .modal{align-items:end;padding:0}.modalbox{width:100vw;max-height:88dvh;border-radius:16px 16px 0 0;padding:14px 12px calc(14px + env(safe-area-inset-bottom));border-left:0;border-right:0;border-bottom:0}.setupgrid{grid-template-columns:1fr}.choicegrid{grid-template-columns:1fr}.choice{min-height:54px}
- .mobileNav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:#09090bf5;border-top:1px solid #70552f;backdrop-filter:blur(12px)}
+ .mobileNav{display:none!important;visibility:hidden!important;pointer-events:none!important}
  .mobileNav button{border:0;background:transparent;color:#e3c98f;min-height:52px;font-size:18px}.mobileNav button span{display:block;font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
  .footer{padding-bottom:8px}
 }
