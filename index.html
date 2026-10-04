@@ -20,11 +20,11 @@ html,body{margin:0;width:100%;height:100%;background:#050505;color:#ead7b0;font-
 <div id="boot"><div><strong>Sanctum of the Damned</strong><small>Loading the sanctum…</small></div></div>
 <script>
 (async()=>{
- const files=["./parts/game-001.part","./parts/game-002.part","./parts/game-003.part","./parts/game-004.part","./parts/game-005.part","./parts/game-006.part","./parts/game-007.part","./parts/game-008.part","./parts/game-009.part"];
+ const files=["./parts/game-001.part?v=9","./parts/game-002.part?v=9","./parts/game-003.part?v=9","./parts/game-004.part?v=9","./parts/game-005.part?v=9","./parts/game-006.part?v=9","./parts/game-007.part?v=9","./parts/game-008.part?v=9","./parts/game-009.part?v=9"];
  try{
    const chunks=[];
    for(const file of files){
-     const r=await fetch(file,{cache:'no-cache'});
+     const r=await fetch(file,{cache:'reload'});
      if(!r.ok) throw new Error(file+' '+r.status);
      chunks.push(await r.text());
    }
