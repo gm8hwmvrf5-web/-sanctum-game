@@ -355,6 +355,148 @@
 </style>
 
 
+
+<style id="iphoneLandscapePriestWidthMenuV3Patch">
+/* iPhone landscape: 10% narrower Priest cards, larger Priest dashboard,
+   and one compact Menu button aligned with Basic Attack / End Turn. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  /* Give more of the lower play area to the Priest UI. */
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,48%) minmax(0,52%) !important;
+    gap:4px !important;
+  }
+
+  /* Front Priest cards: 134px -> 121px (~10% narrower), height unchanged. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    max-width:383px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    width:329px !important;
+    max-width:329px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    width:121px !important;
+    min-width:121px !important;
+    max-width:121px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{
+    left:38px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    left:165px !important;
+  }
+
+  /* Rear preview cards scale with the narrower fan. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    width:96px !important;
+    min-width:96px !important;
+    max-width:96px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left{
+    left:0 !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    left:233px !important;
+  }
+
+  /* One action row: Basic Attack | End Turn | Menu, with Menu pinned right. */
+  #handPanel .handCharacterPriest .ritualTracker{
+    display:flex !important;
+    align-items:center !important;
+    flex-wrap:nowrap !important;
+    gap:4px !important;
+    min-height:20px !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+  #handPanel .handCharacterPriest .ritualTracker #endBtn,
+  #handPanel .handCharacterPriest .ritualTracker #iphonePauseMenuBtn{
+    width:auto !important;
+    max-width:none !important;
+    min-width:54px !important;
+    min-height:20px !important;
+    height:20px !important;
+    padding:1px 4px !important;
+    font-size:6.4px !important;
+    line-height:1 !important;
+    border-radius:4px !important;
+    white-space:nowrap !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker #iphonePauseMenuBtn{
+    margin-left:auto !important;
+    min-width:46px !important;
+  }
+
+  /* The old phone-nav pause entry is replaced by the Priest-UI Menu button. */
+  #mobilePauseMenuBtn{display:none !important;}
+}
+
+/* Keep shorter iPhones usable while still enlarging the Priest side. */
+@media (orientation:landscape) and (max-height:380px) and (max-width:850px){
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,49%) minmax(0,51%) !important;
+  }
+}
+</style>
+
+<script id="iphonePriestPauseMenuButtonV3Script">
+(()=>{
+  'use strict';
+  const iphoneLandscape=()=>window.matchMedia('(orientation:landscape) and (max-height:520px) and (max-width:1000px)').matches;
+
+  function ensurePriestMenuButton(){
+    const existing=document.getElementById('iphonePauseMenuBtn');
+    if(!iphoneLandscape()){
+      if(existing)existing.remove();
+      return;
+    }
+
+    const tracker=document.querySelector('#handPanel .handCharacterPriest .ritualTracker');
+    if(!tracker)return;
+
+    let btn=existing;
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.id='iphonePauseMenuBtn';
+      btn.className='btn trackerAction';
+      btn.textContent='Menu';
+      btn.setAttribute('aria-label','Open pause menu');
+      btn.addEventListener('click',()=>{
+        if(typeof window.openGameMenu==='function')window.openGameMenu();
+      });
+    }
+
+    // Keep the single Menu button at the far right of the same row.
+    if(btn.parentElement!==tracker)tracker.appendChild(btn);
+    else tracker.appendChild(btn);
+  }
+
+  if(typeof renderPlayer==='function'){
+    const priorRenderPlayer=renderPlayer;
+    renderPlayer=function(){
+      const out=priorRenderPlayer();
+      ensurePriestMenuButton();
+      return out;
+    };
+  }
+
+  if(typeof rogueliteRenderHud==='function'){
+    const priorRogueHud=rogueliteRenderHud;
+    rogueliteRenderHud=function(){
+      const out=priorRogueHud();
+      ensurePriestMenuButton();
+      return out;
+    };
+  }
+
+  window.addEventListener('resize',ensurePriestMenuButton);
+  window.addEventListener('orientationchange',()=>setTimeout(ensurePriestMenuButton,50));
+  if(S?.started)ensurePriestMenuButton();
+})();
+</script>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
