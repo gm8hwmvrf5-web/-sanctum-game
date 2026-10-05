@@ -1315,7 +1315,7 @@ body.sanctumViewportFullscreen > .app{
 
 
 <style id="demonStatLabelsV20Patch">
-/* Board Demon stat labels: HP / BLD / ATK — stronger and easier to scan. */
+/* Board Demon stat labels: compact abbreviations with full-size values. */
 #boardSection .demonStats{
   opacity:1 !important;
   gap:5px !important;
@@ -1327,9 +1327,29 @@ body.sanctumViewportFullscreen > .app{
 #boardSection .demonStats .hp,
 #boardSection .demonStats .blood,
 #boardSection .demonStats .attack{
+  display:inline-flex !important;
+  align-items:baseline !important;
+  gap:1px !important;
   border:0 !important;
   background:transparent !important;
   padding:0 !important;
+  white-space:nowrap !important;
+}
+#boardSection .demonStats .statLabel,
+#boardSection .demonStats .statValue{
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  line-height:1 !important;
+}
+#boardSection .demonStats .statLabel{
+  font-size:.78em !important;
+  font-weight:700 !important;
+  opacity:.88 !important;
+}
+#boardSection .demonStats .statValue{
+  font-size:1em !important;
+  font-weight:800 !important;
 }
 #boardSection .demonStats .hp{color:#ff9db4 !important;}
 #boardSection .demonStats .blood{color:#e33a49 !important;}
@@ -1338,15 +1358,37 @@ body.sanctumViewportFullscreen > .app{
 @media (max-width:700px){
   #boardSection .demonStats{
     font-size:12.2px !important;
+    gap:4px !important;
+  }
+  #boardSection .demonStats .hp,
+  #boardSection .demonStats .blood,
+  #boardSection .demonStats .attack{
+    gap:.7px !important;
+  }
+  #boardSection .demonStats .statLabel{
+    font-size:.62em !important;
+    letter-spacing:-.08px !important;
   }
 }
 @media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
   #boardSection .demonStats{
-    gap:3px !important;
+    gap:2px !important;
     opacity:1 !important;
     font-size:5.3px !important;
     font-weight:700 !important;
-    letter-spacing:.03px !important;
+    letter-spacing:.01px !important;
+  }
+  #boardSection .demonStats .hp,
+  #boardSection .demonStats .blood,
+  #boardSection .demonStats .attack{
+    gap:.35px !important;
+  }
+  #boardSection .demonStats .statLabel{
+    font-size:3.4px !important;
+    letter-spacing:-.1px !important;
+  }
+  #boardSection .demonStats .statValue{
+    font-size:5.3px !important;
   }
 }
 </style>
