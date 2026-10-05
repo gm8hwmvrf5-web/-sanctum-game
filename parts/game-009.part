@@ -681,15 +681,15 @@ body.sanctumViewportFullscreen > .app{
 </style>
 
 
-
-<style id="smallerPriestCardsLargerUiViewportFitV12Patch">
-/* Keep the smaller Priest hand and larger Priest dashboard. */
+<style id="smallerPriestCardsLargerUiViewportFitV11Patch">
+/* Smaller Priest hand + larger Priest dashboard. */
 @media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
   #handPanel .handCharacterStage{
     grid-template-columns:minmax(0,40%) minmax(0,60%) !important;
     gap:4px !important;
   }
 
+  /* Roughly 10% smaller than the current 121px x 177px front cards. */
   #handContent .handCarousel.twoFrontMode.fourVisibleMode{
     max-width:345px !important;
   }
@@ -708,8 +708,12 @@ body.sanctumViewportFullscreen > .app{
     max-height:159px !important;
     padding:3px 3px 25px !important;
   }
-  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{left:34px !important;}
-  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{left:149px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{
+    left:34px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    left:149px !important;
+  }
 
   #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
   #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
@@ -719,8 +723,12 @@ body.sanctumViewportFullscreen > .app{
     min-height:144px !important;
     max-height:144px !important;
   }
-  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left{left:0 !important;}
-  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{left:210px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left{
+    left:0 !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    left:210px !important;
+  }
 
   #handContent .hand.carouselTrack > .card .cardArt,
   #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardArt,
@@ -729,7 +737,10 @@ body.sanctumViewportFullscreen > .app{
     min-height:50px !important;
     margin:-3px -3px 2px !important;
   }
-  #handContent .hand.carouselTrack > .card h4{font-size:8px !important;margin:1px 20px 1px 0 !important;}
+  #handContent .hand.carouselTrack > .card h4{
+    font-size:8px !important;
+    margin:1px 20px 1px 0 !important;
+  }
   #handContent .hand.carouselTrack > .card p,
   #handContent .hand.carouselTrack > .card .cardBottom p{
     font-size:6.4px !important;
@@ -751,35 +762,45 @@ body.sanctumViewportFullscreen > .app{
   }
 }
 
-/* Desktop/laptop: use the whole browser instead of shrinking the game. */
+/* Slightly smaller hand and a larger Priest pane on tablets/desktops too. */
 @media (min-width:1001px){
-  html,body{
-    width:100% !important;
-    min-width:100% !important;
-    min-height:100% !important;
-    overflow-x:hidden !important;
-  }
-  body > .app,
-  .app{
-    width:100vw !important;
-    max-width:none !important;
-    margin:0 !important;
-    padding:8px 10px 12px !important;
-    transform:none !important;
-    position:relative !important;
-    left:auto !important;
-    top:auto !important;
-  }
   #handPanel .handCharacterStage{
     grid-template-columns:minmax(0,43%) minmax(0,57%) !important;
   }
-  #boardSection.board{
-    width:100% !important;
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    width:484px !important;
+    max-width:484px !important;
+    grid-template-columns:27px minmax(0,423px) 27px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    width:423px !important;
+    max-width:423px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    width:166px !important;
+    min-width:166px !important;
+    max-width:166px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{
+    left:43px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    left:214px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    width:142px !important;
+    min-width:142px !important;
+    max-width:142px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    left:281px !important;
   }
 }
 
-/* Fit-to-viewport is reserved for phones/tablets where the fixed game proportions
-   genuinely need reduction. Desktop is deliberately excluded. */
+/* Device-aware full-viewport fitting. The normal layout is measured first,
+   then uniformly reduced only when needed so the complete game remains visible. */
 html.sanctumViewportFit,
 body.sanctumViewportFit{
   width:100% !important;
@@ -794,7 +815,7 @@ body.sanctumViewportFit > .app{
 }
 </style>
 
-<script id="universalViewportFitV12Script">
+<script id="universalViewportFitV11Script">
 (()=>{
   'use strict';
 
@@ -804,49 +825,49 @@ body.sanctumViewportFit > .app{
   function viewportSize(){
     const vv=window.visualViewport;
     return {
-      width:Math.max(1,vv?vv.width:window.innerWidth),
-      height:Math.max(1,vv?vv.height:window.innerHeight),
-      left:vv?vv.offsetLeft:0,
-      top:vv?vv.offsetTop:0
+      width:Math.max(1, vv ? vv.width : window.innerWidth),
+      height:Math.max(1, vv ? vv.height : window.innerHeight),
+      left:vv ? vv.offsetLeft : 0,
+      top:vv ? vv.offsetTop : 0
     };
-  }
-
-  function shouldScale(){
-    return viewportSize().width<=1000;
   }
 
   function activeOverlay(){
     return [...document.querySelectorAll(
       '.modal,#rogueTutorialIntro,#rogueTutorialCoach,#tutorialCoach,#tutorialWelcome'
     )].some(el=>{
-      if(!el||el.classList.contains('hidden'))return false;
+      if(!el || el.classList.contains('hidden'))return false;
       const s=getComputedStyle(el);
-      return s.display!=='none'&&s.visibility!=='hidden'&&el.getClientRects().length>0;
+      if(s.display==='none' || s.visibility==='hidden')return false;
+      return el.getClientRects().length>0;
     });
   }
 
   function clearViewportFit(){
-    const app=document.querySelector('body > .app')||document.querySelector('.app');
+    const app=document.querySelector('body > .app') || document.querySelector('.app');
     document.documentElement.classList.remove('sanctumViewportFit');
     document.body.classList.remove('sanctumViewportFit');
     if(!app)return;
-    ['position','left','top','width','max-width','transform','transform-origin']
-      .forEach(p=>app.style.removeProperty(p));
+    [
+      'position','left','top','width','max-width','transform','transform-origin'
+    ].forEach(p=>app.style.removeProperty(p));
   }
 
   function fitViewportNow(){
     if(fitting)return;
     fitting=true;
     try{
-      const app=document.querySelector('body > .app')||document.querySelector('.app');
+      const app=document.querySelector('body > .app') || document.querySelector('.app');
       if(!app)return;
 
-      if(!shouldScale()||activeOverlay()){
+      /* Menus/popups should use their own full-viewport rules, not the scaled board. */
+      if(activeOverlay()){
         clearViewportFit();
         return;
       }
 
       clearViewportFit();
+
       const v=viewportSize();
       const rect=app.getBoundingClientRect();
       const naturalW=Math.max(1,Math.ceil(app.scrollWidth),Math.ceil(rect.width));
@@ -854,16 +875,19 @@ body.sanctumViewportFit > .app{
 
       let scale=Math.min(v.width/naturalW,v.height/naturalH,1);
       if(scale>0.985)scale=1;
-      scale=Math.max(.5,scale);
+      scale=Math.max(0.35,scale);
 
       const renderedW=naturalW*scale;
       const renderedH=naturalH*scale;
+      const left=v.left+Math.max(0,(v.width-renderedW)/2);
+      const top=v.top+Math.max(0,(v.height-renderedH)/2);
 
       document.documentElement.classList.add('sanctumViewportFit');
       document.body.classList.add('sanctumViewportFit');
+
       app.style.setProperty('position','fixed','important');
-      app.style.setProperty('left',(v.left+Math.max(0,(v.width-renderedW)/2))+'px','important');
-      app.style.setProperty('top',(v.top+Math.max(0,(v.height-renderedH)/2))+'px','important');
+      app.style.setProperty('left',left+'px','important');
+      app.style.setProperty('top',top+'px','important');
       app.style.setProperty('width',naturalW+'px','important');
       app.style.setProperty('max-width','none','important');
       app.style.setProperty('transform','scale('+scale+')','important');
@@ -875,16 +899,29 @@ body.sanctumViewportFit > .app{
 
   function scheduleViewportFit(){
     cancelAnimationFrame(fitFrame);
-    fitFrame=requestAnimationFrame(()=>requestAnimationFrame(fitViewportNow));
+    fitFrame=requestAnimationFrame(()=>{
+      fitViewportNow();
+      /* Fonts/images can settle one frame later. */
+      requestAnimationFrame(fitViewportNow);
+    });
   }
 
   if(typeof renderPlayer==='function'){
     const priorRenderPlayer=renderPlayer;
-    renderPlayer=function(){const out=priorRenderPlayer();scheduleViewportFit();return out;};
+    renderPlayer=function(){
+      const out=priorRenderPlayer();
+      scheduleViewportFit();
+      return out;
+    };
   }
+
   if(typeof renderBoard==='function'){
     const priorRenderBoard=renderBoard;
-    renderBoard=function(){const out=priorRenderBoard();scheduleViewportFit();return out;};
+    renderBoard=function(){
+      const out=priorRenderBoard();
+      scheduleViewportFit();
+      return out;
+    };
   }
 
   window.addEventListener('resize',scheduleViewportFit);
@@ -894,6 +931,13 @@ body.sanctumViewportFit > .app{
     visualViewport.addEventListener('scroll',scheduleViewportFit);
   }
 
+  const observer=new MutationObserver(mutations=>{
+    if(mutations.some(m=>m.type==='childList' || (m.type==='attributes' && m.target!==document.body && m.target!==document.documentElement))){
+      scheduleViewportFit();
+    }
+  });
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',scheduleViewportFit,{once:true});
   }else{
@@ -902,7 +946,6 @@ body.sanctumViewportFit > .app{
   window.addEventListener('load',scheduleViewportFit,{once:true});
 })();
 </script>
-
 
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
