@@ -594,6 +594,7 @@ dialog.mpDemonReader::backdrop{
 
   let client=null;
   let channel=null;
+  let rosterChannel=null;
   let session=null;
   let panel=null;
   let lastRosterSnapshot=null;
@@ -1109,6 +1110,7 @@ dialog.mpDemonReader::backdrop{
     if(sessionEnded)return;
     sessionEnded=true;
     stopHeartbeat();
+    stopRosterSubscription();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.add('mpSessionEnded');
     document.body.classList.remove('mpWaitingTurn');
@@ -1163,7 +1165,7 @@ dialog.mpDemonReader::backdrop{
     stopHeartbeat();
     if(!session||sessionEnded)return;
     heartbeat();
-    heartbeatTimer=setInterval(heartbeat,5000);
+    heartbeatTimer=setInterval(heartbeat,10000);
   }
 
   async function ensureClient(){
@@ -1239,6 +1241,11 @@ dialog.mpDemonReader::backdrop{
       (key==='art'||key==='gart')?undefined:value
     ));
     state.manualPaused=false;
+    // Keep recent history for the pause-menu log without retransmitting an
+    // ever-growing run log on every multiplayer state update.
+    if(Array.isArray(state.log)&&state.log.length>60){
+      state.log=state.log.slice(-60);
+    }
     return state;
   }
 
@@ -1505,12 +1512,12 @@ dialog.mpDemonReader::backdrop{
       publishBusy=false;
       if(publishQueued){
         publishQueued=false;
-        schedulePublish('state_sync',{},120);
+        schedulePublish('state_sync',{},180);
       }
     }
   }
 
-  function schedulePublish(actionType='state_sync',payload={},delay=180){
+  function schedulePublish(actionType='state_sync',payload={},delay=320){
     if(!session||!S||!S.started||applyingRemote||startingOnline)return;
     clearTimeout(publishTimer);
     publishTimer=setTimeout(()=>pushSharedState(actionType,payload),delay);
@@ -1609,7 +1616,7 @@ dialog.mpDemonReader::backdrop{
         try{enforceTurnOwnership()}catch(_){}
         try{renderGroupVoteFromState()}catch(_){}
         if(session&&S&&S.started&&!applyingRemote&&!startingOnline){
-          schedulePublish('state_sync',{},220);
+          schedulePublish('state_sync',{},360);
         }
         return out;
       };
@@ -1650,6 +1657,29 @@ dialog.mpDemonReader::backdrop{
     setGameBanner();
   }
 
+  async function stopRosterSubscription(){
+    if(client&&rosterChannel){
+      try{await client.removeChannel(rosterChannel)}catch(_){}
+    }
+    rosterChannel=null;
+  }
+
+  async function startRosterSubscription(){
+    if(!session?.gameId||sessionEnded)return;
+    if(S?.started||lastRosterSnapshot?.game?.status==='playing'){
+      await stopRosterSubscription();
+      return;
+    }
+    if(rosterChannel)return;
+    const sb=await ensureClient();
+    rosterChannel=sb.channel('sanctum-roster-'+session.gameId)
+      .on('postgres_changes',{
+        event:'*',schema:'public',table:'players',
+        filter:'game_id=eq.'+session.gameId
+      },()=>refreshRoom(false))
+      .subscribe();
+  }
+
   async function refreshRoom(forceState=false){
     if(!session)return;
     try{
@@ -1672,6 +1702,8 @@ dialog.mpDemonReader::backdrop{
       renderRoster(snap);
       syncSetupFromRoster(snap);
       panel?.classList.add('connected');
+      if(snap.game.status==='lobby')startRosterSubscription().catch(err=>console.warn('Roster subscription failed',err));
+      else stopRosterSubscription();
       await applyRemoteGameRow(snap.game,forceState||lastAppliedVersion<0);
       enforceTurnOwnership();
     }catch(err){
@@ -1700,15 +1732,12 @@ dialog.mpDemonReader::backdrop{
             return;
           }
           status(`Connected to room ${row.room_code||session.roomCode} • live game sync`);
+          if(row.status==='playing')stopRosterSubscription();
           applyRemoteGameRow(row).catch(err=>console.error(err));
         }else{
           refreshRoom().catch(err=>console.error(err));
         }
       })
-      .on('postgres_changes',{
-        event:'*',schema:'public',table:'players',
-        filter:'game_id=eq.'+session.gameId
-      },()=>refreshRoom())
       .on('postgres_changes',{
         event:'INSERT',schema:'public',table:'game_actions',
         filter:'game_id=eq.'+session.gameId
@@ -1752,7 +1781,6 @@ dialog.mpDemonReader::backdrop{
       await subscribe();
       await refreshRoom(true);
       startHeartbeat();
-      startHeartbeat();
     }catch(err){
       console.error(err);
       status(err.message||'Could not create room.',true);
@@ -1789,6 +1817,7 @@ dialog.mpDemonReader::backdrop{
       saveSession();
       await subscribe();
       await refreshRoom(true);
+      startHeartbeat();
     }catch(err){
       console.error(err);
       status(err.message||'Could not join room.',true);
@@ -1797,6 +1826,7 @@ dialog.mpDemonReader::backdrop{
 
   async function leave(){
     stopHeartbeat();
+    await stopRosterSubscription();
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
     channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
     try{clearTurnTimerInterval()}catch(_){}
@@ -1855,7 +1885,7 @@ dialog.mpDemonReader::backdrop{
       </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
-      <div class="mpDevNote">Shared-board milestone: each device always shows its own Priest hand, only the active Priest can act, rewards and passage choices use synchronized group voting, Demon cards open into a large reading view, and the room automatically ends when the host disconnects.</div>
+      <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, rewards and passage choices use synchronized group voting, Demon cards open into a large reading view, and the room automatically ends when the host disconnects.</div>
     `;
 
     const grid=box.querySelector('.setupgrid');
