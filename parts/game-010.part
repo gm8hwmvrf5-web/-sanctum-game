@@ -714,6 +714,12 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
         let ok=false;
         try{
           ok=baseStart.apply(this,arguments);
+          if(ok&&session&&S&&Array.isArray(S.players)){
+            S.mana=typeof sharedManaRoundValue==='function'
+              ? sharedManaRoundValue()
+              : (S.players.length>=4?35:S.players.length===3?20:S.players.length===2?15:10);
+            render();
+          }
         }finally{
           startingOnline=false;
         }
