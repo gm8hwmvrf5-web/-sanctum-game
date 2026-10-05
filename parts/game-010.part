@@ -1,11 +1,23 @@
 <style id="multiplayerDemonStatsFivePercentPatch">
-/* Visual-only multiplayer patch: Demon board stats +5%. No gameplay changes. */
+/* Visual-only multiplayer patch: smaller labels, numbers +5% from the prior size. */
 #boardSection .demonStats{
   font-size:11.235px !important;
+}
+#boardSection .demonStats .statLabel{
+  font-size:.70em !important;
+}
+#boardSection .demonStats .statValue{
+  font-size:1.05em !important;
 }
 @media (max-width:700px){
   #boardSection .demonStats{
     font-size:12.81px !important;
+  }
+  #boardSection .demonStats .statLabel{
+    font-size:.55em !important;
+  }
+  #boardSection .demonStats .statValue{
+    font-size:1.05em !important;
   }
 }
 @media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
@@ -13,10 +25,10 @@
     font-size:5.565px !important;
   }
   #boardSection .demonStats .statLabel{
-    font-size:3.57px !important;
+    font-size:3.2px !important;
   }
   #boardSection .demonStats .statValue{
-    font-size:5.565px !important;
+    font-size:5.843px !important;
   }
 }
 </style>
