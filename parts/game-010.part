@@ -1,0 +1,384 @@
+<style id="sanctumMultiplayerLobbyStyles">
+#sanctumOnlinePanel{
+  margin:10px 0;
+  padding:10px;
+  border:1px solid #7c6339;
+  border-radius:9px;
+  background:linear-gradient(180deg,#17120f,#0d0b0a);
+  box-shadow:inset 0 0 16px rgba(0,0,0,.35);
+}
+#sanctumOnlinePanel .mpTitle{
+  color:#efd39b;
+  font-weight:800;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+#sanctumOnlinePanel .mpActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  align-items:end;
+}
+#sanctumOnlinePanel .mpField label{
+  display:block;
+  font-size:9px;
+  color:#ad9c7d;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+#sanctumOnlinePanel input{
+  width:100%;
+  box-sizing:border-box;
+  background:#0a0909;
+  color:#f1dfbc;
+  border:1px solid #6e5530;
+  border-radius:6px;
+  padding:7px 8px;
+  text-transform:uppercase;
+}
+#sanctumOnlinePanel .mpButtons{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:7px;
+}
+#sanctumOnlinePanel .mpButtons .btn{flex:1 1 120px}
+#sanctumOnlinePanel .mpStatus{
+  margin-top:8px;
+  padding:7px 8px;
+  border-radius:6px;
+  background:#0a0a0b;
+  color:#c9bda6;
+  font-size:11px;
+  line-height:1.35;
+}
+#sanctumOnlinePanel .mpRoomCode{
+  color:#f2c66f;
+  font-weight:900;
+  letter-spacing:2px;
+}
+#sanctumOnlinePanel .mpRoster{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px;
+  margin-top:7px;
+}
+#sanctumOnlinePanel .mpSeat{
+  border:1px solid #4e402d;
+  border-radius:6px;
+  padding:5px;
+  min-height:34px;
+  background:#12100e;
+  color:#d8c9ae;
+  font-size:9px;
+}
+#sanctumOnlinePanel .mpSeat b{
+  display:block;
+  color:#edcf95;
+  font-size:10px;
+}
+#sanctumOnlinePanel .mpSeat.empty{opacity:.45}
+#sanctumOnlinePanel .mpDevNote{
+  margin-top:6px;
+  color:#8f816e;
+  font-size:9px;
+  line-height:1.3;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #sanctumOnlinePanel{margin:4px 0;padding:5px}
+  #sanctumOnlinePanel .mpTitle{font-size:9px;margin-bottom:3px}
+  #sanctumOnlinePanel .mpActions{gap:4px}
+  #sanctumOnlinePanel input{min-height:28px!important;padding:3px 5px!important;font-size:8px!important}
+  #sanctumOnlinePanel .mpButtons{margin-top:3px;gap:3px}
+  #sanctumOnlinePanel .mpButtons .btn{min-height:28px!important;padding:3px 5px!important;font-size:8px!important}
+  #sanctumOnlinePanel .mpStatus{margin-top:4px;padding:4px;font-size:8px}
+  #sanctumOnlinePanel .mpRoster{margin-top:4px;gap:3px}
+  #sanctumOnlinePanel .mpSeat{min-height:22px;padding:3px;font-size:7px}
+  #sanctumOnlinePanel .mpSeat b{font-size:8px}
+  #sanctumOnlinePanel .mpDevNote{display:none}
+}
+</style>
+
+<script id="sanctumMultiplayerLobbyScript">
+(()=>{
+  'use strict';
+
+  const SUPABASE_URL='https://nkucyukzxjofcypaqxor.supabase.co';
+  const SUPABASE_KEY='sb_publishable_NXIee43RqgT7adfNiMJVyg_aPZhSALZ';
+  const SESSION_KEY='sanctum_multiplayer_session_v1';
+
+  let client=null;
+  let channel=null;
+  let session=null;
+  let panel=null;
+
+  function loadSession(){
+    try{
+      const raw=localStorage.getItem(SESSION_KEY);
+      session=raw?JSON.parse(raw):null;
+    }catch(_){session=null}
+  }
+  function saveSession(){
+    try{
+      if(session)localStorage.setItem(SESSION_KEY,JSON.stringify(session));
+      else localStorage.removeItem(SESSION_KEY);
+    }catch(_){}
+  }
+  function playerName(){
+    const first=document.getElementById('pname0');
+    return (first&&first.value&&first.value.trim())||'Priest';
+  }
+  function status(text,bad=false){
+    if(!panel)return;
+    const el=panel.querySelector('.mpStatus');
+    if(el){
+      el.textContent=text;
+      el.style.border='1px solid '+(bad?'#813c3c':'#4e5e3e');
+    }
+  }
+  function escapeHtml(v){
+    return String(v??'').replace(/[&<>"']/g,ch=>({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[ch]));
+  }
+
+  async function ensureClient(){
+    if(client)return client;
+    if(!window.supabase||!window.supabase.createClient){
+      await new Promise((resolve,reject)=>{
+        const prior=document.querySelector('script[data-sanctum-supabase]');
+        if(prior){
+          prior.addEventListener('load',resolve,{once:true});
+          prior.addEventListener('error',reject,{once:true});
+          return;
+        }
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s.async=true;
+        s.dataset.sanctumSupabase='1';
+        s.onload=resolve;
+        s.onerror=()=>reject(new Error('Could not load online multiplayer service.'));
+        document.head.appendChild(s);
+      });
+    }
+    client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+    });
+    return client;
+  }
+
+  async function fetchRoom(){
+    if(!session?.gameId)return null;
+    const sb=await ensureClient();
+    const [g,p]=await Promise.all([
+      sb.from('games')
+        .select('id,room_code,status,state,state_version,max_players')
+        .eq('id',session.gameId)
+        .maybeSingle(),
+      sb.from('players')
+        .select('id,game_id,seat,display_name,character_key,is_host,connected,created_at,last_seen')
+        .eq('game_id',session.gameId)
+        .order('seat',{ascending:true})
+    ]);
+    if(g.error)throw g.error;
+    if(p.error)throw p.error;
+    if(!g.data)throw new Error('Online room no longer exists.');
+    return {game:g.data,players:p.data||[]};
+  }
+
+  function renderRoster(snapshot){
+    if(!panel)return;
+    const roster=panel.querySelector('.mpRoster');
+    if(!roster)return;
+    if(!snapshot){roster.innerHTML='';return}
+    const seats=[];
+    for(let i=1;i<=snapshot.game.max_players;i++){
+      const p=snapshot.players.find(x=>Number(x.seat)===i);
+      if(p){
+        const you=session&&p.id===session.playerId?' • YOU':'';
+        const host=p.is_host?' • HOST':'';
+        seats.push(`<div class="mpSeat"><b>Seat ${i}</b>${escapeHtml(p.display_name)}${host}${you}</div>`);
+      }else{
+        seats.push(`<div class="mpSeat empty"><b>Seat ${i}</b>Waiting…</div>`);
+      }
+    }
+    roster.innerHTML=seats.join('');
+  }
+
+  async function refreshRoom(){
+    if(!session)return;
+    try{
+      const snap=await fetchRoom();
+      session.roomCode=snap.game.room_code;
+      session.stateVersion=Number(snap.game.state_version||0);
+      saveSession();
+      status(`Connected to room ${snap.game.room_code} • ${snap.players.length}/${snap.game.max_players} players • ${snap.game.status}`);
+      const code=panel?.querySelector('.mpRoomCode');
+      if(code)code.textContent=snap.game.room_code;
+      renderRoster(snap);
+      panel?.classList.add('connected');
+    }catch(err){
+      console.error('Sanctum multiplayer refresh failed',err);
+      status(err.message||'Could not refresh online room.',true);
+    }
+  }
+
+  async function subscribe(){
+    if(!session?.gameId)return;
+    const sb=await ensureClient();
+    if(channel){try{await sb.removeChannel(channel)}catch(_){}}
+    channel=sb.channel('sanctum-room-'+session.gameId)
+      .on('postgres_changes',{
+        event:'*',schema:'public',table:'games',
+        filter:'id=eq.'+session.gameId
+      },()=>refreshRoom())
+      .on('postgres_changes',{
+        event:'*',schema:'public',table:'players',
+        filter:'game_id=eq.'+session.gameId
+      },()=>refreshRoom())
+      .subscribe();
+  }
+
+  async function host(){
+    const btn=panel.querySelector('#mpHostBtn');
+    btn.disabled=true;
+    status('Creating online room…');
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('create_sanctum_game',{
+        p_display_name:playerName(),
+        p_initial_state:{multiplayer:true,stage:'lobby'}
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)throw new Error('Room creation returned no data.');
+      session={
+        gameId:row.game_id,
+        roomCode:row.room_code,
+        playerId:row.player_id,
+        playerToken:row.player_token,
+        seat:Number(row.seat),
+        stateVersion:Number(row.state_version||0),
+        isHost:true
+      };
+      saveSession();
+      await subscribe();
+      await refreshRoom();
+    }catch(err){
+      console.error(err);
+      status(err.message||'Could not create room.',true);
+    }finally{btn.disabled=false}
+  }
+
+  async function join(){
+    const input=panel.querySelector('#mpRoomInput');
+    const code=(input.value||'').trim().toUpperCase();
+    if(code.length!==6){status('Enter the 6-character room code.',true);input.focus();return}
+    const btn=panel.querySelector('#mpJoinBtn');
+    btn.disabled=true;
+    status('Joining online room…');
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('join_sanctum_game',{
+        p_room_code:code,
+        p_display_name:playerName()
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)throw new Error('Join returned no data.');
+      session={
+        gameId:row.game_id,
+        roomCode:row.room_code,
+        playerId:row.player_id,
+        playerToken:row.player_token,
+        seat:Number(row.seat),
+        stateVersion:Number(row.state_version||0),
+        isHost:false
+      };
+      saveSession();
+      await subscribe();
+      await refreshRoom();
+    }catch(err){
+      console.error(err);
+      status(err.message||'Could not join room.',true);
+    }finally{btn.disabled=false}
+  }
+
+  async function leave(){
+    if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
+    channel=null;session=null;saveSession();
+    panel?.classList.remove('connected');
+    const code=panel?.querySelector('.mpRoomCode');
+    if(code)code.textContent='------';
+    renderRoster(null);
+    status('Not connected. Host a room or enter a room code.');
+  }
+
+  function installPanel(){
+    const setup=document.getElementById('setupModal');
+    const box=setup?.querySelector('.modalbox');
+    if(!box||document.getElementById('sanctumOnlinePanel'))return false;
+
+    panel=document.createElement('section');
+    panel.id='sanctumOnlinePanel';
+    panel.innerHTML=`
+      <div class="mpTitle">Online Multiplayer <small style="opacity:.55">DEV</small></div>
+      <div class="mpActions">
+        <div class="mpField">
+          <label for="mpRoomInput">Join code</label>
+          <input id="mpRoomInput" maxlength="6" autocomplete="off" spellcheck="false" placeholder="ABC234">
+        </div>
+        <div>
+          <div style="font-size:9px;color:#8f816e;margin-bottom:2px">CURRENT ROOM</div>
+          <div class="mpRoomCode">------</div>
+        </div>
+      </div>
+      <div class="mpButtons">
+        <button class="btn green" id="mpHostBtn" type="button">Host Online Game</button>
+        <button class="btn blue" id="mpJoinBtn" type="button">Join Online Game</button>
+        <button class="btn" id="mpLeaveBtn" type="button">Leave Online Room</button>
+      </div>
+      <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
+      <div class="mpRoster"></div>
+      <div class="mpDevNote">First multiplayer milestone: room creation, joining, reconnect session, and realtime player roster. Live gameplay synchronization is being added next.</div>
+    `;
+
+    const grid=box.querySelector('.setupgrid');
+    if(grid)grid.insertAdjacentElement('beforebegin',panel);
+    else box.appendChild(panel);
+
+    panel.querySelector('#mpHostBtn').addEventListener('click',host);
+    panel.querySelector('#mpJoinBtn').addEventListener('click',join);
+    panel.querySelector('#mpLeaveBtn').addEventListener('click',leave);
+    panel.querySelector('#mpRoomInput').addEventListener('input',e=>{
+      e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'').slice(0,6);
+    });
+    panel.querySelector('#mpRoomInput').addEventListener('keydown',e=>{
+      if(e.key==='Enter')join();
+    });
+
+    loadSession();
+    if(session){
+      const code=panel.querySelector('.mpRoomCode');
+      if(code)code.textContent=session.roomCode||'------';
+      status('Reconnecting to '+(session.roomCode||'online room')+'…');
+      subscribe().then(refreshRoom).catch(err=>status(err.message||'Reconnect failed.',true));
+    }
+    return true;
+  }
+
+  if(!installPanel()){
+    let tries=0;
+    const t=setInterval(()=>{
+      if(installPanel()||++tries>80)clearInterval(t);
+    },100);
+  }
+
+  window.SanctumMultiplayerDev={
+    get session(){return session?{...session,playerToken:'[stored locally]'}:null},
+    refresh:refreshRoom
+  };
+})();
+</script>
