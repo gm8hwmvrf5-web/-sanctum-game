@@ -1257,6 +1257,31 @@ body.sanctumViewportFullscreen > .app{
 })();
 </script>
 
+
+<style id="demonStatsReadabilityV18Patch">
+/* Demon HP / Blood / Attack readability pass — about 5% larger without
+   changing Demon-card dimensions or artwork sizing. */
+#boardSection .demonStats{
+  font-size:10px !important;
+  font-weight:600 !important;
+  text-shadow:0 1px 1px rgba(0,0,0,.7) !important;
+}
+
+@media (max-width:700px){
+  #boardSection .demonStats{
+    font-size:11.6px !important;
+  }
+}
+
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demonStats{
+    font-size:4.95px !important;
+    font-weight:600 !important;
+    letter-spacing:.01px !important;
+  }
+}
+</style>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
