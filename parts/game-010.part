@@ -766,6 +766,12 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
     channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';saveSession();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
+    const handPanel=document.getElementById('handPanel');
+    if(handPanel){
+      handPanel.classList.remove('mpOwnHand');
+      delete handPanel.dataset.multiplayerSeat;
+    }
+    document.querySelectorAll('.mpOwnHandLabel').forEach(el=>el.remove());
     document.querySelectorAll('[data-mp-disabled="1"]').forEach(btn=>{
       btn.disabled=false;
       delete btn.dataset.mpDisabled;
