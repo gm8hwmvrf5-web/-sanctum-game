@@ -257,7 +257,7 @@ function render(){normalizeSanctumState();document.getElementById('roundStat').t
    let meta=document.getElementById(`roomMeta${r}`);
    if(meta)meta.innerHTML=`<div class="cap">${roomStateHtml(r)}</div><button class="btn" data-cons="${r}">Consecrate</button>`;
  }
- document.querySelectorAll('[data-demon]').forEach(el=>el.onclick=()=>{selectedDemonId=el.dataset.demon;render()});
+ document.querySelectorAll('[data-demon]').forEach(el=>el.onclick=()=>{selectedDemonId=el.dataset.demon;if(typeof window.__sanctumOpenDemonReader==='function')window.__sanctumOpenDemonReader(el.dataset.demon);else render()});
  document.querySelectorAll('[data-cons]').forEach(el=>el.onclick=()=>openConsecrateModal(+el.dataset.cons));
  document.querySelectorAll('[data-desecrate-info]').forEach(el=>el.onclick=e=>{e.stopPropagation();openDesecrationInfo(+el.dataset.desecrateInfo)});
  renderBoss();renderPlayer();renderLog()
