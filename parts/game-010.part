@@ -121,6 +121,17 @@
 }
 .mpGameBanner.yourTurn span{color:#a9d6ad;font-weight:700}
 .mpGameBanner.waiting span{color:#b4a58d}
+.mpGameBanner.ended{
+  border-color:#87413b;
+  background:#1a0d0c;
+}
+.mpGameBanner.ended b{color:#ef8c82}
+.mpGameBanner.ended span{color:#d9b2aa}
+body.mpSessionEnded #handPanel,
+body.mpSessionEnded #ritualPanel,
+body.mpSessionEnded #boardSection{
+  filter:saturate(.45) brightness(.68);
+}
 body.mpWaitingTurn #handPanel .card,
 body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
 #handPanel.mpOwnHand .mpOwnHandLabel{
@@ -179,6 +190,9 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
   let applyingRemote=false;
   let startingOnline=false;
   let hooksInstalled=false;
+  let heartbeatTimer=0;
+  let heartbeatBusy=false;
+  let sessionEnded=false;
 
   function loadSession(){
     try{
@@ -208,6 +222,74 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
     return String(v??'').replace(/[&<>"']/g,ch=>({
       '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
     }[ch]));
+  }
+
+  function stopHeartbeat(){
+    if(heartbeatTimer){
+      clearInterval(heartbeatTimer);
+      heartbeatTimer=0;
+    }
+  }
+
+  function lockEndedSession(reason='The host closed the game.'){
+    if(sessionEnded)return;
+    sessionEnded=true;
+    stopHeartbeat();
+    try{clearTurnTimerInterval()}catch(_){}
+    document.body.classList.add('mpSessionEnded');
+    document.body.classList.remove('mpWaitingTurn');
+
+    document.querySelectorAll(
+      '#handPanel button,#ritualPanel button,#boardSection button,#spawnBtn,#damageBtn,#killBtn,[data-adjust]'
+    ).forEach(btn=>btn.disabled=true);
+
+    const banner=ensureGameBanner();
+    if(banner){
+      banner.classList.remove('hidden','yourTurn','waiting');
+      banner.classList.add('ended');
+      banner.innerHTML='<b>ONLINE SESSION ENDED</b><span>'+escapeHtml(reason)+'</span>';
+    }
+
+    status(reason+' Start or join a new room to play again.',true);
+    try{localStorage.removeItem(SESSION_KEY)}catch(_){}
+    session=null;
+    lastRosterSnapshot=null;
+    authoritativeActiveSeat=null;
+    lastAppliedVersion=-1;
+    lastPublishedHash='';
+  }
+
+  async function heartbeat(){
+    if(!session||heartbeatBusy||sessionEnded)return;
+    heartbeatBusy=true;
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('sanctum_heartbeat',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row||row.ok===false){
+        const why=row&&row.room_status==='abandoned'
+          ? 'The host closed the game. This multiplayer session has ended.'
+          : 'This multiplayer session is no longer active.';
+        lockEndedSession(why);
+      }
+    }catch(err){
+      console.warn('Sanctum multiplayer heartbeat failed',err);
+      /* A temporary network error does not immediately destroy the local session.
+         The server-side stale-host check will decide whether the room is abandoned. */
+    }finally{
+      heartbeatBusy=false;
+    }
+  }
+
+  function startHeartbeat(){
+    stopHeartbeat();
+    if(!session||sessionEnded)return;
+    heartbeat();
+    heartbeatTimer=setInterval(heartbeat,5000);
   }
 
   async function ensureClient(){
@@ -653,9 +735,18 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
       const snap=await fetchRoom();
       lastRosterSnapshot=snap;
       session.roomCode=snap.game.room_code;
+      if(snap.game.status==='abandoned'||snap.game.status==='finished'){
+        lockEndedSession(
+          snap.game.status==='abandoned'
+            ? 'The host closed the game. This multiplayer session has ended.'
+            : 'This multiplayer session has ended.'
+        );
+        return;
+      }
       saveSession();
       status(`Connected to room ${snap.game.room_code} • ${snap.players.length}/${snap.game.max_players} players • ${snap.game.status}`);
-      const code=panel?.querySelector('.mpRoomCode');
+      document.body.classList.remove('mpSessionEnded');
+    const code=panel?.querySelector('.mpRoomCode');
       if(code)code.textContent=snap.game.room_code;
       renderRoster(snap);
       syncSetupFromRoster(snap);
@@ -679,6 +770,14 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
       },payload=>{
         const row=payload&&payload.new;
         if(row){
+          if(row.status==='abandoned'||row.status==='finished'){
+            lockEndedSession(
+              row.status==='abandoned'
+                ? 'The host closed the game. This multiplayer session has ended.'
+                : 'This multiplayer session has ended.'
+            );
+            return;
+          }
           status(`Connected to room ${row.room_code||session.roomCode} • live game sync`);
           applyRemoteGameRow(row).catch(err=>console.error(err));
         }else{
@@ -719,6 +818,8 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
       saveSession();
       await subscribe();
       await refreshRoom(true);
+      startHeartbeat();
+      startHeartbeat();
     }catch(err){
       console.error(err);
       status(err.message||'Could not create room.',true);
@@ -762,8 +863,9 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
   }
 
   async function leave(){
+    stopHeartbeat();
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
-    channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';saveSession();
+    channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
     const handPanel=document.getElementById('handPanel');
@@ -820,7 +922,7 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
       </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
-      <div class="mpDevNote">Shared-board milestone: each device always shows its own Priest hand, while the board and turn authority remain synchronized. The host chooses setup characters for this development pass.</div>
+      <div class="mpDevNote">Shared-board milestone: each device shows its own Priest hand, the board/turn stay synchronized, and the room automatically ends when the host disconnects. The host chooses setup characters for this development pass.</div>
     `;
 
     const grid=box.querySelector('.setupgrid');
@@ -843,7 +945,10 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
       if(code)code.textContent=session.roomCode||'------';
       status('Reconnecting to '+(session.roomCode||'online room')+'…');
       lastAppliedVersion=-1;
-      subscribe().then(()=>refreshRoom(true)).catch(err=>status(err.message||'Reconnect failed.',true));
+      subscribe()
+        .then(()=>refreshRoom(true))
+        .then(()=>startHeartbeat())
+        .catch(err=>status(err.message||'Reconnect failed.',true));
     }
     return true;
   }
