@@ -899,6 +899,49 @@ body.sanctumViewportFullscreen > .app{
 }
 </style>
 
+
+<style id="iphoneDemonAbilityGuaranteedV15Patch">
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demon .abilityText{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:relative !important;
+    z-index:4 !important;
+    flex:1 1 auto !important;
+    min-height:15px !important;
+    max-height:22px !important;
+    overflow:hidden !important;
+    margin:1px 0 0 !important;
+    padding:1px 1px 0 !important;
+    font-size:5.4px !important;
+    line-height:1.04 !important;
+    font-weight:600 !important;
+    color:#fff0cf !important;
+    text-shadow:0 1px 1px #000 !important;
+    background:rgba(0,0,0,.18) !important;
+    white-space:normal !important;
+    word-break:normal !important;
+    overflow-wrap:anywhere !important;
+  }
+
+  /* Preserve enough vertical room for the ability even on the smallest phone cards. */
+  #boardSection .demonArtWrap{
+    height:9px !important;
+    min-height:9px !important;
+    flex-basis:9px !important;
+  }
+  #boardSection .demon .name{
+    font-size:6px !important;
+    line-height:1 !important;
+  }
+  #boardSection .demonStats{
+    font-size:4.8px !important;
+    line-height:1 !important;
+  }
+}
+</style>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
