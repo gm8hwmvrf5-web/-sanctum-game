@@ -38,6 +38,9 @@ function bossDrainAmount(){
 }
 async function runBossPhase(){S.phase='Boss';ensureBossFlags();log(`${S.boss.n} begins its Boss Phase.`,"bad");render();if(bossIs("crimsonOracle"))await crimsonProphecy();let drain=bossDrainAmount();damageAltar(drain,`${S.boss.n} Boss Rule (${drain} scaled from ${S.boss.b})`);if(S.altar<=0)return;switch(S.boss.key){case"blackSovereign":spawnBossSummonedLesser(1);break;case"boneKing":recallOldestDefeated();break;case"gatebreaker":spawnBossSummonedLesser(2);break;case"lordOfAsh":spawnBossSummonedLesser(1,true);break;case"dreadReaper":recallOldestDefeated();break;case"devourer":spawnBossSummonedLesser(1);break}if(bossIs("plagueFather"))plagueBloom();endRound()}
 function sharedManaRoundValue(){let n=Number(S?.players?.length||1);return n>=4?35:n===3?20:n===2?15:10}
+/* Multiplayer Mana gains/losses use the same player-count pool cap as round resets.
+   This fixes Mana Blessing and every other addMana() effect still inheriting the old 10-Mana ceiling. */
+addMana=function(v){let cap=sharedManaRoundValue();S.mana=clamp(S.mana+v,0,cap);render()}
 function endRound(){if(S.altar<=0)return;S.round++;S.mana=sharedManaRoundValue();S.current=0;S.altarBarrier=0;S.altarBarrierRound=0;S.globalMergeBlock=false;S.blockNextMerge=false;S.roomMergeBlock={};S.consecrated=[false,false,false,false];resolveBoardDuplicateMerges();S.players.forEach(p=>{p.ritualUsed=[false,false,false];p.consecrateUsed=false});S.nextRitualFixed=null;resetRoundDemonStatuses();resetBossRoundFlags();resolveAltarRoundRenewals();if(bossIs("fallenSeraph")){S.mana=Math.max(0,S.mana-2);log(`${S.boss.n} — Heresy Unbound removes 2 Mana at the start of the round.`,"bad")}S.phase='Priest';log(`Round ${S.round} begins. Shared Mana is ${S.mana}.`);beginTurn(false)}
 function allDemons(){let out=[];S.rooms.forEach((room,r)=>room.forEach(d=>out.push({d,r})));return out}
 
