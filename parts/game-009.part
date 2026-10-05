@@ -1282,6 +1282,37 @@ body.sanctumViewportFullscreen > .app{
 }
 </style>
 
+
+<style id="demonCompactStatsV19Patch">
+/* Board-only Demon stat line: Health / Blood / Attack as compact values. */
+#boardSection .demonStats{
+  align-items:center !important;
+}
+#boardSection .demonStats .hp,
+#boardSection .demonStats .blood,
+#boardSection .demonStats .attack,
+#boardSection .demonStats .statSep{
+  border:0 !important;
+  background:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+}
+#boardSection .demonStats .hp{
+  color:#ff9db4 !important;
+}
+#boardSection .demonStats .blood{
+  color:#e33a49 !important;
+}
+#boardSection .demonStats .attack{
+  color:#ffffff !important;
+}
+#boardSection .demonStats .statSep{
+  color:#b8aa95 !important;
+  opacity:.9;
+  font-weight:700 !important;
+}
+</style>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
