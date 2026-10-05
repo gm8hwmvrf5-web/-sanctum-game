@@ -37,7 +37,8 @@ function bossDrainAmount(){
  return S.boss.b;
 }
 async function runBossPhase(){S.phase='Boss';ensureBossFlags();log(`${S.boss.n} begins its Boss Phase.`,"bad");render();if(bossIs("crimsonOracle"))await crimsonProphecy();let drain=bossDrainAmount();damageAltar(drain,`${S.boss.n} Boss Rule (${drain} scaled from ${S.boss.b})`);if(S.altar<=0)return;switch(S.boss.key){case"blackSovereign":spawnBossSummonedLesser(1);break;case"boneKing":recallOldestDefeated();break;case"gatebreaker":spawnBossSummonedLesser(2);break;case"lordOfAsh":spawnBossSummonedLesser(1,true);break;case"dreadReaper":recallOldestDefeated();break;case"devourer":spawnBossSummonedLesser(1);break}if(bossIs("plagueFather"))plagueBloom();endRound()}
-function endRound(){if(S.altar<=0)return;S.round++;S.mana=10;S.current=0;S.altarBarrier=0;S.altarBarrierRound=0;S.globalMergeBlock=false;S.blockNextMerge=false;S.roomMergeBlock={};S.consecrated=[false,false,false,false];resolveBoardDuplicateMerges();S.players.forEach(p=>{p.ritualUsed=[false,false,false];p.consecrateUsed=false});S.nextRitualFixed=null;resetRoundDemonStatuses();resetBossRoundFlags();resolveAltarRoundRenewals();if(bossIs("fallenSeraph")){S.mana=Math.max(0,S.mana-2);log(`${S.boss.n} — Heresy Unbound removes 2 Mana at the start of the round.`,"bad")}S.phase='Priest';log(`Round ${S.round} begins. Shared Mana is ${S.mana}.`);beginTurn(false)}
+function sharedManaRoundValue(){let n=Number(S?.players?.length||1);return n>=4?35:n===3?20:n===2?15:10}
+function endRound(){if(S.altar<=0)return;S.round++;S.mana=sharedManaRoundValue();S.current=0;S.altarBarrier=0;S.altarBarrierRound=0;S.globalMergeBlock=false;S.blockNextMerge=false;S.roomMergeBlock={};S.consecrated=[false,false,false,false];resolveBoardDuplicateMerges();S.players.forEach(p=>{p.ritualUsed=[false,false,false];p.consecrateUsed=false});S.nextRitualFixed=null;resetRoundDemonStatuses();resetBossRoundFlags();resolveAltarRoundRenewals();if(bossIs("fallenSeraph")){S.mana=Math.max(0,S.mana-2);log(`${S.boss.n} — Heresy Unbound removes 2 Mana at the start of the round.`,"bad")}S.phase='Priest';log(`Round ${S.round} begins. Shared Mana is ${S.mana}.`);beginTurn(false)}
 function allDemons(){let out=[];S.rooms.forEach((room,r)=>room.forEach(d=>out.push({d,r})));return out}
 
 function snapshotActionState(){return JSON.stringify(S)}
@@ -783,7 +784,7 @@ function ritualUnavailableReason(r){
    if(S.altar>=30&&p.blood>=10)return 'The Altar is already at full Protection and you are already at maximum Demon Blood.';
    break;
   case'divineIntervention':
-   if(S.altar>=30&&S.mana>=10)return 'The Altar is already at full Protection and the shared Mana pool is already full.';
+   if(S.altar>=30&&S.mana>=sharedManaRoundValue())return 'The Altar is already at full Protection and the shared Mana pool is already full.';
    break;
   case'innerPeace':
    if(p.blood>=10&&p.hand.length>=handLimit())return 'You are already at maximum Demon Blood and your Priest hand is full.';
