@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#160b0b">
+<title>Sanctum of the Damned — Multiplayer Dev</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#050505;color:#ead7b0;font-family:Georgia,serif}
+#boot{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:#050505}
+#boot strong{font-size:22px;color:#f0d2a0}
+#boot small{display:block;margin-top:8px;color:#a98c68;line-height:1.4}
+</style>
+</head>
+<body>
+<div id="boot"><div><strong>Sanctum Multiplayer Dev</strong><small>Loading the protected multiplayer development branch…</small></div></div>
+<script>
+(async()=>{
+ const base="https://raw.githubusercontent.com/gm8hwmvrf5-web/-sanctum-game/multiplayer-dev/parts/";
+ const files=Array.from({length:10},(_,i)=>base+"game-"+String(i+1).padStart(3,"0")+".part?mp="+Date.now());
+ try{
+   const chunks=[];
+   for(const file of files){
+     const r=await fetch(file,{cache:"no-store"});
+     if(!r.ok)throw new Error(file+" "+r.status);
+     chunks.push(await r.text());
+   }
+   const game=chunks.join("\n");
+   document.open();
+   document.write(game);
+   document.close();
+ }catch(err){
+   document.getElementById("boot").innerHTML="<div><strong>Unable to load multiplayer preview</strong><small>"+String(err)+"</small></div>";
+ }
+})();
+</script>
+</body>
+</html>
