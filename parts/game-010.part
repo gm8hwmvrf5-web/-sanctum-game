@@ -448,62 +448,8 @@ dialog.mpDemonReader::backdrop{
   };
 
   let demonTapDelegateInstalled=false;
-  let demonTouchStart=null;
-
-  function openDemonReaderFromElement(el){
-    if(!el)return;
-    const d=findBoardDemonById(el.dataset.demon);
-    if(!d)return;
-    try{selectedDemonId=d.id}catch(_){}
-    openDemonReader(d);
-  }
-
   function installDemonTapDelegate(){
-    if(demonTapDelegateInstalled)return;
     demonTapDelegateInstalled=true;
-
-    document.addEventListener('touchstart',e=>{
-      const el=e.target&&e.target.closest?e.target.closest('#boardSection [data-demon]'):null;
-      if(!el||!e.touches||!e.touches.length){
-        demonTouchStart=null;
-        return;
-      }
-      const t=e.touches[0];
-      demonTouchStart={
-        el,
-        x:t.clientX,
-        y:t.clientY,
-        at:Date.now()
-      };
-    },{capture:true,passive:true});
-
-    document.addEventListener('touchend',e=>{
-      const start=demonTouchStart;
-      demonTouchStart=null;
-      if(!start)return;
-      const el=e.target&&e.target.closest?e.target.closest('#boardSection [data-demon]'):null;
-      if(!el||el!==start.el)return;
-      const t=e.changedTouches&&e.changedTouches[0];
-      if(!t)return;
-      const dx=t.clientX-start.x;
-      const dy=t.clientY-start.y;
-      const moved=Math.sqrt(dx*dx+dy*dy);
-      const elapsed=Date.now()-start.at;
-      if(moved>14||elapsed>700)return;
-      e.preventDefault();
-      e.stopPropagation();
-      if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
-      openDemonReaderFromElement(el);
-    },{capture:true,passive:false});
-
-    document.addEventListener('click',e=>{
-      const el=e.target&&e.target.closest?e.target.closest('#boardSection [data-demon]'):null;
-      if(!el)return;
-      e.preventDefault();
-      e.stopPropagation();
-      if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
-      openDemonReaderFromElement(el);
-    },true);
   }
 
   function wireDemonInspectors(){
