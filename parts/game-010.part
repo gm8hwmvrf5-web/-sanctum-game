@@ -386,6 +386,84 @@ dialog.mpDemonReader::backdrop{
 }
 </style>
 
+<style id="multiplayerGroupVoteStyles">
+#rogueChoiceModal[data-mp-group-vote="1"] .modalbox{
+  width:min(980px,96vw) !important;
+}
+.mpGroupVoteIntro{
+  margin-top:8px;
+  padding:8px 10px;
+  border:1px solid #6d5736;
+  border-radius:8px;
+  background:#12100e;
+  color:#d7c5a3;
+  font-size:11px;
+  line-height:1.35;
+}
+.mpGroupVoteIntro b{color:#f0d49b}
+.mpGroupVoteProgress{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:7px;
+  font-size:10px;
+}
+.mpGroupVoteProgress .yourVote{color:#d6ecff}
+#rogueChoiceModal .rogueChoice.mpGroupVoteOption{
+  position:relative;
+  overflow:hidden;
+  border-width:2px;
+}
+#rogueChoiceModal .rogueChoice.mpGroupVoteOption.mpMyVote{
+  border-color:#75a7d8 !important;
+  box-shadow:0 0 0 2px rgba(92,156,214,.18),inset 0 0 18px rgba(73,132,183,.12) !important;
+}
+.mpVoteCount{
+  position:absolute;
+  top:6px;
+  right:6px;
+  min-width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  padding:0 6px;
+  border:1px solid #7d673f;
+  border-radius:999px;
+  background:#0d0c0b;
+  color:#f0d49b;
+  font-size:11px;
+  font-weight:800;
+  z-index:4;
+}
+.mpVoteCardArt{
+  height:92px;
+  margin:-2px -2px 7px;
+  border-radius:7px;
+  background-position:center 20%;
+  background-size:cover;
+  border:1px solid rgba(181,145,86,.45);
+}
+.mpVoteWaiting{
+  color:#b9aa91;
+}
+.mpVoteComplete{
+  color:#b9dfb2;
+  font-weight:700;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #rogueChoiceModal[data-mp-group-vote="1"] .modalbox{
+    width:min(920px,97vw) !important;
+    max-height:96dvh !important;
+    padding:7px !important;
+  }
+  .mpGroupVoteIntro{font-size:8px;padding:4px 6px;margin-top:3px}
+  .mpGroupVoteProgress{font-size:7.5px;margin-top:3px}
+  .mpVoteCount{top:3px;right:3px;min-width:18px;height:18px;font-size:8px;padding:0 4px}
+  .mpVoteCardArt{height:58px;margin:-1px -1px 4px}
+}
+</style>
+
 <script id="sanctumMultiplayerLobbyScript">
 (()=>{
   'use strict';
@@ -411,6 +489,11 @@ dialog.mpDemonReader::backdrop{
   let heartbeatTimer=0;
   let heartbeatBusy=false;
   let sessionEnded=false;
+  const voteActionRegistry=new Map();
+  const voteSummaryById=new Map();
+  const voteFetchBusy=new Set();
+  const resolvingVoteIds=new Set();
+  const voteOpeningIds=new Set();
 
   function syncMultiplayerViewportHeight(){
     const h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight||document.documentElement.clientHeight;
@@ -455,6 +538,281 @@ dialog.mpDemonReader::backdrop{
       '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
     }[ch]));
   }
+
+  function groupVoteCategory(meta={}){
+    const s=((meta.title||'')+' '+(meta.eyebrow||'')).toLowerCase();
+    return /route|passage|descent|boss gate/.test(s)?'passage':'reward';
+  }
+
+  function serializeGroupVoteOption(choice,index){
+    return {
+      index,
+      title:String(choice?.title||choice?.voteCard||('Option '+(index+1))),
+      desc:String(choice?.desc||''),
+      reward:String(choice?.reward||''),
+      icon:String(choice?.icon||'✦'),
+      cls:String(choice?.cls||''),
+      cardName:choice?.voteCard?String(choice.voteCard):'',
+      empowered:choice?.voteEmpowered?String(choice.voteEmpowered):''
+    };
+  }
+
+  function voteSummaryFor(id){
+    return voteSummaryById.get(String(id))||null;
+  }
+
+  function groupVoteCounts(vote,summary){
+    const counts=(vote?.options||[]).map(()=>0);
+    for(const row of (summary?.votes||[])){
+      const i=Number(row.option_index);
+      if(Number.isInteger(i)&&i>=0&&i<counts.length)counts[i]++;
+    }
+    return counts;
+  }
+
+  function closeGroupVoteModal(){
+    const modal=document.getElementById('rogueChoiceModal');
+    if(!modal||modal.dataset.mpGroupVote!=='1')return;
+    modal.classList.add('hidden');
+    delete modal.dataset.mpGroupVote;
+  }
+
+  function renderGroupVoteFromState(fetchSummary=true){
+    const vote=S?.multiplayerVote;
+    const modal=document.getElementById('rogueChoiceModal');
+    if(!session||!S?.started||!vote||vote.open!==true){
+      closeGroupVoteModal();
+      return;
+    }
+    if(!modal)return;
+
+    try{clearTurnTimerInterval()}catch(_){}
+    modal.dataset.mpGroupVote='1';
+
+    const summary=voteSummaryFor(vote.id);
+    const votes=Array.isArray(summary?.votes)?summary.votes:[];
+    const total=Math.max(1,Number(summary?.total_players||S.players?.length||1));
+    const counts=groupVoteCounts(vote,summary);
+    const myRow=votes.find(v=>Number(v.seat)===Number(session.seat));
+    const myChoice=myRow?Number(myRow.option_index):-1;
+    const castCount=votes.length;
+    const waiting=Math.max(0,total-castCount);
+    const kind=vote.category==='passage'?'PASSAGE VOTE':'REWARD VOTE';
+
+    const eyebrow=document.getElementById('rogueChoiceEyebrow');
+    const title=document.getElementById('rogueChoiceTitle');
+    const textEl=document.getElementById('rogueChoiceText');
+    const grid=document.getElementById('rogueChoiceGrid');
+    if(eyebrow)eyebrow.textContent=kind+' • '+(vote.eyebrow||'Group Choice');
+    if(title)title.textContent=vote.title||'Choose Together';
+
+    const ownLabel=myChoice>=0&&vote.options?.[myChoice]
+      ? 'Your vote: '+escapeHtml(vote.options[myChoice].title)
+      : 'Choose one option below.';
+    const progress=waiting>0
+      ? '<span class="mpVoteWaiting">Waiting for '+waiting+' of '+total+' player'+(waiting===1?'':'s')+'</span>'
+      : '<span class="mpVoteComplete">All '+total+' votes are in — resolving…</span>';
+    if(textEl){
+      textEl.innerHTML=(vote.text||'')+
+        '<div class="mpGroupVoteIntro"><b>Everyone votes.</b> The option with the most votes is chosen. If there is no single winner, the game randomly selects from the options that received at least one vote.'+
+        '<div class="mpGroupVoteProgress"><span class="yourVote">'+ownLabel+'</span>'+progress+'</div></div>';
+    }
+
+    if(grid){
+      grid.innerHTML='';
+      (vote.options||[]).forEach((opt,i)=>{
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='rogueChoice mpGroupVoteOption '+(opt.cls||'')+(i===myChoice?' mpMyVote':'');
+        btn.dataset.mpVoteOption=String(i);
+        btn.disabled=voteOpeningIds.has(String(vote.id))||resolvingVoteIds.has(String(vote.id));
+
+        if(opt.cardName){
+          const art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS[opt.cardName])||'';
+          const artHtml=art?'<div class="mpVoteCardArt"></div>':'';
+          btn.innerHTML=artHtml+
+            '<h3>'+escapeHtml(opt.title)+'</h3>'+
+            '<p>'+escapeHtml(opt.desc)+'</p>'+
+            (opt.empowered?'<small><b>Empowered:</b> '+escapeHtml(opt.empowered)+'</small>':'')+
+            (opt.reward?'<span class="nodeReward">'+escapeHtml(opt.reward)+'</span>':'')+
+            '<span class="mpVoteCount" aria-label="'+counts[i]+' votes">'+counts[i]+'</span>';
+          const artEl=btn.querySelector('.mpVoteCardArt');
+          if(artEl)artEl.style.backgroundImage='url("'+String(art).replace(/"/g,'%22')+'")';
+        }else{
+          btn.innerHTML=
+            '<div class="nodeIcon">'+escapeHtml(opt.icon||'✦')+'</div>'+
+            '<h3>'+escapeHtml(opt.title)+'</h3>'+
+            '<p>'+escapeHtml(opt.desc)+'</p>'+
+            (opt.reward?'<span class="nodeReward">'+escapeHtml(opt.reward)+'</span>':'')+
+            '<span class="mpVoteCount" aria-label="'+counts[i]+' votes">'+counts[i]+'</span>';
+        }
+        btn.onclick=()=>castGroupVote(i);
+        grid.appendChild(btn);
+      });
+    }
+
+    modal.classList.remove('hidden');
+
+    if(fetchSummary&&!summary&&!voteFetchBusy.has(String(vote.id))){
+      fetchGroupVoteSummary(String(vote.id));
+    }
+    if(summary)maybeResolveGroupVote(vote,summary);
+  }
+
+  async function fetchGroupVoteSummary(voteId){
+    voteId=String(voteId||'');
+    if(!session||!voteId||voteFetchBusy.has(voteId))return null;
+    voteFetchBusy.add(voteId);
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('sanctum_group_vote_summary',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken,
+        p_vote_id:voteId
+      });
+      if(error)throw error;
+      voteSummaryById.set(voteId,data||{vote_id:voteId,total_players:S?.players?.length||1,votes:[]});
+      if(S?.multiplayerVote?.id===voteId){
+        renderGroupVoteFromState(false);
+      }
+      return data;
+    }catch(err){
+      console.error('Could not refresh Sanctum group vote',err);
+      return null;
+    }finally{
+      voteFetchBusy.delete(voteId);
+    }
+  }
+
+  async function castGroupVote(optionIndex){
+    const vote=S?.multiplayerVote;
+    if(!session||!vote||vote.open!==true)return;
+    const voteId=String(vote.id);
+    if(voteOpeningIds.has(voteId)||resolvingVoteIds.has(voteId))return;
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('cast_sanctum_group_vote',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken,
+        p_vote_id:voteId,
+        p_option_index:Number(optionIndex)
+      });
+      if(error)throw error;
+      if(data!==true)throw new Error('Vote was not accepted.');
+      await fetchGroupVoteSummary(voteId);
+    }catch(err){
+      console.error('Sanctum group vote failed',err);
+      status(err.message||'Your vote could not be submitted.',true);
+      try{await refreshRoom(true)}catch(_){}
+    }
+  }
+
+  function maybeResolveGroupVote(vote,summary){
+    if(!vote||vote.open!==true||!summary)return;
+    const id=String(vote.id);
+    const total=Math.max(1,Number(summary.total_players||S?.players?.length||1));
+    const votes=Array.isArray(summary.votes)?summary.votes:[];
+    if(votes.length<total)return;
+    if(Number(session?.seat)!==Number(vote.resolverSeat))return;
+    if(resolvingVoteIds.has(id))return;
+
+    const actions=voteActionRegistry.get(id);
+    if(!actions||!actions.length)return;
+
+    const counts=groupVoteCounts(vote,summary);
+    const max=Math.max(...counts);
+    const leaders=counts.map((n,i)=>n===max?i:-1).filter(i=>i>=0);
+    let winner;
+    let tied=false;
+    if(leaders.length===1){
+      winner=leaders[0];
+    }else{
+      tied=true;
+      const selected=counts.map((n,i)=>n>0?i:-1).filter(i=>i>=0);
+      const pool=selected.length?selected:leaders;
+      winner=pool[Math.floor(Math.random()*pool.length)];
+    }
+    const option=vote.options?.[winner];
+    const fn=actions[winner];
+    if(typeof fn!=='function')return;
+
+    resolvingVoteIds.add(id);
+    renderGroupVoteFromState(false);
+    try{
+      log(
+        tied
+          ? `GROUP VOTE TIE — ${option?.title||('Option '+(winner+1))} is randomly selected from the options that received votes.`
+          : `GROUP VOTE — ${option?.title||('Option '+(winner+1))} wins with ${counts[winner]} vote${counts[winner]===1?'':'s'}.`,
+        'good'
+      );
+    }catch(_){}
+
+    S.multiplayerVote=null;
+    voteActionRegistry.delete(id);
+    voteSummaryById.delete(id);
+    closeGroupVoteModal();
+
+    setTimeout(()=>{
+      try{
+        fn();
+      }catch(err){
+        console.error('Could not resolve winning Sanctum group choice',err);
+        status('The group vote completed, but the winning choice could not resolve.',true);
+      }finally{
+        resolvingVoteIds.delete(id);
+      }
+    },220);
+  }
+
+  window.__sanctumMultiplayerGroupChoice=function(meta,choices){
+    if(!session||!S?.started||!Array.isArray(S.players)||S.players.length<2)return false;
+    if(!Array.isArray(choices)||!choices.length)return false;
+    if(!canWriteAuthoritativeTurn())return false;
+
+    const voteId='group-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+    const vote={
+      id:voteId,
+      open:true,
+      category:groupVoteCategory(meta),
+      eyebrow:String(meta?.eyebrow||''),
+      title:String(meta?.title||'Choose Together'),
+      text:String(meta?.text||''),
+      resolverSeat:Number(session.seat),
+      options:choices.map(serializeGroupVoteOption)
+    };
+
+    S.multiplayerVote=vote;
+    voteActionRegistry.set(voteId,choices.map(c=>c.action));
+    voteSummaryById.delete(voteId);
+    voteOpeningIds.add(voteId);
+
+    if(publishTimer){
+      clearTimeout(publishTimer);
+      publishTimer=0;
+    }
+
+    (async()=>{
+      while(publishBusy)await new Promise(resolve=>setTimeout(resolve,35));
+      const ok=await pushSharedState('group_vote_open',{
+        vote_id:voteId,
+        category:vote.category,
+        options:vote.options.length
+      });
+      voteOpeningIds.delete(voteId);
+      if(!ok){
+        if(S?.multiplayerVote?.id===voteId)S.multiplayerVote=null;
+        voteActionRegistry.delete(voteId);
+        status('Could not open the shared group vote. Please try the choice again.',true);
+        closeGroupVoteModal();
+        return;
+      }
+      renderGroupVoteFromState(false);
+      fetchGroupVoteSummary(voteId);
+    })();
+
+    return true;
+  };
+
 
   function ensureDemonReader(){
     let modal=document.getElementById('mpDemonReader');
@@ -1052,6 +1410,7 @@ dialog.mpDemonReader::backdrop{
         const out=baseRender.apply(this,arguments);
         try{wireDemonInspectors()}catch(_){}
         try{enforceTurnOwnership()}catch(_){}
+        try{renderGroupVoteFromState()}catch(_){}
         if(session&&S&&S.started&&!applyingRemote&&!startingOnline){
           schedulePublish('state_sync',{},220);
         }
@@ -1153,6 +1512,18 @@ dialog.mpDemonReader::backdrop{
         event:'*',schema:'public',table:'players',
         filter:'game_id=eq.'+session.gameId
       },()=>refreshRoom())
+      .on('postgres_changes',{
+        event:'INSERT',schema:'public',table:'game_actions',
+        filter:'game_id=eq.'+session.gameId
+      },payload=>{
+        const row=payload&&payload.new;
+        if(row&&row.action_type==='group_vote'){
+          const voteId=row.payload&&row.payload.vote_id;
+          if(voteId&&S?.multiplayerVote?.id===voteId){
+            fetchGroupVoteSummary(String(voteId));
+          }
+        }
+      })
       .subscribe();
   }
 
@@ -1287,7 +1658,7 @@ dialog.mpDemonReader::backdrop{
       </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
-      <div class="mpDevNote">Shared-board milestone: each device always shows its own Priest hand, only the active Priest can act, Demon cards open into a large reading view, and the room automatically ends when the host disconnects.</div>
+      <div class="mpDevNote">Shared-board milestone: each device always shows its own Priest hand, only the active Priest can act, rewards and passage choices use synchronized group voting, Demon cards open into a large reading view, and the room automatically ends when the host disconnects.</div>
     `;
 
     const grid=box.querySelector('.setupgrid');
