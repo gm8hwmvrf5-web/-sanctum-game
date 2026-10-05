@@ -198,7 +198,7 @@ function rogueliteOpenSanctuary(){
  rogueShowChoice(`Act ${r.act} • Floor ${r.floor}`,'Ruined Sanctuary','No Demons attack here. Take one blessing, then choose the next descent.',[
   {icon:'✚',title:'Confession',cls:'sanctuary',desc:'Restore 8 Altar Protection and cleanse all Corruption from every room.',reward:'Strong defensive reset',action:()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()}},
   {icon:'✠',title:'Study the Reliquary',cls:'sanctuary',desc:'Draft one Priest card from three choices.',reward:'Improve your run deck',action:()=>rogueliteOpenDraft(rogueliteOpenRoute)},
-  {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood. Shared Mana is restored to at least 10.',reward:'Ritual preparation',action:()=>{rogueGiveBlood(3);S.mana=Math.max(10,S.mana);render();rogueliteOpenRoute()}}
+  {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood. Shared Mana is restored to the current player-count baseline.',reward:'Ritual preparation',action:()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()}}
  ]);
 }
 function rogueliteRouteOptions(){let pool=['battle','elite','swarm','sanctuary'];return rogueShuffle(pool).slice(0,3)}
