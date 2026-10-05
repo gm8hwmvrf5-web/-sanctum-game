@@ -137,6 +137,37 @@ body.mpWaitingTurn #handPanel .card{
   opacity:1 !important;
 }
 body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
+
+/* Multiplayer viewport-height fill.
+   visualViewport updates --sanctum-viewport-height so iPhone standalone/Safari
+   uses the actually visible screen instead of a stale 100vh measurement. */
+html,body{
+  min-height:var(--sanctum-viewport-height,100dvh) !important;
+}
+body > .app{
+  box-sizing:border-box !important;
+  min-height:var(--sanctum-viewport-height,100dvh) !important;
+}
+@supports not (height:100dvh){
+  html,body,body > .app{min-height:100vh !important;}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  body{
+    min-height:var(--sanctum-viewport-height,100dvh) !important;
+  }
+  body > .app{
+    min-height:var(--sanctum-viewport-height,100dvh) !important;
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  body > .app > .main,
+  body > .app > #handPanel{
+    flex:1 0 auto !important;
+  }
+  #handPanel{
+    box-sizing:border-box !important;
+  }
+}
 #handPanel.mpOwnHand .mpOwnHandLabel{
   display:flex;
   align-items:center;
@@ -345,6 +376,20 @@ dialog.mpDemonReader::backdrop{
   let heartbeatTimer=0;
   let heartbeatBusy=false;
   let sessionEnded=false;
+
+  function syncMultiplayerViewportHeight(){
+    const h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight||document.documentElement.clientHeight;
+    if(Number.isFinite(h)&&h>0){
+      document.documentElement.style.setProperty('--sanctum-viewport-height',Math.round(h)+'px');
+    }
+  }
+  syncMultiplayerViewportHeight();
+  window.addEventListener('resize',syncMultiplayerViewportHeight,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(syncMultiplayerViewportHeight,80),{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',syncMultiplayerViewportHeight,{passive:true});
+    window.visualViewport.addEventListener('scroll',syncMultiplayerViewportHeight,{passive:true});
+  }
 
   function loadSession(){
     try{
