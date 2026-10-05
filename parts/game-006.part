@@ -100,6 +100,11 @@ function rogueOtherModalOpen(){
 function rogueWhenClear(fn,attempt=0){if(!S?.rogue?.enabled)return;if(rogueOtherModalOpen()&&attempt<120){setTimeout(()=>rogueWhenClear(fn,attempt+1),100);return}fn()}
 function rogueShowChoice(eyebrow,title,text,choices){
  clearTurnTimerInterval();
+ if(typeof window.__sanctumMultiplayerGroupChoice==='function'){
+  try{
+   if(window.__sanctumMultiplayerGroupChoice({eyebrow,title,text},choices))return;
+  }catch(err){console.error('Multiplayer group choice failed; using local choice.',err)}
+ }
  const modal=document.getElementById('rogueChoiceModal'),grid=document.getElementById('rogueChoiceGrid');
  document.getElementById('rogueChoiceEyebrow').textContent=eyebrow;
  document.getElementById('rogueChoiceTitle').textContent=title;
@@ -190,7 +195,7 @@ function rogueliteOpenEncounterReward(){
 }
 function rogueliteOpenDraft(after){
  let picks=rogueShuffle(PRIEST.map((c,i)=>({c,i}))).slice(0,3);
- let choices=picks.map(({c,i})=>{let art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS[c.n])||c.art||'';return {cls:'rogueDraftCard',html:`<div class="rogueDraftCost">${c.m}</div><div class="rogueDraftArt" style="background-image:url('${art}')"></div><div class="rogueDraftBody"><h3>${c.n}</h3><p>${c.e}</p><small><b>Empowered:</b> ${c.x}</small><span class="nodeReward">Shuffle an extra copy into this run</span></div>`,action:()=>{let card={...c,id:`rogue-${i}-${uid()}`};S.priestDeck=shuffle([...(S.priestDeck||[]),card]);log(`${c.n} is added to the run deck and shuffled into the remaining random draws.`,'good');rogueState().lastReward=`Drafted ${c.n}`;render();after&&after()}}});
+ let choices=picks.map(({c,i})=>{let art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS[c.n])||c.art||'';return {title:c.n,desc:c.e,reward:'Empowered: '+c.x,voteCard:c.n,voteEmpowered:c.x,cls:'rogueDraftCard',html:`<div class="rogueDraftCost">${c.m}</div><div class="rogueDraftArt" style="background-image:url('${art}')"></div><div class="rogueDraftBody"><h3>${c.n}</h3><p>${c.e}</p><small><b>Empowered:</b> ${c.x}</small><span class="nodeReward">Shuffle an extra copy into this run</span></div>`,action:()=>{let card={...c,id:`rogue-${i}-${uid()}`};S.priestDeck=shuffle([...(S.priestDeck||[]),card]);log(`${c.n} is added to the run deck and shuffled into the remaining random draws.`,'good');rogueState().lastReward=`Drafted ${c.n}`;render();after&&after()}}});
  rogueShowChoice('Priest Draft','Choose One Card','These are original Priest cards and use the existing card artwork/effects. The chosen card becomes part of this run only.',choices);
 }
 function rogueliteOpenSanctuary(){
