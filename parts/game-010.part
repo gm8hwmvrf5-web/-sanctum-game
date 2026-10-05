@@ -169,7 +169,7 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
 .mpDemonReader{
   position:fixed;
   inset:0;
-  z-index:14000;
+  z-index:2147483000;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -259,7 +259,12 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
   font-size:15px;
   line-height:1.45;
 }
-#boardSection [data-demon]{cursor:zoom-in}
+#boardSection [data-demon]{
+  cursor:zoom-in;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:rgba(239,202,127,.22);
+  pointer-events:auto !important;
+}
 
 @media (max-width:620px) and (orientation:portrait){
   .mpDemonReaderCard{grid-template-columns:1fr}
@@ -409,25 +414,78 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
     setTimeout(()=>modal.querySelector('.mpDemonReaderClose')?.focus(),0);
   }
 
+  let demonTapDelegateInstalled=false;
+  let demonTouchStart=null;
+
+  function openDemonReaderFromElement(el){
+    if(!el)return;
+    const d=findBoardDemonById(el.dataset.demon);
+    if(!d)return;
+    try{selectedDemonId=d.id}catch(_){}
+    openDemonReader(d);
+  }
+
+  function installDemonTapDelegate(){
+    if(demonTapDelegateInstalled)return;
+    demonTapDelegateInstalled=true;
+
+    document.addEventListener('touchstart',e=>{
+      const el=e.target&&e.target.closest?e.target.closest('#boardSection [data-demon]'):null;
+      if(!el||!e.touches||!e.touches.length){
+        demonTouchStart=null;
+        return;
+      }
+      const t=e.touches[0];
+      demonTouchStart={
+        el,
+        x:t.clientX,
+        y:t.clientY,
+        at:Date.now()
+      };
+    },{capture:true,passive:true});
+
+    document.addEventListener('touchend',e=>{
+      const start=demonTouchStart;
+      demonTouchStart=null;
+      if(!start)return;
+      const el=e.target&&e.target.closest?e.target.closest('#boardSection [data-demon]'):null;
+      if(!el||el!==start.el)return;
+      const t=e.changedTouches&&e.changedTouches[0];
+      if(!t)return;
+      const dx=t.clientX-start.x;
+      const dy=t.clientY-start.y;
+      const moved=Math.sqrt(dx*dx+dy*dy);
+      const elapsed=Date.now()-start.at;
+      if(moved>14||elapsed>700)return;
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
+      openDemonReaderFromElement(el);
+    },{capture:true,passive:false});
+
+    document.addEventListener('click',e=>{
+      const el=e.target&&e.target.closest?e.target.closest('#boardSection [data-demon]'):null;
+      if(!el)return;
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
+      openDemonReaderFromElement(el);
+    },true);
+  }
+
   function wireDemonInspectors(){
     if(!session||!S||!S.started)return;
+    installDemonTapDelegate();
     document.querySelectorAll('#boardSection [data-demon]').forEach(el=>{
-      const open=()=>{
-        const d=findBoardDemonById(el.dataset.demon);
-        if(!d)return;
-        try{selectedDemonId=d.id}catch(_){}
-        openDemonReader(d);
-      };
       el.setAttribute('role','button');
       el.setAttribute('tabindex','0');
       el.setAttribute('aria-label','Open larger view of '+(el.querySelector('.name')?.textContent||'Demon'));
-      el.title='Click to enlarge Demon card';
-      el.onclick=e=>{e.preventDefault();e.stopPropagation();open()};
+      el.title='Tap to enlarge Demon card';
       el.onkeydown=e=>{
         if(e.key==='Enter'||e.key===' '){
           e.preventDefault();
           e.stopPropagation();
-          open();
+          openDemonReaderFromElement(el);
         }
       };
     });
