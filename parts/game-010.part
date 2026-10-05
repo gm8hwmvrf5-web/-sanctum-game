@@ -694,6 +694,20 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
     channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';saveSession();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
+    document.querySelectorAll('[data-mp-disabled="1"]').forEach(btn=>{
+      btn.disabled=false;
+      delete btn.dataset.mpDisabled;
+    });
+    for(let i=0;i<4;i++){
+      const name=document.getElementById('pname'+i);
+      if(name)name.readOnly=false;
+    }
+    const start=document.getElementById('startBtn');
+    if(start&&start.dataset.mpGuestLocked==='1'){
+      start.disabled=false;
+      delete start.dataset.mpGuestLocked;
+      start.removeAttribute('title');
+    }
     setGameBanner();
     panel?.classList.remove('connected');
     const code=panel?.querySelector('.mpRoomCode');
