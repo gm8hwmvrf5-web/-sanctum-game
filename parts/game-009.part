@@ -1313,6 +1313,32 @@ body.sanctumViewportFullscreen > .app{
 }
 </style>
 
+
+<style id="demonStatLabelsV20Patch">
+/* Board Demon stat labels: HP / BLD / ATK with slightly softer opacity. */
+#boardSection .demonStats{
+  opacity:.84 !important;
+  gap:4px !important;
+}
+#boardSection .demonStats .hp,
+#boardSection .demonStats .blood,
+#boardSection .demonStats .attack{
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+}
+#boardSection .demonStats .hp{color:#ff9db4 !important;}
+#boardSection .demonStats .blood{color:#e33a49 !important;}
+#boardSection .demonStats .attack{color:#ffffff !important;}
+#boardSection .demonStats .statSep{display:none !important;}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demonStats{
+    gap:2px !important;
+    opacity:.86 !important;
+  }
+}
+</style>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
