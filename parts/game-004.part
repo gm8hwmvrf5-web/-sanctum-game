@@ -294,14 +294,14 @@ async function processOverflowDamageQueue(){
 }
 function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
 function findDemonLocation(d){for(let r=0;r<4;r++){let i=S.rooms[r].findIndex(x=>x.id===d.id);if(i>=0)return {r,i}}return null}
-function distributeKillBlood(n,killerIndex=S.current){
+function distributeKillBlood(n,killerIndex=null){
  n=Math.max(0,Number(n)||0);
  if(!n||!Array.isArray(S.players)||!S.players.length)return;
- killerIndex=Math.max(0,Math.min(S.players.length-1,Number(killerIndex)||0));
+ const hasKiller=Number.isInteger(killerIndex)&&killerIndex>=0&&killerIndex<S.players.length;
  const half=n/2;
  let excess=0;
  S.players.forEach((p,i)=>{
-  const gain=i===killerIndex?n:half;
+  const gain=hasKiller&&i===killerIndex?n:half;
   const before=Math.max(0,Number(p.blood)||0);
   const after=Math.min(10,before+gain);
   p.blood=after;
@@ -312,10 +312,14 @@ function distributeKillBlood(n,killerIndex=S.current){
   healAltar(excess);
   log(`${excess} excess Blood restores ${S.altar-before} Altar Protection.`,'good');
  }
- const killer=S.players[killerIndex];
- log(`${killer?.name||('Player '+(killerIndex+1))} receives ${n} Demon Blood for the killing blow; every other Priest receives ${half}.`,'good');
+ if(hasKiller){
+  const killer=S.players[killerIndex];
+  log(`${killer?.name||('Player '+(killerIndex+1))} receives ${n} Demon Blood for the killing blow; every other Priest receives ${half}.`,'good');
+ }else{
+  log(`No Priest landed the killing blow; each Priest receives ${half} Demon Blood.`,'good');
+ }
 }
-function defeatDemon(d,opts={}){let loc=findDemonLocation(d);if(!loc)return;S.rooms[loc.r].splice(loc.i,1);reduceRoomCorruptionOnDemonDefeat(loc.r);S.runStats=S.runStats||{};if(d.greater)S.runStats.greaterDemonsDefeated=(S.runStats.greaterDemonsDefeated||0)+1;let baseBlood=demonBlood(d),extraBlood=demonCode(d)==='defeatBlood'?demonValue(d):0,skipBlood=false,reward=baseBlood;if(bossIs("soulTyrant")&&!d.greater){reward=Math.max(0,baseBlood+extraBlood-1);skipBlood=extraBlood>0;log(`${S.boss.n} — Tyrant's Claim reduces this Lesser Demon's total Blood reward by 1.`,"bad")}distributeKillBlood(reward,S.current);S.defeats++;S.defeated.push({...d,status:{...d.status}});log(`${demonName(d)} is defeated. ${reward} Blood to the killer and ${reward/2} to each other Priest. Defeat ${S.defeats}/13.`,'good');resolveAltarDefeatBlessings();if(bossIs("plagueFather")){let f=ensureBossFlags();f.spores[loc.r]=(f.spores[loc.r]||0)+1;log(`${S.boss.n} — Corruption Spores marks ${["Gateway","Hall","Chapel","Crypt"][loc.r]}; the next Demon to enter gains 1 HP.`,"bad")}if(bossIs("devourer")&&!d.greater&&S.boss.cur>0){let before=S.boss.cur;S.boss.cur=Math.min(S.boss.hp,S.boss.cur+1);if(S.boss.cur>before)log(`${S.boss.n} — Feast of Ruin heals the Boss for 1 HP.`,"bad")}triggerDefeatAbility(d,{skipBlood,suppressNegative:!!opts.suppressNegative});if(!S?.rogue?.enabled){drawCrucifix();if(d.greater)rollGreaterDemonRelic();if(S.defeats>=5&&!S.relicFiveDefeatClaimed){S.relicFiveDefeatClaimed=true;pullRelic('Five Demons have been defeated. The Sanctum reveals a hidden Relic.')}}if(S.defeats>=13&&!S.bossRevealed)revealBoss();render()}
+function defeatDemon(d,opts={}){let loc=findDemonLocation(d);if(!loc)return;S.rooms[loc.r].splice(loc.i,1);reduceRoomCorruptionOnDemonDefeat(loc.r);S.runStats=S.runStats||{};if(d.greater)S.runStats.greaterDemonsDefeated=(S.runStats.greaterDemonsDefeated||0)+1;let baseBlood=demonBlood(d),extraBlood=demonCode(d)==='defeatBlood'?demonValue(d):0,skipBlood=false,reward=baseBlood;if(bossIs("soulTyrant")&&!d.greater){reward=Math.max(0,baseBlood+extraBlood-1);skipBlood=extraBlood>0;log(`${S.boss.n} — Tyrant's Claim reduces this Lesser Demon's total Blood reward by 1.`,"bad")}distributeKillBlood(reward,S.phase==='Priest'?Number(S.current):null);S.defeats++;S.defeated.push({...d,status:{...d.status}});log(`${demonName(d)} is defeated. Demon Blood is awarded by the multiplayer kill rule. Defeat ${S.defeats}/13.`,'good');resolveAltarDefeatBlessings();if(bossIs("plagueFather")){let f=ensureBossFlags();f.spores[loc.r]=(f.spores[loc.r]||0)+1;log(`${S.boss.n} — Corruption Spores marks ${["Gateway","Hall","Chapel","Crypt"][loc.r]}; the next Demon to enter gains 1 HP.`,"bad")}if(bossIs("devourer")&&!d.greater&&S.boss.cur>0){let before=S.boss.cur;S.boss.cur=Math.min(S.boss.hp,S.boss.cur+1);if(S.boss.cur>before)log(`${S.boss.n} — Feast of Ruin heals the Boss for 1 HP.`,"bad")}triggerDefeatAbility(d,{skipBlood,suppressNegative:!!opts.suppressNegative});if(!S?.rogue?.enabled){drawCrucifix();if(d.greater)rollGreaterDemonRelic();if(S.defeats>=5&&!S.relicFiveDefeatClaimed){S.relicFiveDefeatClaimed=true;pullRelic('Five Demons have been defeated. The Sanctum reveals a hidden Relic.')}}if(S.defeats>=13&&!S.bossRevealed)revealBoss();render()}
 function distributeBlood(n){let left=n;let idx=S.current;let safety=0;while(left>0&&safety<100){let p=S.players[idx%S.players.length];if(p.blood<10){p.blood++;left--}idx++;safety++;if(S.players.every(p=>p.blood>=10))break}if(left>0){let before=S.altar;healAltar(left);log(`${left} excess Blood restores ${S.altar-before} Altar Protection.`,'good')}}
 function bossHpFactor(){return S.players.length<=2?.70:S.players.length===3?.85:1}
 function scaleBossForPlayers(preserveDamage=false){
