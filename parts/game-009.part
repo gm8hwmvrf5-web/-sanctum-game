@@ -834,11 +834,12 @@ body.sanctumViewportFit > .app{
 
   function activeOverlay(){
     return [...document.querySelectorAll(
-      '.modal,.rogueTutorialIntroCard,#rogueTutorialCoach,#tutorialCoach,#tutorialWelcome'
+      '.modal,#rogueTutorialIntro,#rogueTutorialCoach,#tutorialCoach,#tutorialWelcome'
     )].some(el=>{
       if(!el || el.classList.contains('hidden'))return false;
       const s=getComputedStyle(el);
-      return s.display!=='none' && s.visibility!=='hidden';
+      if(s.display==='none' || s.visibility==='hidden')return false;
+      return el.getClientRects().length>0;
     });
   }
 
@@ -930,7 +931,11 @@ body.sanctumViewportFit > .app{
     visualViewport.addEventListener('scroll',scheduleViewportFit);
   }
 
-  const observer=new MutationObserver(scheduleViewportFit);
+  const observer=new MutationObserver(mutations=>{
+    if(mutations.some(m=>m.type==='childList' || (m.type==='attributes' && m.target!==document.body && m.target!==document.documentElement))){
+      scheduleViewportFit();
+    }
+  });
   observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
 
   if(document.readyState==='loading'){
