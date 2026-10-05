@@ -163,7 +163,7 @@
     padding:
       max(4px,env(safe-area-inset-top))
       max(5px,env(safe-area-inset-right))
-      calc(48px + env(safe-area-inset-bottom))
+      max(4px,env(safe-area-inset-bottom))
       max(5px,env(safe-area-inset-left)) !important;
   }
 
@@ -636,7 +636,7 @@
   #rogueTutorialCoach h3{font-size:14px !important;margin:2px 0 3px !important;}
   #rogueTutorialBody,#rogueTutorialTask{font-size:8.5px !important;line-height:1.2 !important;}
   .ritualRollOverlay{
-    bottom:calc(48px + env(safe-area-inset-bottom)) !important;
+    bottom:max(4px,env(safe-area-inset-bottom)) !important;
     max-width:60vw !important;
   }
   .ritualRollCard{min-width:190px !important;padding:7px 12px 8px !important;}
@@ -832,7 +832,7 @@
     padding:
       max(2px,env(safe-area-inset-top))
       max(3px,env(safe-area-inset-right))
-      calc(46px + env(safe-area-inset-bottom))
+      max(3px,env(safe-area-inset-bottom))
       max(3px,env(safe-area-inset-left)) !important;
     -webkit-overflow-scrolling:touch !important;
   }
@@ -998,46 +998,3 @@
 
   /* 40% smaller than the current 30px / ~82px landscape buttons. */
   #handPanel .handCharacterPriest .ritualTracker #basicBtn,
-
-<style id="hardRemoveLegacyMobileNavSourcePatch">
-.mobileNav{
-  display:none !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  pointer-events:none !important;
-}
-@media(max-width:700px){
-  body{padding-bottom:max(0px,env(safe-area-inset-bottom)) !important;}
-}
-#handContent .hand .card h4{
-  white-space:nowrap !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  line-height:1 !important;
-}
-</style>
-<script id="hardRemoveLegacyMobileNavSourceScript">
-(()=>{
-  'use strict';
-  const kill=()=>document.querySelectorAll('.mobileNav').forEach(n=>n.remove());
-  const fit=()=>{
-    document.querySelectorAll('#handContent .hand .card h4').forEach(title=>{
-      title.style.setProperty('white-space','nowrap','important');
-      let size=parseFloat(getComputedStyle(title).fontSize)||9;
-      title.style.removeProperty('font-size');
-      size=parseFloat(getComputedStyle(title).fontSize)||size;
-      let guard=0;
-      while(title.scrollWidth>title.clientWidth+.5 && size>5.5 && guard<32){
-        size=Math.max(5.5,size-.25);
-        title.style.setProperty('font-size',size+'px','important');
-        guard++;
-      }
-    });
-  };
-  const clean=()=>{kill();requestAnimationFrame(fit);};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean();
-  new MutationObserver(kill).observe(document.documentElement,{childList:true,subtree:true});
-  window.addEventListener('resize',fit);
-  window.addEventListener('orientationchange',()=>setTimeout(clean,50));
-})();
-</script>
