@@ -123,6 +123,35 @@
 .mpGameBanner.waiting span{color:#b4a58d}
 body.mpWaitingTurn #handPanel .card,
 body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
+#handPanel.mpOwnHand .mpOwnHandLabel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:0 0 5px;
+  padding:4px 7px;
+  border:1px solid #5f4b2d;
+  border-radius:6px;
+  background:rgba(18,14,11,.82);
+  color:#bbaa8c;
+  font-size:9px;
+  letter-spacing:.35px;
+}
+#handPanel.mpOwnHand .mpOwnHandLabel b{
+  color:#efcc86;
+  letter-spacing:1px;
+}
+#handPanel.mpOwnHand .mpOwnHandLabel span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
+  content:"Locked until your turn";
+  color:#9b8b74;
+  font-size:8px;
+  white-space:nowrap;
+}
 @media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
   .mpGameBanner{margin:2px 0;padding:2px 5px;font-size:7px;min-height:16px}
 }
@@ -535,6 +564,49 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
     if(hooksInstalled)return;
     hooksInstalled=true;
 
+    /* In online play every device owns one Priest seat. The shared board still
+       advances with S.current, but the Priest/hand panel always renders the
+       local player's Priest and cards. */
+    if(typeof renderPlayer==='function'){
+      const baseRenderPlayer=renderPlayer;
+      renderPlayer=function(){
+        if(!session||!S||!S.started||!Array.isArray(S.players)){
+          return baseRenderPlayer.apply(this,arguments);
+        }
+
+        const localIndex=Math.max(0,Math.min(S.players.length-1,Number(session.seat||1)-1));
+        if(!S.players[localIndex]){
+          return baseRenderPlayer.apply(this,arguments);
+        }
+
+        const authoritativeCurrent=S.current;
+        S.current=localIndex;
+        try{
+          const out=baseRenderPlayer.apply(this,arguments);
+
+          const handPanel=document.getElementById('handPanel');
+          if(handPanel){
+            handPanel.dataset.multiplayerSeat=String(session.seat||localIndex+1);
+            handPanel.classList.add('mpOwnHand');
+          }
+
+          const handContent=document.getElementById('handContent');
+          if(handContent&&!handContent.querySelector('.mpOwnHandLabel')){
+            const label=document.createElement('div');
+            label.className='mpOwnHandLabel';
+            const p=S.players[localIndex];
+            label.innerHTML=`<b>YOUR HAND</b><span>Player ${localIndex+1} • ${escapeHtml(p.name||('Player '+(localIndex+1)))}</span>`;
+            handContent.prepend(label);
+          }
+
+          return out;
+        }finally{
+          S.current=authoritativeCurrent;
+        }
+      };
+      try{window.renderPlayer=renderPlayer}catch(_){}
+    }
+
     if(typeof render==='function'){
       const baseRender=render;
       render=function(){
@@ -742,7 +814,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
       </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
-      <div class="mpDevNote">Shared-board milestone: room creation, realtime roster, authoritative shared game state, turn ownership, and reconnect synchronization. The host chooses setup characters for this development pass.</div>
+      <div class="mpDevNote">Shared-board milestone: each device always shows its own Priest hand, while the board and turn authority remain synchronized. The host chooses setup characters for this development pass.</div>
     `;
 
     const grid=box.querySelector('.setupgrid');
