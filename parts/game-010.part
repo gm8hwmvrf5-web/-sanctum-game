@@ -414,6 +414,14 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
     setTimeout(()=>modal.querySelector('.mpDemonReaderClose')?.focus(),0);
   }
 
+  window.__sanctumOpenDemonReader=function(id){
+    const d=findBoardDemonById(id);
+    if(!d)return false;
+    try{selectedDemonId=d.id}catch(_){}
+    openDemonReader(d);
+    return true;
+  };
+
   let demonTapDelegateInstalled=false;
   let demonTouchStart=null;
 
