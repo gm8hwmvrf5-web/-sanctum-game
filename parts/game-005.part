@@ -257,7 +257,7 @@ function render(){normalizeSanctumState();document.getElementById('roundStat').t
    let meta=document.getElementById(`roomMeta${r}`);
    if(meta)meta.innerHTML=`<div class="cap">${roomStateHtml(r)}</div><button class="btn" data-cons="${r}">Consecrate</button>`;
  }
- document.querySelectorAll('[data-demon-open]').forEach(btn=>btn.onclick=e=>{e.preventDefault();e.stopPropagation();selectedDemonId=btn.dataset.demonOpen;if(typeof window.__sanctumOpenDemonReader==='function')window.__sanctumOpenDemonReader(btn.dataset.demonOpen)});
+ document.querySelectorAll('[data-demon-open]').forEach(btn=>{let lastOpen=0;const open=e=>{if(e){e.preventDefault();e.stopPropagation()}let now=Date.now();if(now-lastOpen<350)return;lastOpen=now;selectedDemonId=btn.dataset.demonOpen;if(typeof window.__sanctumOpenDemonReader==='function')window.__sanctumOpenDemonReader(btn.dataset.demonOpen)};btn.onclick=open;btn.ontouchend=open;btn.onpointerup=open;});
  document.querySelectorAll('[data-cons]').forEach(el=>el.onclick=()=>openConsecrateModal(+el.dataset.cons));
  document.querySelectorAll('[data-desecrate-info]').forEach(el=>el.onclick=e=>{e.stopPropagation();openDesecrationInfo(+el.dataset.desecrateInfo)});
  renderBoss();renderPlayer();renderLog()
