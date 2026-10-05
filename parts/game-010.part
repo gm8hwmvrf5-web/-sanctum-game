@@ -962,6 +962,43 @@ dialog.mpDemonReader::backdrop{
     publishTimer=setTimeout(()=>pushSharedState(actionType,payload),delay);
   }
 
+  function expandMultiplayerPriestStartingDeck(){
+    if(!session||!S||!S.started||S.multiplayerPriestDeckExpanded)return;
+    if(!Array.isArray(S.players)||!S.players.length||!Array.isArray(PRIEST)||!PRIEST.length)return;
+
+    const playerCount=S.players.length;
+    const makeCard=(def,tag)=>({
+      ...def,
+      id:`mp-priest-${tag}-${uid()}`,
+      empowered:false,
+      empowerPaid:false
+    });
+    const extras=[];
+
+    // The base game already created one complete set of every Priest card.
+    // Add one more complete set for each additional player so every player's
+    // contribution contains one of every card.
+    for(let seat=1;seat<playerCount;seat++){
+      PRIEST.forEach((def,i)=>extras.push(makeCard(def,`set-${seat+1}-${i}`)));
+    }
+
+    // Every player also contributes 15 independently randomized duplicate cards.
+    for(let n=0;n<15*playerCount;n++){
+      const def=PRIEST[Math.floor(Math.random()*PRIEST.length)];
+      extras.push(makeCard(def,`random-${n}`));
+    }
+
+    S.priestDeck=shuffle([...(S.priestDeck||[]),...extras]);
+    S.multiplayerPriestDeckExpanded=true;
+    S.multiplayerPriestCardsPerPlayer=PRIEST.length+15;
+    S.multiplayerPriestStartingTotal=playerCount*(PRIEST.length+15);
+
+    log(
+      `ONLINE PRIEST DECK — ${playerCount} player${playerCount===1?'':'s'}: ${PRIEST.length} unique Priest cards + 15 random duplicates per player contribution (${S.multiplayerPriestStartingTotal} total starting cards before opening draws).`,
+      'good'
+    );
+  }
+
   function installStateSyncHooks(){
     if(hooksInstalled)return;
     hooksInstalled=true;
@@ -1036,6 +1073,7 @@ dialog.mpDemonReader::backdrop{
         try{
           ok=baseStart.apply(this,arguments);
           if(ok&&session&&S&&Array.isArray(S.players)){
+            expandMultiplayerPriestStartingDeck();
             S.mana=typeof sharedManaRoundValue==='function'
               ? sharedManaRoundValue()
               : (S.players.length>=4?35:S.players.length===3?20:S.players.length===2?15:10);
