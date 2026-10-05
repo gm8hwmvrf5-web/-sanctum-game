@@ -615,6 +615,22 @@ dialog.mpDemonReader::backdrop{
   const resolvingVoteIds=new Set();
   const voteOpeningIds=new Set();
 
+  function applyMonkFirstRitualBalanceText(){
+    try{
+      if(typeof CHARACTERS==='undefined'||!CHARACTERS)return;
+      Object.values(CHARACTERS).forEach(ch=>{
+        if(!ch||!Array.isArray(ch.rituals)||!ch.rituals.length)return;
+        const r=ch.rituals[0];
+        if(!r||r.kind!=='palmJudgment')return;
+        r.h='Deal 4 damage to a Demon or Boss. If it is a Demon, move it back exactly 1 room.';
+        r.f='Deal 8 damage to a Demon or Boss. If it is a Demon, move it back exactly 2 rooms.';
+      });
+    }catch(err){
+      console.warn('Could not update Monk Ritual text',err);
+    }
+  }
+  applyMonkFirstRitualBalanceText();
+
   function syncMultiplayerViewportHeight(){
     const h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight||document.documentElement.clientHeight;
     if(Number.isFinite(h)&&h>0){
@@ -1587,6 +1603,7 @@ dialog.mpDemonReader::backdrop{
     if(typeof render==='function'){
       const baseRender=render;
       render=function(){
+        applyMonkFirstRitualBalanceText();
         const out=baseRender.apply(this,arguments);
         try{wireDemonInspectors()}catch(_){}
         try{enforceTurnOwnership()}catch(_){}
