@@ -386,6 +386,111 @@ dialog.mpDemonReader::backdrop{
 }
 </style>
 
+
+<style id="multiplayerBossReaderPatch">
+/* Boss cards use a tap target like Demon cards and crop the full boss-card source
+   down to the illustration window so printed card text never appears as artwork. */
+#boardSection .bossCard{
+  position:relative !important;
+  cursor:zoom-in !important;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:rgba(239,202,127,.22) !important;
+}
+#boardSection .mpBossTapTarget{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:80 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:inherit !important;
+  background:transparent !important;
+  opacity:0 !important;
+  display:block !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+#boardSection .bossArt{
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+  border-color:#9e3a30 !important;
+  background:linear-gradient(180deg,#27100f,#100908) !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+  min-height:0 !important;
+  aspect-ratio:4 / 3 !important;
+  align-self:start !important;
+  background:#090606 !important;
+  border-color:#8f3d35 !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt img{
+  width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderType{
+  color:#d9a17c !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
+  color:#f06464 !important;
+}
+.mpBossReaderRules{
+  display:grid;
+  gap:7px;
+}
+.mpBossReaderRule{
+  padding:8px 9px;
+  border:1px solid #5b302d;
+  border-radius:7px;
+  background:rgba(79,18,18,.16);
+  color:#f1e6d3;
+  font-size:13px;
+  line-height:1.4;
+}
+.mpBossReaderRule b{color:#e8ad82}
+.mpBossReaderMeta{
+  grid-column:1/-1;
+  padding:8px 9px;
+  border:1px solid #5b302d;
+  border-radius:7px;
+  background:#180c0b;
+  color:#bda98e;
+  font-size:10px;
+  line-height:1.35;
+  text-align:center;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .bossArt{
+    height:66px !important;
+    aspect-ratio:auto !important;
+    object-fit:cover !important;
+    object-position:center 32% !important;
+    margin-bottom:2px !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    min-height:0 !important;
+    aspect-ratio:4 / 3 !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt img{
+    min-height:0 !important;
+    height:100% !important;
+    object-fit:cover !important;
+    object-position:center 32% !important;
+  }
+  .mpBossReaderRule{font-size:10px;line-height:1.3;padding:5px 6px}
+  .mpBossReaderMeta{font-size:8px;padding:5px 6px}
+}
+</style>
+
 <style id="multiplayerGroupVoteStyles">
 #rogueChoiceModal[data-mp-group-vote="1"] .modalbox{
   width:min(980px,96vw) !important;
@@ -997,6 +1102,7 @@ dialog.mpDemonReader::backdrop{
 
   function renderRoomDemonDetails(modal,d,roomIndex){
     if(!modal||!d)return;
+    modal.dataset.readerKind='demon';
     const img=modal.querySelector('.mpDemonReaderArt img');
     const header=modal.querySelector('.mpDemonRoomHeader');
     const details=modal.querySelector('.mpDemonReaderDetails');
@@ -1097,6 +1203,90 @@ dialog.mpDemonReader::backdrop{
         btn.setAttribute('aria-label','View all Demons in this room, starting with '+(el.querySelector('.name')?.textContent||'Demon'));
       }
     });
+  }
+
+
+  function renderBossReaderDetails(modal,b){
+    if(!modal||!b)return;
+    modal.dataset.readerKind='boss';
+    modal.setAttribute('aria-label','Boss Demon details');
+
+    const img=modal.querySelector('.mpDemonReaderArt img');
+    const header=modal.querySelector('.mpDemonRoomHeader');
+    const details=modal.querySelector('.mpDemonReaderDetails');
+    const list=modal.querySelector('.mpDemonRoomList');
+    const name=b.n||'Boss Demon';
+    const hp=Math.max(0,Number(b.cur||0));
+    const maxHp=Math.max(0,Number(b.hp||0));
+    const blood=Math.max(0,Number(b.b||0));
+    const drain=typeof bossDrainAmount==='function'?bossDrainAmount():blood;
+    const rules=(b.rules||[]).filter(rule=>Array.isArray(rule)&&rule[0]!=='Boss Rule');
+    const ruleHtml=rules.length
+      ?'<div class="mpBossReaderRules">'+rules.map(rule=>
+        '<div class="mpBossReaderRule"><b>'+escapeHtml(rule[0])+':</b> '+escapeHtml(rule[1]||'')+'</div>'
+      ).join('')+'</div>'
+      :'<div class="mpBossReaderRule">No additional printed ability.</div>';
+
+    img.src=b.art||'';
+    img.alt=name+' artwork';
+    header.innerHTML='<b>Boss Room</b><span>Boss Demon</span>';
+    details.innerHTML=
+      '<div class="mpDemonReaderType">Boss Demon</div>'+
+      '<div class="mpDemonReaderName">'+escapeHtml(name)+'</div>'+
+      '<div class="mpDemonReaderStats">'+
+        '<span class="hp">HP '+escapeHtml(hp)+' / '+escapeHtml(maxHp)+'</span>'+
+        '<span class="blood">BLD '+escapeHtml(blood)+'</span>'+
+      '</div>'+
+      ruleHtml;
+    list.innerHTML=
+      '<div class="mpBossReaderMeta">'+
+        'Boss Phase Altar Drain: '+escapeHtml(drain)+
+        (drain!==blood?' (printed '+escapeHtml(blood)+')':'')+
+        ' • Descent '+escapeHtml((S?.bossesDefeated||0)+1)+
+        ' • '+escapeHtml(S?.bossesDefeated||0)+' defeated this run'+
+      '</div>';
+  }
+
+  function openBossReader(){
+    if(!S?.bossRevealed||!S?.boss)return false;
+    const modal=ensureDemonReader();
+    renderBossReaderDetails(modal,S.boss);
+    try{
+      if(!modal.open)modal.showModal();
+    }catch(_){
+      modal.setAttribute('open','');
+    }
+    setTimeout(()=>modal.querySelector('.mpDemonReaderClose')?.focus(),0);
+    return true;
+  }
+
+  window.__sanctumOpenBossReader=openBossReader;
+
+  function wireBossInspector(){
+    if(!S||!S.started||!S.bossRevealed||!S.boss)return;
+    const card=document.querySelector('#bossArea .bossCard');
+    if(!card)return;
+    card.classList.add('mpBossInspectable');
+    let btn=card.querySelector('[data-boss-open]');
+    if(btn)return;
+    btn=document.createElement('button');
+    btn.type='button';
+    btn.className='mpBossTapTarget';
+    btn.dataset.bossOpen='1';
+    btn.title='Tap to view Boss Demon';
+    btn.setAttribute('aria-label','Open '+(S.boss.n||'Boss Demon')+' details');
+    let lastOpen=0;
+    const open=e=>{
+      if(e){e.preventDefault();e.stopPropagation();}
+      const now=Date.now();
+      if(now-lastOpen<350)return;
+      lastOpen=now;
+      openBossReader();
+    };
+    btn.onclick=open;
+    btn.ontouchend=open;
+    btn.onpointerup=open;
+    card.appendChild(btn);
   }
 
   function stopHeartbeat(){
@@ -1613,6 +1803,7 @@ dialog.mpDemonReader::backdrop{
         applyMonkFirstRitualBalanceText();
         const out=baseRender.apply(this,arguments);
         try{wireDemonInspectors()}catch(_){}
+        try{wireBossInspector()}catch(_){}
         try{enforceTurnOwnership()}catch(_){}
         try{renderGroupVoteFromState()}catch(_){}
         if(session&&S&&S.started&&!applyingRemote&&!startingOnline){
@@ -1885,7 +2076,7 @@ dialog.mpDemonReader::backdrop{
       </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
-      <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, rewards and passage choices use synchronized group voting, Demon cards open into a large reading view, and the room automatically ends when the host disconnects.</div>
+      <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, rewards and passage choices use synchronized group voting, Demon and Boss cards open into a large mobile-friendly reading view, and the room automatically ends when the host disconnects.</div>
     `;
 
     const grid=box.querySelector('.setupgrid');
