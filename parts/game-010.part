@@ -99,6 +99,33 @@
   #sanctumOnlinePanel .mpSeat b{font-size:8px}
   #sanctumOnlinePanel .mpDevNote{display:none}
 }
+
+.mpGameBanner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:6px 0;
+  padding:6px 9px;
+  border:1px solid #6b5735;
+  border-radius:7px;
+  background:#11100e;
+  color:#cfc0a5;
+  font-size:10px;
+  letter-spacing:.35px;
+}
+.mpGameBanner b{color:#efca7f;letter-spacing:1px}
+.mpGameBanner.yourTurn{
+  border-color:#4f845d;
+  box-shadow:inset 0 0 10px rgba(55,115,73,.18);
+}
+.mpGameBanner.yourTurn span{color:#a9d6ad;font-weight:700}
+.mpGameBanner.waiting span{color:#b4a58d}
+body.mpWaitingTurn #handPanel .card,
+body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .mpGameBanner{margin:2px 0;padding:2px 5px;font-size:7px;min-height:16px}
+}
 </style>
 
 <script id="sanctumMultiplayerLobbyScript">
@@ -113,6 +140,15 @@
   let channel=null;
   let session=null;
   let panel=null;
+  let lastRosterSnapshot=null;
+  let lastAppliedVersion=-1;
+  let lastPublishedHash='';
+  let publishTimer=0;
+  let publishBusy=false;
+  let publishQueued=false;
+  let applyingRemote=false;
+  let startingOnline=false;
+  let hooksInstalled=false;
 
   function loadSession(){
     try{
@@ -207,18 +243,344 @@
     roster.innerHTML=seats.join('');
   }
 
-  async function refreshRoom(){
+
+  function validSharedState(state){
+    return !!(state&&typeof state==='object'&&state.started&&Array.isArray(state.players)&&Array.isArray(state.rooms));
+  }
+
+  function cleanStateForWire(){
+    const state=JSON.parse(JSON.stringify(S,(key,value)=>
+      (key==='art'||key==='gart')?undefined:value
+    ));
+    state.manualPaused=false;
+    return state;
+  }
+
+  function stableStateHash(state){
+    try{return JSON.stringify(state)}catch(_){return String(Date.now())}
+  }
+
+  function isMyTurn(){
+    return !!(session&&S&&S.started&&Number(session.seat)===Number(S.current)+1);
+  }
+
+  function activeSeat(){
+    return S&&S.started?Number(S.current||0)+1:null;
+  }
+
+  function blockingGameplayModalOpen(){
+    const ids=[
+      'choiceModal','damageAmountModal','descendModal','relicModal',
+      'desecrationModal','consecrateModal','crucifixModal',
+      'rogueChoiceModal','rogueLegacyModal'
+    ];
+    return ids.some(id=>{
+      const el=document.getElementById(id);
+      return !!(el&&!el.classList.contains('hidden')&&getComputedStyle(el).display!=='none');
+    });
+  }
+
+  function ensureGameBanner(){
+    let el=document.getElementById('mpGameBanner');
+    if(el)return el;
+    const stats=document.getElementById('topStatusBar')||document.querySelector('.stats');
+    if(!stats)return null;
+    el=document.createElement('div');
+    el.id='mpGameBanner';
+    el.className='mpGameBanner hidden';
+    stats.insertAdjacentElement('beforebegin',el);
+    return el;
+  }
+
+  function setGameBanner(){
+    const el=ensureGameBanner();
+    if(!el)return;
+    if(!session){
+      el.classList.add('hidden');
+      return;
+    }
+    el.classList.remove('hidden');
+    const seat=activeSeat();
+    const mine=isMyTurn();
+    const started=!!(S&&S.started);
+    el.classList.toggle('yourTurn',started&&mine);
+    el.classList.toggle('waiting',started&&!mine);
+    el.innerHTML=started
+      ? `<b>ONLINE • ${escapeHtml(session.roomCode||'------')}</b><span>${mine?'YOUR TURN':`WAITING FOR PLAYER ${seat}`} • You are Player ${session.seat}</span>`
+      : `<b>ONLINE • ${escapeHtml(session.roomCode||'------')}</b><span>Lobby • You are Player ${session.seat}</span>`;
+  }
+
+  function enforceTurnOwnership(){
+    setGameBanner();
+    if(!session||!S||!S.started){
+      document.body.classList.remove('mpWaitingTurn');
+      return;
+    }
+
+    const mine=isMyTurn();
+    document.body.classList.toggle('mpWaitingTurn',!mine);
+
+    const selectors=[
+      '#handPanel button',
+      '#ritualPanel button',
+      '#boardSection [data-cons]',
+      '#spawnBtn','#damageBtn','#killBtn',
+      '[data-adjust]'
+    ];
+    const keepEnabled=new Set([
+      'mobilePauseMenuBtn','priestPauseMenuBtn','rulesBtn','saveBtn','loadBtn','newGameBtn'
+    ]);
+
+    document.querySelectorAll(selectors.join(',')).forEach(btn=>{
+      if(keepEnabled.has(btn.id))return;
+      if(!mine){
+        if(!btn.disabled)btn.dataset.mpDisabled='1';
+        btn.disabled=true;
+      }else if(btn.dataset.mpDisabled==='1'){
+        btn.disabled=false;
+        delete btn.dataset.mpDisabled;
+      }
+    });
+
+    if(!mine){
+      try{clearTurnTimerInterval()}catch(_){}
+    }
+  }
+
+  function syncSetupFromRoster(snapshot){
+    if(!snapshot||snapshot.game.status!=='lobby'||!snapshot.players.length)return;
+    const count=document.getElementById('playerCount');
+    if(!count)return;
+
+    const existingChars=[];
+    for(let i=0;i<4;i++)existingChars[i]=document.getElementById('pchar'+i)?.value||'';
+
+    const wanted=Math.max(1,Math.min(4,snapshot.players.length));
+    if(Number(count.value)!==wanted){
+      count.value=String(wanted);
+      try{setupPlayersUI()}catch(_){}
+    }
+
+    snapshot.players.forEach((p,i)=>{
+      const name=document.getElementById('pname'+i);
+      const char=document.getElementById('pchar'+i);
+      if(name){
+        name.value=p.display_name||('Player '+(i+1));
+        name.readOnly=true;
+      }
+      if(char&&existingChars[i]&&[...char.options].some(o=>o.value===existingChars[i])){
+        char.value=existingChars[i];
+      }
+    });
+
+    const start=document.getElementById('startBtn');
+    if(start&&session){
+      if(!session.isHost){
+        start.dataset.mpGuestLocked='1';
+        start.disabled=true;
+        start.title='Only the room host can start the online game.';
+      }else if(start.dataset.mpGuestLocked==='1'){
+        start.disabled=false;
+        delete start.dataset.mpGuestLocked;
+        start.removeAttribute('title');
+      }
+    }
+  }
+
+  function closeRemoteTransientUi(){
+    try{
+      if(choiceResolve){
+        const resolve=choiceResolve;
+        choiceResolve=null;
+        resolve(null);
+      }
+    }catch(_){}
+    [
+      'choiceModal','damageAmountModal','consecrateModal',
+      'crucifixModal','relicModal','descendModal'
+    ].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+  }
+
+  async function applyRemoteGameRow(row,force=false){
+    if(!session||!row)return;
+    const version=Number(row.state_version||0);
+    session.stateVersion=version;
+    session.roomCode=row.room_code||session.roomCode;
+    saveSession();
+
+    if(!validSharedState(row.state)){
+      lastAppliedVersion=Math.max(lastAppliedVersion,version);
+      setGameBanner();
+      return;
+    }
+
+    if(!force&&version<=lastAppliedVersion)return;
+
+    applyingRemote=true;
+    try{
+      try{clearTurnTimerInterval()}catch(_){}
+      closeRemoteTransientUi();
+      S=JSON.parse(JSON.stringify(row.state));
+      try{restoreStaticArtwork()}catch(_){}
+      try{migratePriestBalance()}catch(_){}
+      try{normalizeSanctumState()}catch(_){}
+      selectedDemonId=null;
+      try{crucifixDisplayQueue=[]}catch(_){}
+      document.getElementById('setupModal')?.classList.add('hidden');
+
+      lastAppliedVersion=version;
+      lastPublishedHash=stableStateHash(cleanStateForWire());
+
+      render();
+
+      if(isMyTurn()){
+        try{syncTurnTimerAfterLoad()}catch(_){
+          try{startTurnTimer(S.turnTimerRemaining||60)}catch(__){}
+        }
+      }else{
+        try{clearTurnTimerInterval()}catch(_){}
+      }
+      enforceTurnOwnership();
+    }catch(err){
+      console.error('Could not apply online Sanctum state',err);
+      status('Online state arrived but could not be applied.',true);
+    }finally{
+      applyingRemote=false;
+    }
+  }
+
+  async function pushSharedState(actionType='state_sync',payload={}){
+    if(!session||!S||!S.started||applyingRemote)return false;
+    if(actionType==='game_start'){
+      if(!session.isHost)return false;
+    }else if(!isMyTurn()){
+      enforceTurnOwnership();
+      return false;
+    }
+    if(blockingGameplayModalOpen()){
+      schedulePublish(actionType,payload,250);
+      return false;
+    }
+    if(publishBusy){
+      publishQueued=true;
+      return false;
+    }
+
+    const wire=cleanStateForWire();
+    const hash=stableStateHash(wire);
+    if(actionType==='state_sync'&&hash===lastPublishedHash)return true;
+
+    publishBusy=true;
+    try{
+      const sb=await ensureClient();
+      const actionId=(crypto&&crypto.randomUUID)?crypto.randomUUID():
+        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,ch=>{
+          const v=Math.random()*16|0,n=ch==='x'?v:(v&3|8);return n.toString(16);
+        });
+      const {data,error}=await sb.rpc('update_sanctum_game_state',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken,
+        p_expected_version:Number(session.stateVersion||0),
+        p_state:wire,
+        p_action_type:actionType,
+        p_payload:payload||{},
+        p_client_action_id:actionId
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)throw new Error('Online state update returned no result.');
+
+      const serverVersion=Number(row.new_version||0);
+      if(!row.accepted){
+        status('Another device updated the room first. Reloading the newest board…',true);
+        await refreshRoom(true);
+        return false;
+      }
+
+      session.stateVersion=serverVersion;
+      lastAppliedVersion=Math.max(lastAppliedVersion,serverVersion);
+      lastPublishedHash=hash;
+      saveSession();
+      setGameBanner();
+      return true;
+    }catch(err){
+      console.error('Sanctum state publish failed',err);
+      status(err.message||'Could not synchronize this action.',true);
+      return false;
+    }finally{
+      publishBusy=false;
+      if(publishQueued){
+        publishQueued=false;
+        schedulePublish('state_sync',{},120);
+      }
+    }
+  }
+
+  function schedulePublish(actionType='state_sync',payload={},delay=180){
+    if(!session||!S||!S.started||applyingRemote||startingOnline)return;
+    clearTimeout(publishTimer);
+    publishTimer=setTimeout(()=>pushSharedState(actionType,payload),delay);
+  }
+
+  function installStateSyncHooks(){
+    if(hooksInstalled)return;
+    hooksInstalled=true;
+
+    if(typeof render==='function'){
+      const baseRender=render;
+      render=function(){
+        const out=baseRender.apply(this,arguments);
+        try{enforceTurnOwnership()}catch(_){}
+        if(session&&S&&S.started&&!applyingRemote&&!startingOnline){
+          schedulePublish('state_sync',{},220);
+        }
+        return out;
+      };
+      try{window.render=render}catch(_){}
+    }
+
+    if(typeof startGame==='function'){
+      const baseStart=startGame;
+      startGame=function(){
+        if(session&&!session.isHost){
+          status('Only the room host can start an online game.',true);
+          return false;
+        }
+        if(session&&lastRosterSnapshot)syncSetupFromRoster(lastRosterSnapshot);
+        startingOnline=!!session;
+        let ok=false;
+        try{
+          ok=baseStart.apply(this,arguments);
+        }finally{
+          startingOnline=false;
+        }
+        if(ok&&session){
+          lastPublishedHash='';
+          schedulePublish('game_start',{players:lastRosterSnapshot?.players?.length||S.players.length},30);
+        }
+        return ok;
+      };
+      try{window.startGame=startGame}catch(_){}
+    }
+
+    setGameBanner();
+  }
+
+  async function refreshRoom(forceState=false){
     if(!session)return;
     try{
       const snap=await fetchRoom();
+      lastRosterSnapshot=snap;
       session.roomCode=snap.game.room_code;
-      session.stateVersion=Number(snap.game.state_version||0);
       saveSession();
       status(`Connected to room ${snap.game.room_code} • ${snap.players.length}/${snap.game.max_players} players • ${snap.game.status}`);
       const code=panel?.querySelector('.mpRoomCode');
       if(code)code.textContent=snap.game.room_code;
       renderRoster(snap);
+      syncSetupFromRoster(snap);
       panel?.classList.add('connected');
+      await applyRemoteGameRow(snap.game,forceState||lastAppliedVersion<0);
+      enforceTurnOwnership();
     }catch(err){
       console.error('Sanctum multiplayer refresh failed',err);
       status(err.message||'Could not refresh online room.',true);
@@ -231,9 +593,17 @@
     if(channel){try{await sb.removeChannel(channel)}catch(_){}}
     channel=sb.channel('sanctum-room-'+session.gameId)
       .on('postgres_changes',{
-        event:'*',schema:'public',table:'games',
+        event:'UPDATE',schema:'public',table:'games',
         filter:'id=eq.'+session.gameId
-      },()=>refreshRoom())
+      },payload=>{
+        const row=payload&&payload.new;
+        if(row){
+          status(`Connected to room ${row.room_code||session.roomCode} • live game sync`);
+          applyRemoteGameRow(row).catch(err=>console.error(err));
+        }else{
+          refreshRoom().catch(err=>console.error(err));
+        }
+      })
       .on('postgres_changes',{
         event:'*',schema:'public',table:'players',
         filter:'game_id=eq.'+session.gameId
@@ -263,9 +633,11 @@
         stateVersion:Number(row.state_version||0),
         isHost:true
       };
+      lastAppliedVersion=-1;
+      lastPublishedHash='';
       saveSession();
       await subscribe();
-      await refreshRoom();
+      await refreshRoom(true);
     }catch(err){
       console.error(err);
       status(err.message||'Could not create room.',true);
@@ -297,9 +669,11 @@
         stateVersion:Number(row.state_version||0),
         isHost:false
       };
+      lastAppliedVersion=-1;
+      lastPublishedHash='';
       saveSession();
       await subscribe();
-      await refreshRoom();
+      await refreshRoom(true);
     }catch(err){
       console.error(err);
       status(err.message||'Could not join room.',true);
@@ -308,7 +682,10 @@
 
   async function leave(){
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
-    channel=null;session=null;saveSession();
+    channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;lastPublishedHash='';saveSession();
+    try{clearTurnTimerInterval()}catch(_){}
+    document.body.classList.remove('mpWaitingTurn');
+    setGameBanner();
     panel?.classList.remove('connected');
     const code=panel?.querySelector('.mpRoomCode');
     if(code)code.textContent='------';
@@ -342,7 +719,7 @@
       </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
-      <div class="mpDevNote">First multiplayer milestone: room creation, joining, reconnect session, and realtime player roster. Live gameplay synchronization is being added next.</div>
+      <div class="mpDevNote">Shared-board milestone: room creation, realtime roster, authoritative shared game state, turn ownership, and reconnect synchronization. The host chooses setup characters for this development pass.</div>
     `;
 
     const grid=box.querySelector('.setupgrid');
@@ -364,10 +741,13 @@
       const code=panel.querySelector('.mpRoomCode');
       if(code)code.textContent=session.roomCode||'------';
       status('Reconnecting to '+(session.roomCode||'online room')+'…');
-      subscribe().then(refreshRoom).catch(err=>status(err.message||'Reconnect failed.',true));
+      lastAppliedVersion=-1;
+      subscribe().then(()=>refreshRoom(true)).catch(err=>status(err.message||'Reconnect failed.',true));
     }
     return true;
   }
+
+  installStateSyncHooks();
 
   if(!installPanel()){
     let tries=0;
@@ -378,7 +758,9 @@
 
   window.SanctumMultiplayerDev={
     get session(){return session?{...session,playerToken:'[stored locally]'}:null},
-    refresh:refreshRoom
+    get isMyTurn(){return isMyTurn()},
+    refresh:()=>refreshRoom(true),
+    push:()=>pushSharedState('state_sync',{manual:true})
   };
 })();
 </script>
