@@ -1315,10 +1315,14 @@ body.sanctumViewportFullscreen > .app{
 
 
 <style id="demonStatLabelsV20Patch">
-/* Board Demon stat labels: HP / BLD / ATK with slightly softer opacity. */
+/* Board Demon stat labels: HP / BLD / ATK — stronger and easier to scan. */
 #boardSection .demonStats{
-  opacity:.84 !important;
-  gap:4px !important;
+  opacity:1 !important;
+  gap:5px !important;
+  font-size:10.7px !important;
+  font-weight:700 !important;
+  letter-spacing:.08px !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.9) !important;
 }
 #boardSection .demonStats .hp,
 #boardSection .demonStats .blood,
@@ -1331,10 +1335,18 @@ body.sanctumViewportFullscreen > .app{
 #boardSection .demonStats .blood{color:#e33a49 !important;}
 #boardSection .demonStats .attack{color:#ffffff !important;}
 #boardSection .demonStats .statSep{display:none !important;}
+@media (max-width:700px){
+  #boardSection .demonStats{
+    font-size:12.2px !important;
+  }
+}
 @media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
   #boardSection .demonStats{
-    gap:2px !important;
-    opacity:.86 !important;
+    gap:3px !important;
+    opacity:1 !important;
+    font-size:5.3px !important;
+    font-weight:700 !important;
+    letter-spacing:.03px !important;
   }
 }
 </style>
