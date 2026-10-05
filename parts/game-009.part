@@ -823,6 +823,82 @@ body.sanctumViewportFullscreen > .app{
 })();
 </script>
 
+
+<style id="iphoneDemonAbilityTextV14Patch">
+/* Show Demon printed abilities on phones without increasing room height. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demon{
+    height:52px !important;
+    min-height:52px !important;
+    padding:2px !important;
+    gap:0 !important;
+    overflow:hidden !important;
+  }
+
+  /* Reclaim vertical room inside each Demon card for the printed ability. */
+  #boardSection .demonArtWrap{
+    height:12px !important;
+    min-height:12px !important;
+    flex:0 0 12px !important;
+    margin:0 !important;
+  }
+
+  #boardSection .demonBody{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:0 !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demon .name{
+    font-size:6.3px !important;
+    line-height:1 !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  #boardSection .demonStats{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:1px !important;
+    font-size:5.1px !important;
+    line-height:1 !important;
+    margin:0 !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demonStats span{
+    padding:0 1px !important;
+    white-space:nowrap !important;
+  }
+
+  /* The family/manual labels stay hidden; the actual printed ability returns. */
+  #boardSection .familyTag,
+  #boardSection .manualAbility{
+    display:none !important;
+  }
+
+  #boardSection .abilityText{
+    display:-webkit-box !important;
+    -webkit-box-orient:vertical !important;
+    -webkit-line-clamp:4 !important;
+    overflow:hidden !important;
+    max-height:21px !important;
+    margin:1px 0 0 !important;
+    padding:0 !important;
+    font-size:5.2px !important;
+    line-height:1.02 !important;
+    letter-spacing:-0.05px !important;
+    color:#eadfca !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+  }
+}
+</style>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
