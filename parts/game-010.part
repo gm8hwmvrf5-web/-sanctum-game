@@ -166,18 +166,29 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
   font-size:8px;
   white-space:nowrap;
 }
-.mpDemonReader{
+dialog.mpDemonReader{
   position:fixed;
   inset:0;
-  z-index:2147483000;
+  width:100vw;
+  height:100vh;
+  max-width:none;
+  max-height:none;
+  margin:0;
+  padding:18px;
+  border:0;
+  background:rgba(0,0,0,.38);
+  color:inherit;
+  box-sizing:border-box;
+}
+dialog.mpDemonReader[open]{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:18px;
+}
+dialog.mpDemonReader::backdrop{
   background:rgba(0,0,0,.82);
   backdrop-filter:blur(3px);
 }
-.mpDemonReader.hidden{display:none!important}
 .mpDemonReaderCard{
   position:relative;
   width:min(760px,94vw);
@@ -260,10 +271,29 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
   line-height:1.45;
 }
 #boardSection [data-demon]{
+  position:relative !important;
   cursor:zoom-in;
   touch-action:manipulation !important;
   -webkit-tap-highlight-color:rgba(239,202,127,.22);
   pointer-events:auto !important;
+}
+#boardSection .mpDemonTapTarget{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:80 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:inherit !important;
+  background:transparent !important;
+  opacity:0 !important;
+  display:block !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
 }
 
 @media (max-width:620px) and (orientation:portrait){
@@ -349,34 +379,26 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
   function ensureDemonReader(){
     let modal=document.getElementById('mpDemonReader');
     if(modal)return modal;
-    modal=document.createElement('div');
+    modal=document.createElement('dialog');
     modal.id='mpDemonReader';
-    modal.className='mpDemonReader hidden';
-    modal.setAttribute('aria-hidden','true');
-    modal.innerHTML='<div class="mpDemonReaderCard" role="dialog" aria-modal="true" aria-label="Demon card reader">'+
+    modal.className='mpDemonReader';
+    modal.setAttribute('aria-label','Demon card reader');
+    modal.innerHTML='<div class="mpDemonReaderCard">'+
       '<button class="mpDemonReaderClose" type="button">Close</button>'+
       '<div class="mpDemonReaderArt"><img alt=""></div>'+
       '<div class="mpDemonReaderBody"></div>'+
     '</div>';
     document.body.appendChild(modal);
-    modal.querySelector('.mpDemonReaderClose').onclick=closeDemonReader;
-    modal.onclick=e=>{if(e.target===modal)closeDemonReader()};
-    if(!window.__mpDemonReaderEscape){
-      window.__mpDemonReaderEscape=true;
-      document.addEventListener('keydown',e=>{
-        if(e.key==='Escape'&&!document.getElementById('mpDemonReader')?.classList.contains('hidden')){
-          closeDemonReader();
-        }
-      });
-    }
+    modal.querySelector('.mpDemonReaderClose').onclick=e=>{e.preventDefault();e.stopPropagation();closeDemonReader()};
+    modal.addEventListener('click',e=>{if(e.target===modal)closeDemonReader()});
+    modal.addEventListener('cancel',e=>{e.preventDefault();closeDemonReader()});
     return modal;
   }
 
   function closeDemonReader(){
     const modal=document.getElementById('mpDemonReader');
     if(!modal)return;
-    modal.classList.add('hidden');
-    modal.setAttribute('aria-hidden','true');
+    try{if(modal.open)modal.close()}catch(_){}
   }
 
   function findBoardDemonById(id){
@@ -409,8 +431,11 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
         '<span class="attack">ATK '+escapeHtml(attack)+'</span>'+
       '</div>'+
       '<div class="mpDemonReaderAbility">'+escapeHtml(ability)+'</div>';
-    modal.classList.remove('hidden');
-    modal.setAttribute('aria-hidden','false');
+    try{
+      if(!modal.open)modal.showModal();
+    }catch(_){
+      modal.setAttribute('open','');
+    }
     setTimeout(()=>modal.querySelector('.mpDemonReaderClose')?.focus(),0);
   }
 
@@ -485,17 +510,11 @@ body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
     if(!session||!S||!S.started)return;
     installDemonTapDelegate();
     document.querySelectorAll('#boardSection [data-demon]').forEach(el=>{
-      el.setAttribute('role','button');
-      el.setAttribute('tabindex','0');
-      el.setAttribute('aria-label','Open larger view of '+(el.querySelector('.name')?.textContent||'Demon'));
-      el.title='Tap to enlarge Demon card';
-      el.onkeydown=e=>{
-        if(e.key==='Enter'||e.key===' '){
-          e.preventDefault();
-          e.stopPropagation();
-          openDemonReaderFromElement(el);
-        }
-      };
+      const btn=el.querySelector('[data-demon-open]');
+      if(btn){
+        btn.title='Tap to enlarge Demon card';
+        btn.setAttribute('aria-label','Open larger view of '+(el.querySelector('.name')?.textContent||'Demon'));
+      }
     });
   }
 
