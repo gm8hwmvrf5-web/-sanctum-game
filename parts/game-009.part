@@ -942,6 +942,88 @@ body.sanctumViewportFullscreen > .app{
 }
 </style>
 
+
+<style id="iphoneLargerDemonArtworkV16Patch">
+/* Phone landscape: give Demon artwork a much larger dedicated panel
+   while keeping the printed ability visible beside it. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demon{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:stretch !important;
+    height:52px !important;
+    min-height:52px !important;
+    padding:2px !important;
+    gap:2px !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demonArtWrap{
+    display:block !important;
+    flex:0 0 36% !important;
+    width:36% !important;
+    min-width:36% !important;
+    max-width:36% !important;
+    height:48px !important;
+    min-height:48px !important;
+    max-height:48px !important;
+    margin:0 !important;
+    border-radius:4px !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demonArt{
+    width:100% !important;
+    height:100% !important;
+    min-height:100% !important;
+    max-height:100% !important;
+    margin:0 !important;
+    object-fit:cover !important;
+    object-position:center 28% !important;
+    transform:none !important;
+  }
+
+  #boardSection .demonBody{
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:48px !important;
+    min-height:48px !important;
+    max-height:48px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:0 !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demon .name{
+    font-size:6px !important;
+    line-height:1 !important;
+  }
+
+  #boardSection .demonStats{
+    font-size:4.7px !important;
+    line-height:1 !important;
+  }
+
+  #boardSection .demon .abilityText{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    max-height:27px !important;
+    overflow:hidden !important;
+    margin:1px 0 0 !important;
+    padding:1px !important;
+    font-size:5.1px !important;
+    line-height:1.02 !important;
+    color:#fff0cf !important;
+    background:rgba(0,0,0,.18) !important;
+  }
+}
+</style>
+
 <script id="sanctumPwaRegistration">
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
