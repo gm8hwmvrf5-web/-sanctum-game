@@ -142,6 +142,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
   let panel=null;
   let lastRosterSnapshot=null;
   let lastAppliedVersion=-1;
+  let authoritativeActiveSeat=null;
   let lastPublishedHash='';
   let publishTimer=0;
   let publishBusy=false;
@@ -266,6 +267,11 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
 
   function activeSeat(){
     return S&&S.started?Number(S.current||0)+1:null;
+  }
+
+  function canWriteAuthoritativeTurn(){
+    return !!(session&&S&&S.started&&
+      Number(session.seat)===Number(authoritativeActiveSeat));
   }
 
   function blockingGameplayModalOpen(){
@@ -410,6 +416,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
 
     if(!validSharedState(row.state)){
       lastAppliedVersion=Math.max(lastAppliedVersion,version);
+      authoritativeActiveSeat=null;
       setGameBanner();
       return;
     }
@@ -421,6 +428,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
       try{clearTurnTimerInterval()}catch(_){}
       closeRemoteTransientUi();
       S=JSON.parse(JSON.stringify(row.state));
+      authoritativeActiveSeat=Number(S.current||0)+1;
       try{restoreStaticArtwork()}catch(_){}
       try{migratePriestBalance()}catch(_){}
       try{normalizeSanctumState()}catch(_){}
@@ -453,7 +461,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
     if(!session||!S||!S.started||applyingRemote)return false;
     if(actionType==='game_start'){
       if(!session.isHost)return false;
-    }else if(!isMyTurn()){
+    }else if(!canWriteAuthoritativeTurn()){
       enforceTurnOwnership();
       return false;
     }
@@ -499,6 +507,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
 
       session.stateVersion=serverVersion;
       lastAppliedVersion=Math.max(lastAppliedVersion,serverVersion);
+      authoritativeActiveSeat=Number(wire.current||0)+1;
       lastPublishedHash=hash;
       saveSession();
       setGameBanner();
@@ -682,7 +691,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
 
   async function leave(){
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
-    channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;lastPublishedHash='';saveSession();
+    channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';saveSession();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
     setGameBanner();
@@ -759,6 +768,7 @@ body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
   window.SanctumMultiplayerDev={
     get session(){return session?{...session,playerToken:'[stored locally]'}:null},
     get isMyTurn(){return isMyTurn()},
+    get authoritativeActiveSeat(){return authoritativeActiveSeat},
     refresh:()=>refreshRoom(true),
     push:()=>pushSharedState('state_sync',{manual:true})
   };
