@@ -2125,3 +2125,119 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   };
 })();
 </script>
+
+
+<style id="multiplayerBossArtworkSpriteStyles">
+/* New Boss art is artwork-only; keep the game's existing Boss layout/mechanics. */
+.bossArt,
+.bossDeckCard img,
+.mpBossReaderArt img,
+.damageTargetCard.bossTarget .demonArt{
+  image-rendering:auto;
+}
+</style>
+<script id="multiplayerBossArtworkSpritePatch">
+(()=>{
+  'use strict';
+
+  const SPRITE_URL='https://raw.githubusercontent.com/gm8hwmvrf5-web/-sanctum-game/multiplayer-dev/assets/bosses/boss-sprite.webp?v=20261006';
+  const BOSS_ART_ORDER=[
+    'plagueFather',
+    'blackSovereign',
+    'fallenSeraph',
+    'gatebreaker',
+    'crimsonOracle',
+    'devourer',
+    'soulTyrant',
+    'lordOfAsh',
+    'dreadReaper',
+    'boneKing'
+  ];
+  const COLS=2;
+  const TILE_W=256;
+  const TILE_H=192;
+  let bossArtworkUrls=null;
+
+  function installArtwork(urls){
+    if(!urls)return;
+    bossArtworkUrls=urls;
+
+    if(typeof BOSSES!=='undefined'&&Array.isArray(BOSSES)){
+      BOSSES.forEach(b=>{
+        if(b&&urls[b.key])b.art=urls[b.key];
+      });
+    }
+
+    if(typeof S!=='undefined'&&S&&S.boss&&urls[S.boss.key]){
+      S.boss.art=urls[S.boss.key];
+    }
+
+    window.__sanctumBossArtworkUrls=urls;
+    window.__sanctumBossArtworkReady=true;
+
+    try{
+      if(typeof render==='function')render();
+    }catch(err){
+      console.warn('Boss artwork refresh render failed',err);
+    }
+
+    try{
+      const modal=document.getElementById('bossDeckModal');
+      if(modal&&!modal.classList.contains('hidden')&&typeof renderBossCodex==='function'){
+        renderBossCodex();
+      }
+    }catch(err){
+      console.warn('Boss codex artwork refresh failed',err);
+    }
+  }
+
+  function cropSprite(img){
+    const urls={};
+    BOSS_ART_ORDER.forEach((key,index)=>{
+      const sx=(index%COLS)*TILE_W;
+      const sy=Math.floor(index/COLS)*TILE_H;
+      const canvas=document.createElement('canvas');
+      canvas.width=TILE_W;
+      canvas.height=TILE_H;
+      const ctx=canvas.getContext('2d',{alpha:false});
+      if(!ctx)return;
+      ctx.drawImage(img,sx,sy,TILE_W,TILE_H,0,0,TILE_W,TILE_H);
+      try{
+        urls[key]=canvas.toDataURL('image/webp',0.86);
+      }catch(_){
+        urls[key]=canvas.toDataURL('image/jpeg',0.88);
+      }
+    });
+    return urls;
+  }
+
+  const sprite=new Image();
+  sprite.crossOrigin='anonymous';
+  sprite.decoding='async';
+  sprite.onload=()=>{
+    try{
+      installArtwork(cropSprite(sprite));
+    }catch(err){
+      console.error('Could not prepare the new Boss artwork.',err);
+    }
+  };
+  sprite.onerror=()=>{
+    console.error('Could not load the optimized Boss artwork sprite.');
+  };
+  sprite.src=SPRITE_URL;
+
+  /* Saved / remotely synced states omit art. Re-apply the new Boss art whenever
+     static artwork is restored, without changing any state or Boss rules. */
+  if(typeof restoreStaticArtwork==='function'){
+    const _restoreStaticArtwork=restoreStaticArtwork;
+    restoreStaticArtwork=function(){
+      const out=_restoreStaticArtwork.apply(this,arguments);
+      if(bossArtworkUrls&&typeof S!=='undefined'&&S&&S.boss&&bossArtworkUrls[S.boss.key]){
+        S.boss.art=bossArtworkUrls[S.boss.key];
+      }
+      return out;
+    };
+  }
+})();
+</script>
+
