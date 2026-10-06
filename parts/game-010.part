@@ -2865,9 +2865,11 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats > span{
   }
 
   function fitBossStatLines(){
-    document.querySelectorAll('#bossArea .bossStatLine').forEach(el=>fitOne(el,12,4.5));
+    const mobile=window.matchMedia('(max-width:760px), (orientation:landscape) and (max-height:520px)').matches;
+    document.querySelectorAll('#bossArea .bossStatLine')
+      .forEach(el=>fitOne(el,mobile?11:12,mobile?9:4.5));
     document.querySelectorAll('dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats')
-      .forEach(el=>fitOne(el,17,8));
+      .forEach(el=>fitOne(el,mobile?14:17,mobile?10.5:8));
   }
 
   let raf=0;
@@ -3370,4 +3372,101 @@ body.rogue-tutorial-active.sanctum-menu-subdialog-open #pauseOverlay{
   window.__sanctumApplyManaBlessingBalance=applyManaBlessingBalance;
 })();
 </script>
+
+
+
+<style id="multiplayerBossMobileStatsVisibility">
+/* Mobile Boss stats must remain visible during normal play, not only after
+   opening the large Boss reader. Put the live stat strip immediately under
+   the artwork and keep it large enough to read on iPhone-sized screens. */
+@media (max-width:760px), (orientation:landscape) and (max-height:520px){
+  #bossArea .bossCard{
+    display:flex !important;
+    flex-direction:column !important;
+    min-width:0 !important;
+    overflow:visible !important;
+  }
+
+  #bossArea .bossArt{
+    order:1 !important;
+    margin-bottom:0 !important;
+    border-radius:7px 7px 0 0 !important;
+  }
+
+  #bossArea .bossStatLine{
+    order:2 !important;
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    min-height:26px !important;
+    padding:5px 7px !important;
+    margin:0 0 5px !important;
+    box-sizing:border-box !important;
+    border:1px solid #70413a !important;
+    border-top:0 !important;
+    border-radius:0 0 7px 7px !important;
+    background:linear-gradient(180deg,#211012,#130a0b) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035) !important;
+    font-size:11px;
+    line-height:1 !important;
+    position:relative !important;
+    z-index:8 !important;
+  }
+
+  #bossArea .bossStatLine .hp,
+  #bossArea .bossStatLine .blood{
+    display:inline-block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    font-weight:900 !important;
+  }
+
+  #bossArea .bossName{order:3 !important}
+  #bossArea .bossSubtitle{order:4 !important}
+  #bossArea .bossAbilityMini{order:5 !important}
+
+  /* The tapped Boss reader gets a dedicated high-contrast stat bar too. */
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats{
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    min-height:34px !important;
+    padding:7px 9px !important;
+    margin:7px 0 9px !important;
+    box-sizing:border-box !important;
+    border:1px solid #70413a !important;
+    border-radius:8px !important;
+    background:linear-gradient(180deg,#211012,#130a0b) !important;
+    font-size:14px;
+    font-weight:900 !important;
+    position:relative !important;
+    z-index:5 !important;
+  }
+
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .hp{
+    color:#ff9db4 !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
+    color:#f06464 !important;
+  }
+}
+
+/* Short landscape phones get the same readable stat treatment without
+   allowing the row to collapse into tiny text. */
+@media (orientation:landscape) and (max-height:420px) and (max-width:1000px){
+  #bossArea .bossStatLine{
+    min-height:22px !important;
+    padding:4px 6px !important;
+    margin-bottom:3px !important;
+    font-size:10px;
+  }
+
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats{
+    min-height:28px !important;
+    padding:5px 7px !important;
+    margin:4px 0 6px !important;
+    font-size:12px;
+  }
+}
+</style>
 
