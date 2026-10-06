@@ -3048,6 +3048,21 @@ body.rogue-tutorial-active.sanctum-menu-subdialog-open #pauseOverlay{
       e.preventDefault();
       e.stopImmediatePropagation();
       returnToGameMenu(closingModal);
+      return;
+    }
+
+    // The newer Legacy layout also has a separate top-right "Close ×" button.
+    // It is not rogueLegacyClose (the bottom checkpoint button can legitimately
+    // say Continue Descent), so recognize it by its location/text when Legacy
+    // was opened from the paused Game Menu.
+    if(
+      active&&active.modalId==='rogueLegacyModal'&&
+      button.closest&&button.closest('#rogueLegacyModal')&&
+      /^close\b/i.test((button.textContent||'').trim())
+    ){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      returnToGameMenu('rogueLegacyModal');
     }
   },true);
 
