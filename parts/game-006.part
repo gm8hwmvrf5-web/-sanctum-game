@@ -23,7 +23,7 @@
 (()=>{
 'use strict';
 const ROGUE_META_KEY='sanctumRogueliteLegacyV1';
-const ROGUE_VERSION=4;
+const ROGUE_VERSION=5;
 const ROGUE_NODE_INFO={
  battle:{name:'Standard Battle',icon:'✦',cls:'',desc:'A balanced encounter using the normal Sanctum pressure.',reward:'1 Cinder • normal reward choice'},
  elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Demons gain additional HP and Attack. The encounter is longer, but its spoils are richer.',reward:'3 Cinders • bonus Relic choice available'},
@@ -35,14 +35,22 @@ const ROGUE_UPGRADES={
  blood:{name:'Vial of the Penitent',desc:'Each Priest starts future runs with +1 Demon Blood per rank.',cap:3,costs:[5,9,14]},
  hand:{name:'Hidden Scripture',desc:'Each Priest draws +1 additional starting Priest card per rank.',cap:2,costs:[7,12]},
  ward:{name:'Ward of Ash',desc:'Begin each run with 2 points of Altar Barrier per rank for the opening round.',cap:3,costs:[6,10,15]},
- relic:{name:'Reliquary Key',desc:'Begin each future run with one random Relic already active. This starting Relic does not raise the Relic XP requirement.',cap:1,costs:[18]}
+ relic:{name:'Reliquary Key',desc:'Begin each future run with one random Relic already active. This starting Relic does not raise the Relic XP requirement.',cap:1,costs:[18]},
+ basicAttack:{name:'Consecrated Strike',desc:'Basic Attack deals +1 permanent damage per rank in future fresh runs.',cap:3,costs:[25,40,60]},
+ relicXpGain:{name:'Relic Communion',desc:'Each Demon kill grants +1 additional Relic XP per rank in future fresh runs.',cap:3,costs:[30,45,65]}
 };
 let rogueModalActions=[];
 
 function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,history:[],lastReward:'',runStartedAt:Date.now()}}
 function rogueState(){if(!S.rogue||typeof S.rogue!=='object')S.rogue=rogueDefaultState();return S.rogue}
-function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
+function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,basicAttack:0,relicXpGain:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
 function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify(m));return true}catch(e){console.warn('Legacy storage unavailable',e);return false}}
+function rogueLegacyBasicAttackBonus(){return Math.max(0,Number(S?.rogue?.legacyBasicAttackBonus)||0)}
+function rogueLegacyRelicXpBonus(){return Math.max(0,Number(S?.rogue?.legacyRelicXpBonus)||0)}
+window.basicAttackDamage=function(){
+ let relicBonus=Math.max(0,Number(S?.relicMods?.basic)||0);
+ return 2+relicBonus+rogueLegacyBasicAttackBonus();
+};
 function rogueCycleForFloor(f){return Math.floor((Math.max(1,Number(f)||1)-1)/15)+1}
 function rogueCycleFloorFor(f){return ((Math.max(1,Number(f)||1)-1)%15)+1}
 function rogueActForFloor(f){return Math.ceil(rogueCycleFloorFor(f)/5)}
@@ -70,9 +78,10 @@ function rogueKillXpValue(d){
  return Math.max(0,base+extra);
 }
 function rogueAwardKillXp(amount,d){
- let r=rogueState();amount=Math.max(0,Math.floor(amount||0));if(!amount)return;
+ let r=rogueState(),legacyBonus=rogueLegacyRelicXpBonus();
+ amount=Math.max(0,Math.floor(amount||0))+legacyBonus;if(!amount)return;
  r.relicXp=Math.max(0,r.relicXp||0)+amount;
- log(`RELIC XP +${amount} — ${demonName(d)}'s Demon Blood counts as experience (${r.relicXp}/${rogueRelicXpNeed()}).`,'good');
+ log(`RELIC XP +${amount} — ${demonName(d)}'s kill grants experience${legacyBonus?` (includes +${legacyBonus} Legacy XP`:''}${legacyBonus?')':''} (${r.relicXp}/${rogueRelicXpNeed()}).`,'good');
  let safety=0;
  while(safety++<20){
   let need=rogueRelicXpNeed();
@@ -121,11 +130,15 @@ function rogueStartNextRound(){
  endRound();
 }
 function rogueApplyLegacyStart(){
- let m=rogueMeta();
+ let m=rogueMeta(),r=rogueState();
+ r.legacyBasicAttackBonus=Math.max(0,Number(m.basicAttack)||0);
+ r.legacyRelicXpBonus=Math.max(0,Number(m.relicXpGain)||0);
  if(m.blood)S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+m.blood));
  if(m.hand)S.players.forEach(p=>drawPriest(p,m.hand));
  if(m.ward){S.altarBarrier=(S.altarBarrier||0)+(m.ward*2);S.altarBarrierRound=S.round;log(`Legacy Ward: ${m.ward*2} Altar Barrier protects the opening round.`,'good')}
  if(m.relic)rogueSilentRelic('Reliquary Key');
+ if(r.legacyBasicAttackBonus)log(`Legacy Consecrated Strike: Basic Attack gains +${r.legacyBasicAttackBonus} damage this run.`,'good');
+ if(r.legacyRelicXpBonus)log(`Legacy Relic Communion: Demon kills gain +${r.legacyRelicXpBonus} Relic XP this run.`,'good');
 }
 function rogueShuffleDemonDeckForPassage(reason='new passage'){
  if(!S||!Array.isArray(S.demonDeck)||S.demonDeck.length<2){
