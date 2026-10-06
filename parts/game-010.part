@@ -1713,6 +1713,56 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     publishTimer=setTimeout(()=>pushSharedState(actionType,payload),delay);
   }
 
+  function freshPriestShuffle(cards){
+    const a=[...(cards||[])];
+    const randomUnit=()=>{
+      try{
+        if(window.crypto&&crypto.getRandomValues){
+          const u=new Uint32Array(1);
+          crypto.getRandomValues(u);
+          return u[0]/4294967296;
+        }
+      }catch(_){}
+      return Math.random();
+    };
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(randomUnit()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function randomizeOpeningPriestHands(){
+    if(!S||!S.started||!Array.isArray(S.players)||!S.players.length)return false;
+    if(!Array.isArray(S.priestDeck))S.priestDeck=[];
+
+    // Preserve each player's intended opening hand size, including any
+    // legitimate Legacy starting-hand bonus, while fully randomizing which
+    // Priest cards occupy those slots.
+    const handSizes=S.players.map(p=>Array.isArray(p.hand)?p.hand.length:0);
+    const openingCards=[];
+    S.players.forEach(p=>{
+      if(Array.isArray(p.hand))openingCards.push(...p.hand);
+      p.hand=[];
+    });
+
+    // Return opening cards before shuffling so online hands are drawn from the
+    // complete expanded deck rather than only the original base set.
+    S.priestDeck=freshPriestShuffle([...(S.priestDeck||[]),...openingCards]);
+
+    S.players.forEach((p,seat)=>{
+      const count=Math.max(0,handSizes[seat]||0);
+      for(let n=0;n<count&&S.priestDeck.length;n++){
+        p.hand.push(S.priestDeck.pop());
+      }
+    });
+
+    S.priestOpeningHandsRandomized=true;
+    S.priestOpeningShuffleNonce=(Number(S.priestOpeningShuffleNonce)||0)+1;
+    const total=(S.priestDeck?.length||0)+S.players.reduce((sum,p)=>sum+(p.hand?.length||0),0);
+    log('Priest opening hands randomized from the full '+total+'-card run deck.','good');
+    return true;
+  }
   function expandMultiplayerPriestStartingDeck(){
     if(!session||!S||!S.started||S.multiplayerPriestDeckExpanded)return;
     if(!Array.isArray(S.players)||!S.players.length||!Array.isArray(PRIEST)||!PRIEST.length)return;
@@ -1826,11 +1876,14 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
         let ok=false;
         try{
           ok=baseStart.apply(this,arguments);
-          if(ok&&session&&S&&Array.isArray(S.players)){
-            expandMultiplayerPriestStartingDeck();
-            S.mana=typeof sharedManaRoundValue==='function'
-              ? sharedManaRoundValue()
-              : (S.players.length>=4?35:S.players.length===3?20:S.players.length===2?15:10);
+          if(ok&&S&&Array.isArray(S.players)){
+            if(session)expandMultiplayerPriestStartingDeck();
+            randomizeOpeningPriestHands();
+            if(session){
+              S.mana=typeof sharedManaRoundValue==='function'
+                ? sharedManaRoundValue()
+                : (S.players.length>=4?35:S.players.length===3?20:S.players.length===2?15:10);
+            }
             render();
           }
         }finally{
