@@ -32,10 +32,10 @@ const ROGUE_NODE_INFO={
  boss:{name:'Boss Gate',icon:'♛',cls:'boss',desc:'A Boss Demon seals the next descent. Defeat it to reach the next Act.',reward:'Boss Cinders • major reward'}
 };
 const ROGUE_UPGRADES={
- blood:{name:'Vial of the Penitent',desc:'Each Priest starts future runs with +1 Demon Blood per rank.',cap:3,costs:[5,9,14]},
- hand:{name:'Hidden Scripture',desc:'Each Priest draws +1 additional starting Priest card per rank.',cap:2,costs:[7,12]},
- ward:{name:'Ward of Ash',desc:'Begin each run with 2 points of Altar Barrier per rank for the opening round.',cap:3,costs:[6,10,15]},
- relic:{name:'Reliquary Key',desc:'Begin each future run with one random Relic already active. This starting Relic does not raise the Relic XP requirement.',cap:1,costs:[18]},
+ blood:{name:'Vial of the Penitent',desc:'Each Priest starts future runs with +1 Demon Blood per rank.',cap:3,costs:[15,27,42]},
+ hand:{name:'Hidden Scripture',desc:'Each Priest draws +1 additional starting Priest card per rank.',cap:2,costs:[21,36]},
+ ward:{name:'Ward of Ash',desc:'Begin each run with 2 points of Altar Barrier per rank for the opening round.',cap:3,costs:[18,30,45]},
+ relic:{name:'Reliquary Key',desc:'Begin each future run with one random Relic already active. This starting Relic does not raise the Relic XP requirement.',cap:1,costs:[54]},
  basicAttack:{name:'Consecrated Strike',desc:'Basic Attack deals +1 permanent damage per rank in future fresh runs.',cap:3,costs:[25,40,60]},
  relicXpGain:{name:'Relic Communion',desc:'Each Demon kill grants +1 additional Relic XP per rank in future fresh runs.',cap:3,costs:[30,45,65]}
 };
