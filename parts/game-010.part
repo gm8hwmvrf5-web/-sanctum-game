@@ -789,7 +789,33 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     return /route|passage|descent|boss gate/.test(s)?'passage':'reward';
   }
 
-  function serializeGroupVoteOption(choice,index){
+  function inferGroupVoteActionKey(meta={},choice={},index=0){
+    const title=String(choice?.title||choice?.voteCard||'').trim();
+    const category=groupVoteCategory(meta);
+
+    if(choice?.voteCard)return 'draft:'+String(choice.voteCard);
+
+    const exact={
+      'Draft a Priest Card':'reward:draft',
+      'Recover the Altar':'reward:recover',
+      'Claim a Relic':'reward:relic',
+      'Blood Cache':'reward:blood',
+      'Confession':'sanctuary:confession',
+      'Study the Reliquary':'sanctuary:draft',
+      'Take Sacrament':'sanctuary:sacrament',
+      'Reliquary':'boss_reward:reliquary',
+      'Purification':'boss_reward:purification',
+      'Arsenal of Faith':'boss_reward:arsenal',
+      'Standard Battle':'route:battle',
+      'Elite Procession':'route:elite',
+      'Hellgate Swarm':'route:swarm',
+      'Ruined Sanctuary':'route:sanctuary'
+    };
+    if(category==='passage'&&/^Enter Boss Floor\s+\d+/i.test(title))return 'route:boss';
+    return exact[title]||'';
+  }
+
+  function serializeGroupVoteOption(choice,index,meta={}){
     return {
       index,
       title:String(choice?.title||choice?.voteCard||('Option '+(index+1))),
@@ -798,8 +824,67 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       icon:String(choice?.icon||'✦'),
       cls:String(choice?.cls||''),
       cardName:choice?.voteCard?String(choice.voteCard):'',
-      empowered:choice?.voteEmpowered?String(choice.voteEmpowered):''
+      empowered:choice?.voteEmpowered?String(choice.voteEmpowered):'',
+      actionKey:inferGroupVoteActionKey(meta,choice,index)
     };
+  }
+
+  function reconstructGroupVoteAction(vote,opt,index){
+    const title=String(opt?.title||'').trim();
+    const key=String(opt?.actionKey||inferGroupVoteActionKey({
+      title:vote?.title||'',
+      eyebrow:vote?.eyebrow||''
+    },opt,index)||'');
+
+    if(key.startsWith('draft:')){
+      const cardName=key.slice(6)||opt?.cardName||title;
+      return ()=>{
+        const i=typeof PRIEST!=='undefined'&&Array.isArray(PRIEST)
+          ? PRIEST.findIndex(c=>c&&c.n===cardName)
+          : -1;
+        const c=i>=0?PRIEST[i]:null;
+        if(!c)throw new Error('Could not rebuild drafted Priest card: '+cardName);
+        const card={...c,id:`rogue-${i}-${uid()}`};
+        S.priestDeck=shuffle([...(S.priestDeck||[]),card]);
+        log(`${c.n} is added to the run deck and shuffled into the remaining random draws.`,'good');
+        rogueState().lastReward=`Drafted ${c.n}`;
+        render();
+        rogueliteOpenRoute();
+      };
+    }
+
+    const actions={
+      'reward:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
+      'reward:recover':()=>{restoreAltarLogged(6,'Encounter recovery');addMana(2);rogueliteOpenRoute()},
+      'reward:relic':()=>{const rel=rogueSilentRelic('Elite room-clear reward');showGameStatus(rel?`Relic claimed: ${rel.n}`:'The Relic deck is empty.','good');rogueliteOpenRoute()},
+      'reward:blood':()=>{rogueGiveBlood(2);rogueAddCinders(1,'Blood Cache');rogueliteOpenRoute()},
+      'sanctuary:confession':()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()},
+      'sanctuary:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
+      'sanctuary:sacrament':()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()},
+      'boss_reward:reliquary':()=>{rogueSilentRelic('Boss room-clear reward');restoreAltarLogged(4,'Boss reward');rogueliteOpenRoute()},
+      'boss_reward:purification':()=>{restoreAltarLogged(10,'Boss purification');rogueCleanseAll();render();rogueliteOpenRoute()},
+      'boss_reward:arsenal':()=>{rogueGiveBlood(2);rogueliteOpenDraft(rogueliteOpenRoute)},
+      'route:battle':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('battle')},
+      'route:elite':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('elite')},
+      'route:swarm':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('swarm')},
+      'route:sanctuary':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('sanctuary')},
+      'route:boss':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('boss')}
+    };
+    return actions[key]||null;
+  }
+
+  function groupVoteActions(vote){
+    if(!vote)return null;
+    const id=String(vote.id||'');
+    let actions=voteActionRegistry.get(id);
+    if(actions&&actions.length)return actions;
+
+    actions=(vote.options||[]).map((opt,index)=>reconstructGroupVoteAction(vote,opt,index));
+    if(actions.some(fn=>typeof fn==='function')){
+      voteActionRegistry.set(id,actions);
+      return actions;
+    }
+    return null;
   }
 
   function voteSummaryFor(id){
@@ -987,7 +1072,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     if(Number(session?.seat)!==Number(vote.resolverSeat))return;
     if(resolvingVoteIds.has(id)||resolvingVoteTransition)return;
 
-    const actions=voteActionRegistry.get(id);
+    const actions=groupVoteActions(vote);
     if(!actions||!actions.length)return;
 
     const counts=groupVoteCounts(vote,summary);
@@ -1094,7 +1179,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       title:String(meta?.title||'Choose Together'),
       text:String(meta?.text||''),
       resolverSeat:Number(session.seat),
-      options:choices.map(serializeGroupVoteOption)
+      options:choices.map((choice,index)=>serializeGroupVoteOption(choice,index,meta))
     };
 
     S.multiplayerVote=vote;
