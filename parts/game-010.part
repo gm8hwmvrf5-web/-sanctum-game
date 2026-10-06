@@ -714,6 +714,8 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   let hooksInstalled=false;
   let heartbeatTimer=0;
   let heartbeatBusy=false;
+  let lobbyRosterPollTimer=0;
+  let lobbyRosterRefreshBusy=false;
   let sessionEnded=false;
   const voteActionRegistry=new Map();
   const voteSummaryById=new Map();
@@ -1431,6 +1433,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     if(sessionEnded)return;
     sessionEnded=true;
     stopHeartbeat();
+    stopLobbyRosterPolling();
     stopRosterSubscription();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.add('mpSessionEnded');
@@ -2036,6 +2039,39 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     setGameBanner();
   }
 
+  function stopLobbyRosterPolling(){
+    if(lobbyRosterPollTimer){
+      clearInterval(lobbyRosterPollTimer);
+      lobbyRosterPollTimer=0;
+    }
+    lobbyRosterRefreshBusy=false;
+  }
+
+  async function pollLobbyRoster(){
+    if(!session||sessionEnded||lobbyRosterRefreshBusy)return;
+    if(lastRosterSnapshot?.game?.status&&lastRosterSnapshot.game.status!=='lobby'){
+      stopLobbyRosterPolling();
+      return;
+    }
+    lobbyRosterRefreshBusy=true;
+    try{
+      await refreshRoom(false);
+    }catch(err){
+      console.warn('Lobby roster fallback refresh failed',err);
+    }finally{
+      lobbyRosterRefreshBusy=false;
+    }
+  }
+
+  function startLobbyRosterPolling(){
+    if(!session||sessionEnded||S?.started||lastRosterSnapshot?.game?.status==='playing'){
+      stopLobbyRosterPolling();
+      return;
+    }
+    if(lobbyRosterPollTimer)return;
+    lobbyRosterPollTimer=setInterval(pollLobbyRoster,1200);
+  }
+
   async function stopRosterSubscription(){
     if(client&&rosterChannel){
       try{await client.removeChannel(rosterChannel)}catch(_){}
@@ -2055,8 +2091,16 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       .on('postgres_changes',{
         event:'*',schema:'public',table:'players',
         filter:'game_id=eq.'+session.gameId
-      },()=>refreshRoom(false))
-      .subscribe();
+      },()=>{
+        refreshRoom(false).catch(err=>console.warn('Roster realtime refresh failed',err));
+      })
+      .subscribe(state=>{
+        if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'){
+          console.warn('Roster realtime unavailable; lobby polling remains active.');
+          startLobbyRosterPolling();
+        }
+      });
+    startLobbyRosterPolling();
   }
 
   async function refreshRoom(forceState=false){
@@ -2081,8 +2125,13 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       renderRoster(snap);
       syncSetupFromRoster(snap);
       panel?.classList.add('connected');
-      if(snap.game.status==='lobby')startRosterSubscription().catch(err=>console.warn('Roster subscription failed',err));
-      else stopRosterSubscription();
+      if(snap.game.status==='lobby'){
+        startRosterSubscription().catch(err=>console.warn('Roster subscription failed',err));
+        startLobbyRosterPolling();
+      }else{
+        stopLobbyRosterPolling();
+        stopRosterSubscription();
+      }
       await applyRemoteGameRow(snap.game,forceState||lastAppliedVersion<0);
       enforceTurnOwnership();
     }catch(err){
@@ -2111,6 +2160,11 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
             return;
           }
           status(`Connected to room ${row.room_code||session.roomCode} • live game sync`);
+          if(row.status==='lobby'){
+            refreshRoom(false).catch(err=>console.error('Lobby room refresh failed',err));
+            return;
+          }
+          stopLobbyRosterPolling();
           if(row.status==='playing')stopRosterSubscription();
           applyRemoteGameRow(row).catch(err=>console.error(err));
         }else{
@@ -2205,6 +2259,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 
   async function leave(){
     stopHeartbeat();
+    stopLobbyRosterPolling();
     await stopRosterSubscription();
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
     stopGroupVoteSummaryPolling();
