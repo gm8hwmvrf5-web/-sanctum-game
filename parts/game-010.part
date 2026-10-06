@@ -723,6 +723,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   const resolvingVoteIds=new Set();
   const voteOpeningIds=new Set();
   let resolvingVoteTransition=false;
+  let choiceAuthorityRepairBusy=false;
   let voteSummaryPollTimer=0;
   let voteSummaryPollId='';
 
@@ -950,6 +951,49 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     return Number(S.current||0)+1;
   }
 
+  async function ensureChoiceAuthority(choice,ownerSeat){
+    if(!session||!S?.started||!choice||choice.open!==true)return false;
+    ownerSeat=Number(ownerSeat);
+    if(!Number.isInteger(ownerSeat)||ownerSeat<1||ownerSeat>Number(S.players?.length||4))return false;
+
+    if(Number(authoritativeActiveSeat)===ownerSeat&&Number(S.current||0)+1===ownerSeat){
+      return true;
+    }
+
+    // Only the device that currently owns server authority may perform the
+    // handoff. The server validates this write against the OLD active seat;
+    // the synchronized state then makes the saved choice owner authoritative.
+    if(choiceAuthorityRepairBusy||!canWriteAuthoritativeTurn())return false;
+
+    choiceAuthorityRepairBusy=true;
+    const oldCurrent=Number(S.current||0);
+    try{
+      S.current=ownerSeat-1;
+      const ok=await pushSharedState('choice_authority_handoff',{
+        choice_id:String(choice.id||''),
+        category:String(choice.category||'reward'),
+        from_seat:Number(authoritativeActiveSeat||oldCurrent+1),
+        to_seat:ownerSeat
+      });
+      if(!ok){
+        S.current=oldCurrent;
+        try{await refreshRoom(true)}catch(_){}
+        return false;
+      }
+
+      authoritativeActiveSeat=ownerSeat;
+      try{render()}catch(_){}
+      return true;
+    }catch(err){
+      S.current=oldCurrent;
+      console.error('Could not repair multiplayer choice authority',err);
+      try{await refreshRoom(true)}catch(_){}
+      return false;
+    }finally{
+      choiceAuthorityRepairBusy=false;
+    }
+  }
+
   function renderGroupVoteFromState(){
     const choice=S?.multiplayerVote;
     const modal=document.getElementById('rogueChoiceModal');
@@ -972,6 +1016,19 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     // resolving flag from the choice that created it.
     if(!resolvingVoteIds.has(String(choice.id))&&voteOpeningIds.has(String(choice.id))===false){
       resolvingVoteTransition=false;
+    }
+
+    // Choice ownership is stronger than ordinary turn ownership. If a floor
+    // transition moved S.current away from the stored chooser (the source of
+    // the Priest Draft / Sanctuary freezes), the currently authoritative
+    // device atomically hands authority back to the chooser before any button
+    // is allowed to resolve.
+    if(Number(authoritativeActiveSeat)!==Number(ownerSeat)||Number(S.current||0)+1!==Number(ownerSeat)){
+      closeGroupVoteModal();
+      if(canWriteAuthoritativeTurn()&&!choiceAuthorityRepairBusy){
+        ensureChoiceAuthority(choice,ownerSeat);
+      }
+      return;
     }
 
     // Every other device stays on the synchronized board. It receives the
@@ -1082,11 +1139,15 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       voteSummaryById.delete(id);
       closeGroupVoteModal();
 
-      // Apply the reward to the one shared game state. Effects that target all
-      // Priests (Blood, cards, etc.) therefore apply to every player exactly as
-      // their existing action code specifies.
+      // Apply the selected action to the shared state.
       const result=fn();
       if(result&&typeof result.then==='function')await result;
+
+      // Some choices intentionally open their follow-up on a short timer
+      // (notably entering a Sanctuary). Give those callbacks a deterministic
+      // settle window so the next choice is captured in this same commit
+      // instead of appearing locally after the server state has already moved.
+      await new Promise(resolve=>setTimeout(resolve,180));
 
       const nextChoice=S?.multiplayerVote&&S.multiplayerVote.open===true
         ? S.multiplayerVote
@@ -1094,9 +1155,22 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       const nextChoiceId=nextChoice?String(nextChoice.id):'';
 
       if(nextChoice){
-        // Preserve the same chooser through Reward -> Draft -> Passage.
         nextChoice.mode='passage_clear_owner';
-        nextChoice.resolverSeat=ownerSeat;
+
+        // Reward -> Priest Draft -> Passage stays with the Priest who cleared
+        // the prior encounter. Once a Passage itself has been selected, any
+        // new in-passage choice (for example Sanctuary) belongs to the active
+        // Priest created by that floor transition.
+        if(String(choice.category||'reward')!=='passage'){
+          nextChoice.resolverSeat=ownerSeat;
+        }else{
+          const newOwner=Number(nextChoice.resolverSeat)||Number(S.current||0)+1;
+          nextChoice.resolverSeat=newOwner;
+        }
+
+        // Guarantee the server's active-seat authority and the visible chooser
+        // can never disagree in the state we are about to publish.
+        S.current=Math.max(0,Number(nextChoice.resolverSeat)-1);
       }
 
       const committed=await pushSharedState('passage_clear_choice_resolved',{
@@ -1160,6 +1234,9 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       options:choices.map((item,index)=>serializeGroupVoteOption(item,index,meta))
     };
 
+    // A newly opened choice must always be owned by the same seat that is
+    // authoritative in the state being published.
+    S.current=ownerSeat-1;
     S.multiplayerVote=choice;
     voteActionRegistry.set(choiceId,choices.map(c=>c.action));
     voteSummaryById.delete(choiceId);
@@ -1797,6 +1874,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     const voteLifecycleCommit=
       actionType==='group_vote_open'||actionType==='group_vote_resolved'||
       actionType==='leader_choice_open'||actionType==='leader_choice_resolved'||
+      actionType==='choice_authority_handoff'||
       actionType==='passage_clear_choice_open'||actionType==='passage_clear_choice_resolved';
     if(blockingGameplayModalOpen()&&!voteLifecycleCommit){
       schedulePublish(actionType,payload,250);
@@ -2277,6 +2355,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
     stopGroupVoteSummaryPolling();
     resolvingVoteTransition=false;
+    choiceAuthorityRepairBusy=false;
     channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
