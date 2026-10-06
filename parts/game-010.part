@@ -3485,3 +3485,169 @@ body.rogue-tutorial-active.sanctum-menu-subdialog-open #pauseOverlay{
 }
 </style>
 
+
+
+<script id="elementalBasicAttackRelicsPatch">
+(()=>{
+'use strict';
+if(window.__elementalBasicAttackRelicsInstalled)return;
+window.__elementalBasicAttackRelicsInstalled=true;
+
+const FIRE='cinderbrand',POISON='serpentsFang';
+const E={
+ [FIRE]:{key:FIRE,k:FIRE,id:FIRE,n:'Cinderbrand',name:'Cinderbrand',t:'special',type:'Special',cat:'Basic Attack',category:'Basic Attack',v:0,
+  e:'Your Basic Attack ignites its target. At the end of your turn, it takes Fire damage equal to half your current Basic Attack damage (rounded down, minimum 1).',
+  txt:'Your Basic Attack ignites its target. At the end of your turn, it takes Fire damage equal to half your current Basic Attack damage (rounded down, minimum 1).'},
+ [POISON]:{key:POISON,k:POISON,id:POISON,n:"Serpent's Fang",name:"Serpent's Fang",t:'special',type:'Special',cat:'Basic Attack',category:'Basic Attack',v:0,
+  e:'Your Basic Attack applies Poison. On the second Poison Basic Attack hit against the same target, it immediately takes bonus damage equal to your current Basic Attack damage, then its Poison count resets.',
+  txt:'Your Basic Attack applies Poison. On the second Poison Basic Attack hit against the same target, it immediately takes bonus damage equal to your current Basic Attack damage, then its Poison count resets.'}
+};
+E[FIRE].d=E[FIRE].desc=E[FIRE].e;E[POISON].d=E[POISON].desc=E[POISON].e;
+
+function rk(v){return typeof v==='string'?v:(v&&typeof v==='object'?String(v.key||v.k||v.id||''):'')}
+function rn(v){return v&&typeof v==='object'?String(v.n||v.name||''):''}
+function active(k){
+ if(typeof S==='undefined'||!S||!Array.isArray(S.activeRelics))return false;
+ return S.activeRelics.some(function(v){return rk(v)===k||rn(v)===E[k].n});
+}
+function syncFlags(){
+ if(typeof S==='undefined'||!S)return;
+ S.elementalRelics=S.elementalRelics||{};
+ if(active(FIRE))S.elementalRelics.fire=true;
+ if(active(POISON))S.elementalRelics.poison=true;
+}
+function enabled(k){syncFlags();return !!(S&&S.elementalRelics&&S.elementalRelics[k])}
+function insert(deck,k){if(!Array.isArray(deck)||deck.indexOf(k)>=0)return;deck.splice(Math.floor(Math.random()*(deck.length+1)),0,k)}
+function seed(){
+ if(typeof S==='undefined'||!S||!Array.isArray(S.relicDeck))return;
+ S.elementalRelics=S.elementalRelics||{};
+ if(S.elementalRelics.deckVersion===1){syncFlags();return}
+ if(!active(FIRE))insert(S.relicDeck,FIRE);
+ if(!active(POISON))insert(S.relicDeck,POISON);
+ S.elementalRelics.deckVersion=1;syncFlags();
+}
+
+if(typeof relicByKey==='function'){
+ const old=relicByKey;
+ relicByKey=function(k){return E[k]||old.apply(this,arguments)};
+ try{window.relicByKey=relicByKey}catch(_){}
+}
+if(typeof applyRelic==='function'){
+ const old=applyRelic;
+ applyRelic=function(rel){
+  const k=rk(rel);
+  if(!E[k])return old.apply(this,arguments);
+  const before=Array.isArray(S&&S.activeRelics)?S.activeRelics.length:0;
+  let out;
+  try{out=old.apply(this,arguments)}catch(err){console.warn('Custom Relic base handler skipped',err)}
+  S.activeRelics=Array.isArray(S.activeRelics)?S.activeRelics:[];
+  if(S.activeRelics.length===before&&!active(k))S.activeRelics.push(k);
+  S.elementalRelics=S.elementalRelics||{};
+  if(k===FIRE)S.elementalRelics.fire=true;
+  if(k===POISON)S.elementalRelics.poison=true;
+  return out===undefined?rel:out;
+ };
+ try{window.applyRelic=applyRelic}catch(_){}
+}
+
+function nameOf(x){
+ if(!x)return 'target';
+ if(x.kind==='boss')return (x.boss&&x.boss.n)||(S&&S.boss&&S.boss.n)||'Boss';
+ try{return demonName(x.d)}catch(_){return x.d&&x.d.n||'Demon'}
+}
+function alive(x){
+ if(!x)return false;
+ if(x.kind==='boss')return !!(S&&S.bossRevealed&&S.boss&&S.boss.cur>0&&x.boss===S.boss);
+ if(!x.d||x.d.cur<=0)return false;
+ try{return !!findDemonLocation(x.d)}catch(_){return true}
+}
+function poisonState(x){
+ if(x.kind==='boss'){S.boss.status=S.boss.status||{};return S.boss.status}
+ x.d.status=x.d.status||{};return x.d.status;
+}
+function addBurn(x,dmg,owner){
+ S.elementalBurnQueue=Array.isArray(S.elementalBurnQueue)?S.elementalBurnQueue:[];
+ S.elementalBurnQueue.push({owner:Number(owner)||0,kind:x.kind==='boss'?'boss':'demon',
+  id:x.kind==='boss'?String((S.boss&& (S.boss.key||S.boss.n))||'boss'):String((x.d&&x.d.id)||''),
+  damage:Math.max(1,Math.floor(Number(dmg)||0))});
+}
+function burnTarget(item){
+ if(item.kind==='boss'){
+  if(!S||!S.bossRevealed||!S.boss||S.boss.cur<=0)return null;
+  return String(S.boss.key||S.boss.n||'boss')===String(item.id)?{kind:'boss',boss:S.boss}:null;
+ }
+ try{const h=allDemons().find(function(v){return String((v.d&&v.d.id)||'')===String(item.id)});return h?Object.assign({kind:'demon'},h):null}catch(_){return null}
+}
+
+const rawDeal=typeof dealDamageTarget==='function'?dealDamageTarget:null;
+if(rawDeal){
+ dealDamageTarget=function(x,amt,source,opts){
+  source=source||'Effect';opts=opts||{};
+  const isBasic=/Basic Attack\s*$/.test(String(source));
+  const base=Math.max(0,Math.floor(Number(amt)||0));
+  const owner=Number((S&&S.current)||0);
+  const out=rawDeal.apply(this,arguments);
+  if(!isBasic||!alive(x))return out;
+
+  if(enabled('poison')){
+   const st=poisonState(x);
+   st.elementalPoisonHits=Math.max(0,Number(st.elementalPoisonHits)||0)+1;
+   if(st.elementalPoisonHits>=2){
+    st.elementalPoisonHits=0;
+    const burst=Math.max(1,Math.floor(Number(typeof basicAttackDamage==='function'?basicAttackDamage():base)||base||1));
+    try{log("Serpent's Fang erupts on "+nameOf(x)+' for '+burst+' Poison damage.','good')}catch(_){}
+    rawDeal(x,burst,"Serpent's Fang Poison",{});
+   }else try{log("Serpent's Fang poisons "+nameOf(x)+' (1/2).','good')}catch(_){}
+  }
+  if(enabled('fire')&&alive(x)){
+   const burn=Math.max(1,Math.floor(base/2));
+   addBurn(x,burn,owner);
+   try{log('Cinderbrand ignites '+nameOf(x)+' for '+burn+' Fire damage at the end of this turn.','good')}catch(_){}
+  }
+  return out;
+ };
+ try{window.dealDamageTarget=dealDamageTarget}catch(_){}
+}
+
+function modalOpen(){
+ return ['choiceModal','damageAmountModal','descendModal','relicModal','desecrationModal','consecrateModal','crucifixModal','rogueChoiceModal','rogueLegacyModal'].some(function(id){
+  const el=document.getElementById(id);if(!el||el.classList.contains('hidden'))return false;
+  try{return getComputedStyle(el).display!=='none'}catch(_){return true}
+ });
+}
+function resolveBurns(owner){
+ const q=Array.isArray(S&&S.elementalBurnQueue)?S.elementalBurnQueue:[],mine=[],keep=[];
+ q.forEach(function(v){(Number(v.owner)===Number(owner)?mine:keep).push(v)});S.elementalBurnQueue=keep;
+ let hit=false;
+ mine.forEach(function(item){
+  const x=burnTarget(item);if(!x||!alive(x))return;hit=true;
+  try{log('Cinderbrand burns '+nameOf(x)+' for '+item.damage+' Fire damage.','good')}catch(_){}
+  rawDeal(x,item.damage,'Cinderbrand Fire',{});
+ });
+ return hit;
+}
+let ending=false;
+function finishEnd(old,args,n){
+ if(!ending)return;
+ if(modalOpen()&&n<600){setTimeout(function(){finishEnd(old,args,n+1)},100);return}
+ ending=false;old.apply(window,args);
+}
+if(typeof endTurn==='function'&&rawDeal){
+ const old=endTurn;
+ endTurn=function(){
+  if(ending)return false;seed();
+  const had=resolveBurns(Number((S&&S.current)||0));
+  try{render()}catch(_){}
+  if(had&&modalOpen()){ending=true;finishEnd(old,Array.from(arguments),0);return false}
+  return old.apply(this,arguments);
+ };
+ try{window.endTurn=endTurn}catch(_){}
+}
+if(typeof render==='function'){
+ const old=render;
+ render=function(){try{seed()}catch(err){console.warn('Could not seed elemental Relics',err)}return old.apply(this,arguments)};
+ try{window.render=render}catch(_){}
+}
+try{seed()}catch(_){}
+})();
+</script>
