@@ -720,6 +720,9 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   const voteFetchBusy=new Set();
   const resolvingVoteIds=new Set();
   const voteOpeningIds=new Set();
+  let resolvingVoteTransition=false;
+  let voteSummaryPollTimer=0;
+  let voteSummaryPollId='';
 
   function applyMonkFirstRitualBalanceText(){
     try{
@@ -803,6 +806,30 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     return voteSummaryById.get(String(id))||null;
   }
 
+  function stopGroupVoteSummaryPolling(){
+    if(voteSummaryPollTimer){
+      clearInterval(voteSummaryPollTimer);
+      voteSummaryPollTimer=0;
+    }
+    voteSummaryPollId='';
+  }
+
+  function startGroupVoteSummaryPolling(voteId){
+    voteId=String(voteId||'');
+    if(!session||!voteId)return;
+    if(voteSummaryPollTimer&&voteSummaryPollId===voteId)return;
+    stopGroupVoteSummaryPolling();
+    voteSummaryPollId=voteId;
+    voteSummaryPollTimer=setInterval(()=>{
+      const live=S?.multiplayerVote;
+      if(!session||!live||live.open!==true||String(live.id)!==voteId){
+        stopGroupVoteSummaryPolling();
+        return;
+      }
+      fetchGroupVoteSummary(voteId);
+    },900);
+  }
+
   function groupVoteCounts(vote,summary){
     const counts=(vote?.options||[]).map(()=>0);
     for(const row of (summary?.votes||[])){
@@ -823,6 +850,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     const vote=S?.multiplayerVote;
     const modal=document.getElementById('rogueChoiceModal');
     if(!session||!S?.started||!vote||vote.open!==true){
+      stopGroupVoteSummaryPolling();
       closeGroupVoteModal();
       return;
     }
@@ -894,6 +922,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     }
 
     modal.classList.remove('hidden');
+    startGroupVoteSummaryPolling(String(vote.id));
 
     if(fetchSummary&&!summary&&!voteFetchBusy.has(String(vote.id))){
       fetchGroupVoteSummary(String(vote.id));
@@ -949,14 +978,14 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     }
   }
 
-  function maybeResolveGroupVote(vote,summary){
+  async function maybeResolveGroupVote(vote,summary){
     if(!vote||vote.open!==true||!summary)return;
     const id=String(vote.id);
     const total=Math.max(1,Number(summary.total_players||S?.players?.length||1));
     const votes=Array.isArray(summary.votes)?summary.votes:[];
     if(votes.length<total)return;
     if(Number(session?.seat)!==Number(vote.resolverSeat))return;
-    if(resolvingVoteIds.has(id))return;
+    if(resolvingVoteIds.has(id)||resolvingVoteTransition)return;
 
     const actions=voteActionRegistry.get(id);
     if(!actions||!actions.length)return;
@@ -974,36 +1003,81 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       const pool=selected.length?selected:leaders;
       winner=pool[Math.floor(Math.random()*pool.length)];
     }
+
     const option=vote.options?.[winner];
     const fn=actions[winner];
     if(typeof fn!=='function')return;
 
     resolvingVoteIds.add(id);
-    renderGroupVoteFromState(false);
+    resolvingVoteTransition=true;
+    stopGroupVoteSummaryPolling();
+
+    if(publishTimer){
+      clearTimeout(publishTimer);
+      publishTimer=0;
+    }
+
     try{
-      log(
-        tied
-          ? `GROUP VOTE TIE — ${option?.title||('Option '+(winner+1))} is randomly selected from the options that received votes.`
-          : `GROUP VOTE — ${option?.title||('Option '+(winner+1))} wins with ${counts[winner]} vote${counts[winner]===1?'':'s'}.`,
-        'good'
-      );
-    }catch(_){}
-
-    S.multiplayerVote=null;
-    voteActionRegistry.delete(id);
-    voteSummaryById.delete(id);
-    closeGroupVoteModal();
-
-    setTimeout(()=>{
+      renderGroupVoteFromState(false);
       try{
-        fn();
-      }catch(err){
-        console.error('Could not resolve winning Sanctum group choice',err);
-        status('The group vote completed, but the winning choice could not resolve.',true);
-      }finally{
-        resolvingVoteIds.delete(id);
+        log(
+          tied
+            ? `GROUP VOTE TIE — ${option?.title||('Option '+(winner+1))} is randomly selected from the options that received votes.`
+            : `GROUP VOTE — ${option?.title||('Option '+(winner+1))} wins with ${counts[winner]} vote${counts[winner]===1?'':'s'}.`,
+          'good'
+        );
+      }catch(_){}
+
+      // Remove the old vote locally first. The selected action may immediately
+      // open the next synchronized vote (for example Reward -> Passage).
+      S.multiplayerVote=null;
+      voteActionRegistry.delete(id);
+      voteSummaryById.delete(id);
+      closeGroupVoteModal();
+
+      const result=fn();
+      if(result&&typeof result.then==='function')await result;
+
+      const nextVote=S?.multiplayerVote&&S.multiplayerVote.open===true
+        ? S.multiplayerVote
+        : null;
+      const nextVoteId=nextVote?String(nextVote.id):'';
+
+      // Commit the entire winning transition as one authoritative state update.
+      // This is what moves every device off the old reward screen together.
+      const committed=await pushSharedState('group_vote_resolved',{
+        vote_id:id,
+        winner_index:winner,
+        winner_title:String(option?.title||('Option '+(winner+1))),
+        category:String(vote.category||'reward'),
+        tied:!!tied,
+        next_vote_id:nextVoteId||null,
+        next_category:nextVote?.category||null
+      });
+
+      if(!committed){
+        status('The group choice resolved locally but could not synchronize. Reloading the shared game…',true);
+        try{await refreshRoom(true)}catch(_){}
+        return;
       }
-    },220);
+
+      // If the winning reward opened another shared vote, it was included in
+      // the same committed state. Now enable and display it on the resolver too.
+      if(nextVoteId){
+        voteOpeningIds.delete(nextVoteId);
+        renderGroupVoteFromState(false);
+        fetchGroupVoteSummary(nextVoteId);
+      }else{
+        closeGroupVoteModal();
+      }
+    }catch(err){
+      console.error('Could not resolve winning Sanctum group choice',err);
+      status('The group vote completed, but the winning choice could not resolve.',true);
+      try{await refreshRoom(true)}catch(_){}
+    }finally{
+      resolvingVoteTransition=false;
+      resolvingVoteIds.delete(id);
+    }
   }
 
   window.__sanctumMultiplayerGroupChoice=function(meta,choices){
@@ -1031,6 +1105,13 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     if(publishTimer){
       clearTimeout(publishTimer);
       publishTimer=0;
+    }
+
+    // A winning reward can synchronously open the next vote. During that
+    // transition, let the resolver's single group_vote_resolved commit carry
+    // the new vote to every client instead of racing a second state update.
+    if(resolvingVoteTransition){
+      return true;
     }
 
     (async()=>{
@@ -1647,7 +1728,8 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       enforceTurnOwnership();
       return false;
     }
-    if(blockingGameplayModalOpen()){
+    const voteLifecycleCommit=actionType==='group_vote_open'||actionType==='group_vote_resolved';
+    if(blockingGameplayModalOpen()&&!voteLifecycleCommit){
       schedulePublish(actionType,payload,250);
       return false;
     }
@@ -1708,7 +1790,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   }
 
   function schedulePublish(actionType='state_sync',payload={},delay=320){
-    if(!session||!S||!S.started||applyingRemote||startingOnline)return;
+    if(!session||!S||!S.started||applyingRemote||startingOnline||resolvingVoteTransition)return;
     clearTimeout(publishTimer);
     publishTimer=setTimeout(()=>pushSharedState(actionType,payload),delay);
   }
@@ -1856,7 +1938,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
         try{wireBossInspector()}catch(_){}
         try{enforceTurnOwnership()}catch(_){}
         try{renderGroupVoteFromState()}catch(_){}
-        if(session&&S&&S.started&&!applyingRemote&&!startingOnline){
+        if(session&&S&&S.started&&!applyingRemote&&!startingOnline&&!resolvingVoteTransition){
           schedulePublish('state_sync',{},360);
         }
         return out;
@@ -2072,6 +2154,8 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     stopHeartbeat();
     await stopRosterSubscription();
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
+    stopGroupVoteSummaryPolling();
+    resolvingVoteTransition=false;
     channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
