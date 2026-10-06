@@ -2241,3 +2241,158 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 })();
 </script>
 
+
+
+<style id="multiplayerBossResponsiveScalePatch">
+/* Responsive Boss artwork.
+   Preserve the native 4:3 artwork ratio and let the actual visible viewport
+   determine how large the Boss appears on phones, tablets, and desktop. */
+#boardSection .bossCard{
+  min-width:0 !important;
+}
+#boardSection .bossArt{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:4 / 3 !important;
+  max-width:100% !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+
+/* The large tap-to-view Boss reader uses the real visible viewport height,
+   including iPhone Safari / standalone browser chrome changes. */
+dialog.mpDemonReader[data-reader-kind="boss"]{
+  width:100vw !important;
+  height:var(--sanctum-viewport-height,100dvh) !important;
+  max-height:var(--sanctum-viewport-height,100dvh) !important;
+  padding:clamp(6px,1.5vw,18px) !important;
+  box-sizing:border-box !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+  width:min(1100px,97vw) !important;
+  max-height:calc(var(--sanctum-viewport-height,100dvh) - 12px) !important;
+  grid-template-columns:minmax(260px,46%) minmax(0,1fr) !important;
+  gap:clamp(8px,1.4vw,16px) !important;
+  padding:clamp(8px,1.4vw,15px) !important;
+  overflow:hidden !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+  width:100% !important;
+  max-width:512px !important;
+  height:auto !important;
+  min-height:0 !important;
+  aspect-ratio:4 / 3 !important;
+  align-self:start !important;
+  justify-self:center !important;
+  overflow:hidden !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt img{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  aspect-ratio:4 / 3 !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderBody{
+  min-width:0 !important;
+  min-height:0 !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch;
+  padding:clamp(16px,3vh,26px) 3px 4px !important;
+}
+
+/* Keep the Boss deck/codex artwork responsive without stretching it. */
+.bossDeckCard img{
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:4 / 3 !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+
+/* Bosses shown as selectable combat targets use the same artwork ratio. */
+.damageTargetCard.bossTarget .demonArtWrap{
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:4 / 3 !important;
+  overflow:hidden !important;
+}
+.damageTargetCard.bossTarget .demonArt{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+
+/* Portrait phones: stack artwork above Boss information and let card width
+   determine image size. */
+@media (orientation:portrait) and (max-width:720px){
+  dialog.mpDemonReader[data-reader-kind="boss"]{
+    padding:max(6px,env(safe-area-inset-top)) 7px max(6px,env(safe-area-inset-bottom)) !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+    width:min(560px,97vw) !important;
+    max-height:calc(var(--sanctum-viewport-height,100dvh) - 12px) !important;
+    grid-template-columns:1fr !important;
+    gap:8px !important;
+    overflow:auto !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    width:min(100%,512px) !important;
+    max-height:none !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderBody{
+    overflow:visible !important;
+    padding:4px 2px 2px !important;
+  }
+}
+
+/* Landscape phones: remove the old fixed 66px Boss image. The art now grows
+   from available screen width while remaining small enough to leave room for
+   stats/rules beside it. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .bossArt{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:4 / 3 !important;
+    margin-bottom:2px !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"]{
+    padding:max(4px,env(safe-area-inset-top)) max(5px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left)) !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+    width:98vw !important;
+    max-height:calc(var(--sanctum-viewport-height,100dvh) - 8px) !important;
+    grid-template-columns:minmax(220px,43%) minmax(0,1fr) !important;
+    gap:7px !important;
+    padding:7px !important;
+    overflow:hidden !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    width:100% !important;
+    max-width:min(512px,43vw) !important;
+    height:auto !important;
+    aspect-ratio:4 / 3 !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderBody{
+    padding:13px 2px 2px !important;
+    overflow:auto !important;
+  }
+}
+
+/* Very short landscape devices still retain a useful Boss portrait rather
+   than collapsing the artwork to a tiny fixed strip. */
+@media (orientation:landscape) and (max-height:380px){
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+    grid-template-columns:minmax(190px,40%) minmax(0,1fr) !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    max-width:min(460px,40vw) !important;
+  }
+}
+</style>
+
