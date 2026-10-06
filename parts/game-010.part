@@ -968,6 +968,12 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 
     const ownerSeat=transitionChoiceOwnerSeat(choice);
 
+    // A synchronized next choice is a fresh interaction. Never inherit a stale
+    // resolving flag from the choice that created it.
+    if(!resolvingVoteIds.has(String(choice.id))&&voteOpeningIds.has(String(choice.id))===false){
+      resolvingVoteTransition=false;
+    }
+
     // Every other device stays on the synchronized board. It receives the
     // resulting reward / next passage through the normal shared-state update.
     if(Number(session.seat)!==Number(ownerSeat)){
@@ -1109,6 +1115,12 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
         return;
       }
 
+      // The next Draft / Passage must not be rendered while the previous
+      // choice is still flagged as resolving. Otherwise every new option is
+      // created disabled and remains frozen even though Supabase is correct.
+      resolvingVoteTransition=false;
+      resolvingVoteIds.delete(id);
+
       if(nextChoiceId){
         voteOpeningIds.delete(nextChoiceId);
         renderGroupVoteFromState();
@@ -1120,6 +1132,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       status('The passage choice could not complete. Reloading the shared game…',true);
       try{await refreshRoom(true)}catch(_){}
     }finally{
+      // Idempotent cleanup also covers failures before the successful commit.
       resolvingVoteTransition=false;
       resolvingVoteIds.delete(id);
     }
