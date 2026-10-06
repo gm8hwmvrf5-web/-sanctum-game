@@ -2140,7 +2140,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 (()=>{
   'use strict';
 
-  const SPRITE_URL='https://raw.githubusercontent.com/gm8hwmvrf5-web/-sanctum-game/multiplayer-dev/assets/bosses/boss-sprite.webp?v=20261006';
+  const SPRITE_URL='https://raw.githubusercontent.com/gm8hwmvrf5-web/-sanctum-game/multiplayer-dev/assets/bosses/boss-sprite.webp?v=20261006hq';
   const BOSS_ART_ORDER=[
     'plagueFather',
     'blackSovereign',
@@ -2154,8 +2154,8 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     'boneKing'
   ];
   const COLS=2;
-  const TILE_W=256;
-  const TILE_H=192;
+  const TILE_W=512;
+  const TILE_H=384;
   let bossArtworkUrls=null;
 
   function installArtwork(urls){
