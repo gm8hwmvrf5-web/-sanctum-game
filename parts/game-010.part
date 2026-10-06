@@ -2396,3 +2396,129 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderBody{
 }
 </style>
 
+
+
+<style id="multiplayerBossStatFitStyles">
+/* Boss stats always stay on one line. JavaScript reduces the font only when
+   the current device/card width actually requires it. */
+#bossArea .bossStatLine{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-wrap:nowrap !important;
+  gap:clamp(3px,.55vw,7px) !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  margin:2px 0 3px !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+  font-size:12px;
+  line-height:1.1 !important;
+  font-weight:800;
+  letter-spacing:0;
+}
+#bossArea .bossStatLine > span{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+#bossArea .bossStatLine .bossStatSep{
+  color:#bba98d;
+  font-weight:600;
+}
+#bossArea .bossStatLine .hp{color:#ff9db4 !important}
+#bossArea .bossStatLine .blood{color:#f06464 !important}
+
+/* The enlarged Boss viewer follows the same one-line rule. */
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  gap:clamp(5px,1.1vw,12px) !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+  line-height:1.1 !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats > span{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+</style>
+
+<script id="multiplayerBossStatFitScript">
+(()=>{
+  'use strict';
+  if(window.__sanctumBossStatFitInstalled)return;
+  window.__sanctumBossStatFitInstalled=true;
+
+  function fitOne(el,maxPx,minPx){
+    if(!el||el.clientWidth<=0)return;
+    el.style.fontSize=maxPx+'px';
+
+    // Use binary search so the text lands at the largest size that still fits.
+    if(el.scrollWidth<=el.clientWidth+0.5)return;
+    let lo=minPx,hi=maxPx,best=minPx;
+    for(let i=0;i<10;i++){
+      const mid=(lo+hi)/2;
+      el.style.fontSize=mid.toFixed(2)+'px';
+      if(el.scrollWidth<=el.clientWidth+0.5){
+        best=mid;
+        lo=mid;
+      }else{
+        hi=mid;
+      }
+    }
+    el.style.fontSize=Math.max(minPx,best).toFixed(2)+'px';
+  }
+
+  function fitBossStatLines(){
+    document.querySelectorAll('#bossArea .bossStatLine').forEach(el=>fitOne(el,12,4.5));
+    document.querySelectorAll('dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats')
+      .forEach(el=>fitOne(el,17,8));
+  }
+
+  let raf=0;
+  function scheduleFit(){
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(fitBossStatLines);
+  }
+
+  // Refit after every normal game render so changing HP values can never force
+  // the Boss line onto a second row.
+  if(typeof render==='function'){
+    const _bossStatFitRender=render;
+    render=function(){
+      const out=_bossStatFitRender.apply(this,arguments);
+      scheduleFit();
+      return out;
+    };
+    try{window.render=render}catch(_){}
+  }
+
+  window.addEventListener('resize',scheduleFit,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(scheduleFit,80),{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',scheduleFit,{passive:true});
+  }
+
+  // The Boss reader is rendered independently of the main board, so observe
+  // its DOM changes as well as Boss-room re-renders.
+  const observer=new MutationObserver(scheduleFit);
+  const startObserver=()=>{
+    const bossArea=document.getElementById('bossArea');
+    const reader=document.getElementById('mpDemonReader');
+    if(bossArea)observer.observe(bossArea,{childList:true,subtree:true,characterData:true});
+    if(reader)observer.observe(reader,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['data-reader-kind','open']});
+    scheduleFit();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
+  else startObserver();
+
+  window.__sanctumFitBossStats=fitBossStatLines;
+})();
+</script>
+
