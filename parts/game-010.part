@@ -724,6 +724,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   const voteOpeningIds=new Set();
   let resolvingVoteTransition=false;
   let choiceAuthorityRepairBusy=false;
+  let choiceRecoveryTimer=0;
   let voteSummaryPollTimer=0;
   let voteSummaryPollId='';
 
@@ -951,6 +952,15 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     return Number(S.current||0)+1;
   }
 
+  async function waitForChoicePublishIdle(maxMs=4000){
+    const started=Date.now();
+    while(publishBusy){
+      if(Date.now()-started>=maxMs)return false;
+      await new Promise(resolve=>setTimeout(resolve,40));
+    }
+    return true;
+  }
+
   async function ensureChoiceAuthority(choice,ownerSeat){
     if(!session||!S?.started||!choice||choice.open!==true)return false;
     ownerSeat=Number(ownerSeat);
@@ -968,6 +978,10 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     choiceAuthorityRepairBusy=true;
     const oldCurrent=Number(S.current||0);
     try{
+      if(!(await waitForChoicePublishIdle())){
+        try{await refreshRoom(true)}catch(_){}
+        return false;
+      }
       S.current=ownerSeat-1;
       const ok=await pushSharedState('choice_authority_handoff',{
         choice_id:String(choice.id||''),
@@ -1173,6 +1187,12 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
         S.current=Math.max(0,Number(nextChoice.resolverSeat)-1);
       }
 
+      if(!(await waitForChoicePublishIdle())){
+        status('Waiting for the shared game to finish synchronizing…');
+        try{await refreshRoom(true)}catch(_){}
+        return;
+      }
+
       const committed=await pushSharedState('passage_clear_choice_resolved',{
         choice_id:id,
         chooser_seat:ownerSeat,
@@ -1255,7 +1275,11 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     }
 
     (async()=>{
-      while(publishBusy)await new Promise(resolve=>setTimeout(resolve,35));
+      if(!(await waitForChoicePublishIdle())){
+        status('Could not prepare the shared choice. Reloading the newest game…',true);
+        try{await refreshRoom(true)}catch(_){}
+        return;
+      }
       const ok=await pushSharedState('passage_clear_choice_open',{
         choice_id:choiceId,
         category:choice.category,
@@ -1278,6 +1302,31 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 
     return true;
   };
+
+  function stopChoiceRecoveryWatchdog(){
+    if(choiceRecoveryTimer){
+      clearInterval(choiceRecoveryTimer);
+      choiceRecoveryTimer=0;
+    }
+  }
+
+  function startChoiceRecoveryWatchdog(){
+    if(choiceRecoveryTimer)return;
+    choiceRecoveryTimer=setInterval(()=>{
+      if(!session||sessionEnded||!S?.started)return;
+      const choice=S?.multiplayerVote;
+      if(!choice||choice.open!==true)return;
+
+      // Re-render/retry authority repair for any choice that has remained open.
+      // This is intentionally idempotent: only the saved owner can see buttons,
+      // and only the currently authoritative device can perform a repair.
+      try{renderGroupVoteFromState()}catch(err){
+        console.warn('Choice recovery watchdog refresh failed',err);
+      }
+    },1000);
+  }
+
+  startChoiceRecoveryWatchdog();
 
   const MP_ROOM_NAMES=['Gateway','Hall','Chapel','Crypt'];
 
@@ -1524,6 +1573,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     sessionEnded=true;
     stopHeartbeat();
     stopLobbyRosterPolling();
+    stopChoiceRecoveryWatchdog();
     stopRosterSubscription();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.add('mpSessionEnded');
@@ -1578,6 +1628,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   function startHeartbeat(){
     stopHeartbeat();
     if(!session||sessionEnded)return;
+    startChoiceRecoveryWatchdog();
     heartbeat();
     heartbeatTimer=setInterval(heartbeat,10000);
   }
@@ -2351,6 +2402,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   async function leave(){
     stopHeartbeat();
     stopLobbyRosterPolling();
+    stopChoiceRecoveryWatchdog();
     await stopRosterSubscription();
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
     stopGroupVoteSummaryPolling();
@@ -2413,7 +2465,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
-      <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, rewards and passage choices use synchronized group voting, Demon and Boss cards open into a large mobile-friendly reading view, and the room automatically ends when the host disconnects.</div>
+      <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, the passage-clearing Priest controls synchronized rewards and passage choices, Demon and Boss cards open into a large mobile-friendly reading view, and the room automatically ends when the host disconnects.</div>
     `;
 
     const grid=box.querySelector('.setupgrid');
