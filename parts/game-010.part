@@ -935,11 +935,8 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     const choice=S?.multiplayerVote;
     const modal=document.getElementById('rogueChoiceModal');
 
-    // Group voting is intentionally disabled. Reward, draft, Sanctuary, Boss
-    // reward, and passage choices are controlled only by Player 1.
-    stopGroupVoteSummaryPolling();
-
     if(!session||!S?.started||!choice||choice.open!==true){
+      stopGroupVoteSummaryPolling();
       closeGroupVoteModal();
       return;
     }
@@ -947,8 +944,15 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 
     try{clearTurnTimerInterval()}catch(_){}
 
-    // Other players never see or interact with the choice screen. They remain
-    // on the shared board and advance when Player 1 commits the result.
+    // The authoritative gameplay device quietly watches for Player 1's pick.
+    // It does not need to be Player 1.
+    if(canWriteAuthoritativeTurn()){
+      startGroupVoteSummaryPolling(String(choice.id));
+      const cached=voteSummaryFor(choice.id);
+      if(cached)maybeResolvePlayerOneChoice(choice,cached);
+    }
+
+    // Only Player 1 ever sees the reward / passage / draft choice screen.
     if(Number(session.seat)!==1){
       closeGroupVoteModal();
       return;
@@ -961,12 +965,19 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     const title=document.getElementById('rogueChoiceTitle');
     const textEl=document.getElementById('rogueChoiceText');
     const grid=document.getElementById('rogueChoiceGrid');
+    const summary=voteSummaryFor(choice.id);
+    const myRow=(summary?.votes||[]).find(v=>Number(v.seat)===1);
+    const submittedIndex=myRow?Number(myRow.option_index):-1;
 
     if(eyebrow)eyebrow.textContent='PLAYER 1 • '+kind+' • '+(choice.eyebrow||'Group Choice');
     if(title)title.textContent=choice.title||'Choose for the Group';
+
     if(textEl){
-      textEl.innerHTML=(choice.text||'')+
-        '<div class="mpGroupVoteIntro"><b>Player 1 chooses for the group.</b> The selected result is synchronized to every player automatically.</div>';
+      const submitted=submittedIndex>=0&&choice.options?.[submittedIndex]
+        ? '<div class="mpGroupVoteIntro"><b>Choice submitted:</b> '+escapeHtml(choice.options[submittedIndex].title)+
+          '<br>Synchronizing this choice to the other players…</div>'
+        : '<div class="mpGroupVoteIntro"><b>Player 1 chooses for the group.</b> Your selection will be synchronized to every player automatically.</div>';
+      textEl.innerHTML=(choice.text||'')+submitted;
     }
 
     if(grid){
@@ -974,9 +985,9 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       (choice.options||[]).forEach((opt,i)=>{
         const btn=document.createElement('button');
         btn.type='button';
-        btn.className='rogueChoice mpGroupVoteOption '+(opt.cls||'');
+        btn.className='rogueChoice mpGroupVoteOption '+(opt.cls||'')+(i===submittedIndex?' mpMyVote':'');
         btn.dataset.mpVoteOption=String(i);
-        btn.disabled=resolvingVoteTransition||resolvingVoteIds.has(String(choice.id));
+        btn.disabled=submittedIndex>=0||resolvingVoteTransition||resolvingVoteIds.has(String(choice.id));
 
         if(opt.cardName){
           const art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS[opt.cardName])||'';
@@ -996,31 +1007,99 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
             (opt.reward?'<span class="nodeReward">'+escapeHtml(opt.reward)+'</span>':'');
         }
 
-        btn.onclick=()=>resolvePlayerOneGroupChoice(i);
+        btn.onclick=()=>submitPlayerOneChoice(i);
         grid.appendChild(btn);
       });
     }
 
     modal.classList.remove('hidden');
-    setTimeout(()=>grid?.querySelector('button')?.focus(),0);
+    startGroupVoteSummaryPolling(String(choice.id));
+
+    if(!summary&&!voteFetchBusy.has(String(choice.id))){
+      fetchGroupVoteSummary(String(choice.id));
+    }
+    setTimeout(()=>grid?.querySelector('button:not(:disabled)')?.focus(),0);
   }
 
-  async function resolvePlayerOneGroupChoice(optionIndex){
+  async function fetchGroupVoteSummary(voteId){
+    voteId=String(voteId||'');
+    if(!session||!voteId||voteFetchBusy.has(voteId))return null;
+    voteFetchBusy.add(voteId);
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('sanctum_group_vote_summary',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken,
+        p_vote_id:voteId
+      });
+      if(error)throw error;
+
+      const summary=data||{
+        vote_id:voteId,
+        total_players:S?.players?.length||1,
+        votes:[]
+      };
+      voteSummaryById.set(voteId,summary);
+
+      const live=S?.multiplayerVote;
+      if(live&&String(live.id)===voteId&&live.open===true){
+        if(canWriteAuthoritativeTurn())maybeResolvePlayerOneChoice(live,summary);
+        if(Number(session.seat)===1)renderGroupVoteFromState();
+      }
+      return summary;
+    }catch(err){
+      console.error('Could not refresh Player 1 choice',err);
+      return null;
+    }finally{
+      voteFetchBusy.delete(voteId);
+    }
+  }
+
+  async function submitPlayerOneChoice(optionIndex){
     const choice=S?.multiplayerVote;
     if(!session||Number(session.seat)!==1||!choice||choice.open!==true)return;
+
+    const choiceId=String(choice.id||'');
+    if(!choiceId||resolvingVoteTransition)return;
+
+    const index=Number(optionIndex);
+    if(!Number.isInteger(index)||index<0||index>=(choice.options||[]).length)return;
+
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('cast_sanctum_group_vote',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken,
+        p_vote_id:choiceId,
+        p_option_index:index
+      });
+      if(error)throw error;
+      if(data!==true)throw new Error('Player 1 choice was not accepted.');
+
+      await fetchGroupVoteSummary(choiceId);
+    }catch(err){
+      console.error('Player 1 choice failed',err);
+      status(err.message||'Could not submit Player 1 choice.',true);
+      try{await refreshRoom(true)}catch(_){}
+    }
+  }
+
+  async function maybeResolvePlayerOneChoice(choice,summary){
+    if(!choice||choice.open!==true||!summary||!canWriteAuthoritativeTurn())return;
 
     const id=String(choice.id||'');
     if(!id||resolvingVoteIds.has(id)||resolvingVoteTransition)return;
 
-    const index=Number(optionIndex);
+    // Ignore every vote except Player 1. Old group-vote rows from other seats
+    // cannot influence the result.
+    const playerOneVote=(summary.votes||[]).find(v=>Number(v.seat)===1);
+    if(!playerOneVote)return;
+
+    const index=Number(playerOneVote.option_index);
     const option=choice.options?.[index];
     const actions=groupVoteActions(choice);
     const fn=actions?.[index];
-    if(!option||typeof fn!=='function'){
-      status('This choice could not be resolved. Reloading the newest shared game…',true);
-      try{await refreshRoom(true)}catch(_){}
-      return;
-    }
+    if(!option||typeof fn!=='function')return;
 
     resolvingVoteIds.add(id);
     resolvingVoteTransition=true;
@@ -1033,11 +1112,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 
     try{
       try{
-        log(
-          'PLAYER 1 CHOICE — '+(option.title||('Option '+(index+1)))+
-          ' selected for the group.',
-          'good'
-        );
+        log('PLAYER 1 CHOICE — '+(option.title||('Option '+(index+1)))+' selected for the group.','good');
       }catch(_){}
 
       S.multiplayerVote=null;
@@ -1048,8 +1123,8 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       const result=fn();
       if(result&&typeof result.then==='function')await result;
 
-      // Reward effects can immediately open the next Player 1 passage choice.
-      // Keep that next choice inside this same authoritative state commit.
+      // A reward may immediately create the next Player 1 passage/draft choice.
+      // Include that new choice in the same authoritative commit.
       const nextChoice=S?.multiplayerVote&&S.multiplayerVote.open===true
         ? S.multiplayerVote
         : null;
@@ -1065,7 +1140,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       });
 
       if(!committed){
-        status('Player 1 made a choice, but it could not synchronize. Reloading the shared game…',true);
+        status('The choice resolved but did not synchronize. Reloading the shared game…',true);
         try{await refreshRoom(true)}catch(_){}
         return;
       }
@@ -1077,8 +1152,8 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
         closeGroupVoteModal();
       }
     }catch(err){
-      console.error('Could not resolve Player 1 Sanctum choice',err);
-      status('The choice could not be completed. Reloading the shared game…',true);
+      console.error('Could not resolve Player 1 choice',err);
+      status('The Player 1 choice could not resolve. Reloading the shared game…',true);
       try{await refreshRoom(true)}catch(_){}
     }finally{
       resolvingVoteTransition=false;
@@ -1736,8 +1811,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     if(!session||!S||!S.started||applyingRemote)return false;
     if(actionType==='game_start'){
       if(!session.isHost)return false;
-    }else if(actionType==='leader_choice_resolved'){
-      if(Number(session.seat)!==1)return false;
     }else if(!canWriteAuthoritativeTurn()){
       enforceTurnOwnership();
       return false;
