@@ -1,41 +1,665 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#160b0b">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Sanctum">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">
-<title>Sanctum of the Damned</title>
-<style>
-html,body{margin:0;width:100%;height:100%;background:#050505;color:#ead7b0;font-family:Georgia,serif}
-#boot{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:#050505}
-#boot strong{font-size:22px;color:#f0d2a0}#boot small{display:block;margin-top:8px;color:#a98c68}
-</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Sanctum of the Damned — Roguelite Edition</title>
+<meta name="theme-color" content="#160b0b" />
+<meta name="description" content="Single-file roguelite edition of Sanctum of the Damned, preserving the original board, cards, artwork, and combat systems." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Sanctum" />
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png" />
+<link rel="manifest" href="./manifest.webmanifest" />
+
+
+
+<meta name="sanctum-build" content="standalone-single-file" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="./src/styles/base.css?v=clean1">
+<link rel="stylesheet" href="./src/styles/roguelite.css?v=clean1">
+<link rel="stylesheet" href="./src/styles/mobile.css?v=clean1">
+<link rel="stylesheet" href="./src/styles/multiplayer.css?v=clean1">
 </head>
 <body>
-<div id="boot"><div><strong>Sanctum of the Damned</strong><small>Loading the sanctum…</small></div></div>
-<script>
-(async()=>{
- const files=["./parts/game-001.part?v=17","./parts/game-002.part?v=17","./parts/game-003.part?v=17","./parts/game-004.part?v=18","./parts/game-005.part?v=18","./parts/game-006.part?v=18","./parts/game-007.part?v=17","./parts/game-008.part?v=17","./parts/game-009.part?v=17","./parts/game-010.part?mp=4"];
- try{
-   const chunks=[];
-   for(const file of files){
-     const r=await fetch(file,{cache:'reload'});
-     if(!r.ok) throw new Error(file+' '+r.status);
-     chunks.push(await r.text());
-   }
-   const game=chunks.join('\n');
-   document.open();
-   document.write(game);
-   document.close();
- }catch(err){
-   document.getElementById('boot').innerHTML='<div><strong>Unable to load Sanctum</strong><small>'+String(err)+'</small></div>';
- }
-})();
-</script>
+<div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
+<div class="app">
+
+  <section class="board" id="boardSection">
+    <div class="room gateway"><h3>GATEWAY</h3><div class="roomMeta" id="roomMeta0"><div class="cap">Maximum 4 Demons</div><button class="btn" data-cons="0">Consecrate</button></div><div class="demons" id="room0"></div></div>
+    <div class="room hall"><h3>HALL</h3><div class="roomMeta" id="roomMeta1"><div class="cap">Maximum 4 Demons</div><button class="btn" data-cons="1">Consecrate</button></div><div class="demons" id="room1"></div></div>
+    <div class="room chapel"><h3>CHAPEL</h3><div class="roomMeta" id="roomMeta2"><div class="cap">Maximum 4 Demons</div><button class="btn" data-cons="2">Consecrate</button></div><div class="demons" id="room2"></div></div>
+    <div class="room crypt"><h3>CRYPT</h3><div class="roomMeta" id="roomMeta3"><div class="cap">Maximum 4 Demons</div><button class="btn" data-cons="3">Consecrate</button></div><div class="demons" id="room3"></div></div>
+    <div class="room boss"><h3>BOSS ROOM</h3><div id="bossArea"><div class="cap">The Boss awakens after the 13th base Demon is defeated.</div></div></div>
+  </section>
+
+  <section class="stats compactRunStats" id="topStatusBar">
+    <div class="stat runProgressStat" aria-label="Passage, Act, Floor and Round">
+      <div class="runProgressPair">
+        <span class="runProgressChunk"><em>PASSAGE</em><strong id="roguePassage">1 / 5</strong></span>
+        <span class="runProgressDivider" aria-hidden="true"></span>
+        <span class="runProgressChunk"><em>ACT</em><strong id="rogueAct">1 / 3</strong></span>
+        <span class="runProgressDivider" aria-hidden="true"></span>
+        <span class="runProgressChunk"><em>FLOOR</em><strong id="rogueFloor">1 / 15</strong></span>
+        <span class="runProgressDivider" aria-hidden="true"></span>
+        <span class="runProgressChunk"><em>ROUND</em><strong id="roundStat">1</strong></span>
+      </div>
+      <span>Run Progress</span>
+    </div>
+    <div class="stat relicXpMeterStat meterStat" id="relicXpMeterStat" role="meter" aria-label="Relic XP" aria-valuemin="0" aria-valuemax="15" aria-valuenow="0">
+      <div class="relicXpMeterFill meterFill" id="relicXpMeterFill"></div>
+      <div class="meterGlass"></div>
+      <b id="relicXpMeterValue">0 / 15</b>
+      <span>Relic XP</span>
+    </div>
+    <div class="stat turnTimerStat meterStat compactTimerStat" id="turnTimerStat" role="meter" aria-label="Turn Timer" aria-valuemin="0" aria-valuemax="60" aria-valuenow="45">
+      <div class="turnTimerFill meterFill" id="turnTimerFill"></div>
+      <div class="meterGlass"></div>
+      <b id="turnTimerStatValue">—</b>
+      <span>Timer</span>
+    </div>
+    <div class="stat manaMeterStat meterStat" id="manaStatBox" role="meter" aria-label="Shared Mana" aria-valuemin="0" aria-valuemax="10" aria-valuenow="10">
+      <div class="manaMeterFill" id="manaOrbFill"></div>
+      <div class="manaMeterGlow"></div>
+      <div class="meterGlass"></div>
+      <b id="manaStat">10</b>
+      <span>Shared Mana</span>
+    </div>
+    <div class="stat altarMeterStat meterStat" id="altarStatBox" role="meter" aria-label="Altar Protection" aria-valuemin="0" aria-valuemax="30" aria-valuenow="30">
+      <div class="altarMeterFill meterFill" id="altarMeterFill"></div>
+      <div class="meterGlass"></div>
+      <b id="altarStat">30</b>
+      <span>Altar Protection</span>
+    </div>
+    <div class="stat"><b id="defeatStat">0 / 13</b><span>Base Defeats</span></div>
+  </section>
+
+
+  <section class="rogueHud rogueHudCompact" id="rogueHud" aria-label="Roguelite encounter status">
+    <div class="rogueHudCard route"><b id="rogueRoute">Standard Battle</b><span>Current Route</span></div>
+    <span id="rogueRelicXp" class="rogueDataGhost" aria-hidden="true">0 / 15</span>
+    <span id="rogueCinders" class="rogueDataGhost" aria-hidden="true">0</span>
+    <span id="rogueLegacyCinders" class="rogueDataGhost" aria-hidden="true">0</span>
+    <div class="rogueProgress"><div class="rogueProgressFill" id="rogueProgressFill"></div></div>
+  </section>
+
+  <section class="panel handPanel" id="handPanel">
+    <div id="handContent">Start a new game to draw your Priest hand.</div>
+  </section>
+
+  <section class="ritualLogStage" id="mainSection">
+    <section class="panel ritualPanel" id="ritualPanel">
+      <div class="ritualMain" id="ritualContent">Start a new game to view your Rituals.</div>
+    </section>
+    <div class="panel" id="logPanel">
+      <h3>Game Log</h3><div class="log" id="log"></div>
+      <h3 style="margin-top:10px">Manual / Prototype Controls</h3>
+      <div class="controls">
+        <button class="btn" data-adjust="altar" data-val="1">Altar +1</button><button class="btn" data-adjust="altar" data-val="-1">Altar −1</button>
+        <button class="btn" data-adjust="mana" data-val="1">Mana +1</button><button class="btn" data-adjust="mana" data-val="-1">Mana −1</button>
+        <button class="btn" id="spawnBtn">Spawn Demon</button><button class="btn" id="crucifixBtn">Draw Crucifix</button>
+        <button class="btn" id="damageBtn">Manual Damage</button><button class="btn" id="killBtn">Defeat Selected</button>
+      </div>
+    </div>
+  </section>
+  <section class="panel bottomInfo" id="infoSection">
+    <h3>Sanctum of the Damned</h3>
+    <div class="bottomSubtitle">Roguelite Edition • Original Art & Layout</div>
+    <div class="installHint hidden" id="installHint"><b>Standalone file:</b> open this HTML directly in your browser. No server or additional folder is required.</div>
+    <div class="notice"><b>Browser Edition:</b> optimized for desktop Chrome, Edge, Firefox, and Safari while retaining phone/tablet support. This build uses the 25 Demon types from the five Demon sheets we created (4 copies each) plus the official 10-card Boss Demon deck. Demon and Boss art, HP, Blood, and printed abilities are built into this single file. Compatible abilities resolve automatically. Demon Attack is now resolved when a Demon reaches the Altar: its current Attack becomes the base Altar loss, and Attack-based Demon abilities are applied automatically.</div>
+    <div class="footer">Roguelite browser playtest • Original Sanctum artwork and board preserved • 15-floor runs • 3 Acts • Persistent Cinders • No install or server required</div>
+  </section>
+  <div class="titlebar" id="topMenuBar">
+    <button class="btn menuToggleBtn" id="menuToggleBtn" type="button" aria-expanded="true" aria-controls="topToolbar">Hide Menu ▲</button>
+    <div class="toolbar" id="topToolbar"><button class="btn" id="newGameBtn">New Game</button><button class="btn" id="saveBtn">Save</button><button class="btn" id="loadBtn">Load</button><button class="btn" id="pauseBtn">Pause</button><button class="btn" id="rulesBtn">Rules</button><button class="btn" id="demonDeckBtn">Demon Deck</button><button class="btn" id="bossDeckBtn">Boss Deck</button></div>
+  </div>
+
+  <nav class="mobileNav" aria-label="Game navigation">
+    <button data-jump="top">⌂<span>Top</span></button>
+    <button data-jump="boardSection">♜<span>Board</span></button>
+    <button data-jump="ritualPanel">✦<span>Turn</span></button>
+    <button id="mobilePauseMenuBtn" type="button">☰<span>Log</span></button>
+    <button id="mobileFullscreenBtn" type="button" aria-label="Enter full screen" title="Full Screen">⛶<span>Full</span></button>
+  </nav>
+</div>
+
+<div class="modal hidden" id="newGameConfirmModal" role="dialog" aria-modal="true" aria-labelledby="newGameConfirmTitle">
+  <div class="modalbox" style="width:min(460px,94vw);text-align:center">
+    <h2 id="newGameConfirmTitle">Start a New Game?</h2>
+    <p style="color:#cdbb98;line-height:1.5">
+      Your current run will stay intact until you actually press <b>Start Game</b> on the setup screen.
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+      <button class="btn red" id="restartGameConfirmBtn" style="flex:1">Restart Game</button>
+      <button class="btn" id="restartGameCancelBtn" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="setupModal">
+  <div class="modalbox"><h2>Begin the Exorcism</h2><p>Choose 2–4 players and one unique character for each player.</p>
+    <div class="setupOptionsRow"><label>Players: <select id="playerCount"><option>1</option><option>2</option><option>3</option><option>4</option></select></label><label>Turn Timer: <select id="turnTimerSelect" aria-label="Turn timer length"><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60" selected>60 seconds</option><option value="75">75 seconds</option><option value="90">90 seconds</option><option value="105">105 seconds</option><option value="120">2 minutes</option></select></label></div>
+    <div class="setupgrid" id="setupPlayers"></div>
+    <div class="notice">Prototype setup gives each player 4 starting Priest cards. Solo begins with 1 Demon in the Gateway; 2–4 players begin with 2.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn green" id="startBtn" style="flex:1">Start Game</button>
+      <button class="btn hidden" id="setupCancelBtn" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="modal hidden" id="choiceModal"><div class="modalbox"><h3 id="choiceTitle">Choose</h3><div class="choicegrid" id="choiceGrid"></div><button class="btn" id="choiceCancel">Cancel</button></div></div>
+<div class="modal hidden" id="damageAmountModal" role="dialog" aria-modal="true" aria-labelledby="damageAmountTitle"><div class="modalbox" style="width:min(420px,94vw)"><h3 id="damageAmountTitle">Manual Damage</h3><p id="damageAmountTarget" style="color:#cdbb98"></p><label for="damageAmountInput">Damage amount</label><input id="damageAmountInput" type="number" min="1" step="1" inputmode="numeric" value="1" style="width:100%;margin:8px 0 12px;background:#0e0d0d;color:white;border:1px solid #80643a;border-radius:7px;padding:10px;font-size:18px"><div style="display:flex;gap:8px"><button class="btn red" id="damageAmountApply" style="flex:1">Apply Damage</button><button class="btn" id="damageAmountCancel" style="flex:1">Cancel</button></div></div></div>
+<div class="modal hidden" id="descendModal" role="dialog" aria-modal="true" aria-labelledby="descendTitle">
+  <div class="modalbox descendBox">
+    <div class="descendCard">
+      <div class="descendEyebrow">Boss Defeated</div>
+      <div class="descendTitle" id="descendTitle">The Sanctum Endures</div>
+      <div class="descendBoss" id="descendBossName"></div>
+      <div class="descendCount" id="descendBossCount">Bosses defeated this run: 1</div>
+      <div class="descendText">End the run and save the Sanctum, or descend deeper. Descending keeps your Altar Protection, Priest hands, Demon Blood, Relics, Corruption, Consecration, Demon positions, and cumulative Boss-damage Relic progress. A new Boss immediately enters the Boss Room.</div>
+      <div class="descendActions">
+        <button class="btn red" id="descendFurtherBtn">Descend Further</button>
+        <button class="btn green" id="saveSanctumBtn">Save the Sanctum</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="endRunStatsModal" role="dialog" aria-modal="true" aria-labelledby="endRunStatsTitle">
+  <div class="modalbox endRunStatsBox">
+    <div class="endRunStatsEyebrow" id="endRunStatsEyebrow">Run Complete</div>
+    <h2 id="endRunStatsTitle">End of Run Statistics</h2>
+    <div class="endRunOutcome" id="endRunOutcome">The Sanctum Endures</div>
+
+    <div class="endRunDamageHero">
+      <span>Total Damage Dealt</span>
+      <b id="endRunTotalDamage">0</b>
+      <small id="endRunDamageBreakdown">0 to Demons • 0 to Bosses</small>
+    </div>
+
+    <div class="endRunStatsGrid">
+      <div class="endRunStat"><b id="endRunRound">1</b><span>Round Reached</span></div>
+      <div class="endRunStat"><b id="endRunDemons">0</b><span>Demons Defeated</span></div>
+      <div class="endRunStat"><b id="endRunGreater">0</b><span>Greater Demons Defeated</span></div>
+      <div class="endRunStat"><b id="endRunBosses">0</b><span>Bosses Defeated</span></div>
+      <div class="endRunStat"><b id="endRunRelics">0</b><span>Relics Recovered</span></div>
+      <div class="endRunStat"><b id="endRunAltar">0</b><span>Altar Protection Remaining</span></div>
+      <div class="endRunStat"><b id="endRunCards">0</b><span>Priest Cards Played</span></div>
+      <div class="endRunStat"><b id="endRunRituals">0</b><span>Rituals Used</span></div>
+      <div class="endRunStat"><b id="endRunNatural20s">0</b><span>Natural 20s</span></div>
+    </div>
+
+    <button class="btn green endRunStatsClose" id="endRunStatsClose">Close Statistics</button>
+  </div>
+</div>
+
+<div class="modal hidden" id="relicModal" role="dialog" aria-modal="true" aria-labelledby="relicName">
+  <div class="modalbox relicBox">
+    <div class="relicCard">
+      <div class="relicType">Relic Acquired</div>
+      <div class="relicName" id="relicName">Relic</div>
+      <div class="relicCategory" id="relicCategory">Sanctum Relic</div>
+      <div class="relicEffect" id="relicEffect"></div>
+      <div class="relicReason" id="relicReason"></div>
+    </div>
+    <button class="btn green relicClose" id="relicClose">Claim Relic</button>
+  </div>
+</div>
+<div class="modal hidden" id="desecrationModal" role="dialog" aria-modal="true" aria-labelledby="desecrationTitle">
+  <div class="modalbox desecrationBox">
+    <h2 id="desecrationTitle">Desecrated Room</h2>
+    <div class="desecrationRoomName" id="desecrationRoomName">Gateway</div>
+    <div class="desecrationEffect" id="desecrationEffect"></div>
+    <button class="btn desecrationClose" id="desecrationClose">Close</button>
+  </div>
+</div>
+<div class="modal hidden" id="consecrateModal" role="dialog" aria-modal="true" aria-labelledby="consecrateTitle">
+  <div class="modalbox consecrateBox">
+    <h2 id="consecrateTitle">Consecrate Room</h2>
+    <div class="consecrateSummary">
+      <div class="consecrateRoomName" id="consecrateRoomName">Gateway</div>
+      <div class="consecrateCost"><b>Cost:</b> 3 Shared Mana + 1 Demon Blood</div>
+      <div class="consecrateEffect" id="consecrateEffect"></div>
+      <div class="consecrateStatus" id="consecrateStatus"></div>
+    </div>
+    <div class="consecrateActions">
+      <button class="btn green" id="consecratePlay">Play</button>
+      <button class="btn" id="consecrateClose">Close</button>
+    </div>
+  </div>
+</div>
+<div class="modal hidden" id="crucifixModal" role="dialog" aria-modal="true" aria-labelledby="crucifixName">
+  <div class="modalbox crucifixBox">
+    <div class="crucifixCard" id="crucifixCard">
+      <div class="crucifixType" id="crucifixType">Crucifix Event</div>
+      <div class="crucifixName" id="crucifixName">Crucifix</div>
+      <div class="crucifixEffect" id="crucifixEffect"></div>
+      <div class="crucifixChoiceArea hidden" id="crucifixChoiceArea"></div>
+      <div class="crucifixResult" id="crucifixResult"></div>
+    </div>
+    <button class="btn crucifixClose" id="crucifixClose">Close</button>
+  </div>
+</div>
+
+
+<div class="modal hidden" id="cardRevealModal" role="dialog" aria-modal="true" aria-labelledby="cardRevealTitle">
+  <div class="modalbox revealCardsBox">
+    <h2 id="cardRevealTitle">Revealed Cards</h2>
+    <p id="cardRevealSubtitle" class="revealCardsSubtitle"></p>
+    <div id="cardRevealGrid" class="revealCardsGrid"></div>
+    <div class="revealCardsActions"><button class="btn" id="cardRevealClose">Close</button></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="demonDeckModal"><div class="modalbox demonDeckBox"><h2>Created Demon Deck</h2><p>25 Demon types × 4 copies = 100-card digital Demon deck. Each row shows the normal face and its Greater face.</p><div id="demonDeckGrid" class="deckgrid"></div><button class="btn" id="demonDeckClose">Close</button></div></div>
+<div class="modal hidden" id="bossDeckModal"><div class="modalbox bossDeckBox"><h2>Official Boss Demon Deck</h2><p>10 unique Boss Demons. The first is secretly drawn at setup and awakens after the 13th base Demon defeat. After defeating a Boss, you may end the run or Descend Further and immediately draw another Boss from the randomized Boss bag.</p><div id="bossDeckGrid" class="bossDeckGrid"></div><button class="btn" id="bossDeckClose">Close</button></div></div>
+<div class="modal hidden" id="rulesModal"><div class="modalbox"><h2>Core Digital Rules</h2><div id="rulesText"></div><button class="btn" id="rulesClose">Close</button></div></div>
+
+
+
+<!-- Roguelite system overlays. Combat board/art remains the original game. -->
+<div class="modal hidden" id="rogueChoiceModal" role="dialog" aria-modal="true" aria-labelledby="rogueChoiceTitle">
+  <div class="modalbox rogueModalBox">
+    <div class="rogueEyebrow" id="rogueChoiceEyebrow">Roguelite</div>
+    <h2 id="rogueChoiceTitle">Choose Your Path</h2>
+    <p class="rogueLead" id="rogueChoiceText"></p>
+    <div class="rogueChoiceGrid" id="rogueChoiceGrid"></div>
+  </div>
+</div>
+<div class="modal hidden" id="rogueLegacyModal" role="dialog" aria-modal="true" aria-labelledby="rogueLegacyTitle">
+  <div class="modalbox rogueModalBox">
+    <div class="rogueEyebrow">Persistent Progression</div>
+    <h2 id="rogueLegacyTitle">Legacy of the Sanctum</h2>
+    <p class="rogueLead">Cinders are banked automatically after every 3 Acts. At that checkpoint you may buy Legacy upgrades, then continue the same run. Legacy upgrades remain permanent starting bonuses for future fresh runs.</p>
+    <div class="legacyMeta" id="rogueLegacyMeta"></div>
+    <div class="legacyGrid" id="rogueLegacyGrid"></div>
+    <button class="btn" id="rogueLegacyClose">Close</button>
+  </div>
+</div>
+<div class="modal hidden" id="rogueGuideModal" role="dialog" aria-modal="true" aria-labelledby="rogueGuideTitle">
+  <div class="modalbox rogueModalBox">
+    <div class="rogueEyebrow">Roguelite Run Guide</div>
+    <h2 id="rogueGuideTitle">What Changed</h2>
+    <div class="rogueGuideList">
+      <div class="rogueGuideStep"><b>15 Floors • 3 Acts.</b> Floors 5, 10, and 15 are Boss floors. Your Altar, Blood, cards, Corruption, and Relics carry through the run.</div>
+      <div class="rogueGuideStep"><b>Branching routes.</b> After combat you choose among Standard Battles, Elite Battles, Hellgate Swarms, and non-combat Sanctuaries.</div>
+      <div class="rogueGuideStep"><b>Relics are Blood XP rewards.</b> Every Demon kill grants Relic XP equal to the Demon Blood earned from that kill. The first XP Relic costs 15 XP; each XP-earned Relic raises the next cost by 5.</div>
+      <div class="rogueGuideStep"><b>Room reward Relics are bonus Relics.</b> If you clear a room and choose a Relic reward, it does not increase the XP required for your next XP-earned Relic.</div>
+      <div class="rogueGuideStep"><b>Build during the run.</b> Rewards still include Priest-card drafts using the original card pool/art, recovery, Demon Blood, and bonus Relics.</div>
+      <div class="rogueGuideStep"><b>Cinders bank every 3 Acts.</b> Defeat the third Boss of a cycle to secure the Cinders you earned, open the Legacy shop, then continue the same run at double the previous cycle difficulty.</div>
+      <div class="rogueGuideStep"><b>Health rises with depth.</b> Enemy max HP gains +15% of base HP for every floor descended, stacking with the Ascension-cycle multiplier. Attack scaling remains tied to Ascension difficulty.</div>
+      <div class="rogueGuideStep"><b>Original combat remains intact.</b> Rooms, Demon movement, Corruption, Consecration, Ritual rolls, Empowering, Relic effects, and Boss abilities still use the original systems. Demon kills no longer draw Crucifix cards.</div>
+      <div class="rogueGuideStep"><b>Visual target popups for Priest cards.</b> Any Priest card that targets a Demon now opens the illustrated target popup, showing all current Demons on the board, and Boss illustrations whenever that card can legally target the Boss.</div>
+    </div>
+    <button class="btn green" id="rogueGuideClose">Return to the Sanctum</button>
+  </div>
+</div>
+
+
+
+
+
+<!-- Demon artwork full-pass applied: every demon entry art/gart refreshed with new artwork set. -->
+
+
+<!-- ==================== INTERACTIVE TUTORIAL BUILD ==================== -->
+
+
+<div class="modal hidden" id="pauseOverlay" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+  <div class="modalbox pauseBox">
+    <div class="pauseHeading">
+      <h2 id="pauseTitle">Game Menu — Paused</h2>
+      <p class="pauseIntro">Opening this menu automatically pauses the game and freezes the current turn timer.</p>
+    </div>
+    <div class="pauseActions">
+      <button class="btn" id="pauseNewGameBtn" type="button">New Game</button>
+      <button class="btn" id="pauseSaveBtn" type="button">Save</button>
+      <button class="btn" id="pauseLoadBtn" type="button">Load</button>
+      <button class="btn green" id="resumeGameBtn" type="button">Resume</button>
+    </div>
+    <p class="menuHint"><kbd>Tab</kbd> opens this menu and pauses automatically • <kbd>Esc</kbd> resumes</p>
+    <section id="pauseLogSection" aria-label="Game Log"></section>
+    <section id="pauseManualSection" aria-label="Manual Prototype Controls"></section>
+    <section id="pauseInfoSection" aria-label="Game Information"></section>
+  </div>
+</div>
+<div class="modal hidden" id="loadChooserModal" role="dialog" aria-modal="true" aria-labelledby="loadChooserTitle">
+  <div class="modalbox loadBox">
+    <h2 id="loadChooserTitle">Load Game</h2>
+    <p>Load the browser save for this copy, or import a backup save file. Imported saves work even when browser storage is restricted.</p>
+    <div id="loadBrowserSummary">Checking browser save…</div>
+    <div class="loadActions">
+      <button class="btn green" id="loadBrowserBtn" type="button">Load Browser Save</button>
+      <button class="btn" id="importSaveBtn" type="button">Import Save File</button>
+      <button class="btn" id="loadCancelBtn" type="button">Cancel</button>
+    </div>
+    <input id="saveFileInput" type="file" accept="application/json,.json,.sanctum" class="hidden" aria-label="Choose Sanctum save file">
+  </div>
+</div>
+
+
+
+<div id="tutorialWelcome" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialWelcomeTitle">
+  <div class="tutorialWelcomeCard">
+    <div class="tutorialEyebrow">Sanctum of the Damned</div>
+    <h1 id="tutorialWelcomeTitle">Interactive Tutorial</h1>
+    <p class="lead">This build uses the complete current game, but adds a guided lesson over the live board. The tutorial pauses the turn timer while it teaches you the interface, then hands the game back to you to continue playing.</p>
+    <div class="tutorialPillGrid">
+      <div class="tutorialPill"><b>Learn the turn</b>Shared Mana, Priest cards, Basic Attack, Rituals, Demon Blood, discard, and Empowering.</div>
+      <div class="tutorialPill"><b>Learn the board</b>Demon movement, Corruption, Desecration, Consecration, Crucifix events, and Altar pressure.</div>
+      <div class="tutorialPill"><b>Learn to win</b>Defeat 13 base Demons, survive the Boss Stage, defeat the Boss, then save the Sanctum or descend deeper.</div>
+    </div>
+    <div class="notice"><b>Tutorial setup:</b> the guided lesson starts a solo Exorcist game and grants 4 Demon Blood so you can immediately experiment with Rituals. All normal gameplay systems remain active.</div>
+    <div class="tutorialWelcomeActions">
+      <button class="btn green" id="tutorialStartBtn">Start Guided Tutorial</button>
+      <button class="btn" id="tutorialNormalBtn">Skip Tutorial — Normal Setup</button>
+    </div>
+  </div>
+</div>
+
+<div id="tutorialCoach" class="hidden" role="dialog" aria-live="polite" aria-labelledby="tutorialStepTitle">
+  <div class="tutorialCoachTop">
+    <div id="tutorialProgress">Step 1</div>
+    <button class="tutorialCloseX" id="tutorialExitBtn" aria-label="Exit tutorial">×</button>
+  </div>
+  <h2 id="tutorialStepTitle">Welcome</h2>
+  <div id="tutorialStepBody"></div>
+  <div id="tutorialTip"></div>
+  <div class="tutorialCoachActions">
+    <button class="btn" id="tutorialPrevBtn">Previous</button>
+    <button class="btn" id="tutorialPracticeBtn">Practice</button>
+    <button class="btn green" id="tutorialNextBtn">Next</button>
+  </div>
+</div>
+<button id="tutorialResumeChip" class="hidden" type="button">✦ Resume Tutorial</button>
+
+
+
+
+<!-- ================== END INTERACTIVE TUTORIAL BUILD ================== -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="rogueTutorialIntro" class="hidden" role="dialog" aria-modal="true" aria-labelledby="rogueTutorialIntroTitle">
+  <div class="rogueTutorialIntroCard">
+    <div class="rogueTutorialEyebrow">Optional Practice Run</div>
+    <h2 id="rogueTutorialIntroTitle">Interactive Roguelite Tutorial</h2>
+    <p>This is a short, playable practice encounter using the real game board and controls. The timer is paused while you learn, and the practice state is discarded when you finish or exit.</p>
+    <div class="rogueTutorialGrid">
+      <div class="rogueTutorialMini"><b>Play the Priest</b>Use a Priest card, Empower a pair, Basic Attack, and a Ritual.</div>
+      <div class="rogueTutorialMini"><b>Read the Board</b>Defeat a Demon, watch Demon Blood and Relic XP, then end a turn.</div>
+      <div class="rogueTutorialMini"><b>See the Roguelite Loop</b>Watch duplicate Demons merge and learn Floors, Bosses, Relics, and Cinders.</div>
+    </div>
+    <div class="notice"><b>No progress is kept:</b> tutorial Cinders, Relic XP, card draws, and board state are thrown away when you return to setup. Your Legacy currency is not spent or changed.</div>
+    <div class="rogueTutorialIntroActions">
+      <button class="btn green" id="rogueTutorialBeginBtn" type="button">Begin Practice Tutorial</button>
+      <button class="btn" id="rogueTutorialBackBtn" type="button">Back to Setup</button>
+    </div>
+  </div>
+</div>
+
+<div id="rogueTutorialCoach" class="hidden" role="dialog" aria-live="polite" aria-labelledby="rogueTutorialTitle">
+  <div class="rogueTutorialCoachTop"><div id="rogueTutorialProgress">Tutorial 1 / 9</div><button class="btn" id="rogueTutorialExitBtn" type="button" style="padding:3px 8px">Exit</button></div>
+  <h3 id="rogueTutorialTitle">Welcome</h3>
+  <div id="rogueTutorialBody"></div>
+  <div id="rogueTutorialTask"></div>
+  <div class="rogueTutorialActions">
+    <button class="btn" id="rogueTutorialPrevBtn" type="button">Previous</button>
+    <button class="btn hidden" id="rogueTutorialHelperBtn" type="button">Practice Helper</button>
+    <button class="btn green" id="rogueTutorialNextBtn" type="button">Next</button>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="./src/js/00-data.js?v=clean1"></script>
+<script src="./src/js/10-engine.js?v=clean1"></script>
+<script src="./src/js/20-ui-foundation.js?v=clean1"></script>
+<script src="./src/js/30-roguelite.js?v=clean1"></script>
+<script src="./src/js/40-priest-ui.js?v=clean1"></script>
+<script src="./src/js/50-mobile.js?v=clean1"></script>
+<script src="./src/js/60-multiplayer.js?v=clean1"></script>
+<script src="./src/js/70-multiplayer-patches.js?v=clean1"></script>
 </body>
 </html>

@@ -1,7 +1,23 @@
-const CACHE_NAME='sanctum-pwa-v18';
+const CACHE_NAME='sanctum-clean-v1';
 const CORE=[
- './','./index.html','./manifest.webmanifest',
- './icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png'
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './src/styles/base.css',
+  './src/styles/roguelite.css',
+  './src/styles/mobile.css',
+  './src/styles/multiplayer.css',
+  './src/js/00-data.js',
+  './src/js/10-engine.js',
+  './src/js/20-ui-foundation.js',
+  './src/js/30-roguelite.js',
+  './src/js/40-priest-ui.js',
+  './src/js/50-mobile.js',
+  './src/js/60-multiplayer.js',
+  './src/js/70-multiplayer-patches.js',
+  './icons/icon-180.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 self.addEventListener('install',event=>{
@@ -37,16 +53,18 @@ self.addEventListener('fetch',event=>{
   const request=event.request;
   if(request.method!=='GET')return;
   const url=new URL(request.url);
-  const isGamePart=url.pathname.includes('/parts/game-');
+  const isSource=url.pathname.includes('/src/');
   const isHtml=request.mode==='navigate'||url.pathname.endsWith('/index.html')||url.pathname.endsWith('/');
-  if(isGamePart||isHtml){
+  if(isSource||isHtml){
     event.respondWith(networkFirst(request));
     return;
   }
   event.respondWith(
     caches.match(request).then(hit=>hit||fetch(request).then(response=>{
-      const copy=response.clone();
-      caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));
+      if(response&&response.ok){
+        const copy=response.clone();
+        caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));
+      }
       return response;
     }))
   );

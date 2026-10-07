@@ -1,11 +1,7 @@
-# Sanctum of the Damned — iPhone PWA
+# Sanctum of the Damned — Multiplayer Clean Rebuild
 
-This repository hosts the dedicated iPhone-landscape PWA build of **Sanctum of the Damned**.
+This branch contains the maintainable rebuild of the multiplayer game.
 
-## Install on iPhone
-1. Enable GitHub Pages for the repository from **Settings → Pages**.
-2. Open the published Pages URL in **Safari** on iPhone.
-3. Tap **Share → Add to Home Screen**.
-4. Launch **Sanctum** from the Home Screen icon and rotate to landscape.
+The production/known-good development build remains on `multiplayer-dev`. This branch was created from that working state and reorganizes the game into normal HTML, CSS, JavaScript and WebP assets so future changes can target small source files instead of multi-megabyte stitched runtime chunks.
 
-The PWA includes standalone display mode, landscape orientation preference, offline caching, iPhone safe-area handling, and custom demon app icons.
+See [CLEAN_REBUILD.md](./CLEAN_REBUILD.md) for the module map and safety rules.
