@@ -289,7 +289,6 @@ function rogueliteContinueAfterLegacy(){
  log(`THE DESCENT CONTINUES — Cycle ${nextCycle} begins. Your current cards, Relics, Blood, Relic XP, Altar state, and run build persist. Enemy difficulty is now ${nextMult}×.`,'bad');
  rogueliteOpenRoute();
 }
-function rogueliteCompleteRun(){rogueliteCycleCheckpoint()}
 function rogueliteBankRun(win){
  let r=rogueState();if(r.banked)return r.bankedAmount||0;
  let m=rogueMeta(),gain=0,lost=Math.max(0,Math.floor(r.cindersRun||0));
