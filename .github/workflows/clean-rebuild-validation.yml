@@ -26,3 +26,16 @@ jobs:
           done
       - name: Structural validation
         run: node scripts/validate-clean-build.mjs
+      - name: Install browser smoke-test dependency
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install chromium
+      - name: Browser smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 >/tmp/sanctum-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 1
+          node scripts/smoke-clean-build.mjs
