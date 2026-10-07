@@ -35,8 +35,21 @@ for(const dir of ['src/js','src/styles']){
     const file=path.join(root,dir,name);
     if(!fs.statSync(file).isFile()) continue;
     const text=fs.readFileSync(file,'utf8');
-    if(text.includes('data:image/')) throw new Error('Embedded image remains in '+path.relative(root,file));
+    if(/data:image\\/[^;]+;base64,/i.test(text)) throw new Error('Base64 image payload remains in '+path.relative(root,file));
     if(text.includes('parts/game-')) throw new Error('Legacy stitched-part reference remains in '+path.relative(root,file));
+  }
+}
+
+const sourceFiles=[
+  'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css',
+  'src/js/00-data.js','src/js/10-engine.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
+  'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
+];
+for(const source of sourceFiles){
+  const text=fs.readFileSync(path.join(root,source),'utf8');
+  const refs=[...text.matchAll(/(?:\.\.\/\.\.\/|\.\/)assets\/embedded\/([a-f0-9-]+\.webp)/gi)].map(m=>m[1]);
+  for(const ref of refs){
+    if(!fs.existsSync(path.join(root,'assets/embedded',ref))) throw new Error('Missing extracted asset '+ref+' referenced by '+source);
   }
 }
 
