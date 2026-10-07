@@ -57,10 +57,27 @@ async function loadRun(browser,url,label){
   // document creation can legitimately consume a different number of random calls.
   // From this point forward both builds must consume the exact same gameplay RNG.
   const started=await page.evaluate(()=>{
-    // Stateless RNG makes parity independent of unrelated differences in the
-    // number of random calls while still forcing every randomized gameplay
-    // choice through the same deterministic value in both builds.
+    // The game intentionally prefers crypto.getRandomValues for deck/Boss
+    // randomization. Override both randomness sources with stateless values so
+    // parity checks compare mechanics instead of entropy.
     Math.random=()=>0.2718281828459045;
+    try{
+      Object.defineProperty(globalThis.crypto,'getRandomValues',{
+        configurable:true,
+        value:array=>{
+          for(let i=0;i<array.length;i++)array[i]=0x45d9f3b;
+          return array;
+        }
+      });
+    }catch{
+      try{
+        globalThis.crypto.getRandomValues=array=>{
+          for(let i=0;i<array.length;i++)array[i]=0x45d9f3b;
+          return array;
+        };
+      }catch{}
+    }
+    try{localStorage.removeItem('sanctumBossBagV1')}catch{}
     return startGame();
   });
   if(started!==true)throw new Error(label+' startGame returned '+String(started));
