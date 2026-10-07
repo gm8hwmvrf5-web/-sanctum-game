@@ -1,0 +1,28 @@
+name: Clean Rebuild Validation
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout clean rebuild
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in src/js/*.js; do
+            echo "Checking $file"
+            node --check "$file"
+          done
+      - name: Structural validation
+        run: node scripts/validate-clean-build.mjs
