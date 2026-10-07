@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-pwa-v17';
+const CACHE_NAME='sanctum-pwa-v18';
 const CORE=[
  './','./index.html','./manifest.webmanifest',
  './icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png'
