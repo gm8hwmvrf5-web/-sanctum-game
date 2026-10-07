@@ -56,15 +56,16 @@ async function loadRun(browser,url,label){
   // different non-game boot work (external assets/modules), so seeding only at
   // document creation can legitimately consume a different number of random calls.
   // From this point forward both builds must consume the exact same gameplay RNG.
-  await page.evaluate(()=>{
+  const started=await page.evaluate(()=>{
     let seed=0x5a17c0de;
     Math.random=()=>{
       seed=(Math.imul(seed,1664525)+1013904223)>>>0;
       return seed/4294967296;
     };
+    return startGame();
   });
+  if(started!==true)throw new Error(label+' startGame returned '+String(started));
 
-  await page.click('#startBtn');
   await page.waitForFunction(()=>{
     try{return !!eval('S')?.started}catch{return false}
   },{timeout:30000});
