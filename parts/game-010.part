@@ -3651,3 +3651,158 @@ if(typeof render==='function'){
 try{seed()}catch(_){}
 })();
 </script>
+
+
+<script id="demonMovementAuditFixes">
+(()=>{
+'use strict';
+if(window.__sanctumDemonMovementAuditFixesInstalled)return;
+window.__sanctumDemonMovementAuditFixesInstalled=true;
+
+/*
+ Movement audit fixes:
+ 1) A movement-stop effect blocks every forward move attempted during the
+    Demon Phase, including start-of-phase pushes and same-phase bonus movement.
+ 2) Consecrated Hall stops are consumed in the Demon Phase in which they apply
+    instead of incorrectly carrying into the following round.
+ 3) Lesser duplicates merge immediately after forward movement, matching the
+    immediate-merge rule already used by spawns and backward movement.
+*/
+
+if(typeof applyRoomEntryEffects==='function'){
+  applyRoomEntryEffects=function(d){
+    let loc=findDemonLocation(d);
+    if(!loc)return;
+
+    if(loc.r===1&&roomDesecrated(1)){
+      d.status=d.status||{};
+      d.status.attackRoundBonus=(d.status.attackRoundBonus||0)+1;
+      log(demonName(d)+' gains +1 Attack from the Desecrated Hall.','bad');
+    }
+
+    if(loc.r===1&&roomConsecrated(1)){
+      d.status=d.status||{};
+      const wasStopped=!!d.status.stop;
+      applyStop(d);
+      if(d.status.stop&&!wasStopped){
+        log('Consecrated Hall stops '+demonName(d)+'.','good');
+      }
+    }
+
+    if(loc.r===3&&roomDesecrated(3)){
+      let before=d.cur;
+      d.cur=Math.min(demonMaxHP(d),d.cur+1);
+      if(d.cur>before)log(demonName(d)+' heals 1 HP in the Desecrated Crypt.','bad');
+    }
+  };
+  try{window.applyRoomEntryEffects=applyRoomEntryEffects}catch(_){}
+}
+
+if(typeof moveOneForward==='function'){
+  const auditedMoveOneForward=moveOneForward;
+  moveOneForward=function(d,reason='Demon movement'){
+    if(typeof S!=='undefined'&&S&&S.phase==='Demon'&&d&&d.status&&d.status.stop){
+      return false;
+    }
+
+    const moved=auditedMoveOneForward.apply(this,arguments);
+
+    if(moved&&d){
+      try{
+        if(findDemonLocation(d)&&typeof checkMerge==='function')checkMerge(d);
+      }catch(err){
+        console.warn('Immediate movement merge check failed',err);
+      }
+    }
+    return moved;
+  };
+  try{window.moveOneForward=moveOneForward}catch(_){}
+}
+
+if(typeof triggerEnterRoom==='function'){
+  triggerEnterRoom=function(d){
+    let code=demonCode(d),v=demonValue(d);
+    if(code==='roomAltar')damageAltar(v,demonName(d)+' enters a room');
+
+    let loc=findDemonLocation(d);
+    if(!loc)return;
+
+    applyRoomEntryEffects(d);
+    loc=findDemonLocation(d);
+    if(!loc)return;
+
+    let f=ensureBossFlags();
+    if(bossIs("boneKing")&&loc.r===3){
+      d.cur+=1;
+      log(S.boss.n+' — Ossuary Court grants '+demonName(d)+' +1 HP in the Crypt.','bad');
+    }
+
+    let sporeCount=f.spores[loc.r]||0;
+    if(bossIs("plagueFather")&&sporeCount>0){
+      f.spores[loc.r]=sporeCount-1;
+      addBossHpBonus(d,1,"Corruption Spores");
+    }
+
+    if(bossIs("gatebreaker")&&!f.breachUsed&&(loc.r===1||loc.r===2)){
+      f.breachUsed=true;
+      if(S.phase==='Demon'&&d.status&&d.status.stop){
+        log(S.boss.n+' — Breach the Sanctum is halted because '+demonName(d)+' is stopped.','good');
+      }else{
+        let moved=moveOneForward(d,S.boss.n+' — Breach the Sanctum');
+        if(moved)log(S.boss.n+' — Breach the Sanctum moves '+demonName(d)+' 1 additional room forward.','bad');
+        else log(S.boss.n+' — Breach the Sanctum tries to move '+demonName(d)+', but the next room is full.','bad');
+      }
+    }
+  };
+  try{window.triggerEnterRoom=triggerEnterRoom}catch(_){}
+}
+
+if(typeof resolveStartDemonPhaseAbilities==='function'){
+  resolveStartDemonPhaseAbilities=function(){
+    let snapshot=allDemons().map(x=>x.d);
+    for(let d of snapshot){
+      let code=demonCode(d),v=demonValue(d);
+      if(code==='spawnImp'){
+        spawnSpecificImp(v);
+      }else if(code==='phasePush'){
+        let movedTargets=new Set();
+        for(let k=0;k<v;k++){
+          let t=null;
+          for(let r=3;r>=0&&!t;r--){
+            t=S.rooms[r].find(x=>!movedTargets.has(x.id))||null;
+          }
+          if(!t)break;
+          movedTargets.add(t.id);
+          let moved=moveOneForward(t,demonName(d)+' ability');
+          if(moved){
+            log(demonName(d)+' moves '+demonName(t)+' forward 1 room (automatic closest distinct target).','bad');
+          }else if(t.status&&t.status.stop){
+            log(demonName(d)+' cannot move '+demonName(t)+' because its movement is stopped.','good');
+          }else{
+            log(demonName(d)+' cannot move '+demonName(t)+' because the next room is full.','info');
+          }
+        }
+      }
+    }
+  };
+  try{window.resolveStartDemonPhaseAbilities=resolveStartDemonPhaseAbilities}catch(_){}
+}
+
+if(typeof moveDemons==='function'){
+  const auditedMoveDemons=moveDemons;
+  moveDemons=function(){
+    const out=auditedMoveDemons.apply(this,arguments);
+
+    try{
+      allDemons().forEach(x=>{
+        if(x&&x.d&&x.d.status&&x.d.status.stop)delete x.d.status.stop;
+      });
+    }catch(err){
+      console.warn('Could not clear resolved Demon Phase stop flags',err);
+    }
+    return out;
+  };
+  try{window.moveDemons=moveDemons}catch(_){}
+}
+})();
+</script>
