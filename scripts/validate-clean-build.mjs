@@ -57,6 +57,19 @@ const embeddedDir=path.join(root,'assets/embedded');
 const embedded=fs.existsSync(embeddedDir)?fs.readdirSync(embeddedDir).filter(x=>x.endsWith('.webp')):[];
 if(embedded.length!==98) throw new Error('Expected 98 extracted WebP assets, found '+embedded.length);
 
+
+const obsoleteTokens=[
+  'tutorialWelcome','tutorialCoach','tutorialResumeChip','sanctumTutorialScript',
+  'mobileNav','mobileFullscreenBtn','mobilePauseMenuBtn','removeObsoleteMobileNav',
+  'sanctumViewportFullscreen','iphoneFullscreenControl'
+];
+for(const file of ['index.html','src/js/20-ui-foundation.js','src/js/40-priest-ui.js','src/js/50-mobile.js','src/styles/roguelite.css','src/styles/mobile.css']){
+  const text=fs.readFileSync(path.join(root,file),'utf8');
+  for(const token of obsoleteTokens){
+    if(text.includes(token))throw new Error('Obsolete clean-rebuild token '+token+' remains in '+file);
+  }
+}
+
 const multiplayer=fs.readFileSync(path.join(root,'src/js/60-multiplayer.js'),'utf8');
 if(!multiplayer.includes('supabase.co')) throw new Error('Supabase multiplayer configuration is missing.');
 if(!multiplayer.includes('pushSharedState')) throw new Error('Multiplayer state publishing logic is missing.');

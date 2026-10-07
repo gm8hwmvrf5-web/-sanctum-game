@@ -205,13 +205,7 @@
     <div class="toolbar" id="topToolbar"><button class="btn" id="newGameBtn">New Game</button><button class="btn" id="saveBtn">Save</button><button class="btn" id="loadBtn">Load</button><button class="btn" id="pauseBtn">Pause</button><button class="btn" id="rulesBtn">Rules</button><button class="btn" id="demonDeckBtn">Demon Deck</button><button class="btn" id="bossDeckBtn">Boss Deck</button></div>
   </div>
 
-  <nav class="mobileNav" aria-label="Game navigation">
-    <button data-jump="top">⌂<span>Top</span></button>
-    <button data-jump="boardSection">♜<span>Board</span></button>
-    <button data-jump="ritualPanel">✦<span>Turn</span></button>
-    <button id="mobilePauseMenuBtn" type="button">☰<span>Log</span></button>
-    <button id="mobileFullscreenBtn" type="button" aria-label="Enter full screen" title="Full Screen">⛶<span>Full</span></button>
-  </nav>
+  
 </div>
 
 <div class="modal hidden" id="newGameConfirmModal" role="dialog" aria-modal="true" aria-labelledby="newGameConfirmTitle">
@@ -393,7 +387,7 @@
 <!-- Demon artwork full-pass applied: every demon entry art/gart refreshed with new artwork set. -->
 
 
-<!-- ==================== INTERACTIVE TUTORIAL BUILD ==================== -->
+<!-- Game menu / save-load overlays -->
 
 
 <div class="modal hidden" id="pauseOverlay" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
@@ -430,44 +424,7 @@
 
 
 
-<div id="tutorialWelcome" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialWelcomeTitle">
-  <div class="tutorialWelcomeCard">
-    <div class="tutorialEyebrow">Sanctum of the Damned</div>
-    <h1 id="tutorialWelcomeTitle">Interactive Tutorial</h1>
-    <p class="lead">This build uses the complete current game, but adds a guided lesson over the live board. The tutorial pauses the turn timer while it teaches you the interface, then hands the game back to you to continue playing.</p>
-    <div class="tutorialPillGrid">
-      <div class="tutorialPill"><b>Learn the turn</b>Shared Mana, Priest cards, Basic Attack, Rituals, Demon Blood, discard, and Empowering.</div>
-      <div class="tutorialPill"><b>Learn the board</b>Demon movement, Corruption, Desecration, Consecration, Crucifix events, and Altar pressure.</div>
-      <div class="tutorialPill"><b>Learn to win</b>Defeat 13 base Demons, survive the Boss Stage, defeat the Boss, then save the Sanctum or descend deeper.</div>
-    </div>
-    <div class="notice"><b>Tutorial setup:</b> the guided lesson starts a solo Exorcist game and grants 4 Demon Blood so you can immediately experiment with Rituals. All normal gameplay systems remain active.</div>
-    <div class="tutorialWelcomeActions">
-      <button class="btn green" id="tutorialStartBtn">Start Guided Tutorial</button>
-      <button class="btn" id="tutorialNormalBtn">Skip Tutorial — Normal Setup</button>
-    </div>
-  </div>
-</div>
 
-<div id="tutorialCoach" class="hidden" role="dialog" aria-live="polite" aria-labelledby="tutorialStepTitle">
-  <div class="tutorialCoachTop">
-    <div id="tutorialProgress">Step 1</div>
-    <button class="tutorialCloseX" id="tutorialExitBtn" aria-label="Exit tutorial">×</button>
-  </div>
-  <h2 id="tutorialStepTitle">Welcome</h2>
-  <div id="tutorialStepBody"></div>
-  <div id="tutorialTip"></div>
-  <div class="tutorialCoachActions">
-    <button class="btn" id="tutorialPrevBtn">Previous</button>
-    <button class="btn" id="tutorialPracticeBtn">Practice</button>
-    <button class="btn green" id="tutorialNextBtn">Next</button>
-  </div>
-</div>
-<button id="tutorialResumeChip" class="hidden" type="button">✦ Resume Tutorial</button>
-
-
-
-
-<!-- ================== END INTERACTIVE TUTORIAL BUILD ================== -->
 
 
 

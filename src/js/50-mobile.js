@@ -1,118 +1,5 @@
 /* Clean rebuild module: iPhone/mobile presentation and PWA. Original execution order preserved. */
 
-/* source: iphoneFullscreenControlScript */
-(()=>{
-  'use strict';
-
-  const btn=document.getElementById('mobileFullscreenBtn');
-  if(!btn)return;
-
-  const root=document.documentElement;
-  let pseudo=false;
-  let savedScrollY=0;
-
-  function fullscreenElement(){
-    return document.fullscreenElement || document.webkitFullscreenElement || null;
-  }
-
-  function isFullscreen(){
-    return !!fullscreenElement() || pseudo;
-  }
-
-  function syncButton(){
-    const active=isFullscreen();
-    btn.childNodes[0].nodeValue=active?'↙':'⛶';
-    btn.setAttribute('aria-label',active?'Exit full screen':'Enter full screen');
-    btn.setAttribute('title',active?'Exit Full Screen':'Full Screen');
-    const label=btn.querySelector('span');
-    if(label)label.textContent=active?'Exit':'Full';
-  }
-
-  function enterPseudoFullscreen(){
-    savedScrollY=window.scrollY||0;
-    pseudo=true;
-    document.body.classList.add('sanctumViewportFullscreen');
-    window.scrollTo(0,0);
-    syncButton();
-  }
-
-  function exitPseudoFullscreen(){
-    pseudo=false;
-    document.body.classList.remove('sanctumViewportFullscreen');
-    requestAnimationFrame(()=>window.scrollTo(0,savedScrollY));
-    syncButton();
-  }
-
-  async function enterNativeFullscreen(){
-    const request=root.requestFullscreen || root.webkitRequestFullscreen;
-    if(!request)return false;
-    try{
-      let result;
-      if(root.requestFullscreen){
-        result=root.requestFullscreen({navigationUI:'hide'});
-      }else{
-        result=root.webkitRequestFullscreen();
-      }
-      if(result && typeof result.then==='function')await result;
-      try{
-        if(screen.orientation && screen.orientation.lock){
-          await screen.orientation.lock('landscape');
-        }
-      }catch(_){}
-      return true;
-    }catch(_){
-      return false;
-    }
-  }
-
-  async function exitNativeFullscreen(){
-    try{
-      if(document.exitFullscreen){
-        await document.exitFullscreen();
-        return true;
-      }
-      if(document.webkitExitFullscreen){
-        document.webkitExitFullscreen();
-        return true;
-      }
-    }catch(_){}
-    return false;
-  }
-
-  btn.addEventListener('click',async()=>{
-    if(pseudo){
-      exitPseudoFullscreen();
-      return;
-    }
-    if(fullscreenElement()){
-      await exitNativeFullscreen();
-      syncButton();
-      return;
-    }
-
-    const entered=await enterNativeFullscreen();
-    if(!entered){
-      /* iPhone Safari may not expose page-level Fullscreen API.
-         Fall back to a viewport-filling game mode instead of doing nothing. */
-      enterPseudoFullscreen();
-    }else{
-      syncButton();
-    }
-  });
-
-  document.addEventListener('fullscreenchange',syncButton);
-  document.addEventListener('webkitfullscreenchange',syncButton);
-
-  window.addEventListener('orientationchange',()=>{
-    if(pseudo && matchMedia('(orientation:portrait)').matches){
-      exitPseudoFullscreen();
-    }
-  });
-
-  syncButton();
-})();
-
-
 /* source: iphonePriestPauseMenuButtonV3Script */
 (()=>{
   'use strict';
@@ -215,70 +102,38 @@
 })();
 
 
-/* source: removeMobileNavAndFitPriestTitlesV5Script */
+/* source: fitPriestTitlesClean */
 (()=>{
   'use strict';
-
-  function removeObsoleteMobileNav(){
-    document.querySelectorAll('.mobileNav').forEach(el=>el.remove());
-  }
-
   function fitPriestCardTitles(){
     const titles=[...document.querySelectorAll('#handContent .hand .card h4')];
     titles.forEach(title=>{
       title.style.setProperty('white-space','nowrap','important');
       title.style.removeProperty('font-size');
-
-      // Start from the current computed size, then shrink only if necessary.
       let size=parseFloat(getComputedStyle(title).fontSize)||9;
       const minSize=5.5;
       let guard=0;
-
-      while(title.scrollWidth>title.clientWidth+0.5 && size>minSize && guard<30){
+      while(title.scrollWidth>title.clientWidth+0.5&&size>minSize&&guard<30){
         size=Math.max(minSize,size-0.25);
         title.style.setProperty('font-size',size+'px','important');
         guard++;
       }
     });
   }
-
-  function applyPhoneCleanup(){
-    removeObsoleteMobileNav();
-    requestAnimationFrame(fitPriestCardTitles);
-  }
-
+  function scheduleFit(){requestAnimationFrame(fitPriestCardTitles)}
   if(typeof renderPlayer==='function'){
     const priorRenderPlayer=renderPlayer;
-    renderPlayer=function(){
-      const out=priorRenderPlayer();
-      applyPhoneCleanup();
-      return out;
-    };
+    renderPlayer=function(){const out=priorRenderPlayer();scheduleFit();return out};
   }
-
   if(typeof rogueliteRenderHud==='function'){
     const priorRogueHud=rogueliteRenderHud;
-    rogueliteRenderHud=function(){
-      const out=priorRogueHud();
-      applyPhoneCleanup();
-      return out;
-    };
+    rogueliteRenderHud=function(){const out=priorRogueHud();scheduleFit();return out};
   }
-
-  // Catch any late-created legacy nav node as well.
-  const observer=new MutationObserver(()=>removeObsoleteMobileNav());
-  if(document.documentElement)observer.observe(document.documentElement,{childList:true,subtree:true});
-
-  window.addEventListener('resize',fitPriestCardTitles);
-  window.addEventListener('orientationchange',()=>setTimeout(applyPhoneCleanup,60));
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',applyPhoneCleanup,{once:true});
-  }else{
-    applyPhoneCleanup();
-  }
+  window.addEventListener('resize',scheduleFit);
+  window.addEventListener('orientationchange',()=>setTimeout(scheduleFit,60));
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scheduleFit,{once:true});
+  else scheduleFit();
 })();
-
 
 /* source: iphoneLandscapeViewportFitV13Script */
 (()=>{
@@ -302,7 +157,7 @@
   }
 
   function overlayOpen(){
-    return [...document.querySelectorAll('.modal,#rogueTutorialIntro,#rogueTutorialCoach,#tutorialCoach,#tutorialWelcome')]
+    return [...document.querySelectorAll('.modal,#rogueTutorialIntro,#rogueTutorialCoach')]
       .some(el=>{
         if(!el||el.classList.contains('hidden'))return false;
         const s=getComputedStyle(el);

@@ -251,66 +251,6 @@
 #loadBrowserBtn:disabled{opacity:.45;cursor:not-allowed}
 
 
-/* source: sanctumTutorialStyles */
-
-  body.tutorial-build .bottomSubtitle::after{content:" • Interactive Tutorial Edition";color:#d9b66f}
-  .tutorial-highlight{
-    position:relative !important;
-    z-index:91 !important;
-    outline:3px solid #e7c26d !important;
-    outline-offset:5px !important;
-    box-shadow:0 0 0 5px rgba(72,42,12,.75),0 0 30px rgba(231,194,109,.72) !important;
-    border-radius:10px;
-    scroll-margin-top:150px;
-  }
-  #tutorialWelcome{
-    position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.86);display:grid;place-items:center;padding:16px;
-  }
-  #tutorialWelcome.hidden{display:none!important}
-  .tutorialWelcomeCard{
-    width:min(760px,96vw);max-height:92vh;overflow:auto;background:linear-gradient(180deg,#191315,#0d0b0d);
-    border:2px solid #9a7438;border-radius:16px;padding:22px;box-shadow:0 0 45px #000;
-  }
-  .tutorialEyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#c89f59;margin-bottom:5px}
-  .tutorialWelcomeCard h1{margin:0;color:#f0d49a;font-size:clamp(27px,6vw,44px);line-height:1.05}
-  .tutorialWelcomeCard .lead{color:#d9ccb6;line-height:1.55;font-size:15px;margin:12px 0 16px}
-  .tutorialPillGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
-  .tutorialPill{border:1px solid #604a2c;border-radius:9px;background:#15110f;padding:10px;color:#d8c7aa;font-size:12px;line-height:1.4}
-  .tutorialPill b{display:block;color:#f0d096;margin-bottom:3px}
-  .tutorialWelcomeActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}
-  .tutorialWelcomeActions .btn{flex:1;min-width:190px;min-height:45px}
-  #tutorialCoach{
-    position:fixed;z-index:190;left:16px;bottom:16px;width:min(500px,calc(100vw - 32px));
-    background:linear-gradient(180deg,#1c1515,#0b0a0b);border:2px solid #9a7438;border-radius:14px;
-    box-shadow:0 10px 35px rgba(0,0,0,.72);padding:14px;color:#eadfc9;
-  }
-  #tutorialCoach.hidden{display:none!important}
-  .tutorialCoachTop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
-  #tutorialProgress{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:#caa65f}
-  #tutorialStepTitle{margin:0 0 7px;color:#f0d49a;font-size:21px;line-height:1.15}
-  #tutorialStepBody{font-size:13px;line-height:1.5;color:#e1d3bb}
-  #tutorialStepBody b{color:#f0d49a}
-  #tutorialTip{margin-top:9px;border-left:3px solid #9d7738;background:#15110e;padding:8px 9px;color:#cdbb98;font-size:11.5px;line-height:1.4;border-radius:4px}
-  .tutorialCoachActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
-  .tutorialCoachActions .btn{min-height:38px;flex:1;min-width:95px;padding:7px 9px}
-  #tutorialPracticeBtn{border-color:#4d7a58;background:linear-gradient(#355f42,#172b1e)}
-  #tutorialResumeChip{
-    position:fixed;z-index:185;left:16px;bottom:16px;border:1px solid #b88d45;background:#1a130d;color:#f1d39b;
-    border-radius:999px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,.55);cursor:pointer;font:inherit;
-  }
-  #tutorialResumeChip.hidden{display:none!important}
-  #tutorialBuildBadge{border-color:#9a7438;background:linear-gradient(#49351d,#20160e);color:#f0d49a}
-  .tutorialCloseX{border:0;background:transparent;color:#b7a58a;font-size:23px;line-height:1;cursor:pointer;padding:3px 8px}
-  .tutorialCloseX:hover{color:#fff}
-  @media(max-width:700px){
-    .tutorialPillGrid{grid-template-columns:1fr}
-    #tutorialCoach{left:8px;bottom:70px;width:calc(100vw - 16px);padding:11px}
-    #tutorialStepTitle{font-size:18px}
-    #tutorialStepBody{font-size:12px}
-    #tutorialResumeChip{left:8px;bottom:72px}
-  }
-
-
 /* source: compactPriestHandCarouselStyles */
 
 /* Compact rotating Priest hand: three-card carousel */

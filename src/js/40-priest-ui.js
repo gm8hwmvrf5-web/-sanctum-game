@@ -551,12 +551,6 @@
  const next=document.getElementById('rogueTutorialNextBtn');
  const helper=document.getElementById('rogueTutorialHelperBtn');
  let active=false,index=0,poll=null,savedSetup=null,mergeShown=false;
-
- // Keep the obsolete pre-roguelite tutorial permanently out of the way.
- document.getElementById('tutorialWelcome')?.classList.add('hidden');
- document.getElementById('tutorialCoach')?.classList.add('hidden');
- document.getElementById('tutorialResumeChip')?.classList.add('hidden');
-
  if(setupActions&&start&&!document.getElementById('setupTutorialBtn')){
    const b=document.createElement('button');
    b.className='btn';b.id='setupTutorialBtn';b.type='button';b.textContent='Play Tutorial';b.style.flex='1';

@@ -483,37 +483,10 @@
   #logPanel .log div{padding:1px 0 !important;}
   #infoSection{display:none !important;}
 
-  /* Small floating navigation/menu cluster. */
-  .mobileNav{
-    display:grid !important;
-    grid-template-columns:repeat(4,38px) !important;
-    position:fixed !important;
-    left:auto !important;
-    right:calc(4px + env(safe-area-inset-right)) !important;
-    bottom:calc(4px + env(safe-area-inset-bottom)) !important;
-    width:auto !important;
-    z-index:180 !important;
-    padding:2px !important;
-    gap:1px !important;
-    border:1px solid #70552f !important;
-    border-radius:9px !important;
-    background:rgba(9,9,11,.93) !important;
-    backdrop-filter:blur(10px) !important;
-  }
-  .mobileNav button{
-    background:rgba(24,20,17,.96) !important;
-    border:1px solid rgba(154,121,62,.55) !important;
-    border-radius:6px !important;
-    min-width:38px !important;
-    width:38px !important;
-    min-height:36px !important;
-    height:36px !important;
-    padding:0 !important;
-    font-size:15px !important;
-    line-height:1 !important;
-    color:#e3c98f !important;
-  }
-  .mobileNav button span{display:none !important;}
+  
+  
+  
+  
 
   /* Short-screen modal treatment, including the Tab menu and setup. */
   .modal{
@@ -733,49 +706,6 @@
   #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
   #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{width:99px !important;min-width:99px !important;max-width:99px !important;min-height:150px !important;max-height:150px !important;}
   #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{left:247px !important;}
-}
-
-
-/* source: iphoneFullscreenControlStyles */
-
-/* Full-screen control for the dedicated iPhone landscape build. */
-@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
-  .mobileNav{
-    grid-template-columns:repeat(5,38px) !important;
-  }
-  #mobileFullscreenBtn{
-    color:#ffe2a4 !important;
-    border-color:#b18442 !important;
-  }
-  body.sanctumViewportFullscreen{
-    margin:0 !important;
-    width:100vw !important;
-    min-height:100dvh !important;
-    overflow:hidden !important;
-    background:#050505 !important;
-  }
-  body.sanctumViewportFullscreen > .app{
-    position:fixed !important;
-    inset:0 !important;
-    width:100vw !important;
-    height:100dvh !important;
-    max-width:none !important;
-    overflow-x:hidden !important;
-    overflow-y:auto !important;
-    padding:
-      max(2px,env(safe-area-inset-top))
-      max(3px,env(safe-area-inset-right))
-      max(3px,env(safe-area-inset-bottom))
-      max(3px,env(safe-area-inset-left)) !important;
-    -webkit-overflow-scrolling:touch !important;
-  }
-  body.sanctumViewportFullscreen #topStatusBar.stats{
-    top:0 !important;
-  }
-  body.sanctumViewportFullscreen .mobileNav{
-    right:calc(3px + env(safe-area-inset-right)) !important;
-    bottom:calc(3px + env(safe-area-inset-bottom)) !important;
-  }
 }
 
 
@@ -1248,8 +1178,8 @@
     min-width:46px !important;
   }
 
-  /* The old phone-nav pause entry is replaced by the Priest-UI Menu button. */
-  #mobilePauseMenuBtn{display:none !important;}
+  
+  
 }
 
 /* Keep shorter iPhones usable while still enlarging the Priest side. */
@@ -1262,20 +1192,12 @@
 
 /* source: iphoneRemoveFloatingNavEqualRitualsV4Patch */
 
-/* Final iPhone landscape cleanup:
-   remove the obsolete floating four/five-button mobile navigation completely,
-   reclaim its bottom space, and keep all Ritual cards equal to the tallest card. */
-@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
-  .mobileNav{
-    display:none !important;
-    visibility:hidden !important;
-    pointer-events:none !important;
-  }
 
-  /* The floating nav no longer needs reserved space in pseudo-fullscreen mode. */
-  body.sanctumViewportFullscreen > .app{
-    padding-bottom:max(3px,env(safe-area-inset-bottom)) !important;
-  }
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  
+
+  
+  
 
   /* All three Priest Ritual boxes share the height of the tallest one. */
   #ritualPanel .ritualMain .rituals{
@@ -1295,23 +1217,16 @@
 }
 
 
-/* source: removeMobileNavAndFitPriestTitlesV5Patch */
 
-/* Hard-disable the obsolete floating mobile navigation at every viewport size. */
-.mobileNav{
-  display:none !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  pointer-events:none !important;
-}
 
-/* Reclaim any legacy mobile bottom spacing that existed only for .mobileNav. */
+
+
+
+
 @media(max-width:700px){
   body{padding-bottom:max(0px,env(safe-area-inset-bottom)) !important;}
 }
-body.sanctumViewportFullscreen > .app{
-  padding-bottom:max(3px,env(safe-area-inset-bottom)) !important;
-}
+
 
 /* Priest card names must remain on exactly one line. */
 #handContent .hand.carouselTrack > .card h4,
@@ -1350,7 +1265,7 @@ body.sanctumViewportFullscreen > .app{
     margin:0 !important;
     transform-origin:top left !important;
   }
-  .mobileNav{display:none !important;}
+  
 }
 
 
