@@ -243,7 +243,6 @@ function showRevealedDemonCards(title,cards,opts={}){
 function priestDemonVisualTargets(){return allDemons().map(x=>({kind:'demon',...x}))}
 async function choosePriestDemonTarget(title='Choose a Demon'){let a=priestDemonVisualTargets();if(!a.length){alert('There are no Demons on the path.');return null}return await chooseVisualDemonTargets(title,a)}
 async function choosePriestEligibleDemonTarget(title,items,emptyMessage='There are no valid Demon targets.'){let a=(items||[]).map(x=>x&&x.kind?x:{kind:'demon',...x});if(!a.length){alert(emptyMessage);return null}return await chooseVisualDemonTargets(title,a)}
-async function chooseDemon(title='Choose a Demon'){return await choosePriestDemonTarget(title)}
 function damageTargets(){let a=allDemons().map(x=>({kind:'demon',...x}));if(S.bossRevealed&&S.boss&&S.boss.cur>0)a.push({kind:'boss',boss:S.boss});return a}
 async function chooseDamageTarget(title='Choose a damage target'){let a=damageTargets();if(!a.length){alert('There are no valid damage targets.');return null}return await chooseVisualDemonTargets(title,a)}
 function damageTargetKey(x){return x&&x.kind==='boss'?'boss':x&&x.d?`demon:${x.d.id}`:''}
@@ -260,11 +259,9 @@ const PURIFIABLE_STATUS_GROUPS=[
  {key:'ruinBonus',keys:['ruinBonus','ruinRound'],label:'Ruin Altar-damage bonus'},
  {key:'bossHpBonus',keys:['bossHpBonus'],label:'Boss-granted HP bonus'}
 ];
-function purifiableStatuses(d){if(!d||!d.status)return[];return PURIFIABLE_STATUS_GROUPS.filter(g=>g.keys.some(k=>d.status[k]!==undefined&&d.status[k]!==0));}
 function removePurifiableStatus(d,g){if(!d||!g)return;g.keys.forEach(k=>delete d.status[k]);d.cur=Math.min(d.cur,demonMaxHP(d));}
 
 function dealDamageTarget(x,amt,source='Effect',opts={}){if(!x||amt<=0)return 0;if(x.kind==='boss'){damageBoss(amt,source,!!opts.ritual);return 0}return damageDemon(x.d,amt,source,opts)}
-async function chooseRoom(title='Choose a room'){let rooms=['Gateway','Hall','Chapel','Crypt'].map((n,i)=>({n,i}));return await choose(title,rooms,x=>`${x.n} (${S.rooms[x.i].length} Demon${S.rooms[x.i].length===1?'':'s'})`)}
 async function chooseDamageRoom(title='Choose a room to damage'){
  let rooms=['Gateway','Hall','Chapel','Crypt'].map((n,i)=>({n,i,kind:'room'})).filter(x=>S.rooms[x.i].length>0);
  let bossTarget=(S.bossRevealed&&S.boss&&S.boss.cur>0)?{n:'Boss Room',i:4,kind:'boss',boss:S.boss}:null;
@@ -923,56 +920,6 @@ let c=await choosePriestCard(`${r.n} — choose card ${n+1} of ${picks}, or Done
   case'abbessRebuke':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;dealDamageTarget(x,ritualBoost(effFull?7:4),r.n,{ritual:true,allowOverflow:true})}break}
   case'miracleUnity':{let t;if(S.players.length===1)t=currentPlayer();else{let opts=S.players.filter((p,i)=>i!==S.current);t=await choose(`${r.n} — choose another player`,opts,p=>`${p.name} — ${p.char} — Blood ${p.blood}/10`)}if(t){let old=t.blood;t.blood=Math.min(10,t.blood+ritualBoost(2));log(`${t.name} gains ${t.blood-old} Demon Blood from ${r.n}.`,'good');if(full){let before=S.altar;healAltar(ritualBoost(3),r.n);log(`${r.n} restores ${S.altar-before} Altar Protection.`,'good')}}break}
  }
-}
-function crucifixPartyBlood(){return S.players.reduce((sum,p)=>sum+(p.blood||0),0)}
-function crucifixSpendPartyBlood(amount){
- let left=amount,start=S.current||0,guard=0;
- while(left>0&&guard<200){
-  let p=S.players[(start+guard)%S.players.length];
-  if(p&&p.blood>0){p.blood--;left--}
-  guard++;
- }
- return amount-left;
-}
-function crucifixGiveAllBlood(amount){S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+amount))}
-function crucifixBanishDemon(d){
- let loc=findDemonLocation(d);
- if(!loc)return false;
- S.rooms[loc.r].splice(loc.i,1);
- log(`${demonName(d)} is banished by a Crucifix choice. It grants no Blood and does not count as defeated.`,'good');
- return true;
-}
-function crucifixSpawnDemonIntoRoom(roomIndex){
- let d=drawDemon();
- if(!d)return 'none';
-
- // The four-Demon room cap remains a core rule. Overflow waits at the Gate.
- if(S.rooms[roomIndex].length>=4){
-  S.queue.push(d);
-  log(`${demonName(d)} cannot enter ${ROOM_NAMES[roomIndex]} because it is full and is sent to the Gate Queue.`,'bad');
-  return 'queued';
- }
-
- S.rooms[roomIndex].push(d);
- triggerEnterPlay(d);
-
- // Gateway-only room effects that normal spawns receive.
- if(roomIndex===0){
-  triggerEnterRoom(d);
-  if(roomDesecrated(0)&&findDemonLocation(d)){
-   d.status=d.status||{};
-   d.status.extraHpBonus=(d.status.extraHpBonus||0)+1;
-   d.cur+=1;
-   log(`${demonName(d)} gains +1 HP from the Desecrated Gateway.`,'bad');
-  }
-  if(roomConsecrated(0)&&findDemonLocation(d))damageDemon(d,1,'Consecrated Gateway');
-  if(findDemonLocation(d))checkMerge(d);
- }else{
-  triggerEnterRoom(d);
- }
-
- log(`${demonName(d)} is hurled directly into the ${ROOM_NAMES[roomIndex]} by Legion of the Pit.`,'bad');
- return 'placed';
 }
 function clearCrucifixChoiceUI(){
  let area=document.getElementById('crucifixChoiceArea');
