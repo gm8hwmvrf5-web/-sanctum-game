@@ -1,0 +1,3706 @@
+<style id="multiplayerDemonStatsFivePercentPatch">
+/* Visual-only multiplayer patch: smaller labels, numbers +5% from the prior size. */
+#boardSection .demonStats{
+  font-size:11.235px !important;
+}
+#boardSection .demonStats .statLabel{
+  font-size:.70em !important;
+}
+#boardSection .demonStats .statValue{
+  font-size:1.05em !important;
+}
+@media (max-width:700px){
+  #boardSection .demonStats{
+    font-size:12.81px !important;
+  }
+  #boardSection .demonStats .statLabel{
+    font-size:.55em !important;
+  }
+  #boardSection .demonStats .statValue{
+    font-size:1.05em !important;
+  }
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demonStats{
+    font-size:5.565px !important;
+  }
+  #boardSection .demonStats .statLabel{
+    font-size:3.2px !important;
+  }
+  #boardSection .demonStats .statValue{
+    font-size:5.843px !important;
+  }
+}
+</style>
+
+<style id="sanctumMultiplayerLobbyStyles">
+#sanctumOnlinePanel{
+  margin:10px 0;
+  padding:10px;
+  border:1px solid #7c6339;
+  border-radius:9px;
+  background:linear-gradient(180deg,#17120f,#0d0b0a);
+  box-shadow:inset 0 0 16px rgba(0,0,0,.35);
+}
+#sanctumOnlinePanel .mpTitle{
+  color:#efd39b;
+  font-weight:800;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+#sanctumOnlinePanel .mpActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  align-items:end;
+}
+#sanctumOnlinePanel .mpField label{
+  display:block;
+  font-size:9px;
+  color:#ad9c7d;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+#sanctumOnlinePanel input{
+  width:100%;
+  box-sizing:border-box;
+  background:#0a0909;
+  color:#f1dfbc;
+  border:1px solid #6e5530;
+  border-radius:6px;
+  padding:7px 8px;
+  text-transform:uppercase;
+}
+#sanctumOnlinePanel .mpButtons{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:7px;
+}
+#sanctumOnlinePanel .mpButtons .btn{flex:1 1 120px}
+#sanctumOnlinePanel .mpStatus{
+  margin-top:8px;
+  padding:7px 8px;
+  border-radius:6px;
+  background:#0a0a0b;
+  color:#c9bda6;
+  font-size:11px;
+  line-height:1.35;
+}
+#sanctumOnlinePanel .mpRoomCode{
+  color:#f2c66f;
+  font-weight:900;
+  letter-spacing:2px;
+}
+#sanctumOnlinePanel .mpRoster{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px;
+  margin-top:7px;
+}
+#sanctumOnlinePanel .mpSeat{
+  border:1px solid #4e402d;
+  border-radius:6px;
+  padding:5px;
+  min-height:34px;
+  background:#12100e;
+  color:#d8c9ae;
+  font-size:9px;
+}
+#sanctumOnlinePanel .mpSeat b{
+  display:block;
+  color:#edcf95;
+  font-size:10px;
+}
+#sanctumOnlinePanel .mpSeat.empty{opacity:.45}
+#sanctumOnlinePanel .mpDevNote{
+  margin-top:6px;
+  color:#8f816e;
+  font-size:9px;
+  line-height:1.3;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #sanctumOnlinePanel{margin:4px 0;padding:5px}
+  #sanctumOnlinePanel .mpTitle{font-size:9px;margin-bottom:3px}
+  #sanctumOnlinePanel .mpActions{gap:4px}
+  #sanctumOnlinePanel input{min-height:28px!important;padding:3px 5px!important;font-size:8px!important}
+  #sanctumOnlinePanel .mpButtons{margin-top:3px;gap:3px}
+  #sanctumOnlinePanel .mpButtons .btn{min-height:28px!important;padding:3px 5px!important;font-size:8px!important}
+  #sanctumOnlinePanel .mpStatus{margin-top:4px;padding:4px;font-size:8px}
+  #sanctumOnlinePanel .mpRoster{margin-top:4px;gap:3px}
+  #sanctumOnlinePanel .mpSeat{min-height:22px;padding:3px;font-size:7px}
+  #sanctumOnlinePanel .mpSeat b{font-size:8px}
+  #sanctumOnlinePanel .mpDevNote{display:none}
+}
+
+.mpGameBanner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:6px 0;
+  padding:6px 9px;
+  border:1px solid #6b5735;
+  border-radius:7px;
+  background:#11100e;
+  color:#cfc0a5;
+  font-size:10px;
+  letter-spacing:.35px;
+}
+.mpGameBanner b{color:#efca7f;letter-spacing:1px}
+.mpGameBanner.yourTurn{
+  border-color:#4f845d;
+  box-shadow:inset 0 0 10px rgba(55,115,73,.18);
+}
+.mpGameBanner.yourTurn span{color:#a9d6ad;font-weight:700}
+.mpGameBanner.waiting span{color:#b4a58d}
+.mpGameBanner.ended{
+  border-color:#87413b;
+  background:#1a0d0c;
+}
+.mpGameBanner.ended b{color:#ef8c82}
+.mpGameBanner.ended span{color:#d9b2aa}
+body.mpSessionEnded #handPanel,
+body.mpSessionEnded #ritualPanel,
+body.mpSessionEnded #boardSection{
+  filter:saturate(.45) brightness(.68);
+}
+body.mpWaitingTurn #handPanel .card{
+  filter:none !important;
+  opacity:1 !important;
+}
+body.mpWaitingTurn #ritualPanel .ritual{filter:saturate(.72) brightness(.82)}
+
+/* Multiplayer viewport-height fill.
+   visualViewport updates --sanctum-viewport-height so iPhone standalone/Safari
+   uses the actually visible screen instead of a stale 100vh measurement. */
+html,body{
+  min-height:var(--sanctum-viewport-height,100dvh) !important;
+}
+body > .app{
+  box-sizing:border-box !important;
+  min-height:var(--sanctum-viewport-height,100dvh) !important;
+}
+@supports not (height:100dvh){
+  html,body,body > .app{min-height:100vh !important;}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  body{
+    min-height:var(--sanctum-viewport-height,100dvh) !important;
+  }
+  body > .app{
+    min-height:var(--sanctum-viewport-height,100dvh) !important;
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  body > .app > .main,
+  body > .app > #handPanel{
+    flex:1 0 auto !important;
+  }
+  #handPanel{
+    box-sizing:border-box !important;
+  }
+}
+#handPanel.mpOwnHand .mpOwnHandLabel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:0 0 5px;
+  padding:4px 7px;
+  border:1px solid #5f4b2d;
+  border-radius:6px;
+  background:rgba(18,14,11,.82);
+  color:#bbaa8c;
+  font-size:9px;
+  letter-spacing:.35px;
+}
+#handPanel.mpOwnHand .mpOwnHandLabel b{
+  color:#efcc86;
+  letter-spacing:1px;
+}
+#handPanel.mpOwnHand .mpOwnHandLabel span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body.mpWaitingTurn #handPanel.mpOwnHand .mpOwnHandLabel:after{
+  content:"Locked until your turn";
+  color:#9b8b74;
+  font-size:8px;
+  white-space:nowrap;
+}
+dialog.mpDemonReader{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  max-width:none;
+  max-height:none;
+  margin:0;
+  padding:18px;
+  border:0;
+  background:rgba(0,0,0,.38);
+  color:inherit;
+  box-sizing:border-box;
+}
+dialog.mpDemonReader[open]{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+dialog.mpDemonReader::backdrop{
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(3px);
+}
+.mpDemonReaderCard{
+  position:relative;
+  width:min(760px,94vw);
+  max-height:90vh;
+  display:grid;
+  grid-template-columns:minmax(220px,42%) 1fr;
+  gap:14px;
+  padding:14px;
+  overflow:auto;
+  border:1px solid #8b6737;
+  border-radius:12px;
+  background:linear-gradient(180deg,#211814,#100c0b);
+  box-shadow:0 18px 55px rgba(0,0,0,.75),inset 0 0 24px rgba(181,125,57,.08);
+}
+.mpDemonReaderClose{
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:2;
+  min-width:68px;
+  padding:7px 10px;
+  border:1px solid #8d6741;
+  border-radius:7px;
+  background:#241710;
+  color:#f1d5a4;
+  font:700 12px Georgia,serif;
+  cursor:pointer;
+}
+.mpDemonReaderArt{
+  min-height:300px;
+  overflow:hidden;
+  border:1px solid #74552d;
+  border-radius:9px;
+  background:#0c0908;
+}
+.mpDemonReaderArt img{
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:300px;
+  object-fit:cover;
+  object-position:center 28%;
+}
+.mpDemonReaderBody{
+  min-width:0;
+  padding:24px 4px 4px;
+}
+.mpDemonReaderType{
+  margin-bottom:5px;
+  color:#9e8a70;
+  font-size:10px;
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+}
+.mpDemonReaderName{
+  margin:0 72px 12px 0;
+  color:#f3d8a6;
+  font-size:24px;
+  line-height:1.05;
+  font-weight:800;
+}
+.mpDemonReaderStats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:14px;
+  font-size:17px;
+  font-weight:800;
+}
+.mpDemonReaderStats .hp{color:#ff9db4}
+.mpDemonReaderStats .blood{color:#e33a49}
+.mpDemonReaderStats .attack{color:#fff}
+.mpDemonReaderAbility{
+  padding:11px 12px;
+  border:1px solid #57432e;
+  border-radius:8px;
+  background:rgba(0,0,0,.22);
+  color:#f1e6d3;
+  font-size:15px;
+  line-height:1.45;
+}
+#boardSection [data-demon]{
+  position:relative !important;
+  cursor:zoom-in;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:rgba(239,202,127,.22);
+  pointer-events:auto !important;
+}
+#boardSection .mpDemonTapTarget{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:80 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:inherit !important;
+  background:transparent !important;
+  opacity:0 !important;
+  display:block !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+
+@media (max-width:620px) and (orientation:portrait){
+  .mpDemonReaderCard{grid-template-columns:1fr}
+  .mpDemonReaderArt{min-height:220px}
+  .mpDemonReaderArt img{min-height:220px;max-height:42vh}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .mpGameBanner{margin:2px 0;padding:2px 5px;font-size:7px;min-height:16px}
+  .mpDemonReader{padding:6px}
+  .mpDemonReaderCard{
+    width:min(700px,96vw);
+    max-height:94vh;
+    grid-template-columns:minmax(170px,36%) 1fr;
+    gap:8px;
+    padding:8px;
+  }
+  .mpDemonReaderArt,.mpDemonReaderArt img{min-height:210px}
+  .mpDemonReaderBody{padding:16px 2px 2px}
+  .mpDemonReaderName{font-size:18px;margin-bottom:8px}
+  .mpDemonReaderStats{font-size:14px;gap:9px;margin-bottom:8px}
+  .mpDemonReaderAbility{font-size:11px;line-height:1.35;padding:7px}
+  .mpDemonReaderClose{top:5px;right:5px;min-width:58px;padding:5px 8px;font-size:10px}
+}
+</style>
+
+
+<style id="multiplayerBossReaderPatch">
+/* Boss cards use a tap target like Demon cards and crop the full boss-card source
+   down to the illustration window so printed card text never appears as artwork. */
+#boardSection .bossCard{
+  position:relative !important;
+  cursor:zoom-in !important;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:rgba(239,202,127,.22) !important;
+}
+#boardSection .mpBossTapTarget{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:80 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:inherit !important;
+  background:transparent !important;
+  opacity:0 !important;
+  display:block !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+#boardSection .bossArt{
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+  border-color:#9e3a30 !important;
+  background:linear-gradient(180deg,#27100f,#100908) !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+  min-height:0 !important;
+  aspect-ratio:4 / 3 !important;
+  align-self:start !important;
+  background:#090606 !important;
+  border-color:#8f3d35 !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt img{
+  width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderType{
+  color:#d9a17c !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
+  color:#f06464 !important;
+}
+.mpBossReaderRules{
+  display:grid;
+  gap:7px;
+}
+.mpBossReaderRule{
+  padding:8px 9px;
+  border:1px solid #5b302d;
+  border-radius:7px;
+  background:rgba(79,18,18,.16);
+  color:#f1e6d3;
+  font-size:13px;
+  line-height:1.4;
+}
+.mpBossReaderRule b{color:#e8ad82}
+.mpBossReaderMeta{
+  grid-column:1/-1;
+  padding:8px 9px;
+  border:1px solid #5b302d;
+  border-radius:7px;
+  background:#180c0b;
+  color:#bda98e;
+  font-size:10px;
+  line-height:1.35;
+  text-align:center;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .bossArt{
+    height:66px !important;
+    aspect-ratio:auto !important;
+    object-fit:cover !important;
+    object-position:center 32% !important;
+    margin-bottom:2px !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    min-height:0 !important;
+    aspect-ratio:4 / 3 !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt img{
+    min-height:0 !important;
+    height:100% !important;
+    object-fit:cover !important;
+    object-position:center 32% !important;
+  }
+  .mpBossReaderRule{font-size:10px;line-height:1.3;padding:5px 6px}
+  .mpBossReaderMeta{font-size:8px;padding:5px 6px}
+}
+</style>
+
+<style id="multiplayerGroupVoteStyles">
+#rogueChoiceModal[data-mp-group-vote="1"] .modalbox{
+  width:min(980px,96vw) !important;
+}
+.mpGroupVoteIntro{
+  margin-top:8px;
+  padding:8px 10px;
+  border:1px solid #6d5736;
+  border-radius:8px;
+  background:#12100e;
+  color:#d7c5a3;
+  font-size:11px;
+  line-height:1.35;
+}
+.mpGroupVoteIntro b{color:#f0d49b}
+#rogueChoiceModal .rogueChoice.mpGroupVoteOption{
+  position:relative;
+  overflow:hidden;
+  border-width:2px;
+}
+.mpVoteCardArt{
+  height:92px;
+  margin:-2px -2px 7px;
+  border-radius:7px;
+  background-position:center 20%;
+  background-size:cover;
+  border:1px solid rgba(181,145,86,.45);
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #rogueChoiceModal[data-mp-group-vote="1"] .modalbox{
+    width:min(920px,97vw) !important;
+    max-height:96dvh !important;
+    padding:7px !important;
+  }
+  .mpGroupVoteIntro{font-size:8px;padding:4px 6px;margin-top:3px}
+      .mpVoteCardArt{height:58px;margin:-1px -1px 4px}
+}
+</style>
+
+<style id="multiplayerRoomDemonReaderStyles">
+.mpDemonReaderCard{
+  width:min(940px,96vw) !important;
+  grid-template-columns:minmax(220px,36%) minmax(0,1fr) !important;
+}
+.mpDemonReaderBody{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+.mpDemonRoomHeader{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 74px 9px 0;
+  padding-bottom:7px;
+  border-bottom:1px solid #4d3929;
+}
+.mpDemonRoomHeader b{
+  color:#f2d39a;
+  font-size:16px;
+  letter-spacing:.8px;
+}
+.mpDemonRoomHeader span{
+  color:#9e8a70;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  white-space:nowrap;
+}
+.mpDemonRoomList{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(112px,1fr));
+  gap:7px;
+  margin-top:12px;
+  padding-top:10px;
+  border-top:1px solid #4d3929;
+}
+.mpDemonRoomOption{
+  min-width:0;
+  padding:5px;
+  border:1px solid #4f3b2b;
+  border-radius:8px;
+  background:#130f0d;
+  color:#ead9bd;
+  text-align:left;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(239,202,127,.2);
+}
+.mpDemonRoomOption.active{
+  border-color:#b98b45;
+  box-shadow:0 0 0 2px rgba(185,139,69,.18),inset 0 0 14px rgba(185,139,69,.1);
+  background:#21160f;
+}
+.mpDemonRoomOptionArt{
+  width:100%;
+  height:68px;
+  overflow:hidden;
+  border:1px solid #5c432d;
+  border-radius:6px;
+  background:#090706;
+}
+.mpDemonRoomOptionArt img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 25%;
+  display:block;
+}
+.mpDemonRoomOptionName{
+  margin-top:4px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#efd19a;
+  font:700 10px Georgia,serif;
+}
+.mpDemonRoomOptionStats{
+  display:flex;
+  justify-content:space-between;
+  gap:4px;
+  margin-top:3px;
+  font-size:8px;
+  font-weight:800;
+}
+.mpDemonRoomOptionStats .hp{color:#ff9db4}
+.mpDemonRoomOptionStats .blood{color:#e33a49}
+.mpDemonRoomOptionStats .attack{color:#fff}
+.mpDemonRoomEmpty{
+  grid-column:1/-1;
+  padding:9px;
+  border:1px dashed #4d3929;
+  border-radius:7px;
+  color:#8f816e;
+  font-size:10px;
+  text-align:center;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .mpDemonReaderCard{
+    width:min(900px,98vw) !important;
+    grid-template-columns:minmax(150px,29%) minmax(0,1fr) !important;
+  }
+  .mpDemonRoomHeader{margin:0 60px 4px 0;padding-bottom:3px}
+  .mpDemonRoomHeader b{font-size:12px}
+  .mpDemonRoomHeader span{font-size:6.5px}
+  .mpDemonRoomList{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:4px;
+    margin-top:5px;
+    padding-top:5px;
+  }
+  .mpDemonRoomOption{padding:3px}
+  .mpDemonRoomOptionArt{height:42px}
+  .mpDemonRoomOptionName{font-size:7.5px;margin-top:2px}
+  .mpDemonRoomOptionStats{font-size:6.5px;margin-top:1px}
+}
+</style>
+
+<script id="sanctumMultiplayerLobbyScript">
+(()=>{
+  'use strict';
+
+  const SUPABASE_URL='https://nkucyukzxjofcypaqxor.supabase.co';
+  const SUPABASE_KEY='sb_publishable_NXIee43RqgT7adfNiMJVyg_aPZhSALZ';
+  const SESSION_KEY='sanctum_multiplayer_session_v1';
+
+  let client=null;
+  let channel=null;
+  let rosterChannel=null;
+  let session=null;
+  let panel=null;
+  let lastRosterSnapshot=null;
+  let lastAppliedVersion=-1;
+  let authoritativeActiveSeat=null;
+  let lastPublishedHash='';
+  let publishTimer=0;
+  let publishBusy=false;
+  let publishQueued=false;
+  let applyingRemote=false;
+  let startingOnline=false;
+  let hooksInstalled=false;
+  let heartbeatTimer=0;
+  let heartbeatBusy=false;
+  let lobbyRosterPollTimer=0;
+  let lobbyRosterRefreshBusy=false;
+  let sessionEnded=false;
+  const voteActionRegistry=new Map();
+  const resolvingVoteIds=new Set();
+  const voteOpeningIds=new Set();
+  let resolvingVoteTransition=false;
+  let choiceAuthorityRepairBusy=false;
+  let choiceRecoveryTimer=0;
+
+  function applyMonkFirstRitualBalanceText(){
+    try{
+      if(typeof CHARACTERS==='undefined'||!CHARACTERS)return;
+      Object.values(CHARACTERS).forEach(ch=>{
+        if(!ch||!Array.isArray(ch.rituals)||!ch.rituals.length)return;
+        const r=ch.rituals[0];
+        if(!r||r.kind!=='palmJudgment')return;
+        r.h='Deal 4 damage to a Demon or Boss. If it is a Demon, move it back exactly 1 room.';
+        r.f='Deal 8 damage to a Demon or Boss. If it is a Demon, move it back exactly 2 rooms.';
+      });
+    }catch(err){
+      console.warn('Could not update Monk Ritual text',err);
+    }
+  }
+  applyMonkFirstRitualBalanceText();
+
+  function syncMultiplayerViewportHeight(){
+    const h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight||document.documentElement.clientHeight;
+    if(Number.isFinite(h)&&h>0){
+      document.documentElement.style.setProperty('--sanctum-viewport-height',Math.round(h)+'px');
+    }
+  }
+  syncMultiplayerViewportHeight();
+  window.addEventListener('resize',syncMultiplayerViewportHeight,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(syncMultiplayerViewportHeight,80),{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',syncMultiplayerViewportHeight,{passive:true});
+    window.visualViewport.addEventListener('scroll',syncMultiplayerViewportHeight,{passive:true});
+  }
+
+  function loadSession(){
+    try{
+      const raw=localStorage.getItem(SESSION_KEY);
+      session=raw?JSON.parse(raw):null;
+    }catch(_){session=null}
+  }
+  function saveSession(){
+    try{
+      if(session)localStorage.setItem(SESSION_KEY,JSON.stringify(session));
+      else localStorage.removeItem(SESSION_KEY);
+    }catch(_){}
+  }
+  function playerName(){
+    const first=document.getElementById('pname0');
+    return (first&&first.value&&first.value.trim())||'Priest';
+  }
+  function status(text,bad=false){
+    if(!panel)return;
+    const el=panel.querySelector('.mpStatus');
+    if(el){
+      el.textContent=text;
+      el.style.border='1px solid '+(bad?'#813c3c':'#4e5e3e');
+    }
+  }
+  function escapeHtml(v){
+    return String(v??'').replace(/[&<>"']/g,ch=>({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[ch]));
+  }
+
+  function groupVoteCategory(meta={}){
+    const s=((meta.title||'')+' '+(meta.eyebrow||'')).toLowerCase();
+    return /route|passage|descent|boss gate/.test(s)?'passage':'reward';
+  }
+
+  function inferGroupVoteActionKey(meta={},choice={},index=0){
+    const title=String(choice?.title||choice?.voteCard||'').trim();
+    const category=groupVoteCategory(meta);
+
+    if(choice?.voteCard)return 'draft:'+String(choice.voteCard);
+
+    const exact={
+      'Draft a Priest Card':'reward:draft',
+      'Recover the Altar':'reward:recover',
+      'Claim a Relic':'reward:relic',
+      'Blood Cache':'reward:blood',
+      'Confession':'sanctuary:confession',
+      'Study the Reliquary':'sanctuary:draft',
+      'Take Sacrament':'sanctuary:sacrament',
+      'Reliquary':'boss_reward:reliquary',
+      'Purification':'boss_reward:purification',
+      'Arsenal of Faith':'boss_reward:arsenal',
+      'Standard Battle':'route:battle',
+      'Elite Procession':'route:elite',
+      'Hellgate Swarm':'route:swarm',
+      'Ruined Sanctuary':'route:sanctuary'
+    };
+    if(category==='passage'&&/^Enter Boss Floor\s+\d+/i.test(title))return 'route:boss';
+    return exact[title]||'';
+  }
+
+  function serializeGroupVoteOption(choice,index,meta={}){
+    return {
+      index,
+      title:String(choice?.title||choice?.voteCard||('Option '+(index+1))),
+      desc:String(choice?.desc||''),
+      reward:String(choice?.reward||''),
+      icon:String(choice?.icon||'✦'),
+      cls:String(choice?.cls||''),
+      cardName:choice?.voteCard?String(choice.voteCard):'',
+      empowered:choice?.voteEmpowered?String(choice.voteEmpowered):'',
+      actionKey:inferGroupVoteActionKey(meta,choice,index)
+    };
+  }
+
+  function reconstructGroupVoteAction(vote,opt,index){
+    const title=String(opt?.title||'').trim();
+    const key=String(opt?.actionKey||inferGroupVoteActionKey({
+      title:vote?.title||'',
+      eyebrow:vote?.eyebrow||''
+    },opt,index)||'');
+
+    if(key.startsWith('draft:')){
+      const cardName=key.slice(6)||opt?.cardName||title;
+      return ()=>{
+        const i=typeof PRIEST!=='undefined'&&Array.isArray(PRIEST)
+          ? PRIEST.findIndex(c=>c&&c.n===cardName)
+          : -1;
+        const c=i>=0?PRIEST[i]:null;
+        if(!c)throw new Error('Could not rebuild drafted Priest card: '+cardName);
+        const card={...c,id:`rogue-${i}-${uid()}`};
+        S.priestDeck=shuffle([...(S.priestDeck||[]),card]);
+        log(`${c.n} is added to the run deck and shuffled into the remaining random draws.`,'good');
+        rogueState().lastReward=`Drafted ${c.n}`;
+        render();
+        rogueliteOpenRoute();
+      };
+    }
+
+    const actions={
+      'reward:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
+      'reward:recover':()=>{restoreAltarLogged(6,'Encounter recovery');addMana(2);rogueliteOpenRoute()},
+      'reward:relic':()=>{const rel=rogueSilentRelic('Elite room-clear reward');showGameStatus(rel?`Relic claimed: ${rel.n}`:'The Relic deck is empty.','good');rogueliteOpenRoute()},
+      'reward:blood':()=>{rogueGiveBlood(2);rogueAddCinders(1,'Blood Cache');rogueliteOpenRoute()},
+      'sanctuary:confession':()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()},
+      'sanctuary:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
+      'sanctuary:sacrament':()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()},
+      'boss_reward:reliquary':()=>{rogueSilentRelic('Boss room-clear reward');restoreAltarLogged(4,'Boss reward');rogueliteOpenRoute()},
+      'boss_reward:purification':()=>{restoreAltarLogged(10,'Boss purification');rogueCleanseAll();render();rogueliteOpenRoute()},
+      'boss_reward:arsenal':()=>{rogueGiveBlood(2);rogueliteOpenDraft(rogueliteOpenRoute)},
+      'route:battle':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('battle')},
+      'route:elite':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('elite')},
+      'route:swarm':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('swarm')},
+      'route:sanctuary':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('sanctuary')},
+      'route:boss':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('boss')}
+    };
+    return actions[key]||null;
+  }
+
+  function groupVoteActions(vote){
+    if(!vote)return null;
+    const id=String(vote.id||'');
+    let actions=voteActionRegistry.get(id);
+    if(actions&&actions.length)return actions;
+
+    actions=(vote.options||[]).map((opt,index)=>reconstructGroupVoteAction(vote,opt,index));
+    if(actions.some(fn=>typeof fn==='function')){
+      voteActionRegistry.set(id,actions);
+      return actions;
+    }
+    return null;
+  }
+
+  function closeGroupVoteModal(){
+    const modal=document.getElementById('rogueChoiceModal');
+    if(!modal||modal.dataset.mpGroupVote!=='1')return;
+    modal.classList.add('hidden');
+    delete modal.dataset.mpGroupVote;
+  }
+
+  function transitionChoiceOwnerSeat(choice){
+    if(!session||!S?.started)return null;
+
+    // Backward compatibility for rooms that were already stuck under the old
+    // Player-1-only build: the active authoritative Priest is the Priest who
+    // cleared the passage, so recover ownership from S.current.
+    if(choice?.mode==='player1'){
+      return Number(S.current||0)+1;
+    }
+
+    const saved=Number(choice?.resolverSeat);
+    if(Number.isInteger(saved)&&saved>=1&&saved<=Number(S.players?.length||4)){
+      return saved;
+    }
+    return Number(S.current||0)+1;
+  }
+
+  async function waitForChoicePublishIdle(maxMs=4000){
+    const started=Date.now();
+    while(publishBusy){
+      if(Date.now()-started>=maxMs)return false;
+      await new Promise(resolve=>setTimeout(resolve,40));
+    }
+    return true;
+  }
+
+  async function ensureChoiceAuthority(choice,ownerSeat){
+    if(!session||!S?.started||!choice||choice.open!==true)return false;
+    ownerSeat=Number(ownerSeat);
+    if(!Number.isInteger(ownerSeat)||ownerSeat<1||ownerSeat>Number(S.players?.length||4))return false;
+
+    if(Number(authoritativeActiveSeat)===ownerSeat&&Number(S.current||0)+1===ownerSeat){
+      return true;
+    }
+
+    // Only the device that currently owns server authority may perform the
+    // handoff. The server validates this write against the OLD active seat;
+    // the synchronized state then makes the saved choice owner authoritative.
+    if(choiceAuthorityRepairBusy||!canWriteAuthoritativeTurn())return false;
+
+    choiceAuthorityRepairBusy=true;
+    const oldCurrent=Number(S.current||0);
+    try{
+      if(!(await waitForChoicePublishIdle())){
+        try{await refreshRoom(true)}catch(_){}
+        return false;
+      }
+      S.current=ownerSeat-1;
+      const ok=await pushSharedState('choice_authority_handoff',{
+        choice_id:String(choice.id||''),
+        category:String(choice.category||'reward'),
+        from_seat:Number(authoritativeActiveSeat||oldCurrent+1),
+        to_seat:ownerSeat
+      });
+      if(!ok){
+        S.current=oldCurrent;
+        try{await refreshRoom(true)}catch(_){}
+        return false;
+      }
+
+      authoritativeActiveSeat=ownerSeat;
+      try{render()}catch(_){}
+      return true;
+    }catch(err){
+      S.current=oldCurrent;
+      console.error('Could not repair multiplayer choice authority',err);
+      try{await refreshRoom(true)}catch(_){}
+      return false;
+    }finally{
+      choiceAuthorityRepairBusy=false;
+    }
+  }
+
+  function renderGroupVoteFromState(){
+    const choice=S?.multiplayerVote;
+    const modal=document.getElementById('rogueChoiceModal');
+
+    // Group voting is disabled. The Priest who cleared the passage owns the
+    // entire reward -> draft -> next-passage choice chain.
+
+    if(!session||!S?.started||!choice||choice.open!==true){
+      closeGroupVoteModal();
+      return;
+    }
+    if(!modal)return;
+
+    try{clearTurnTimerInterval()}catch(_){}
+
+    const ownerSeat=transitionChoiceOwnerSeat(choice);
+
+    // A synchronized next choice is a fresh interaction. Never inherit a stale
+    // resolving flag from the choice that created it.
+    if(!resolvingVoteIds.has(String(choice.id))&&voteOpeningIds.has(String(choice.id))===false){
+      resolvingVoteTransition=false;
+    }
+
+    // Choice ownership is stronger than ordinary turn ownership. If a floor
+    // transition moved S.current away from the stored chooser (the source of
+    // the Priest Draft / Sanctuary freezes), the currently authoritative
+    // device atomically hands authority back to the chooser before any button
+    // is allowed to resolve.
+    if(Number(authoritativeActiveSeat)!==Number(ownerSeat)||Number(S.current||0)+1!==Number(ownerSeat)){
+      closeGroupVoteModal();
+      if(canWriteAuthoritativeTurn()&&!choiceAuthorityRepairBusy){
+        ensureChoiceAuthority(choice,ownerSeat);
+      }
+      return;
+    }
+
+    // Every other device stays on the synchronized board. It receives the
+    // resulting reward / next passage through the normal shared-state update.
+    if(Number(session.seat)!==Number(ownerSeat)){
+      closeGroupVoteModal();
+      return;
+    }
+
+    modal.dataset.mpGroupVote='1';
+
+    const kind=choice.category==='passage'?'PASSAGE CHOICE':'REWARD CHOICE';
+    const eyebrow=document.getElementById('rogueChoiceEyebrow');
+    const title=document.getElementById('rogueChoiceTitle');
+    const textEl=document.getElementById('rogueChoiceText');
+    const grid=document.getElementById('rogueChoiceGrid');
+
+    if(eyebrow)eyebrow.textContent='PLAYER '+ownerSeat+' • '+kind+' • '+(choice.eyebrow||'Group Choice');
+    if(title)title.textContent=choice.title||'Choose for the Group';
+    if(textEl){
+      textEl.innerHTML=(choice.text||'')+
+        '<div class="mpGroupVoteIntro"><b>You cleared the passage, so you choose for the group.</b> The selected reward and passage are synchronized to every player.</div>';
+    }
+
+    if(grid){
+      grid.innerHTML='';
+      (choice.options||[]).forEach((opt,i)=>{
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='rogueChoice mpGroupVoteOption '+(opt.cls||'');
+        btn.dataset.mpVoteOption=String(i);
+        btn.disabled=resolvingVoteTransition||resolvingVoteIds.has(String(choice.id));
+
+        if(opt.cardName){
+          const art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS[opt.cardName])||'';
+          const artHtml=art?'<div class="mpVoteCardArt"></div>':'';
+          btn.innerHTML=artHtml+
+            '<h3>'+escapeHtml(opt.title)+'</h3>'+
+            '<p>'+escapeHtml(opt.desc)+'</p>'+
+            (opt.empowered?'<small><b>Empowered:</b> '+escapeHtml(opt.empowered)+'</small>':'')+
+            (opt.reward?'<span class="nodeReward">'+escapeHtml(opt.reward)+'</span>':'');
+          const artEl=btn.querySelector('.mpVoteCardArt');
+          if(artEl)artEl.style.backgroundImage='url("'+String(art).replace(/"/g,'%22')+'")';
+        }else{
+          btn.innerHTML=
+            '<div class="nodeIcon">'+escapeHtml(opt.icon||'✦')+'</div>'+
+            '<h3>'+escapeHtml(opt.title)+'</h3>'+
+            '<p>'+escapeHtml(opt.desc)+'</p>'+
+            (opt.reward?'<span class="nodeReward">'+escapeHtml(opt.reward)+'</span>':'');
+        }
+
+        btn.onclick=()=>resolveTransitionOwnerChoice(i);
+        grid.appendChild(btn);
+      });
+    }
+
+    modal.classList.remove('hidden');
+    setTimeout(()=>grid?.querySelector('button:not(:disabled)')?.focus(),0);
+  }
+
+  async function resolveTransitionOwnerChoice(optionIndex){
+    const choice=S?.multiplayerVote;
+    if(!session||!choice||choice.open!==true)return;
+
+    const ownerSeat=transitionChoiceOwnerSeat(choice);
+    if(Number(session.seat)!==Number(ownerSeat))return;
+
+    const id=String(choice.id||'');
+    if(!id||resolvingVoteIds.has(id)||resolvingVoteTransition)return;
+
+    // The killer is already the authoritative active Priest at passage clear.
+    // No handoff, vote RPC, or database permission change is required.
+    if(!canWriteAuthoritativeTurn()){
+      status('Synchronizing the passage-clear player…');
+      try{await refreshRoom(true)}catch(_){}
+      return;
+    }
+
+    const index=Number(optionIndex);
+    const option=choice.options?.[index];
+    const actions=groupVoteActions(choice);
+    const fn=actions?.[index];
+    if(!option||typeof fn!=='function'){
+      status('This choice could not be rebuilt. Reloading the newest shared game…',true);
+      try{await refreshRoom(true)}catch(_){}
+      return;
+    }
+
+    resolvingVoteIds.add(id);
+    resolvingVoteTransition=true;
+
+    if(publishTimer){
+      clearTimeout(publishTimer);
+      publishTimer=0;
+    }
+
+    try{
+      try{
+        log(
+          'PASSAGE CLEAR CHOICE — Player '+ownerSeat+' selects '+
+          (option.title||('Option '+(index+1)))+' for the group.',
+          'good'
+        );
+      }catch(_){}
+
+      S.multiplayerVote=null;
+      voteActionRegistry.delete(id);
+        closeGroupVoteModal();
+
+      // Apply the selected action to the shared state.
+      const result=fn();
+      if(result&&typeof result.then==='function')await result;
+
+      // Some choices intentionally open their follow-up on a short timer
+      // (notably entering a Sanctuary). Give those callbacks a deterministic
+      // settle window so the next choice is captured in this same commit
+      // instead of appearing locally after the server state has already moved.
+      await new Promise(resolve=>setTimeout(resolve,180));
+
+      const nextChoice=S?.multiplayerVote&&S.multiplayerVote.open===true
+        ? S.multiplayerVote
+        : null;
+      const nextChoiceId=nextChoice?String(nextChoice.id):'';
+
+      if(nextChoice){
+        nextChoice.mode='passage_clear_owner';
+
+        // Reward -> Priest Draft -> Passage stays with the Priest who cleared
+        // the prior encounter. Once a Passage itself has been selected, any
+        // new in-passage choice (for example Sanctuary) belongs to the active
+        // Priest created by that floor transition.
+        if(String(choice.category||'reward')!=='passage'){
+          nextChoice.resolverSeat=ownerSeat;
+        }else{
+          const newOwner=Number(nextChoice.resolverSeat)||Number(S.current||0)+1;
+          nextChoice.resolverSeat=newOwner;
+        }
+
+        // Guarantee the server's active-seat authority and the visible chooser
+        // can never disagree in the state we are about to publish.
+        S.current=Math.max(0,Number(nextChoice.resolverSeat)-1);
+      }
+
+      if(!(await waitForChoicePublishIdle())){
+        status('Waiting for the shared game to finish synchronizing…');
+        try{await refreshRoom(true)}catch(_){}
+        return;
+      }
+
+      const committed=await pushSharedState('passage_clear_choice_resolved',{
+        choice_id:id,
+        chooser_seat:ownerSeat,
+        selected_index:index,
+        selected_title:String(option.title||('Option '+(index+1))),
+        category:String(choice.category||'reward'),
+        next_choice_id:nextChoiceId||null,
+        next_category:nextChoice?.category||null
+      });
+
+      if(!committed){
+        status('The choice could not synchronize. Reloading the shared game…',true);
+        try{await refreshRoom(true)}catch(_){}
+        return;
+      }
+
+      // The next Draft / Passage must not be rendered while the previous
+      // choice is still flagged as resolving. Otherwise every new option is
+      // created disabled and remains frozen even though Supabase is correct.
+      resolvingVoteTransition=false;
+      resolvingVoteIds.delete(id);
+
+      if(nextChoiceId){
+        voteOpeningIds.delete(nextChoiceId);
+        renderGroupVoteFromState();
+      }else{
+        closeGroupVoteModal();
+      }
+    }catch(err){
+      console.error('Could not resolve passage-clear choice',err);
+      status('The passage choice could not complete. Reloading the shared game…',true);
+      try{await refreshRoom(true)}catch(_){}
+    }finally{
+      // Idempotent cleanup also covers failures before the successful commit.
+      resolvingVoteTransition=false;
+      resolvingVoteIds.delete(id);
+    }
+  }
+
+  window.__sanctumMultiplayerGroupChoice=function(meta,choices){
+    if(!session||!S?.started||!Array.isArray(S.players)||S.players.length<2)return false;
+    if(!Array.isArray(choices)||!choices.length)return false;
+
+    // Only the authoritative active Priest creates the choice. At an encounter
+    // clear, this is the Priest who defeated the final required Demon.
+    if(!canWriteAuthoritativeTurn())return true;
+
+    const ownerSeat=Number(S.current||0)+1;
+    const choiceId='clear-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+    const choice={
+      id:choiceId,
+      open:true,
+      mode:'passage_clear_owner',
+      category:groupVoteCategory(meta),
+      eyebrow:String(meta?.eyebrow||''),
+      title:String(meta?.title||'Choose for the Group'),
+      text:String(meta?.text||''),
+      resolverSeat:ownerSeat,
+      options:choices.map((item,index)=>serializeGroupVoteOption(item,index,meta))
+    };
+
+    // A newly opened choice must always be owned by the same seat that is
+    // authoritative in the state being published.
+    S.current=ownerSeat-1;
+    S.multiplayerVote=choice;
+    voteActionRegistry.set(choiceId,choices.map(c=>c.action));
+    voteOpeningIds.add(choiceId);
+
+    if(publishTimer){
+      clearTimeout(publishTimer);
+      publishTimer=0;
+    }
+
+    // A reward can synchronously open a Priest Draft or Passage choice. Keep
+    // the same passage-clear owner and let the outer resolution commit carry
+    // that new choice to everyone.
+    if(resolvingVoteTransition){
+      return true;
+    }
+
+    (async()=>{
+      if(!(await waitForChoicePublishIdle())){
+        status('Could not prepare the shared choice. Reloading the newest game…',true);
+        try{await refreshRoom(true)}catch(_){}
+        return;
+      }
+      const ok=await pushSharedState('passage_clear_choice_open',{
+        choice_id:choiceId,
+        category:choice.category,
+        options:choice.options.length,
+        chooser_seat:ownerSeat
+      });
+      voteOpeningIds.delete(choiceId);
+
+      if(!ok){
+        if(S?.multiplayerVote?.id===choiceId)S.multiplayerVote=null;
+        voteActionRegistry.delete(choiceId);
+        status('Could not open the passage-clear choice. Reloading the shared game…',true);
+        closeGroupVoteModal();
+        try{await refreshRoom(true)}catch(_){}
+        return;
+      }
+
+      renderGroupVoteFromState();
+    })();
+
+    return true;
+  };
+
+  function stopChoiceRecoveryWatchdog(){
+    if(choiceRecoveryTimer){
+      clearInterval(choiceRecoveryTimer);
+      choiceRecoveryTimer=0;
+    }
+  }
+
+  function startChoiceRecoveryWatchdog(){
+    if(choiceRecoveryTimer)return;
+    choiceRecoveryTimer=setInterval(()=>{
+      if(!session||sessionEnded||!S?.started)return;
+      const choice=S?.multiplayerVote;
+      if(!choice||choice.open!==true)return;
+
+      // Re-render/retry authority repair for any choice that has remained open.
+      // This is intentionally idempotent: only the saved owner can see buttons,
+      // and only the currently authoritative device can perform a repair.
+      try{renderGroupVoteFromState()}catch(err){
+        console.warn('Choice recovery watchdog refresh failed',err);
+      }
+    },1000);
+  }
+
+  startChoiceRecoveryWatchdog();
+
+  const MP_ROOM_NAMES=['Gateway','Hall','Chapel','Crypt'];
+
+  function ensureDemonReader(){
+    let modal=document.getElementById('mpDemonReader');
+    if(modal)return modal;
+    modal=document.createElement('dialog');
+    modal.id='mpDemonReader';
+    modal.className='mpDemonReader';
+    modal.setAttribute('aria-label','Demons in room');
+    modal.innerHTML='<div class="mpDemonReaderCard">'+
+      '<button class="mpDemonReaderClose" type="button">Close</button>'+
+      '<div class="mpDemonReaderArt"><img alt=""></div>'+
+      '<div class="mpDemonReaderBody">'+
+        '<div class="mpDemonRoomHeader"></div>'+
+        '<div class="mpDemonReaderDetails"></div>'+
+        '<div class="mpDemonRoomList"></div>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(modal);
+    modal.querySelector('.mpDemonReaderClose').onclick=e=>{e.preventDefault();e.stopPropagation();closeDemonReader()};
+    modal.addEventListener('click',e=>{if(e.target===modal)closeDemonReader()});
+    modal.addEventListener('cancel',e=>{e.preventDefault();closeDemonReader()});
+    return modal;
+  }
+
+  function closeDemonReader(){
+    const modal=document.getElementById('mpDemonReader');
+    if(!modal)return;
+    try{if(modal.open)modal.close()}catch(_){}
+  }
+
+  function findBoardDemonLocation(id){
+    for(let roomIndex=0;roomIndex<(S?.rooms||[]).length;roomIndex++){
+      const room=S.rooms[roomIndex]||[];
+      const demonIndex=room.findIndex(d=>String(d.id)===String(id));
+      if(demonIndex>=0)return {d:room[demonIndex],roomIndex,demonIndex,room};
+    }
+    return null;
+  }
+
+  function renderRoomDemonDetails(modal,d,roomIndex){
+    if(!modal||!d)return;
+    modal.dataset.readerKind='demon';
+    const img=modal.querySelector('.mpDemonReaderArt img');
+    const header=modal.querySelector('.mpDemonRoomHeader');
+    const details=modal.querySelector('.mpDemonReaderDetails');
+    const list=modal.querySelector('.mpDemonRoomList');
+    const room=(S?.rooms?.[roomIndex]||[]);
+    const roomName=MP_ROOM_NAMES[roomIndex]||('Room '+(roomIndex+1));
+    const name=typeof demonName==='function'?demonName(d):(d.greater?(d.g||d.n):d.n);
+    const hp=Number(d.cur||0);
+    const maxHp=typeof demonMaxHP==='function'?demonMaxHP(d):(d.greater?(d.ghp||d.hp):d.hp);
+    const blood=typeof demonBlood==='function'?demonBlood(d):(d.b||0);
+    const attack=typeof demonAttack==='function'?demonAttack(d):(d.a||0);
+    const ability=typeof boardDemonAbilityText==='function'?boardDemonAbilityText(d):(d.ability||'No printed ability.');
+    const art=typeof demonArt==='function'?demonArt(d):(d.gart||d.art||'');
+
+    img.src=art;
+    img.alt=name;
+    header.innerHTML='<b>'+escapeHtml(roomName)+'</b><span>'+room.length+' Demon'+(room.length===1?'':'s')+' in this room</span>';
+    details.innerHTML=
+      '<div class="mpDemonReaderType">'+escapeHtml((d.family||'Demon')+(d.greater?' • Greater Demon':''))+'</div>'+
+      '<div class="mpDemonReaderName">'+escapeHtml(name)+'</div>'+
+      '<div class="mpDemonReaderStats">'+
+        '<span class="hp">HP '+escapeHtml(hp)+' / '+escapeHtml(maxHp)+'</span>'+
+        '<span class="blood">BLD '+escapeHtml(blood)+'</span>'+
+        '<span class="attack">ATK '+escapeHtml(attack)+'</span>'+
+      '</div>'+
+      '<div class="mpDemonReaderAbility">'+escapeHtml(ability)+'</div>';
+
+    list.innerHTML='';
+    if(!room.length){
+      list.innerHTML='<div class="mpDemonRoomEmpty">There are no Demons in this room.</div>';
+      return;
+    }
+
+    room.forEach(other=>{
+      const otherName=typeof demonName==='function'?demonName(other):(other.greater?(other.g||other.n):other.n);
+      const otherArt=typeof demonArt==='function'?demonArt(other):(other.gart||other.art||'');
+      const otherHp=Number(other.cur||0);
+      const otherBlood=typeof demonBlood==='function'?demonBlood(other):(other.b||0);
+      const otherAttack=typeof demonAttack==='function'?demonAttack(other):(other.a||0);
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='mpDemonRoomOption'+(String(other.id)===String(d.id)?' active':'');
+      btn.setAttribute('aria-label','View '+otherName);
+      btn.innerHTML=
+        '<div class="mpDemonRoomOptionArt"><img alt="'+escapeHtml(otherName)+'"></div>'+
+        '<div class="mpDemonRoomOptionName">'+escapeHtml(otherName)+'</div>'+
+        '<div class="mpDemonRoomOptionStats">'+
+          '<span class="hp">HP '+escapeHtml(otherHp)+'</span>'+
+          '<span class="blood">BLD '+escapeHtml(otherBlood)+'</span>'+
+          '<span class="attack">ATK '+escapeHtml(otherAttack)+'</span>'+
+        '</div>';
+      const thumb=btn.querySelector('img');
+      if(thumb)thumb.src=otherArt;
+      btn.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        try{selectedDemonId=other.id}catch(_){}
+        renderRoomDemonDetails(modal,other,roomIndex);
+      };
+      list.appendChild(btn);
+    });
+  }
+
+  function openDemonReader(d,roomIndex=null){
+    if(!d)return;
+    const loc=roomIndex==null?findBoardDemonLocation(d.id):{d,roomIndex};
+    if(!loc)return;
+    const modal=ensureDemonReader();
+    renderRoomDemonDetails(modal,d,loc.roomIndex);
+    try{
+      if(!modal.open)modal.showModal();
+    }catch(_){
+      modal.setAttribute('open','');
+    }
+    setTimeout(()=>modal.querySelector('.mpDemonReaderClose')?.focus(),0);
+  }
+
+  window.__sanctumOpenDemonReader=function(id){
+    const loc=findBoardDemonLocation(id);
+    if(!loc)return false;
+    try{selectedDemonId=loc.d.id}catch(_){}
+    openDemonReader(loc.d,loc.roomIndex);
+    return true;
+  };
+
+  let demonTapDelegateInstalled=false;
+  function installDemonTapDelegate(){
+    demonTapDelegateInstalled=true;
+  }
+
+  function wireDemonInspectors(){
+    if(!session||!S||!S.started)return;
+    installDemonTapDelegate();
+    document.querySelectorAll('#boardSection [data-demon]').forEach(el=>{
+      const btn=el.querySelector('[data-demon-open]');
+      if(btn){
+        btn.title='Tap to view all Demons in this room';
+        btn.setAttribute('aria-label','View all Demons in this room, starting with '+(el.querySelector('.name')?.textContent||'Demon'));
+      }
+    });
+  }
+
+
+  function renderBossReaderDetails(modal,b){
+    if(!modal||!b)return;
+    modal.dataset.readerKind='boss';
+    modal.setAttribute('aria-label','Boss Demon details');
+
+    const img=modal.querySelector('.mpDemonReaderArt img');
+    const header=modal.querySelector('.mpDemonRoomHeader');
+    const details=modal.querySelector('.mpDemonReaderDetails');
+    const list=modal.querySelector('.mpDemonRoomList');
+    const name=b.n||'Boss Demon';
+    const hp=Math.max(0,Number(b.cur||0));
+    const maxHp=Math.max(0,Number(b.hp||0));
+    const blood=Math.max(0,Number(b.b||0));
+    const drain=typeof bossDrainAmount==='function'?bossDrainAmount():blood;
+    const rules=(b.rules||[]).filter(rule=>Array.isArray(rule)&&rule[0]!=='Boss Rule');
+    const ruleHtml=rules.length
+      ?'<div class="mpBossReaderRules">'+rules.map(rule=>
+        '<div class="mpBossReaderRule"><b>'+escapeHtml(rule[0])+':</b> '+escapeHtml(rule[1]||'')+'</div>'
+      ).join('')+'</div>'
+      :'<div class="mpBossReaderRule">No additional printed ability.</div>';
+
+    img.src=b.art||'';
+    img.alt=name+' artwork';
+    header.innerHTML='<b>Boss Room</b><span>Boss Demon</span>';
+    details.innerHTML=
+      '<div class="mpDemonReaderType">Boss Demon</div>'+
+      '<div class="mpDemonReaderName">'+escapeHtml(name)+'</div>'+
+      '<div class="mpDemonReaderStats">'+
+        '<span class="hp">HP '+escapeHtml(hp)+' / '+escapeHtml(maxHp)+'</span>'+
+        '<span class="blood">BLD '+escapeHtml(blood)+'</span>'+
+      '</div>'+
+      ruleHtml;
+    list.innerHTML=
+      '<div class="mpBossReaderMeta">'+
+        'Boss Phase Altar Drain: '+escapeHtml(drain)+
+        (drain!==blood?' (printed '+escapeHtml(blood)+')':'')+
+        ' • Descent '+escapeHtml((S?.bossesDefeated||0)+1)+
+        ' • '+escapeHtml(S?.bossesDefeated||0)+' defeated this run'+
+      '</div>';
+  }
+
+  function openBossReader(){
+    if(!S?.bossRevealed||!S?.boss)return false;
+    const modal=ensureDemonReader();
+    renderBossReaderDetails(modal,S.boss);
+    try{
+      if(!modal.open)modal.showModal();
+    }catch(_){
+      modal.setAttribute('open','');
+    }
+    setTimeout(()=>modal.querySelector('.mpDemonReaderClose')?.focus(),0);
+    return true;
+  }
+
+  window.__sanctumOpenBossReader=openBossReader;
+
+  function wireBossInspector(){
+    if(!S||!S.started||!S.bossRevealed||!S.boss)return;
+    const card=document.querySelector('#bossArea .bossCard');
+    if(!card)return;
+    card.classList.add('mpBossInspectable');
+    let btn=card.querySelector('[data-boss-open]');
+    if(btn)return;
+    btn=document.createElement('button');
+    btn.type='button';
+    btn.className='mpBossTapTarget';
+    btn.dataset.bossOpen='1';
+    btn.title='Tap to view Boss Demon';
+    btn.setAttribute('aria-label','Open '+(S.boss.n||'Boss Demon')+' details');
+    let lastOpen=0;
+    const open=e=>{
+      if(e){e.preventDefault();e.stopPropagation();}
+      const now=Date.now();
+      if(now-lastOpen<350)return;
+      lastOpen=now;
+      openBossReader();
+    };
+    btn.onclick=open;
+    btn.ontouchend=open;
+    btn.onpointerup=open;
+    card.appendChild(btn);
+  }
+
+  function stopHeartbeat(){
+    if(heartbeatTimer){
+      clearInterval(heartbeatTimer);
+      heartbeatTimer=0;
+    }
+  }
+
+  function lockEndedSession(reason='The host closed the game.'){
+    if(sessionEnded)return;
+    sessionEnded=true;
+    stopHeartbeat();
+    stopLobbyRosterPolling();
+    stopChoiceRecoveryWatchdog();
+    stopRosterSubscription();
+    try{clearTurnTimerInterval()}catch(_){}
+    document.body.classList.add('mpSessionEnded');
+    document.body.classList.remove('mpWaitingTurn');
+
+    document.querySelectorAll(
+      '#handPanel button,#ritualPanel button,#boardSection button,#spawnBtn,#damageBtn,#killBtn,[data-adjust]'
+    ).forEach(btn=>btn.disabled=true);
+
+    const banner=ensureGameBanner();
+    if(banner){
+      banner.classList.remove('hidden','yourTurn','waiting');
+      banner.classList.add('ended');
+      banner.innerHTML='<b>ONLINE SESSION ENDED</b><span>'+escapeHtml(reason)+'</span>';
+    }
+
+    status(reason+' Start or join a new room to play again.',true);
+    try{localStorage.removeItem(SESSION_KEY)}catch(_){}
+    session=null;
+    lastRosterSnapshot=null;
+    authoritativeActiveSeat=null;
+    lastAppliedVersion=-1;
+    lastPublishedHash='';
+  }
+
+  async function heartbeat(){
+    if(!session||heartbeatBusy||sessionEnded)return;
+    heartbeatBusy=true;
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('sanctum_heartbeat',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row||row.ok===false){
+        const why=row&&row.room_status==='abandoned'
+          ? 'The host closed the game. This multiplayer session has ended.'
+          : 'This multiplayer session is no longer active.';
+        lockEndedSession(why);
+      }
+    }catch(err){
+      console.warn('Sanctum multiplayer heartbeat failed',err);
+      /* A temporary network error does not immediately destroy the local session.
+         The server-side stale-host check will decide whether the room is abandoned. */
+    }finally{
+      heartbeatBusy=false;
+    }
+  }
+
+  function startHeartbeat(){
+    stopHeartbeat();
+    if(!session||sessionEnded)return;
+    startChoiceRecoveryWatchdog();
+    heartbeat();
+    heartbeatTimer=setInterval(heartbeat,10000);
+  }
+
+  async function ensureClient(){
+    if(client)return client;
+    if(!window.supabase||!window.supabase.createClient){
+      await new Promise((resolve,reject)=>{
+        const prior=document.querySelector('script[data-sanctum-supabase]');
+        if(prior){
+          prior.addEventListener('load',resolve,{once:true});
+          prior.addEventListener('error',reject,{once:true});
+          return;
+        }
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s.async=true;
+        s.dataset.sanctumSupabase='1';
+        s.onload=resolve;
+        s.onerror=()=>reject(new Error('Could not load online multiplayer service.'));
+        document.head.appendChild(s);
+      });
+    }
+    client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+    });
+    return client;
+  }
+
+  async function fetchRoom(){
+    if(!session?.gameId)return null;
+    const sb=await ensureClient();
+    const [g,p]=await Promise.all([
+      sb.from('games')
+        .select('id,room_code,status,state,state_version,max_players')
+        .eq('id',session.gameId)
+        .maybeSingle(),
+      sb.from('players')
+        .select('id,game_id,seat,display_name,character_key,is_host,connected,created_at,last_seen')
+        .eq('game_id',session.gameId)
+        .order('seat',{ascending:true})
+    ]);
+    if(g.error)throw g.error;
+    if(p.error)throw p.error;
+    if(!g.data)throw new Error('Online room no longer exists.');
+    return {game:g.data,players:p.data||[]};
+  }
+
+  function renderRoster(snapshot){
+    if(!panel)return;
+    const roster=panel.querySelector('.mpRoster');
+    if(!roster)return;
+    if(!snapshot){roster.innerHTML='';return}
+    const seats=[];
+    for(let i=1;i<=snapshot.game.max_players;i++){
+      const p=snapshot.players.find(x=>Number(x.seat)===i);
+      if(p){
+        const you=session&&p.id===session.playerId?' • YOU':'';
+        const host=p.is_host?' • HOST':'';
+        seats.push(`<div class="mpSeat"><b>Seat ${i}</b>${escapeHtml(p.display_name)}${host}${you}</div>`);
+      }else{
+        seats.push(`<div class="mpSeat empty"><b>Seat ${i}</b>Waiting…</div>`);
+      }
+    }
+    roster.innerHTML=seats.join('');
+  }
+
+
+  function validSharedState(state){
+    return !!(state&&typeof state==='object'&&state.started&&Array.isArray(state.players)&&Array.isArray(state.rooms));
+  }
+
+  function cleanStateForWire(){
+    const state=JSON.parse(JSON.stringify(S,(key,value)=>
+      (key==='art'||key==='gart')?undefined:value
+    ));
+    state.manualPaused=false;
+    // Keep recent history for the pause-menu log without retransmitting an
+    // ever-growing run log on every multiplayer state update.
+    if(Array.isArray(state.log)&&state.log.length>60){
+      state.log=state.log.slice(-60);
+    }
+    return state;
+  }
+
+  function stableStateHash(state){
+    try{return JSON.stringify(state)}catch(_){return String(Date.now())}
+  }
+
+  function isMyTurn(){
+    return !!(session&&S&&S.started&&Number(session.seat)===Number(S.current)+1);
+  }
+
+  function activeSeat(){
+    return S&&S.started?Number(S.current||0)+1:null;
+  }
+
+  function canWriteAuthoritativeTurn(){
+    return !!(session&&S&&S.started&&
+      Number(session.seat)===Number(authoritativeActiveSeat));
+  }
+
+  function blockingGameplayModalOpen(){
+    const ids=[
+      'choiceModal','damageAmountModal','descendModal','relicModal',
+      'desecrationModal','consecrateModal','crucifixModal',
+      'rogueChoiceModal','rogueLegacyModal'
+    ];
+    return ids.some(id=>{
+      const el=document.getElementById(id);
+      return !!(el&&!el.classList.contains('hidden')&&getComputedStyle(el).display!=='none');
+    });
+  }
+
+  function ensureGameBanner(){
+    let el=document.getElementById('mpGameBanner');
+    if(el)return el;
+    const stats=document.getElementById('topStatusBar')||document.querySelector('.stats');
+    if(!stats)return null;
+    el=document.createElement('div');
+    el.id='mpGameBanner';
+    el.className='mpGameBanner hidden';
+    stats.insertAdjacentElement('beforebegin',el);
+    return el;
+  }
+
+  function setGameBanner(){
+    const el=ensureGameBanner();
+    if(!el)return;
+    if(!session){
+      el.classList.add('hidden');
+      return;
+    }
+    el.classList.remove('hidden');
+    const seat=activeSeat();
+    const mine=isMyTurn();
+    const started=!!(S&&S.started);
+    el.classList.toggle('yourTurn',started&&mine);
+    el.classList.toggle('waiting',started&&!mine);
+    el.innerHTML=started
+      ? `<b>ONLINE • ${escapeHtml(session.roomCode||'------')}</b><span>${mine?'YOUR TURN':`WAITING FOR PLAYER ${seat}`} • You are Player ${session.seat}</span>`
+      : `<b>ONLINE • ${escapeHtml(session.roomCode||'------')}</b><span>Lobby • You are Player ${session.seat}</span>`;
+  }
+
+  function enforceTurnOwnership(){
+    setGameBanner();
+    if(!session||!S||!S.started){
+      document.body.classList.remove('mpWaitingTurn');
+      return;
+    }
+
+    const mine=isMyTurn();
+    document.body.classList.toggle('mpWaitingTurn',!mine);
+
+    const selectors=[
+      '#handPanel button',
+      '#ritualPanel button',
+      '#boardSection [data-cons]',
+      '#spawnBtn','#damageBtn','#killBtn',
+      '[data-adjust]'
+    ];
+    const keepEnabled=new Set([
+      'mobilePauseMenuBtn','priestPauseMenuBtn','rulesBtn','saveBtn','loadBtn','newGameBtn'
+    ]);
+
+    document.querySelectorAll(selectors.join(',')).forEach(btn=>{
+      if(keepEnabled.has(btn.id))return;
+      if(!mine){
+        if(!btn.disabled)btn.dataset.mpDisabled='1';
+        btn.disabled=true;
+      }else if(btn.dataset.mpDisabled==='1'){
+        btn.disabled=false;
+        delete btn.dataset.mpDisabled;
+      }
+    });
+
+    if(!mine){
+      try{clearTurnTimerInterval()}catch(_){}
+    }
+  }
+
+  function syncSetupFromRoster(snapshot){
+    if(!snapshot||snapshot.game.status!=='lobby'||!snapshot.players.length)return;
+    const count=document.getElementById('playerCount');
+    if(!count)return;
+
+    const existingChars=[];
+    for(let i=0;i<4;i++)existingChars[i]=document.getElementById('pchar'+i)?.value||'';
+
+    const wanted=Math.max(1,Math.min(4,snapshot.players.length));
+    if(Number(count.value)!==wanted){
+      count.value=String(wanted);
+      try{setupPlayersUI()}catch(_){}
+    }
+
+    snapshot.players.forEach((p,i)=>{
+      const name=document.getElementById('pname'+i);
+      const char=document.getElementById('pchar'+i);
+      if(name){
+        name.value=p.display_name||('Player '+(i+1));
+        name.readOnly=true;
+      }
+      if(char&&existingChars[i]&&[...char.options].some(o=>o.value===existingChars[i])){
+        char.value=existingChars[i];
+      }
+    });
+
+    const start=document.getElementById('startBtn');
+    if(start&&session){
+      if(!session.isHost){
+        start.dataset.mpGuestLocked='1';
+        start.disabled=true;
+        start.title='Only the room host can start the online game.';
+      }else if(start.dataset.mpGuestLocked==='1'){
+        start.disabled=false;
+        delete start.dataset.mpGuestLocked;
+        start.removeAttribute('title');
+      }
+    }
+  }
+
+  function closeRemoteTransientUi(){
+    try{
+      if(choiceResolve){
+        const resolve=choiceResolve;
+        choiceResolve=null;
+        resolve(null);
+      }
+    }catch(_){}
+    [
+      'choiceModal','damageAmountModal','consecrateModal',
+      'crucifixModal','relicModal','descendModal'
+    ].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+  }
+
+  async function applyRemoteGameRow(row,force=false){
+    if(!session||!row)return;
+    const version=Number(row.state_version||0);
+    session.stateVersion=version;
+    session.roomCode=row.room_code||session.roomCode;
+    saveSession();
+
+    if(!validSharedState(row.state)){
+      lastAppliedVersion=Math.max(lastAppliedVersion,version);
+      authoritativeActiveSeat=null;
+      setGameBanner();
+      return;
+    }
+
+    if(!force&&version<=lastAppliedVersion)return;
+
+    applyingRemote=true;
+    try{
+      try{clearTurnTimerInterval()}catch(_){}
+      closeRemoteTransientUi();
+      S=JSON.parse(JSON.stringify(row.state));
+      authoritativeActiveSeat=Number(S.current||0)+1;
+      try{restoreStaticArtwork()}catch(_){}
+      try{migratePriestBalance()}catch(_){}
+      try{normalizeSanctumState()}catch(_){}
+      selectedDemonId=null;
+      try{crucifixDisplayQueue=[]}catch(_){}
+      document.getElementById('setupModal')?.classList.add('hidden');
+
+      lastAppliedVersion=version;
+      lastPublishedHash=stableStateHash(cleanStateForWire());
+
+      render();
+
+      if(isMyTurn()){
+        try{syncTurnTimerAfterLoad()}catch(_){
+          try{startTurnTimer(S.turnTimerRemaining||60)}catch(__){}
+        }
+      }else{
+        try{clearTurnTimerInterval()}catch(_){}
+      }
+      enforceTurnOwnership();
+    }catch(err){
+      console.error('Could not apply online Sanctum state',err);
+      status('Online state arrived but could not be applied.',true);
+    }finally{
+      applyingRemote=false;
+    }
+  }
+
+  async function pushSharedState(actionType='state_sync',payload={}){
+    if(!session||!S||!S.started||applyingRemote)return false;
+    if(actionType==='game_start'){
+      if(!session.isHost)return false;
+    }else if(!canWriteAuthoritativeTurn()){
+      enforceTurnOwnership();
+      return false;
+    }
+    const voteLifecycleCommit=
+      actionType==='choice_authority_handoff'||
+      actionType==='passage_clear_choice_open'||actionType==='passage_clear_choice_resolved';
+    if(blockingGameplayModalOpen()&&!voteLifecycleCommit){
+      schedulePublish(actionType,payload,250);
+      return false;
+    }
+    if(publishBusy){
+      publishQueued=true;
+      return false;
+    }
+
+    const wire=cleanStateForWire();
+    const hash=stableStateHash(wire);
+    if(actionType==='state_sync'&&hash===lastPublishedHash)return true;
+
+    publishBusy=true;
+    try{
+      const sb=await ensureClient();
+      const actionId=(crypto&&crypto.randomUUID)?crypto.randomUUID():
+        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,ch=>{
+          const v=Math.random()*16|0,n=ch==='x'?v:(v&3|8);return n.toString(16);
+        });
+      const {data,error}=await sb.rpc('update_sanctum_game_state',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken,
+        p_expected_version:Number(session.stateVersion||0),
+        p_state:wire,
+        p_action_type:actionType,
+        p_payload:payload||{},
+        p_client_action_id:actionId
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)throw new Error('Online state update returned no result.');
+
+      const serverVersion=Number(row.new_version||0);
+      if(!row.accepted){
+        status('Another device updated the room first. Reloading the newest board…',true);
+        await refreshRoom(true);
+        return false;
+      }
+
+      session.stateVersion=serverVersion;
+      lastAppliedVersion=Math.max(lastAppliedVersion,serverVersion);
+      authoritativeActiveSeat=Number(wire.current||0)+1;
+      lastPublishedHash=hash;
+      saveSession();
+      setGameBanner();
+      return true;
+    }catch(err){
+      console.error('Sanctum state publish failed',err);
+      status(err.message||'Could not synchronize this action.',true);
+      return false;
+    }finally{
+      publishBusy=false;
+      if(publishQueued){
+        publishQueued=false;
+        schedulePublish('state_sync',{},180);
+      }
+    }
+  }
+
+  function schedulePublish(actionType='state_sync',payload={},delay=320){
+    if(!session||!S||!S.started||applyingRemote||startingOnline||resolvingVoteTransition)return;
+    clearTimeout(publishTimer);
+    publishTimer=setTimeout(()=>pushSharedState(actionType,payload),delay);
+  }
+
+  function freshPriestShuffle(cards){
+    const a=[...(cards||[])];
+    const randomUnit=()=>{
+      try{
+        if(window.crypto&&crypto.getRandomValues){
+          const u=new Uint32Array(1);
+          crypto.getRandomValues(u);
+          return u[0]/4294967296;
+        }
+      }catch(_){}
+      return Math.random();
+    };
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(randomUnit()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function randomizeOpeningPriestHands(){
+    if(!S||!S.started||!Array.isArray(S.players)||!S.players.length)return false;
+    if(!Array.isArray(S.priestDeck))S.priestDeck=[];
+
+    // Preserve each player's intended opening hand size, including any
+    // legitimate Legacy starting-hand bonus, while fully randomizing which
+    // Priest cards occupy those slots.
+    const handSizes=S.players.map(p=>Array.isArray(p.hand)?p.hand.length:0);
+    const openingCards=[];
+    S.players.forEach(p=>{
+      if(Array.isArray(p.hand))openingCards.push(...p.hand);
+      p.hand=[];
+    });
+
+    // Return opening cards before shuffling so online hands are drawn from the
+    // complete expanded deck rather than only the original base set.
+    S.priestDeck=freshPriestShuffle([...(S.priestDeck||[]),...openingCards]);
+
+    S.players.forEach((p,seat)=>{
+      const count=Math.max(0,handSizes[seat]||0);
+      for(let n=0;n<count&&S.priestDeck.length;n++){
+        p.hand.push(S.priestDeck.pop());
+      }
+    });
+
+    S.priestOpeningHandsRandomized=true;
+    S.priestOpeningShuffleNonce=(Number(S.priestOpeningShuffleNonce)||0)+1;
+    const total=(S.priestDeck?.length||0)+S.players.reduce((sum,p)=>sum+(p.hand?.length||0),0);
+    log('Priest opening hands randomized from the full '+total+'-card run deck.','good');
+    return true;
+  }
+  function expandMultiplayerPriestStartingDeck(){
+    if(!session||!S||!S.started||S.multiplayerPriestDeckExpanded)return;
+    if(!Array.isArray(S.players)||!S.players.length||!Array.isArray(PRIEST)||!PRIEST.length)return;
+
+    const playerCount=S.players.length;
+    const makeCard=(def,tag)=>({
+      ...def,
+      id:`mp-priest-${tag}-${uid()}`,
+      empowered:false,
+      empowerPaid:false
+    });
+    const extras=[];
+
+    // The base game already created one complete set of every Priest card.
+    // Add one more complete set for each additional player so every player's
+    // contribution contains one of every card.
+    for(let seat=1;seat<playerCount;seat++){
+      PRIEST.forEach((def,i)=>extras.push(makeCard(def,`set-${seat+1}-${i}`)));
+    }
+
+    // Every player also contributes 15 independently randomized duplicate cards.
+    for(let n=0;n<15*playerCount;n++){
+      const def=PRIEST[Math.floor(Math.random()*PRIEST.length)];
+      extras.push(makeCard(def,`random-${n}`));
+    }
+
+    S.priestDeck=shuffle([...(S.priestDeck||[]),...extras]);
+    S.multiplayerPriestDeckExpanded=true;
+    S.multiplayerPriestCardsPerPlayer=PRIEST.length+15;
+    S.multiplayerPriestStartingTotal=playerCount*(PRIEST.length+15);
+
+    log(
+      `ONLINE PRIEST DECK — ${playerCount} player${playerCount===1?'':'s'}: ${PRIEST.length} unique Priest cards + 15 random duplicates per player contribution (${S.multiplayerPriestStartingTotal} total starting cards before opening draws).`,
+      'good'
+    );
+  }
+
+  function installStateSyncHooks(){
+    if(hooksInstalled)return;
+    hooksInstalled=true;
+
+    /* In online play every device owns one Priest seat. The shared board still
+       advances with S.current, but the Priest/hand panel always renders the
+       local player's Priest and cards. */
+    if(typeof renderPlayer==='function'){
+      const baseRenderPlayer=renderPlayer;
+      renderPlayer=function(){
+        if(!session||!S||!S.started||!Array.isArray(S.players)){
+          return baseRenderPlayer.apply(this,arguments);
+        }
+
+        const localIndex=Math.max(0,Math.min(S.players.length-1,Number(session.seat||1)-1));
+        if(!S.players[localIndex]){
+          return baseRenderPlayer.apply(this,arguments);
+        }
+
+        const authoritativeCurrent=S.current;
+        S.current=localIndex;
+        try{
+          const out=baseRenderPlayer.apply(this,arguments);
+
+          const handPanel=document.getElementById('handPanel');
+          if(handPanel){
+            handPanel.dataset.multiplayerSeat=String(session.seat||localIndex+1);
+            handPanel.classList.add('mpOwnHand');
+          }
+
+          const handContent=document.getElementById('handContent');
+          if(handContent&&!handContent.querySelector('.mpOwnHandLabel')){
+            const label=document.createElement('div');
+            label.className='mpOwnHandLabel';
+            const p=S.players[localIndex];
+            label.innerHTML=`<b>YOUR HAND</b><span>Player ${localIndex+1} • ${escapeHtml(p.name||('Player '+(localIndex+1)))}</span>`;
+            handContent.prepend(label);
+          }
+
+          return out;
+        }finally{
+          S.current=authoritativeCurrent;
+        }
+      };
+      try{window.renderPlayer=renderPlayer}catch(_){}
+    }
+
+    if(typeof render==='function'){
+      const baseRender=render;
+      render=function(){
+        applyMonkFirstRitualBalanceText();
+        const out=baseRender.apply(this,arguments);
+        try{wireDemonInspectors()}catch(_){}
+        try{wireBossInspector()}catch(_){}
+        try{enforceTurnOwnership()}catch(_){}
+        try{renderGroupVoteFromState()}catch(_){}
+        if(session&&S&&S.started&&!applyingRemote&&!startingOnline&&!resolvingVoteTransition){
+          schedulePublish('state_sync',{},360);
+        }
+        return out;
+      };
+      try{window.render=render}catch(_){}
+    }
+
+    if(typeof startGame==='function'){
+      const baseStart=startGame;
+      startGame=function(){
+        if(session&&!session.isHost){
+          status('Only the room host can start an online game.',true);
+          return false;
+        }
+        if(session&&lastRosterSnapshot)syncSetupFromRoster(lastRosterSnapshot);
+        startingOnline=!!session;
+        let ok=false;
+        try{
+          ok=baseStart.apply(this,arguments);
+          if(ok&&S&&Array.isArray(S.players)){
+            if(session)expandMultiplayerPriestStartingDeck();
+            randomizeOpeningPriestHands();
+            if(session){
+              S.mana=typeof sharedManaRoundValue==='function'
+                ? sharedManaRoundValue()
+                : (S.players.length>=4?35:S.players.length===3?20:S.players.length===2?15:10);
+            }
+            render();
+          }
+        }finally{
+          startingOnline=false;
+        }
+        if(ok&&session){
+          lastPublishedHash='';
+          schedulePublish('game_start',{players:lastRosterSnapshot?.players?.length||S.players.length},30);
+        }
+        return ok;
+      };
+      try{window.startGame=startGame}catch(_){}
+    }
+
+    setGameBanner();
+  }
+
+  function stopLobbyRosterPolling(){
+    if(lobbyRosterPollTimer){
+      clearInterval(lobbyRosterPollTimer);
+      lobbyRosterPollTimer=0;
+    }
+    lobbyRosterRefreshBusy=false;
+  }
+
+  async function pollLobbyRoster(){
+    if(!session||sessionEnded||lobbyRosterRefreshBusy)return;
+    if(lastRosterSnapshot?.game?.status&&lastRosterSnapshot.game.status!=='lobby'){
+      stopLobbyRosterPolling();
+      return;
+    }
+    lobbyRosterRefreshBusy=true;
+    try{
+      await refreshRoom(false);
+    }catch(err){
+      console.warn('Lobby roster fallback refresh failed',err);
+    }finally{
+      lobbyRosterRefreshBusy=false;
+    }
+  }
+
+  function startLobbyRosterPolling(){
+    if(!session||sessionEnded||S?.started||lastRosterSnapshot?.game?.status==='playing'){
+      stopLobbyRosterPolling();
+      return;
+    }
+    if(lobbyRosterPollTimer)return;
+    lobbyRosterPollTimer=setInterval(pollLobbyRoster,1200);
+  }
+
+  async function stopRosterSubscription(){
+    if(client&&rosterChannel){
+      try{await client.removeChannel(rosterChannel)}catch(_){}
+    }
+    rosterChannel=null;
+  }
+
+  async function startRosterSubscription(){
+    if(!session?.gameId||sessionEnded)return;
+    if(S?.started||lastRosterSnapshot?.game?.status==='playing'){
+      await stopRosterSubscription();
+      return;
+    }
+    if(rosterChannel)return;
+    const sb=await ensureClient();
+    rosterChannel=sb.channel('sanctum-roster-'+session.gameId)
+      .on('postgres_changes',{
+        event:'*',schema:'public',table:'players',
+        filter:'game_id=eq.'+session.gameId
+      },()=>{
+        refreshRoom(false).catch(err=>console.warn('Roster realtime refresh failed',err));
+      })
+      .subscribe(state=>{
+        if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'){
+          console.warn('Roster realtime unavailable; lobby polling remains active.');
+          startLobbyRosterPolling();
+        }
+      });
+    startLobbyRosterPolling();
+  }
+
+  async function refreshRoom(forceState=false){
+    if(!session)return;
+    try{
+      const snap=await fetchRoom();
+      lastRosterSnapshot=snap;
+      session.roomCode=snap.game.room_code;
+      if(snap.game.status==='abandoned'||snap.game.status==='finished'){
+        lockEndedSession(
+          snap.game.status==='abandoned'
+            ? 'The host closed the game. This multiplayer session has ended.'
+            : 'This multiplayer session has ended.'
+        );
+        return;
+      }
+      saveSession();
+      status(`Connected to room ${snap.game.room_code} • ${snap.players.length}/${snap.game.max_players} players • ${snap.game.status}`);
+      document.body.classList.remove('mpSessionEnded');
+    const code=panel?.querySelector('.mpRoomCode');
+      if(code)code.textContent=snap.game.room_code;
+      renderRoster(snap);
+      syncSetupFromRoster(snap);
+      panel?.classList.add('connected');
+      if(snap.game.status==='lobby'){
+        startRosterSubscription().catch(err=>console.warn('Roster subscription failed',err));
+        startLobbyRosterPolling();
+      }else{
+        stopLobbyRosterPolling();
+        stopRosterSubscription();
+      }
+      await applyRemoteGameRow(snap.game,forceState||lastAppliedVersion<0);
+      enforceTurnOwnership();
+    }catch(err){
+      console.error('Sanctum multiplayer refresh failed',err);
+      status(err.message||'Could not refresh online room.',true);
+    }
+  }
+
+  async function subscribe(){
+    if(!session?.gameId)return;
+    const sb=await ensureClient();
+    if(channel){try{await sb.removeChannel(channel)}catch(_){}}
+    channel=sb.channel('sanctum-room-'+session.gameId)
+      .on('postgres_changes',{
+        event:'UPDATE',schema:'public',table:'games',
+        filter:'id=eq.'+session.gameId
+      },payload=>{
+        const row=payload&&payload.new;
+        if(row){
+          if(row.status==='abandoned'||row.status==='finished'){
+            lockEndedSession(
+              row.status==='abandoned'
+                ? 'The host closed the game. This multiplayer session has ended.'
+                : 'This multiplayer session has ended.'
+            );
+            return;
+          }
+          status(`Connected to room ${row.room_code||session.roomCode} • live game sync`);
+          if(row.status==='lobby'){
+            refreshRoom(false).catch(err=>console.error('Lobby room refresh failed',err));
+            return;
+          }
+          stopLobbyRosterPolling();
+          if(row.status==='playing')stopRosterSubscription();
+          applyRemoteGameRow(row).catch(err=>console.error(err));
+        }else{
+          refreshRoom().catch(err=>console.error(err));
+        }
+      })
+      .subscribe();
+  }
+
+  async function host(){
+    const btn=panel.querySelector('#mpHostBtn');
+    btn.disabled=true;
+    status('Creating online room…');
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('create_sanctum_game',{
+        p_display_name:playerName(),
+        p_initial_state:{multiplayer:true,stage:'lobby'}
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)throw new Error('Room creation returned no data.');
+      session={
+        gameId:row.game_id,
+        roomCode:row.room_code,
+        playerId:row.player_id,
+        playerToken:row.player_token,
+        seat:Number(row.seat),
+        stateVersion:Number(row.state_version||0),
+        isHost:true
+      };
+      lastAppliedVersion=-1;
+      lastPublishedHash='';
+      saveSession();
+      await subscribe();
+      await refreshRoom(true);
+      startHeartbeat();
+    }catch(err){
+      console.error(err);
+      status(err.message||'Could not create room.',true);
+    }finally{btn.disabled=false}
+  }
+
+  async function join(){
+    const input=panel.querySelector('#mpRoomInput');
+    const code=(input.value||'').trim().toUpperCase();
+    if(code.length!==6){status('Enter the 6-character room code.',true);input.focus();return}
+    const btn=panel.querySelector('#mpJoinBtn');
+    btn.disabled=true;
+    status('Joining online room…');
+    try{
+      const sb=await ensureClient();
+      const {data,error}=await sb.rpc('join_sanctum_game',{
+        p_room_code:code,
+        p_display_name:playerName()
+      });
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)throw new Error('Join returned no data.');
+      session={
+        gameId:row.game_id,
+        roomCode:row.room_code,
+        playerId:row.player_id,
+        playerToken:row.player_token,
+        seat:Number(row.seat),
+        stateVersion:Number(row.state_version||0),
+        isHost:false
+      };
+      lastAppliedVersion=-1;
+      lastPublishedHash='';
+      saveSession();
+      await subscribe();
+      await refreshRoom(true);
+      startHeartbeat();
+    }catch(err){
+      console.error(err);
+      status(err.message||'Could not join room.',true);
+    }finally{btn.disabled=false}
+  }
+
+  async function leave(){
+    stopHeartbeat();
+    stopLobbyRosterPolling();
+    stopChoiceRecoveryWatchdog();
+    await stopRosterSubscription();
+    if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
+    resolvingVoteTransition=false;
+    choiceAuthorityRepairBusy=false;
+    channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
+    try{clearTurnTimerInterval()}catch(_){}
+    document.body.classList.remove('mpWaitingTurn');
+    const handPanel=document.getElementById('handPanel');
+    if(handPanel){
+      handPanel.classList.remove('mpOwnHand');
+      delete handPanel.dataset.multiplayerSeat;
+    }
+    document.querySelectorAll('.mpOwnHandLabel').forEach(el=>el.remove());
+    document.querySelectorAll('[data-mp-disabled="1"]').forEach(btn=>{
+      btn.disabled=false;
+      delete btn.dataset.mpDisabled;
+    });
+    for(let i=0;i<4;i++){
+      const name=document.getElementById('pname'+i);
+      if(name)name.readOnly=false;
+    }
+    const start=document.getElementById('startBtn');
+    if(start&&start.dataset.mpGuestLocked==='1'){
+      start.disabled=false;
+      delete start.dataset.mpGuestLocked;
+      start.removeAttribute('title');
+    }
+    setGameBanner();
+    panel?.classList.remove('connected');
+    const code=panel?.querySelector('.mpRoomCode');
+    if(code)code.textContent='------';
+    renderRoster(null);
+    status('Not connected. Host a room or enter a room code.');
+  }
+
+  function installPanel(){
+    const setup=document.getElementById('setupModal');
+    const box=setup?.querySelector('.modalbox');
+    if(!box||document.getElementById('sanctumOnlinePanel'))return false;
+
+    panel=document.createElement('section');
+    panel.id='sanctumOnlinePanel';
+    panel.innerHTML=`
+      <div class="mpTitle">Online Multiplayer <small style="opacity:.55">DEV</small></div>
+      <div class="mpActions">
+        <div class="mpField">
+          <label for="mpRoomInput">Join code</label>
+          <input id="mpRoomInput" maxlength="6" autocomplete="off" spellcheck="false" placeholder="ABC234">
+        </div>
+        <div>
+          <div style="font-size:9px;color:#8f816e;margin-bottom:2px">CURRENT ROOM</div>
+          <div class="mpRoomCode">------</div>
+        </div>
+      </div>
+      <div class="mpButtons">
+        <button class="btn green" id="mpHostBtn" type="button">Host Online Game</button>
+        <button class="btn blue" id="mpJoinBtn" type="button">Join Online Game</button>
+        <button class="btn" id="mpLeaveBtn" type="button">Leave Online Room</button>
+      </div>
+      <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
+      <div class="mpRoster"></div>
+      <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, the passage-clearing Priest controls synchronized rewards and passage choices, Demon and Boss cards open into a large mobile-friendly reading view, and the room automatically ends when the host disconnects.</div>
+    `;
+
+    const grid=box.querySelector('.setupgrid');
+    if(grid)grid.insertAdjacentElement('beforebegin',panel);
+    else box.appendChild(panel);
+
+    panel.querySelector('#mpHostBtn').addEventListener('click',host);
+    panel.querySelector('#mpJoinBtn').addEventListener('click',join);
+    panel.querySelector('#mpLeaveBtn').addEventListener('click',leave);
+    panel.querySelector('#mpRoomInput').addEventListener('input',e=>{
+      e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'').slice(0,6);
+    });
+    panel.querySelector('#mpRoomInput').addEventListener('keydown',e=>{
+      if(e.key==='Enter')join();
+    });
+
+    loadSession();
+    if(session){
+      const code=panel.querySelector('.mpRoomCode');
+      if(code)code.textContent=session.roomCode||'------';
+      status('Reconnecting to '+(session.roomCode||'online room')+'…');
+      lastAppliedVersion=-1;
+      subscribe()
+        .then(()=>refreshRoom(true))
+        .then(()=>startHeartbeat())
+        .catch(err=>status(err.message||'Reconnect failed.',true));
+    }
+    return true;
+  }
+
+  installStateSyncHooks();
+
+  if(!installPanel()){
+    let tries=0;
+    const t=setInterval(()=>{
+      if(installPanel()||++tries>80)clearInterval(t);
+    },100);
+  }
+
+  window.SanctumMultiplayerDev={
+    get session(){return session?{...session,playerToken:'[stored locally]'}:null},
+    get isMyTurn(){return isMyTurn()},
+    get authoritativeActiveSeat(){return authoritativeActiveSeat},
+    refresh:()=>refreshRoom(true),
+    push:()=>pushSharedState('state_sync',{manual:true})
+  };
+})();
+</script>
+
+
+<style id="multiplayerBossArtworkSpriteStyles">
+/* New Boss art is artwork-only; keep the game's existing Boss layout/mechanics. */
+.bossArt,
+.bossDeckCard img,
+.mpBossReaderArt img,
+.damageTargetCard.bossTarget .demonArt{
+  image-rendering:auto;
+}
+</style>
+<script id="multiplayerBossArtworkSpritePatch">
+(()=>{
+  'use strict';
+
+  const SPRITE_URL='https://raw.githubusercontent.com/gm8hwmvrf5-web/-sanctum-game/multiplayer-dev/assets/bosses/boss-sprite.webp?v=20261006hq';
+  const BOSS_ART_ORDER=[
+    'plagueFather',
+    'blackSovereign',
+    'fallenSeraph',
+    'gatebreaker',
+    'crimsonOracle',
+    'devourer',
+    'soulTyrant',
+    'lordOfAsh',
+    'dreadReaper',
+    'boneKing'
+  ];
+  const COLS=2;
+  const TILE_W=512;
+  const TILE_H=384;
+  let bossArtworkUrls=null;
+
+  function installArtwork(urls){
+    if(!urls)return;
+    bossArtworkUrls=urls;
+
+    if(typeof BOSSES!=='undefined'&&Array.isArray(BOSSES)){
+      BOSSES.forEach(b=>{
+        if(b&&urls[b.key])b.art=urls[b.key];
+      });
+    }
+
+    if(typeof S!=='undefined'&&S&&S.boss&&urls[S.boss.key]){
+      S.boss.art=urls[S.boss.key];
+    }
+
+    window.__sanctumBossArtworkUrls=urls;
+    window.__sanctumBossArtworkReady=true;
+
+    try{
+      if(typeof render==='function')render();
+    }catch(err){
+      console.warn('Boss artwork refresh render failed',err);
+    }
+
+    try{
+      const modal=document.getElementById('bossDeckModal');
+      if(modal&&!modal.classList.contains('hidden')&&typeof renderBossCodex==='function'){
+        renderBossCodex();
+      }
+    }catch(err){
+      console.warn('Boss codex artwork refresh failed',err);
+    }
+  }
+
+  function cropSprite(img){
+    const urls={};
+    BOSS_ART_ORDER.forEach((key,index)=>{
+      const sx=(index%COLS)*TILE_W;
+      const sy=Math.floor(index/COLS)*TILE_H;
+      const canvas=document.createElement('canvas');
+      canvas.width=TILE_W;
+      canvas.height=TILE_H;
+      const ctx=canvas.getContext('2d',{alpha:false});
+      if(!ctx)return;
+      ctx.drawImage(img,sx,sy,TILE_W,TILE_H,0,0,TILE_W,TILE_H);
+      try{
+        urls[key]=canvas.toDataURL('image/webp',0.86);
+      }catch(_){
+        urls[key]=canvas.toDataURL('image/jpeg',0.88);
+      }
+    });
+    return urls;
+  }
+
+  const sprite=new Image();
+  sprite.crossOrigin='anonymous';
+  sprite.decoding='async';
+  sprite.onload=()=>{
+    try{
+      installArtwork(cropSprite(sprite));
+    }catch(err){
+      console.error('Could not prepare the new Boss artwork.',err);
+    }
+  };
+  sprite.onerror=()=>{
+    console.error('Could not load the optimized Boss artwork sprite.');
+  };
+  sprite.src=SPRITE_URL;
+
+  /* Saved / remotely synced states omit art. Re-apply the new Boss art whenever
+     static artwork is restored, without changing any state or Boss rules. */
+  if(typeof restoreStaticArtwork==='function'){
+    const _restoreStaticArtwork=restoreStaticArtwork;
+    restoreStaticArtwork=function(){
+      const out=_restoreStaticArtwork.apply(this,arguments);
+      if(bossArtworkUrls&&typeof S!=='undefined'&&S&&S.boss&&bossArtworkUrls[S.boss.key]){
+        S.boss.art=bossArtworkUrls[S.boss.key];
+      }
+      return out;
+    };
+  }
+})();
+</script>
+
+
+
+<style id="multiplayerBossResponsiveScalePatch">
+/* Responsive Boss artwork.
+   Preserve the native 4:3 artwork ratio and let the actual visible viewport
+   determine how large the Boss appears on phones, tablets, and desktop. */
+#boardSection .bossCard{
+  min-width:0 !important;
+}
+#boardSection .bossArt{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:4 / 3 !important;
+  max-width:100% !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+
+/* The large tap-to-view Boss reader uses the real visible viewport height,
+   including iPhone Safari / standalone browser chrome changes. */
+dialog.mpDemonReader[data-reader-kind="boss"]{
+  width:100vw !important;
+  height:var(--sanctum-viewport-height,100dvh) !important;
+  max-height:var(--sanctum-viewport-height,100dvh) !important;
+  padding:clamp(6px,1.5vw,18px) !important;
+  box-sizing:border-box !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+  width:min(1100px,97vw) !important;
+  max-height:calc(var(--sanctum-viewport-height,100dvh) - 12px) !important;
+  grid-template-columns:minmax(260px,46%) minmax(0,1fr) !important;
+  gap:clamp(8px,1.4vw,16px) !important;
+  padding:clamp(8px,1.4vw,15px) !important;
+  overflow:hidden !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+  width:100% !important;
+  max-width:512px !important;
+  height:auto !important;
+  min-height:0 !important;
+  aspect-ratio:4 / 3 !important;
+  align-self:start !important;
+  justify-self:center !important;
+  overflow:hidden !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt img{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  aspect-ratio:4 / 3 !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderBody{
+  min-width:0 !important;
+  min-height:0 !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch;
+  padding:clamp(16px,3vh,26px) 3px 4px !important;
+}
+
+/* Keep the Boss deck/codex artwork responsive without stretching it. */
+.bossDeckCard img{
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:4 / 3 !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+
+/* Bosses shown as selectable combat targets use the same artwork ratio. */
+.damageTargetCard.bossTarget .demonArtWrap{
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:4 / 3 !important;
+  overflow:hidden !important;
+}
+.damageTargetCard.bossTarget .demonArt{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  object-position:center 32% !important;
+}
+
+/* Portrait phones: stack artwork above Boss information and let card width
+   determine image size. */
+@media (orientation:portrait) and (max-width:720px){
+  dialog.mpDemonReader[data-reader-kind="boss"]{
+    padding:max(6px,env(safe-area-inset-top)) 7px max(6px,env(safe-area-inset-bottom)) !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+    width:min(560px,97vw) !important;
+    max-height:calc(var(--sanctum-viewport-height,100dvh) - 12px) !important;
+    grid-template-columns:1fr !important;
+    gap:8px !important;
+    overflow:auto !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    width:min(100%,512px) !important;
+    max-height:none !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderBody{
+    overflow:visible !important;
+    padding:4px 2px 2px !important;
+  }
+}
+
+/* Landscape phones: remove the old fixed 66px Boss image. The art now grows
+   from available screen width while remaining small enough to leave room for
+   stats/rules beside it. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .bossArt{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:4 / 3 !important;
+    margin-bottom:2px !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"]{
+    padding:max(4px,env(safe-area-inset-top)) max(5px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left)) !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+    width:98vw !important;
+    max-height:calc(var(--sanctum-viewport-height,100dvh) - 8px) !important;
+    grid-template-columns:minmax(220px,43%) minmax(0,1fr) !important;
+    gap:7px !important;
+    padding:7px !important;
+    overflow:hidden !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    width:100% !important;
+    max-width:min(512px,43vw) !important;
+    height:auto !important;
+    aspect-ratio:4 / 3 !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderBody{
+    padding:13px 2px 2px !important;
+    overflow:auto !important;
+  }
+}
+
+/* Very short landscape devices still retain a useful Boss portrait rather
+   than collapsing the artwork to a tiny fixed strip. */
+@media (orientation:landscape) and (max-height:380px){
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderCard{
+    grid-template-columns:minmax(190px,40%) minmax(0,1fr) !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt{
+    max-width:min(460px,40vw) !important;
+  }
+}
+</style>
+
+
+
+<style id="multiplayerBossStatFitStyles">
+/* Boss stats always stay on one line. JavaScript reduces the font only when
+   the current device/card width actually requires it. */
+#bossArea .bossStatLine{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-wrap:nowrap !important;
+  gap:clamp(3px,.55vw,7px) !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  margin:2px 0 3px !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+  font-size:12px;
+  line-height:1.1 !important;
+  font-weight:800;
+  letter-spacing:0;
+}
+#bossArea .bossStatLine > span{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+#bossArea .bossStatLine .bossStatSep{
+  color:#bba98d;
+  font-weight:600;
+}
+#bossArea .bossStatLine .hp{color:#ff9db4 !important}
+#bossArea .bossStatLine .blood{color:#f06464 !important}
+
+/* The enlarged Boss viewer follows the same one-line rule. */
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  gap:clamp(5px,1.1vw,12px) !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+  line-height:1.1 !important;
+}
+dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats > span{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+</style>
+
+<script id="multiplayerBossStatFitScript">
+(()=>{
+  'use strict';
+  if(window.__sanctumBossStatFitInstalled)return;
+  window.__sanctumBossStatFitInstalled=true;
+
+  function fitOne(el,maxPx,minPx){
+    if(!el||el.clientWidth<=0)return;
+    el.style.fontSize=maxPx+'px';
+
+    // Use binary search so the text lands at the largest size that still fits.
+    if(el.scrollWidth<=el.clientWidth+0.5)return;
+    let lo=minPx,hi=maxPx,best=minPx;
+    for(let i=0;i<10;i++){
+      const mid=(lo+hi)/2;
+      el.style.fontSize=mid.toFixed(2)+'px';
+      if(el.scrollWidth<=el.clientWidth+0.5){
+        best=mid;
+        lo=mid;
+      }else{
+        hi=mid;
+      }
+    }
+    el.style.fontSize=Math.max(minPx,best).toFixed(2)+'px';
+  }
+
+  function fitBossStatLines(){
+    const mobile=window.matchMedia('(max-width:760px), (orientation:landscape) and (max-height:520px)').matches;
+    document.querySelectorAll('#bossArea .bossStatLine')
+      .forEach(el=>fitOne(el,mobile?11:12,mobile?9:4.5));
+    document.querySelectorAll('dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats')
+      .forEach(el=>fitOne(el,mobile?14:17,mobile?10.5:8));
+  }
+
+  let raf=0;
+  function scheduleFit(){
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(fitBossStatLines);
+  }
+
+  // Refit after every normal game render so changing HP values can never force
+  // the Boss line onto a second row.
+  if(typeof render==='function'){
+    const _bossStatFitRender=render;
+    render=function(){
+      const out=_bossStatFitRender.apply(this,arguments);
+      scheduleFit();
+      return out;
+    };
+    try{window.render=render}catch(_){}
+  }
+
+  window.addEventListener('resize',scheduleFit,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(scheduleFit,80),{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',scheduleFit,{passive:true});
+  }
+
+  // The Boss reader is rendered independently of the main board, so observe
+  // its DOM changes as well as Boss-room re-renders.
+  const observer=new MutationObserver(scheduleFit);
+  const startObserver=()=>{
+    const bossArea=document.getElementById('bossArea');
+    const reader=document.getElementById('mpDemonReader');
+    if(bossArea)observer.observe(bossArea,{childList:true,subtree:true,characterData:true});
+    if(reader)observer.observe(reader,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['data-reader-kind','open']});
+    scheduleFit();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
+  else startObserver();
+
+  window.__sanctumFitBossStats=fitBossStatLines;
+})();
+</script>
+
+
+
+<style id="gameMenuSubdialogLayerStyles">
+/* Screens launched from the paused Game Menu must sit above the menu rather
+   than behind it. Outside the menu they retain their normal stacking rules. */
+body.sanctum-menu-subdialog-open #loadChooserModal[data-from-game-menu="1"],
+body.sanctum-menu-subdialog-open #rulesModal[data-from-game-menu="1"],
+body.sanctum-menu-subdialog-open #demonDeckModal[data-from-game-menu="1"],
+body.sanctum-menu-subdialog-open #priestDeckModal[data-from-game-menu="1"],
+body.sanctum-menu-subdialog-open #bossDeckModal[data-from-game-menu="1"],
+body.sanctum-menu-subdialog-open #rogueGuideModal[data-from-game-menu="1"],
+body.sanctum-menu-subdialog-open #rogueLegacyModal[data-from-game-menu="1"]{
+  z-index:420 !important;
+}
+
+/* Keep the paused menu visible as the parent layer behind its child screen. */
+body.sanctum-menu-subdialog-open #pauseOverlay{
+  z-index:230 !important;
+}
+
+/* Tutorial mode normally raises the menu to 340; child screens still stay
+   above it so their buttons remain touchable on phones/tablets. */
+body.rogue-tutorial-active.sanctum-menu-subdialog-open #pauseOverlay{
+  z-index:340 !important;
+}
+</style>
+
+<script id="gameMenuSubdialogLayerScript">
+(()=>{
+  'use strict';
+  if(window.__sanctumMenuSubdialogLayerInstalled)return;
+  window.__sanctumMenuSubdialogLayerInstalled=true;
+
+  const menuToModal={
+    pauseLoadBtn:'loadChooserModal',
+    pauseRulesBtn:'rulesModal',
+    pauseDemonDeckBtn:'demonDeckModal',
+    pausePriestDeckBtn:'priestDeckModal',
+    pauseBossDeckBtn:'bossDeckModal',
+    pauseRunGuideBtn:'rogueGuideModal',
+    pauseLegacyBtn:'rogueLegacyModal'
+  };
+
+  const closeToModal={
+    loadCancelBtn:'loadChooserModal',
+    rulesClose:'rulesModal',
+    demonDeckClose:'demonDeckModal',
+    priestDeckClose:'priestDeckModal',
+    bossDeckClose:'bossDeckModal',
+    rogueGuideClose:'rogueGuideModal',
+    rogueLegacyClose:'rogueLegacyModal'
+  };
+
+  let active=null;
+
+  function menuIsOpen(){
+    const menu=document.getElementById('pauseOverlay');
+    return !!menu&&!menu.classList.contains('hidden');
+  }
+
+  function keepGamePaused(){
+    if(!S||!S.started)return;
+    window.__sanctumManualPaused=true;
+    S.manualPaused=true;
+    try{pauseTurnTimer(false)}catch(_){
+      try{clearTurnTimerInterval()}catch(__){}
+    }
+    try{updateTurnTimerDisplay()}catch(_){}
+  }
+
+  function markMenuSubdialog(modalId,triggerId){
+    if(!menuIsOpen())return false;
+    const modal=document.getElementById(modalId);
+    if(!modal)return false;
+
+    if(active&&active.modalId!==modalId){
+      const old=document.getElementById(active.modalId);
+      if(old)delete old.dataset.fromGameMenu;
+    }
+
+    active={modalId,triggerId};
+    modal.dataset.fromGameMenu='1';
+    document.body.classList.add('sanctum-menu-subdialog-open');
+    keepGamePaused();
+
+    // Opening handlers in older parts may alter timer state, so reassert the
+    // paused-menu state after the child screen has actually opened.
+    requestAnimationFrame(keepGamePaused);
+    setTimeout(keepGamePaused,0);
+    return true;
+  }
+
+  function returnToGameMenu(modalId){
+    if(!active||active.modalId!==modalId)return false;
+    const modal=document.getElementById(modalId);
+    if(modal){
+      modal.classList.add('hidden');
+      delete modal.dataset.fromGameMenu;
+    }
+
+    const triggerId=active.triggerId;
+    active=null;
+    document.body.classList.remove('sanctum-menu-subdialog-open');
+    keepGamePaused();
+
+    const menu=document.getElementById('pauseOverlay');
+    if(menu)menu.classList.remove('hidden');
+
+    setTimeout(()=>{
+      const trigger=document.getElementById(triggerId);
+      if(trigger&&!trigger.disabled)trigger.focus();
+      else document.getElementById('resumeGameBtn')?.focus();
+    },0);
+    return true;
+  }
+
+  // Capture the menu-button press before the existing click handler opens the
+  // destination modal. This lets us identify it as a child of the pause menu.
+  document.addEventListener('click',e=>{
+    const button=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!button)return;
+
+    const modalId=menuToModal[button.id];
+    if(modalId&&menuIsOpen()){
+      markMenuSubdialog(modalId,button.id);
+      return;
+    }
+
+    const closingModal=closeToModal[button.id];
+    if(closingModal&&active&&active.modalId===closingModal){
+      // Do not let legacy/guide close handlers resume the game underneath the
+      // menu. Closing a menu child always returns to the still-paused menu.
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      returnToGameMenu(closingModal);
+      return;
+    }
+
+    // The newer Legacy layout also has a separate top-right "Close ×" button.
+    // It is not rogueLegacyClose (the bottom checkpoint button can legitimately
+    // say Continue Descent), so recognize it by its location/text when Legacy
+    // was opened from the paused Game Menu.
+    if(
+      active&&active.modalId==='rogueLegacyModal'&&
+      button.closest&&button.closest('#rogueLegacyModal')&&
+      /^close\b/i.test((button.textContent||'').trim())
+    ){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      returnToGameMenu('rogueLegacyModal');
+    }
+  },true);
+
+  // Escape closes the child screen first. A second Escape from the parent menu
+  // can still use the existing Resume behavior.
+  document.addEventListener('keydown',e=>{
+    if((e.key||'').toLowerCase()!=='escape'||!active)return;
+    const modal=document.getElementById(active.modalId);
+    if(!modal||modal.classList.contains('hidden')){
+      delete modal?.dataset?.fromGameMenu;
+      active=null;
+      document.body.classList.remove('sanctum-menu-subdialog-open');
+      return;
+    }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    returnToGameMenu(active.modalId);
+  },true);
+
+  // If another flow closes a child screen itself (for example completing a
+  // load), clear the temporary layering marker without touching gameplay.
+  const observer=new MutationObserver(()=>{
+    if(!active)return;
+    const modal=document.getElementById(active.modalId);
+    if(!modal||modal.classList.contains('hidden')){
+      if(modal)delete modal.dataset.fromGameMenu;
+      active=null;
+      document.body.classList.remove('sanctum-menu-subdialog-open');
+      if(menuIsOpen())keepGamePaused();
+    }
+  });
+  if(document.body)observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+
+  window.__sanctumReturnToGameMenu=returnToGameMenu;
+})();
+</script>
+
+
+
+<style id="priestDeckMenuStyles">
+#priestDeckModal{
+  z-index:205;
+}
+#priestDeckModal .priestDeckBox{
+  width:min(1120px,96vw);
+  max-height:92dvh;
+  overflow:auto;
+  padding:14px;
+}
+#priestDeckModal .priestDeckTop{
+  position:sticky;
+  top:-14px;
+  z-index:4;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:-14px -14px 12px;
+  padding:12px 14px 10px;
+  border-bottom:1px solid #60472e;
+  background:linear-gradient(180deg,#181211 78%,rgba(24,18,17,.94));
+}
+#priestDeckModal .priestDeckTop h2{
+  margin:0;
+  color:#f0d39a;
+  font-size:clamp(20px,3vw,30px);
+}
+#priestDeckModal .priestDeckSubtitle{
+  margin:2px 0 0;
+  color:#a9977b;
+  font-size:10px;
+  line-height:1.35;
+}
+#priestDeckModal .priestDeckGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:10px;
+}
+#priestDeckModal .priestDeckReferenceCard{
+  min-width:0;
+  overflow:hidden;
+  border:1px solid #665036;
+  border-radius:10px;
+  background:linear-gradient(180deg,#201813,#110e0c);
+  box-shadow:inset 0 0 24px rgba(0,0,0,.3);
+}
+#priestDeckModal .priestDeckReferenceArt{
+  width:100%;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  border-bottom:1px solid #5a432c;
+  background:#090706;
+}
+#priestDeckModal .priestDeckReferenceArt img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 22%;
+}
+#priestDeckModal .priestDeckReferenceBody{
+  padding:9px 10px 10px;
+}
+#priestDeckModal .priestDeckReferenceHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+#priestDeckModal .priestDeckReferenceName{
+  color:#f0d49a;
+  font:700 15px/1.15 Georgia,serif;
+}
+#priestDeckModal .priestDeckReferenceCost{
+  flex:0 0 auto;
+  border:1px solid #665233;
+  border-radius:999px;
+  padding:2px 7px;
+  color:#bfe2ff;
+  background:#101216;
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+}
+#priestDeckModal .priestDeckReferenceEffect{
+  margin-top:7px;
+  padding-top:7px;
+  border-top:1px solid rgba(110,83,51,.55);
+  color:#ddd0ba;
+  font-size:10.5px;
+  line-height:1.4;
+}
+#priestDeckModal .priestDeckReferenceEffect b{
+  color:#e8c98f;
+}
+#priestDeckModal .priestDeckReferenceEffect.empowered{
+  color:#d7c8e9;
+}
+#priestDeckModal .priestDeckReferenceEffect.empowered b{
+  color:#d7aef2;
+}
+@media(max-width:620px){
+  #priestDeckModal .priestDeckBox{width:97vw;padding:9px;}
+  #priestDeckModal .priestDeckTop{top:-9px;margin:-9px -9px 9px;padding:9px;}
+  #priestDeckModal .priestDeckGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
+  #priestDeckModal .priestDeckReferenceBody{padding:6px;}
+  #priestDeckModal .priestDeckReferenceName{font-size:11px;}
+  #priestDeckModal .priestDeckReferenceCost{font-size:7px;padding:2px 5px;}
+  #priestDeckModal .priestDeckReferenceEffect{font-size:8px;line-height:1.3;margin-top:4px;padding-top:4px;}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #priestDeckModal .priestDeckBox{
+    width:98vw;
+    max-height:96dvh;
+    padding:7px;
+  }
+  #priestDeckModal .priestDeckTop{
+    top:-7px;
+    margin:-7px -7px 6px;
+    padding:6px 8px;
+  }
+  #priestDeckModal .priestDeckTop h2{font-size:16px;}
+  #priestDeckModal .priestDeckSubtitle{font-size:7px;}
+  #priestDeckModal .priestDeckGrid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:5px;
+  }
+  #priestDeckModal .priestDeckReferenceArt{aspect-ratio:2/1;}
+  #priestDeckModal .priestDeckReferenceBody{padding:5px;}
+  #priestDeckModal .priestDeckReferenceName{font-size:9px;}
+  #priestDeckModal .priestDeckReferenceCost{font-size:6.5px;}
+  #priestDeckModal .priestDeckReferenceEffect{font-size:7px;line-height:1.25;margin-top:3px;padding-top:3px;}
+}
+</style>
+
+<script id="priestDeckMenuScript">
+(()=>{
+  'use strict';
+  if(window.__sanctumPriestDeckMenuInstalled)return;
+  window.__sanctumPriestDeckMenuInstalled=true;
+
+  function patchManaBlessingCard(card){
+    if(!card||card.n!=='Mana Blessing')return card;
+    card.v=3;
+    card.e='Gain 3 shared Mana.';
+    return card;
+  }
+
+  function applyManaBlessingBalance(){
+    try{
+      if(typeof PRIEST!=='undefined'&&Array.isArray(PRIEST)){
+        PRIEST.forEach(patchManaBlessingCard);
+      }
+    }catch(_){}
+
+    try{
+      if(typeof S!=='undefined'&&S){
+        const groups=[
+          S.priestDeck,
+          S.priestDiscard,
+          ...(Array.isArray(S.players)?S.players.map(p=>p&&p.hand):[])
+        ];
+        groups.forEach(group=>{
+          if(Array.isArray(group))group.forEach(patchManaBlessingCard);
+        });
+        if(S.lastPriestCardPlayed)patchManaBlessingCard(S.lastPriestCardPlayed);
+      }
+    }catch(_){}
+  }
+
+  // Patch the master definition immediately so every newly created game/deck
+  // receives the 3-Mana version.
+  applyManaBlessingBalance();
+
+  // Existing saves and synchronized online states may contain older card copies.
+  // Patch those copies before each render without changing any other card data.
+  if(typeof render==='function'){
+    const _priestDeckMenuRender=render;
+    render=function(){
+      applyManaBlessingBalance();
+      return _priestDeckMenuRender.apply(this,arguments);
+    };
+    try{window.render=render}catch(_){}
+  }
+
+  function esc(value){
+    return String(value??'')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function ensurePriestDeckModal(){
+    let modal=document.getElementById('priestDeckModal');
+    if(modal)return modal;
+
+    modal=document.createElement('div');
+    modal.className='modal hidden';
+    modal.id='priestDeckModal';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.setAttribute('aria-labelledby','priestDeckTitle');
+    modal.innerHTML=
+      '<div class="modalbox priestDeckBox">'+
+        '<div class="priestDeckTop">'+
+          '<div><h2 id="priestDeckTitle">Priest Deck</h2>'+
+          '<div class="priestDeckSubtitle">Complete Priest-card reference • Normal and Empowered effects</div></div>'+
+          '<button class="btn" id="priestDeckClose" type="button">Close</button>'+
+        '</div>'+
+        '<div class="priestDeckGrid" id="priestDeckGrid"></div>'+
+      '</div>';
+    document.body.appendChild(modal);
+
+    modal.querySelector('#priestDeckClose')?.addEventListener('click',()=>{
+      modal.classList.add('hidden');
+    });
+    return modal;
+  }
+
+  function renderPriestDeckReference(){
+    applyManaBlessingBalance();
+    const modal=ensurePriestDeckModal();
+    const grid=modal.querySelector('#priestDeckGrid');
+    if(!grid)return;
+
+    let cards=[];
+    try{
+      if(typeof PRIEST!=='undefined'&&Array.isArray(PRIEST))cards=PRIEST;
+    }catch(_){}
+
+    const unique=[];
+    const seen=new Set();
+    cards.forEach(c=>{
+      if(!c||!c.n||seen.has(c.n))return;
+      seen.add(c.n);
+      unique.push(c);
+    });
+
+    grid.innerHTML=unique.map(c=>{
+      let art='';
+      try{
+        art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS&&PRIEST_CARD_ARTS[c.n])||c.art||'';
+      }catch(_){art=c.art||''}
+      const normal=c.e||'No normal effect text.';
+      const empowered=c.x||'No Empowered effect text.';
+      return '<article class="priestDeckReferenceCard">'+
+        '<div class="priestDeckReferenceArt">'+(art?'<img src="'+esc(art)+'" alt="'+esc(c.n)+'">':'')+'</div>'+
+        '<div class="priestDeckReferenceBody">'+
+          '<div class="priestDeckReferenceHead">'+
+            '<div class="priestDeckReferenceName">'+esc(c.n)+'</div>'+
+            '<div class="priestDeckReferenceCost">'+esc(c.m??0)+' Mana</div>'+
+          '</div>'+
+          '<div class="priestDeckReferenceEffect"><b>Normal:</b> '+esc(normal)+'</div>'+
+          '<div class="priestDeckReferenceEffect empowered"><b>Empowered:</b> '+esc(empowered)+'</div>'+
+        '</div>'+
+      '</article>';
+    }).join('');
+  }
+
+  const modal=ensurePriestDeckModal();
+
+  // Add the new button beside the other deck/reference buttons in the Tab menu.
+  const host=document.querySelector('#pauseOverlay .pauseActions');
+  if(host&&!document.getElementById('pausePriestDeckBtn')){
+    const b=document.createElement('button');
+    b.type='button';
+    b.id='pausePriestDeckBtn';
+    b.className='btn';
+    b.textContent='Priest Deck';
+    const demonBtn=document.getElementById('pauseDemonDeckBtn');
+    host.insertBefore(b,demonBtn||document.getElementById('resumeGameBtn')||null);
+    b.addEventListener('click',()=>{
+      renderPriestDeckReference();
+      modal.classList.remove('hidden');
+      setTimeout(()=>modal.querySelector('#priestDeckClose')?.focus(),0);
+    });
+  }
+
+  window.renderPriestDeckReference=renderPriestDeckReference;
+  window.__sanctumApplyManaBlessingBalance=applyManaBlessingBalance;
+})();
+</script>
+
+
+
+<style id="multiplayerBossMobileStatsVisibility">
+/* Mobile Boss stats must remain visible during normal play, not only after
+   opening the large Boss reader. Put the live stat strip immediately under
+   the artwork and keep it large enough to read on iPhone-sized screens. */
+@media (max-width:760px), (orientation:landscape) and (max-height:520px){
+  #bossArea .bossCard{
+    display:flex !important;
+    flex-direction:column !important;
+    min-width:0 !important;
+    overflow:visible !important;
+  }
+
+  #bossArea .bossArt{
+    order:1 !important;
+    margin-bottom:0 !important;
+    border-radius:7px 7px 0 0 !important;
+  }
+
+  #bossArea .bossStatLine{
+    order:2 !important;
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    min-height:26px !important;
+    padding:5px 7px !important;
+    margin:0 0 5px !important;
+    box-sizing:border-box !important;
+    border:1px solid #70413a !important;
+    border-top:0 !important;
+    border-radius:0 0 7px 7px !important;
+    background:linear-gradient(180deg,#211012,#130a0b) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035) !important;
+    font-size:11px;
+    line-height:1 !important;
+    position:relative !important;
+    z-index:8 !important;
+  }
+
+  #bossArea .bossStatLine .hp,
+  #bossArea .bossStatLine .blood{
+    display:inline-block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    font-weight:900 !important;
+  }
+
+  #bossArea .bossName{order:3 !important}
+  #bossArea .bossSubtitle{order:4 !important}
+  #bossArea .bossAbilityMini{order:5 !important}
+
+  /* The tapped Boss reader gets a dedicated high-contrast stat bar too. */
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats{
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    min-height:34px !important;
+    padding:7px 9px !important;
+    margin:7px 0 9px !important;
+    box-sizing:border-box !important;
+    border:1px solid #70413a !important;
+    border-radius:8px !important;
+    background:linear-gradient(180deg,#211012,#130a0b) !important;
+    font-size:14px;
+    font-weight:900 !important;
+    position:relative !important;
+    z-index:5 !important;
+  }
+
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .hp{
+    color:#ff9db4 !important;
+  }
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
+    color:#f06464 !important;
+  }
+}
+
+/* Short landscape phones get the same readable stat treatment without
+   allowing the row to collapse into tiny text. */
+@media (orientation:landscape) and (max-height:420px) and (max-width:1000px){
+  #bossArea .bossStatLine{
+    min-height:22px !important;
+    padding:4px 6px !important;
+    margin-bottom:3px !important;
+    font-size:10px;
+  }
+
+  dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats{
+    min-height:28px !important;
+    padding:5px 7px !important;
+    margin:4px 0 6px !important;
+    font-size:12px;
+  }
+}
+</style>
+
+
+
+<script id="elementalBasicAttackRelicsPatch">
+(()=>{
+'use strict';
+if(window.__elementalBasicAttackRelicsInstalled)return;
+window.__elementalBasicAttackRelicsInstalled=true;
+
+const FIRE='cinderbrand',POISON='serpentsFang';
+const E={
+ [FIRE]:{key:FIRE,k:FIRE,id:FIRE,n:'Cinderbrand',name:'Cinderbrand',t:'special',type:'Special',cat:'Basic Attack',category:'Basic Attack',v:0,
+  e:'Your Basic Attack ignites its target. At the end of your turn, it takes Fire damage equal to half your current Basic Attack damage (rounded down, minimum 1).',
+  txt:'Your Basic Attack ignites its target. At the end of your turn, it takes Fire damage equal to half your current Basic Attack damage (rounded down, minimum 1).'},
+ [POISON]:{key:POISON,k:POISON,id:POISON,n:"Serpent's Fang",name:"Serpent's Fang",t:'special',type:'Special',cat:'Basic Attack',category:'Basic Attack',v:0,
+  e:'Your Basic Attack applies Poison. On the second Poison Basic Attack hit against the same target, it immediately takes bonus damage equal to your current Basic Attack damage, then its Poison count resets.',
+  txt:'Your Basic Attack applies Poison. On the second Poison Basic Attack hit against the same target, it immediately takes bonus damage equal to your current Basic Attack damage, then its Poison count resets.'}
+};
+E[FIRE].d=E[FIRE].desc=E[FIRE].e;E[POISON].d=E[POISON].desc=E[POISON].e;
+
+function rk(v){return typeof v==='string'?v:(v&&typeof v==='object'?String(v.key||v.k||v.id||''):'')}
+function rn(v){return v&&typeof v==='object'?String(v.n||v.name||''):''}
+function active(k){
+ if(typeof S==='undefined'||!S||!Array.isArray(S.activeRelics))return false;
+ return S.activeRelics.some(function(v){return rk(v)===k||rn(v)===E[k].n});
+}
+function syncFlags(){
+ if(typeof S==='undefined'||!S)return;
+ S.elementalRelics=S.elementalRelics||{};
+ if(active(FIRE))S.elementalRelics.fire=true;
+ if(active(POISON))S.elementalRelics.poison=true;
+}
+function enabled(k){syncFlags();return !!(S&&S.elementalRelics&&S.elementalRelics[k])}
+function insert(deck,k){if(!Array.isArray(deck)||deck.indexOf(k)>=0)return;deck.splice(Math.floor(Math.random()*(deck.length+1)),0,k)}
+function seed(){
+ if(typeof S==='undefined'||!S||!Array.isArray(S.relicDeck))return;
+ S.elementalRelics=S.elementalRelics||{};
+ if(S.elementalRelics.deckVersion===1){syncFlags();return}
+ if(!active(FIRE))insert(S.relicDeck,FIRE);
+ if(!active(POISON))insert(S.relicDeck,POISON);
+ S.elementalRelics.deckVersion=1;syncFlags();
+}
+
+if(typeof relicByKey==='function'){
+ const old=relicByKey;
+ relicByKey=function(k){return E[k]||old.apply(this,arguments)};
+ try{window.relicByKey=relicByKey}catch(_){}
+}
+if(typeof applyRelic==='function'){
+ const old=applyRelic;
+ applyRelic=function(rel){
+  const k=rk(rel);
+  if(!E[k])return old.apply(this,arguments);
+  const before=Array.isArray(S&&S.activeRelics)?S.activeRelics.length:0;
+  let out;
+  try{out=old.apply(this,arguments)}catch(err){console.warn('Custom Relic base handler skipped',err)}
+  S.activeRelics=Array.isArray(S.activeRelics)?S.activeRelics:[];
+  if(S.activeRelics.length===before&&!active(k))S.activeRelics.push(k);
+  S.elementalRelics=S.elementalRelics||{};
+  if(k===FIRE)S.elementalRelics.fire=true;
+  if(k===POISON)S.elementalRelics.poison=true;
+  return out===undefined?rel:out;
+ };
+ try{window.applyRelic=applyRelic}catch(_){}
+}
+
+function nameOf(x){
+ if(!x)return 'target';
+ if(x.kind==='boss')return (x.boss&&x.boss.n)||(S&&S.boss&&S.boss.n)||'Boss';
+ try{return demonName(x.d)}catch(_){return x.d&&x.d.n||'Demon'}
+}
+function alive(x){
+ if(!x)return false;
+ if(x.kind==='boss')return !!(S&&S.bossRevealed&&S.boss&&S.boss.cur>0&&x.boss===S.boss);
+ if(!x.d||x.d.cur<=0)return false;
+ try{return !!findDemonLocation(x.d)}catch(_){return true}
+}
+function poisonState(x){
+ if(x.kind==='boss'){S.boss.status=S.boss.status||{};return S.boss.status}
+ x.d.status=x.d.status||{};return x.d.status;
+}
+function addBurn(x,dmg,owner){
+ S.elementalBurnQueue=Array.isArray(S.elementalBurnQueue)?S.elementalBurnQueue:[];
+ S.elementalBurnQueue.push({owner:Number(owner)||0,kind:x.kind==='boss'?'boss':'demon',
+  id:x.kind==='boss'?String((S.boss&& (S.boss.key||S.boss.n))||'boss'):String((x.d&&x.d.id)||''),
+  damage:Math.max(1,Math.floor(Number(dmg)||0))});
+}
+function burnTarget(item){
+ if(item.kind==='boss'){
+  if(!S||!S.bossRevealed||!S.boss||S.boss.cur<=0)return null;
+  return String(S.boss.key||S.boss.n||'boss')===String(item.id)?{kind:'boss',boss:S.boss}:null;
+ }
+ try{const h=allDemons().find(function(v){return String((v.d&&v.d.id)||'')===String(item.id)});return h?Object.assign({kind:'demon'},h):null}catch(_){return null}
+}
+
+const rawDeal=typeof dealDamageTarget==='function'?dealDamageTarget:null;
+if(rawDeal){
+ dealDamageTarget=function(x,amt,source,opts){
+  source=source||'Effect';opts=opts||{};
+  const isBasic=/Basic Attack\s*$/.test(String(source));
+  const base=Math.max(0,Math.floor(Number(amt)||0));
+  const owner=Number((S&&S.current)||0);
+  const out=rawDeal.apply(this,arguments);
+  if(!isBasic||!alive(x))return out;
+
+  if(enabled('poison')){
+   const st=poisonState(x);
+   st.elementalPoisonHits=Math.max(0,Number(st.elementalPoisonHits)||0)+1;
+   if(st.elementalPoisonHits>=2){
+    st.elementalPoisonHits=0;
+    const burst=Math.max(1,Math.floor(Number(typeof basicAttackDamage==='function'?basicAttackDamage():base)||base||1));
+    try{log("Serpent's Fang erupts on "+nameOf(x)+' for '+burst+' Poison damage.','good')}catch(_){}
+    rawDeal(x,burst,"Serpent's Fang Poison",{});
+   }else try{log("Serpent's Fang poisons "+nameOf(x)+' (1/2).','good')}catch(_){}
+  }
+  if(enabled('fire')&&alive(x)){
+   const burn=Math.max(1,Math.floor(base/2));
+   addBurn(x,burn,owner);
+   try{log('Cinderbrand ignites '+nameOf(x)+' for '+burn+' Fire damage at the end of this turn.','good')}catch(_){}
+  }
+  return out;
+ };
+ try{window.dealDamageTarget=dealDamageTarget}catch(_){}
+}
+
+function modalOpen(){
+ return ['choiceModal','damageAmountModal','descendModal','relicModal','desecrationModal','consecrateModal','crucifixModal','rogueChoiceModal','rogueLegacyModal'].some(function(id){
+  const el=document.getElementById(id);if(!el||el.classList.contains('hidden'))return false;
+  try{return getComputedStyle(el).display!=='none'}catch(_){return true}
+ });
+}
+function resolveBurns(owner){
+ const q=Array.isArray(S&&S.elementalBurnQueue)?S.elementalBurnQueue:[],mine=[],keep=[];
+ q.forEach(function(v){(Number(v.owner)===Number(owner)?mine:keep).push(v)});S.elementalBurnQueue=keep;
+ let hit=false;
+ mine.forEach(function(item){
+  const x=burnTarget(item);if(!x||!alive(x))return;hit=true;
+  try{log('Cinderbrand burns '+nameOf(x)+' for '+item.damage+' Fire damage.','good')}catch(_){}
+  rawDeal(x,item.damage,'Cinderbrand Fire',{});
+ });
+ return hit;
+}
+let ending=false;
+function finishEnd(old,args,n){
+ if(!ending)return;
+ if(modalOpen()&&n<600){setTimeout(function(){finishEnd(old,args,n+1)},100);return}
+ ending=false;old.apply(window,args);
+}
+if(typeof endTurn==='function'&&rawDeal){
+ const old=endTurn;
+ endTurn=function(){
+  if(ending)return false;seed();
+  const had=resolveBurns(Number((S&&S.current)||0));
+  try{render()}catch(_){}
+  if(had&&modalOpen()){ending=true;finishEnd(old,Array.from(arguments),0);return false}
+  return old.apply(this,arguments);
+ };
+ try{window.endTurn=endTurn}catch(_){}
+}
+if(typeof render==='function'){
+ const old=render;
+ render=function(){try{seed()}catch(err){console.warn('Could not seed elemental Relics',err)}return old.apply(this,arguments)};
+ try{window.render=render}catch(_){}
+}
+try{seed()}catch(_){}
+})();
+</script>
+
+
+<script id="demonMovementAuditFixes">
+(()=>{
+'use strict';
+if(window.__sanctumDemonMovementAuditFixesInstalled)return;
+window.__sanctumDemonMovementAuditFixesInstalled=true;
+
+/*
+ Movement audit fixes:
+ 1) A movement-stop effect blocks every forward move attempted during the
+    Demon Phase, including start-of-phase pushes and same-phase bonus movement.
+ 2) Consecrated Hall stops are consumed in the Demon Phase in which they apply
+    instead of incorrectly carrying into the following round.
+ 3) Lesser duplicates merge immediately after forward movement, matching the
+    immediate-merge rule already used by spawns and backward movement.
+*/
+
+if(typeof applyRoomEntryEffects==='function'){
+  applyRoomEntryEffects=function(d){
+    let loc=findDemonLocation(d);
+    if(!loc)return;
+
+    if(loc.r===1&&roomDesecrated(1)){
+      d.status=d.status||{};
+      d.status.attackRoundBonus=(d.status.attackRoundBonus||0)+1;
+      log(demonName(d)+' gains +1 Attack from the Desecrated Hall.','bad');
+    }
+
+    if(loc.r===1&&roomConsecrated(1)){
+      d.status=d.status||{};
+      const wasStopped=!!d.status.stop;
+      applyStop(d);
+      if(d.status.stop&&!wasStopped){
+        log('Consecrated Hall stops '+demonName(d)+'.','good');
+      }
+    }
+
+    if(loc.r===3&&roomDesecrated(3)){
+      let before=d.cur;
+      d.cur=Math.min(demonMaxHP(d),d.cur+1);
+      if(d.cur>before)log(demonName(d)+' heals 1 HP in the Desecrated Crypt.','bad');
+    }
+  };
+  try{window.applyRoomEntryEffects=applyRoomEntryEffects}catch(_){}
+}
+
+if(typeof moveOneForward==='function'){
+  const auditedMoveOneForward=moveOneForward;
+  moveOneForward=function(d,reason='Demon movement'){
+    if(typeof S!=='undefined'&&S&&S.phase==='Demon'&&d&&d.status&&d.status.stop){
+      return false;
+    }
+
+    const moved=auditedMoveOneForward.apply(this,arguments);
+
+    if(moved&&d){
+      try{
+        if(findDemonLocation(d)&&typeof checkMerge==='function')checkMerge(d);
+      }catch(err){
+        console.warn('Immediate movement merge check failed',err);
+      }
+    }
+    return moved;
+  };
+  try{window.moveOneForward=moveOneForward}catch(_){}
+}
+
+if(typeof triggerEnterRoom==='function'){
+  triggerEnterRoom=function(d){
+    let code=demonCode(d),v=demonValue(d);
+    if(code==='roomAltar')damageAltar(v,demonName(d)+' enters a room');
+
+    let loc=findDemonLocation(d);
+    if(!loc)return;
+
+    applyRoomEntryEffects(d);
+    loc=findDemonLocation(d);
+    if(!loc)return;
+
+    let f=ensureBossFlags();
+    if(bossIs("boneKing")&&loc.r===3){
+      d.cur+=1;
+      log(S.boss.n+' — Ossuary Court grants '+demonName(d)+' +1 HP in the Crypt.','bad');
+    }
+
+    let sporeCount=f.spores[loc.r]||0;
+    if(bossIs("plagueFather")&&sporeCount>0){
+      f.spores[loc.r]=sporeCount-1;
+      addBossHpBonus(d,1,"Corruption Spores");
+    }
+
+    if(bossIs("gatebreaker")&&!f.breachUsed&&(loc.r===1||loc.r===2)){
+      f.breachUsed=true;
+      if(S.phase==='Demon'&&d.status&&d.status.stop){
+        log(S.boss.n+' — Breach the Sanctum is halted because '+demonName(d)+' is stopped.','good');
+      }else{
+        let moved=moveOneForward(d,S.boss.n+' — Breach the Sanctum');
+        if(moved)log(S.boss.n+' — Breach the Sanctum moves '+demonName(d)+' 1 additional room forward.','bad');
+        else log(S.boss.n+' — Breach the Sanctum tries to move '+demonName(d)+', but the next room is full.','bad');
+      }
+    }
+  };
+  try{window.triggerEnterRoom=triggerEnterRoom}catch(_){}
+}
+
+if(typeof resolveStartDemonPhaseAbilities==='function'){
+  resolveStartDemonPhaseAbilities=function(){
+    let snapshot=allDemons().map(x=>x.d);
+    for(let d of snapshot){
+      let code=demonCode(d),v=demonValue(d);
+      if(code==='spawnImp'){
+        spawnSpecificImp(v);
+      }else if(code==='phasePush'){
+        let movedTargets=new Set();
+        for(let k=0;k<v;k++){
+          let t=null;
+          for(let r=3;r>=0&&!t;r--){
+            t=S.rooms[r].find(x=>!movedTargets.has(x.id))||null;
+          }
+          if(!t)break;
+          movedTargets.add(t.id);
+          let moved=moveOneForward(t,demonName(d)+' ability');
+          if(moved){
+            log(demonName(d)+' moves '+demonName(t)+' forward 1 room (automatic closest distinct target).','bad');
+          }else if(t.status&&t.status.stop){
+            log(demonName(d)+' cannot move '+demonName(t)+' because its movement is stopped.','good');
+          }else{
+            log(demonName(d)+' cannot move '+demonName(t)+' because the next room is full.','info');
+          }
+        }
+      }
+    }
+  };
+  try{window.resolveStartDemonPhaseAbilities=resolveStartDemonPhaseAbilities}catch(_){}
+}
+
+if(typeof moveDemons==='function'){
+  const auditedMoveDemons=moveDemons;
+  moveDemons=function(){
+    const out=auditedMoveDemons.apply(this,arguments);
+
+    try{
+      allDemons().forEach(x=>{
+        if(x&&x.d&&x.d.status&&x.d.status.stop)delete x.d.status.stop;
+      });
+    }catch(err){
+      console.warn('Could not clear resolved Demon Phase stop flags',err);
+    }
+    return out;
+  };
+  try{window.moveDemons=moveDemons}catch(_){}
+}
+})();
+</script>
