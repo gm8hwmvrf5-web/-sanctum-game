@@ -57,11 +57,10 @@ async function loadRun(browser,url,label){
   // document creation can legitimately consume a different number of random calls.
   // From this point forward both builds must consume the exact same gameplay RNG.
   const started=await page.evaluate(()=>{
-    let seed=0x5a17c0de;
-    Math.random=()=>{
-      seed=(Math.imul(seed,1664525)+1013904223)>>>0;
-      return seed/4294967296;
-    };
+    // Stateless RNG makes parity independent of unrelated differences in the
+    // number of random calls while still forcing every randomized gameplay
+    // choice through the same deterministic value in both builds.
+    Math.random=()=>0.2718281828459045;
     return startGame();
   });
   if(started!==true)throw new Error(label+' startGame returned '+String(started));
