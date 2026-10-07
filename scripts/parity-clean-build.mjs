@@ -51,6 +51,19 @@ async function loadRun(browser,url,label){
   await page.evaluate(()=>{ if(typeof setupPlayersUI==='function')setupPlayersUI(); });
   const timerOptions=await page.locator('#turnTimerSelect option').evaluateAll(opts=>opts.map(o=>o.value));
   if(timerOptions.includes('120'))await page.selectOption('#turnTimerSelect','120');
+
+  // Reset randomness immediately before gameplay begins. The clean build performs
+  // different non-game boot work (external assets/modules), so seeding only at
+  // document creation can legitimately consume a different number of random calls.
+  // From this point forward both builds must consume the exact same gameplay RNG.
+  await page.evaluate(()=>{
+    let seed=0x5a17c0de;
+    Math.random=()=>{
+      seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+      return seed/4294967296;
+    };
+  });
+
   await page.click('#startBtn');
   await page.waitForFunction(()=>{
     try{return !!eval('S')?.started}catch{return false}
