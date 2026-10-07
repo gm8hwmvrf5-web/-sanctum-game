@@ -1,0 +1,41 @@
+name: Clean Rebuild Parity
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout clean rebuild with baseline history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare known-good multiplayer-dev worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin multiplayer-dev
+          git worktree add --detach /tmp/sanctum-baseline origin/multiplayer-dev
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install chromium
+      - name: Run clean-vs-working gameplay parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 >/tmp/sanctum-clean-http.log 2>&1 &
+          clean_pid=$!
+          (cd /tmp/sanctum-baseline && python3 -m http.server 4174 >/tmp/sanctum-baseline-http.log 2>&1) &
+          baseline_pid=$!
+          trap 'kill "$clean_pid" "$baseline_pid" 2>/dev/null || true' EXIT
+          sleep 2
+          CLEAN_URL=http://127.0.0.1:4173/index.html BASELINE_URL=http://127.0.0.1:4174/index.html node scripts/parity-clean-build.mjs
