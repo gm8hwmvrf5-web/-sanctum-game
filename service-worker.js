@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-pwa-v18';
+const CACHE_NAME='sanctum-pwa-v19';
 const CORE=[
  './','./index.html','./manifest.webmanifest',
  './icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png'
@@ -37,7 +37,7 @@ self.addEventListener('fetch',event=>{
   const request=event.request;
   if(request.method!=='GET')return;
   const url=new URL(request.url);
-  const isGamePart=url.pathname.includes('/parts/game-');
+  const isGamePart=url.pathname.includes('/parts/');
   const isHtml=request.mode==='navigate'||url.pathname.endsWith('/index.html')||url.pathname.endsWith('/');
   if(isGamePart||isHtml){
     event.respondWith(networkFirst(request));

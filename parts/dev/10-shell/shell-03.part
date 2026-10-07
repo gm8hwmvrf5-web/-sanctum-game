@@ -1,0 +1,729 @@
+.room.hall.desecrated::before{background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20420%22%20preserveAspectRatio%3D%22none%22%3E%0A%20%20%20%20%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M95%200%20L142%2054%20L118%2098%20L176%20146%20L154%20193%20L212%20245%20L184%20294%20L235%20350%20L214%20420%20M142%2054%20L198%2083%20L226%20118%20M176%20146%20L239%20136%20L278%20102%20M212%20245%20L286%20225%20L324%20253%20M184%20294%20L127%20326%20L94%20371%20M505%200%20L480%2045%20L514%2093%20L472%20141%20L503%20191%20L455%20244%20L486%20301%20L444%20361%20L456%20420%20M480%2045%20L424%2068%20L394%20108%20M472%20141%20L410%20143%20L360%20176%20M455%20244%20L388%20270%20L348%20314%20M650%200%20L624%2039%20L658%2078%20L617%20121%20L636%20165%20L592%20211%20L610%20261%20L571%20311%20L584%20420%20M624%2039%20L571%2056%20L542%2092%20M617%20121%20L675%20132%20L710%20163%20M592%20211%20L536%20226%20L502%20260%20M571%20311%20L632%20344%20L669%20386%22%20stroke%3D%22%23e199a0%22%20stroke-width%3D%223%22%20opacity%3D%220.24%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M95%200%20L142%2054%20L118%2098%20L176%20146%20L154%20193%20L212%20245%20L184%20294%20L235%20350%20L214%20420%20M142%2054%20L198%2083%20L226%20118%20M176%20146%20L239%20136%20L278%20102%20M212%20245%20L286%20225%20L324%20253%20M184%20294%20L127%20326%20L94%20371%20M505%200%20L480%2045%20L514%2093%20L472%20141%20L503%20191%20L455%20244%20L486%20301%20L444%20361%20L456%20420%20M480%2045%20L424%2068%20L394%20108%20M472%20141%20L410%20143%20L360%20176%20M455%20244%20L388%20270%20L348%20314%20M650%200%20L624%2039%20L658%2078%20L617%20121%20L636%20165%20L592%20211%20L610%20261%20L571%20311%20L584%20420%20M624%2039%20L571%2056%20L542%2092%20M617%20121%20L675%20132%20L710%20163%20M592%20211%20L536%20226%20L502%20260%20M571%20311%20L632%20344%20L669%20386%22%20stroke%3D%22%237a252d%22%20stroke-width%3D%220.9%22%20opacity%3D%220.62%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fsvg%3E") !important}
+.room.chapel.desecrated::before{background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20420%22%20preserveAspectRatio%3D%22none%22%3E%0A%20%20%20%20%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M95%200%20L142%2054%20L118%2098%20L176%20146%20L154%20193%20L212%20245%20L184%20294%20L235%20350%20L214%20420%20M142%2054%20L198%2083%20L226%20118%20M176%20146%20L239%20136%20L278%20102%20M212%20245%20L286%20225%20L324%20253%20M184%20294%20L127%20326%20L94%20371%20M505%200%20L480%2045%20L514%2093%20L472%20141%20L503%20191%20L455%20244%20L486%20301%20L444%20361%20L456%20420%20M480%2045%20L424%2068%20L394%20108%20M472%20141%20L410%20143%20L360%20176%20M455%20244%20L388%20270%20L348%20314%20M650%200%20L624%2039%20L658%2078%20L617%20121%20L636%20165%20L592%20211%20L610%20261%20L571%20311%20L584%20420%20M624%2039%20L571%2056%20L542%2092%20M617%20121%20L675%20132%20L710%20163%20M592%20211%20L536%20226%20L502%20260%20M571%20311%20L632%20344%20L669%20386%22%20stroke%3D%22%23e199a0%22%20stroke-width%3D%223%22%20opacity%3D%220.24%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M95%200%20L142%2054%20L118%2098%20L176%20146%20L154%20193%20L212%20245%20L184%20294%20L235%20350%20L214%20420%20M142%2054%20L198%2083%20L226%20118%20M176%20146%20L239%20136%20L278%20102%20M212%20245%20L286%20225%20L324%20253%20M184%20294%20L127%20326%20L94%20371%20M505%200%20L480%2045%20L514%2093%20L472%20141%20L503%20191%20L455%20244%20L486%20301%20L444%20361%20L456%20420%20M480%2045%20L424%2068%20L394%20108%20M472%20141%20L410%20143%20L360%20176%20M455%20244%20L388%20270%20L348%20314%20M650%200%20L624%2039%20L658%2078%20L617%20121%20L636%20165%20L592%20211%20L610%20261%20L571%20311%20L584%20420%20M624%2039%20L571%2056%20L542%2092%20M617%20121%20L675%20132%20L710%20163%20M592%20211%20L536%20226%20L502%20260%20M571%20311%20L632%20344%20L669%20386%22%20stroke%3D%22%237a252d%22%20stroke-width%3D%220.9%22%20opacity%3D%220.62%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fsvg%3E") !important}
+.room.crypt.desecrated::before{background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20420%22%20preserveAspectRatio%3D%22none%22%3E%0A%20%20%20%20%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M95%200%20L142%2054%20L118%2098%20L176%20146%20L154%20193%20L212%20245%20L184%20294%20L235%20350%20L214%20420%20M142%2054%20L198%2083%20L226%20118%20M176%20146%20L239%20136%20L278%20102%20M212%20245%20L286%20225%20L324%20253%20M184%20294%20L127%20326%20L94%20371%20M505%200%20L480%2045%20L514%2093%20L472%20141%20L503%20191%20L455%20244%20L486%20301%20L444%20361%20L456%20420%20M480%2045%20L424%2068%20L394%20108%20M472%20141%20L410%20143%20L360%20176%20M455%20244%20L388%20270%20L348%20314%20M650%200%20L624%2039%20L658%2078%20L617%20121%20L636%20165%20L592%20211%20L610%20261%20L571%20311%20L584%20420%20M624%2039%20L571%2056%20L542%2092%20M617%20121%20L675%20132%20L710%20163%20M592%20211%20L536%20226%20L502%20260%20M571%20311%20L632%20344%20L669%20386%22%20stroke%3D%22%23e199a0%22%20stroke-width%3D%223%22%20opacity%3D%220.24%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M95%200%20L142%2054%20L118%2098%20L176%20146%20L154%20193%20L212%20245%20L184%20294%20L235%20350%20L214%20420%20M142%2054%20L198%2083%20L226%20118%20M176%20146%20L239%20136%20L278%20102%20M212%20245%20L286%20225%20L324%20253%20M184%20294%20L127%20326%20L94%20371%20M505%200%20L480%2045%20L514%2093%20L472%20141%20L503%20191%20L455%20244%20L486%20301%20L444%20361%20L456%20420%20M480%2045%20L424%2068%20L394%20108%20M472%20141%20L410%20143%20L360%20176%20M455%20244%20L388%20270%20L348%20314%20M650%200%20L624%2039%20L658%2078%20L617%20121%20L636%20165%20L592%20211%20L610%20261%20L571%20311%20L584%20420%20M624%2039%20L571%2056%20L542%2092%20M617%20121%20L675%20132%20L710%20163%20M592%20211%20L536%20226%20L502%20260%20M571%20311%20L632%20344%20L669%20386%22%20stroke%3D%22%237a252d%22%20stroke-width%3D%220.9%22%20opacity%3D%220.62%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fsvg%3E") !important}
+.room.gateway.desecrated{box-shadow:inset 0 0 24px rgba(91,29,36,.38),0 0 8px rgba(86,20,24,.16) !important}
+.room.hall.desecrated{box-shadow:inset 0 0 24px rgba(49,89,166,.24),0 0 8px rgba(24,51,111,.14) !important}
+.room.chapel.desecrated{box-shadow:inset 0 0 24px rgba(154,129,48,.20),0 0 8px rgba(127,101,22,.12) !important}
+.room.crypt.desecrated{box-shadow:inset 0 0 24px rgba(119,119,128,.20),0 0 8px rgba(70,70,78,.12) !important}
+</style>
+
+<style id="relicSystemStyles">
+.relicBox{width:min(520px,94vw)}
+.relicCard{border:2px solid #a57a35;border-radius:14px;background:radial-gradient(circle at 50% 18%,#40301b 0,#1b130e 42%,#090808 82%);padding:20px 18px;text-align:center;box-shadow:inset 0 0 34px #000}
+.relicType{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#bca477;margin-bottom:5px}
+.relicName{font-size:clamp(23px,6vw,34px);color:#f2d79d;text-transform:uppercase;letter-spacing:1px;margin:5px 0 10px}
+.relicCategory{display:inline-block;border:1px solid #765d35;border-radius:999px;padding:3px 8px;color:#d8bd84;background:#18120e;font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+.relicEffect{font-size:16px;line-height:1.5;color:#f0e3cc;border-top:1px solid #5e492d;border-bottom:1px solid #5e492d;padding:14px 5px;margin:13px 0 10px}
+.relicReason{font-size:11px;line-height:1.4;color:#b7a98f}
+.relicClose{width:100%;min-height:46px;margin-top:12px;font-size:14px}
+.relicSummary{margin:5px 0 7px;padding:7px 8px;border:1px solid #66502f;border-radius:8px;background:#15110e;color:#d7c49e;font-size:11px;line-height:1.35}
+.relicSummary b{color:#f0d49a}.relicChip{display:inline-block;margin:2px 3px 2px 0;padding:2px 6px;border:1px solid #5f4b31;border-radius:999px;background:#1c1610;color:#cdb88f;font-size:9px}
+</style>
+
+
+<style id="descendFurtherStyles">
+.descendBox{width:min(560px,94vw)}
+.descendCard{border:2px solid #8e3b38;background:radial-gradient(circle at 50% 10%,#351113 0,#180b0c 42%,#090708 100%);border-radius:14px;padding:18px;text-align:center;box-shadow:inset 0 0 32px rgba(0,0,0,.72)}
+.descendEyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#b89a6e}
+.descendTitle{font-size:clamp(25px,6vw,38px);color:#f0d6a0;margin:6px 0 8px;text-transform:uppercase;letter-spacing:1px}
+.descendBoss{font-size:17px;color:#ed9e95;margin-bottom:10px}
+.descendText{font-size:13px;line-height:1.5;color:#d9cbb5;margin:8px auto;max-width:470px}
+.descendCount{display:inline-block;margin:8px 0;padding:4px 9px;border:1px solid #655034;border-radius:999px;color:#d9bc83;font-size:11px}
+.descendActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.descendActions .btn{min-height:48px;font-size:13px}
+@media(max-width:520px){.descendActions{grid-template-columns:1fr}}
+</style>
+
+
+
+
+<style id="priestChoicePreviewStyles">
+.choice.priestCardChoice{
+  min-height:0;
+  padding:10px;
+  border:2px solid #806233;
+  background:linear-gradient(180deg,#eadbb8,#d1b57d);
+  color:#24170d;
+  cursor:pointer;
+  box-shadow:inset 0 0 12px rgba(116,88,43,.18);
+}
+.choice.priestCardChoice:hover{background:linear-gradient(180deg,#f0e0bc,#d8bb80)}
+.priestChoiceTop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.priestChoiceName{font-weight:800;font-size:14px;line-height:1.15;color:#25160c}
+.priestChoiceCost{flex:none;background:#14365d;color:#fff;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:700}
+.priestChoiceStatus{display:inline-block;margin:0 0 6px;padding:2px 6px;border-radius:999px;background:#6d4c12;color:#fff2b8;font-size:9px;font-weight:700;letter-spacing:.4px}
+.priestChoiceEffect{font-size:11px;line-height:1.35;margin-top:5px;padding-top:5px;border-top:1px solid rgba(87,61,27,.28)}
+.priestChoiceEffect b{color:#5e3514}
+.priestChoiceOwner{font-size:9.5px;color:#735c3c;margin-bottom:5px}
+@media(max-width:520px){
+ .choice.priestCardChoice{min-height:0;padding:11px}
+ .priestChoiceName{font-size:15px}
+ .priestChoiceEffect{font-size:12px}
+}
+</style>
+
+
+<style id="statusBelowBoardLayout">
+#boardSection + .stats{margin-top:6px;margin-bottom:8px}
+.stats + #handPanel{margin-top:0}
+</style>
+
+
+<style id="fullCardRevealStyles">
+.revealCardsBox{width:min(1120px,98vw);max-height:94vh}
+.revealCardsSubtitle{color:#cdbb98;margin:4px 0 12px;line-height:1.35}
+.revealCardsGrid{display:grid;grid-template-columns:1fr;gap:12px}
+.revealDemonEntry{border:1px solid #6f542f;border-radius:10px;background:#100d0d;padding:8px}
+.revealDrawOrder{font-size:11px;color:#e6c57e;margin:0 0 7px;font-weight:700;letter-spacing:.3px}
+.revealDemonEntry .deckpair{margin:0}
+.revealPickBtn{width:100%;margin-top:8px;min-height:42px}
+.revealCardsActions{display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:-15px;margin:12px -15px -15px;padding:10px 15px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(16,14,15,.88),#100e0f 38%);border-top:1px solid #4f402c}
+@media(max-width:700px){
+ .revealCardsBox{width:98vw;padding:10px}
+ .revealCardsGrid{gap:9px}
+ .revealDemonEntry{padding:6px}
+ .revealCardsActions{margin:10px -10px -10px;padding:9px 10px calc(9px + env(safe-area-inset-bottom))}
+}
+</style>
+
+
+<style id="originalPriestCardSubtleVignette">
+/* Original Priest-card appearance retained; subtle vignette only */
+.card,
+.choice.priestCardChoice{
+  position:relative;
+}
+
+.card{
+  background:
+    radial-gradient(ellipse at center,
+      rgba(255,255,255,0) 52%,
+      rgba(86,55,20,.025) 68%,
+      rgba(65,38,12,.075) 84%,
+      rgba(42,24,8,.13) 100%),
+    linear-gradient(180deg,#eadbb8,#d1b57d) !important;
+  border-color:#8b6730 !important;
+  border-radius:9px !important;
+  clip-path:none !important;
+  overflow:hidden;
+  box-shadow:inset 0 0 12px rgba(116,88,43,.2),0 5px 12px rgba(0,0,0,.18) !important;
+}
+
+.empoweredCard{
+  background:
+    radial-gradient(ellipse at center,
+      rgba(255,255,255,0) 52%,
+      rgba(95,65,20,.025) 68%,
+      rgba(73,46,10,.07) 84%,
+      rgba(48,29,6,.12) 100%),
+    linear-gradient(180deg,#f2e3ba,#dabc72) !important;
+  box-shadow:inset 0 0 0 2px #d1ab45,0 0 12px rgba(210,174,69,.25) !important;
+}
+
+/* Reveal/copy Priest-card previews keep their original rectangular style */
+.choice.priestCardChoice{
+  background:
+    radial-gradient(ellipse at center,
+      rgba(255,255,255,0) 52%,
+      rgba(86,55,20,.025) 68%,
+      rgba(65,38,12,.075) 84%,
+      rgba(42,24,8,.13) 100%),
+    linear-gradient(180deg,#eadbb8,#d1b57d) !important;
+  border:2px solid #806233 !important;
+  border-radius:8px !important;
+  clip-path:none !important;
+  overflow:hidden;
+  box-shadow:inset 0 0 12px rgba(116,88,43,.18) !important;
+}
+.choice.priestCardChoice:hover{
+  background:
+    radial-gradient(ellipse at center,
+      rgba(255,255,255,0) 52%,
+      rgba(86,55,20,.02) 68%,
+      rgba(65,38,12,.065) 84%,
+      rgba(42,24,8,.11) 100%),
+    linear-gradient(180deg,#f0e0bc,#d8bb80) !important;
+}
+
+/* Explicitly neutralize any old decorative pseudo-elements if present */
+.card::before,.card::after,
+.choice.priestCardChoice::before,.choice.priestCardChoice::after{
+  content:none !important;
+  display:none !important;
+}
+</style>
+
+
+<style id="saveLoadReliabilityStyles">
+.gameStatusToast{
+  position:fixed;
+  left:50%;
+  bottom:calc(20px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:120;
+  max-width:min(92vw,520px);
+  padding:10px 14px;
+  border:1px solid #8b6b33;
+  border-radius:10px;
+  background:#15110ff2;
+  color:#f0d7a4;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  font-size:13px;
+  text-align:center;
+}
+.gameStatusToast.good{border-color:#4e8a59;color:#cbe7c8}
+.gameStatusToast.bad{border-color:#8f3838;color:#f0b1ab}
+</style>
+
+
+<style id="bottomMenuBarLayout">
+#topMenuBar{
+  margin-top:12px;
+  margin-bottom:8px;
+  position:relative;
+}
+#topMenuBar.minimized{
+  height:auto !important;
+  min-height:36px !important;
+  padding:4px 6px !important;
+  margin-top:12px !important;
+  margin-bottom:8px !important;
+  border:1px solid var(--line) !important;
+  background:linear-gradient(#1a1715,#0d0c0c) !important;
+  box-shadow:0 0 0 2px #050505,0 0 22px #000 !important;
+  backdrop-filter:none !important;
+  overflow:visible !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+}
+#topMenuBar.minimized .menuToggleBtn{
+  position:static !important;
+  right:auto !important;
+  top:auto !important;
+  z-index:auto !important;
+  margin:0 !important;
+  opacity:.9 !important;
+}
+@media(max-width:700px){
+  #topMenuBar{
+    margin-bottom:calc(68px + env(safe-area-inset-bottom));
+  }
+  #topMenuBar.minimized{
+    margin-bottom:calc(68px + env(safe-area-inset-bottom)) !important;
+  }
+}
+</style>
+
+
+<style id="endRunStatisticsStyles">
+.endRunStatsBox{
+  width:min(760px,94vw);
+  max-height:90vh;
+  overflow:auto;
+  text-align:center;
+  border:1px solid #80643a;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(124,87,42,.18),transparent 34%),
+    linear-gradient(180deg,#171310,#0c0b0b);
+}
+.endRunStatsEyebrow{
+  color:#b8965a;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-size:11px;
+  font-weight:800;
+  margin-bottom:4px;
+}
+.endRunStatsBox h2{
+  margin:0 0 6px;
+  color:#efd8a6;
+}
+.endRunOutcome{
+  color:#cdbb98;
+  font-size:14px;
+  margin-bottom:14px;
+}
+.endRunDamageHero{
+  margin:8px auto 16px;
+  padding:16px 12px;
+  border:1px solid #8d6938;
+  border-radius:12px;
+  background:linear-gradient(180deg,#211914,#15100d);
+  box-shadow:inset 0 0 20px rgba(190,138,62,.08);
+}
+.endRunDamageHero span,
+.endRunDamageHero small{
+  display:block;
+}
+.endRunDamageHero span{
+  color:#d3b47b;
+  text-transform:uppercase;
+  letter-spacing:1.4px;
+  font-size:11px;
+  font-weight:800;
+}
+.endRunDamageHero b{
+  display:block;
+  margin:2px 0;
+  color:#fff0c3;
+  font-size:42px;
+  line-height:1.05;
+}
+.endRunDamageHero small{
+  color:#bca988;
+  font-size:12px;
+}
+.endRunStatsGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+.endRunStat{
+  min-height:78px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  padding:9px;
+  border:1px solid #4f402c;
+  border-radius:9px;
+  background:#12100f;
+}
+.endRunStat b{
+  color:#edd39d;
+  font-size:23px;
+}
+.endRunStat span{
+  color:#a99b84;
+  font-size:10px;
+  line-height:1.2;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.endRunStatsClose{
+  width:100%;
+  margin-top:14px;
+}
+@media(max-width:620px){
+  .endRunStatsGrid{grid-template-columns:repeat(2,1fr)}
+  .endRunDamageHero b{font-size:36px}
+}
+</style>
+
+
+<style id="choiceCrucifixStyles">
+.crucifixChoiceArea{
+  display:grid;
+  gap:9px;
+  margin:12px 0 4px;
+}
+.crucifixChoice{
+  width:100%;
+  padding:11px 12px;
+  text-align:left;
+  border:1px solid #765a31;
+  border-radius:9px;
+  background:linear-gradient(180deg,#241a12,#17110d);
+  color:#ead9bb;
+  cursor:pointer;
+  font-family:inherit;
+  box-shadow:inset 0 0 12px rgba(0,0,0,.22);
+}
+.crucifixChoice:hover:not(:disabled){
+  background:linear-gradient(180deg,#322319,#1e1510);
+  border-color:#a47b3d;
+}
+.crucifixChoice:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+}
+.crucifixChoice b{
+  display:block;
+  color:#f0d39a;
+  font-size:13px;
+  margin-bottom:3px;
+}
+.crucifixChoice span{
+  display:block;
+  color:#c7b89d;
+  font-size:11px;
+  line-height:1.35;
+}
+.crucifixCard.choice{
+  border-color:#9b7842;
+}
+.crucifixCard.choice:before{
+  color:#d2ab63;
+}
+</style>
+
+
+<style id="cursedCrucifixStyles">
+.crucifixCard.cursed{
+  border-color:#7b1622;
+  background:
+    radial-gradient(circle at 50% 16%,rgba(112,16,29,.34) 0,rgba(41,8,14,.42) 35%,#080506 78%);
+  box-shadow:
+    inset 0 0 42px rgba(0,0,0,.88),
+    0 0 24px rgba(118,15,31,.36);
+}
+.crucifixCard.cursed:before{
+  color:#c82f3f;
+  text-shadow:0 0 10px #7f111e,0 0 24px #36070d;
+}
+.crucifixCard.cursed .crucifixType{
+  color:#e35d69;
+  font-weight:900;
+  letter-spacing:2.4px;
+}
+.crucifixCard.cursed .crucifixName{
+  color:#f0b1ac;
+  text-shadow:0 0 10px rgba(118,15,31,.35);
+}
+.crucifixCard.cursed .crucifixEffect{
+  border-color:#68212a;
+  color:#f0d4d0;
+}
+</style>
+
+
+<style id="turnTimerStyles">
+.turnTimerStat{
+  transition:border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.turnTimerStat.warning{
+  border-color:#a36b29 !important;
+  background:linear-gradient(180deg,#2c2114,#15100c) !important;
+}
+.turnTimerStat.warning b{color:#f0b95e !important}
+.turnTimerStat.critical{
+  border-color:#a83e3e !important;
+  background:linear-gradient(180deg,#351414,#180b0b) !important;
+  box-shadow:inset 0 0 15px rgba(123,24,24,.28) !important;
+}
+.turnTimerStat.critical b{color:#ff8585 !important}
+</style>
+
+
+<style id="bossRoomNeverDesecratedVisual">
+.room.boss.desecrated::before{
+  background-image:none !important;
+}
+.room.boss.desecrated{
+  box-shadow:inherit !important;
+}
+</style>
+
+
+<style id="compactStatsBelowPriestCards">
+.stats{
+  position:static !important;
+  top:auto !important;
+  z-index:auto !important;
+  gap:6px !important;
+  padding:2px 0 !important;
+  margin-top:6px !important;
+  margin-bottom:8px !important;
+  background:transparent !important;
+  backdrop-filter:none !important;
+}
+.stat{
+  padding:5px 4px !important;
+  border-radius:6px !important;
+  min-height:0 !important;
+}
+.stat b{
+  font-size:18px !important;
+  line-height:1.02 !important;
+  margin:0 !important;
+}
+.stat span{
+  font-size:9.5px !important;
+  line-height:1.05 !important;
+  letter-spacing:.7px !important;
+}
+@media(max-width:900px){
+  .stats{gap:5px !important}
+  .stat{padding:4px 3px !important}
+  .stat b{font-size:17px !important}
+  .stat span{font-size:9px !important}
+}
+</style>
+
+
+<style id="fullManaBoxStyles">
+/* Center every item in the tracker row more cleanly */
+.stats .stat{
+  display:flex !important;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:50px;
+  position:relative;
+  overflow:hidden;
+}
+.stats .stat b{
+  margin:0 !important;
+}
+.stats .stat span{
+  margin-top:2px;
+}
+
+/* Full-box Shared Mana meter */
+.manaMeterStat{
+  justify-content:center !important;
+  background:
+    radial-gradient(circle at 28% 22%,rgba(160,210,255,.08),transparent 28%),
+    linear-gradient(180deg,#10161d,#0a0f15) !important;
+  border-color:#6883ad !important;
+  box-shadow:
+    inset 0 0 16px rgba(0,0,0,.42),
+    0 0 7px rgba(62,124,184,.12) !important;
+  isolation:isolate;
+}
+.manaMeterFill{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:100%;
+  background:
+    radial-gradient(circle at 25% 18%,rgba(233,248,255,.72) 0 4%,rgba(233,248,255,0) 15%),
+    radial-gradient(circle at 72% 65%,rgba(113,211,255,.30) 0 8%,rgba(113,211,255,0) 24%),
+    linear-gradient(180deg,#7ed3ff 0%,#3892d8 35%,#1a5fa8 67%,#0b2e69 100%);
+  box-shadow:
+    inset 0 5px 9px rgba(214,241,255,.25),
+    0 -2px 6px rgba(124,203,255,.45);
+  transition:height .28s ease;
+  z-index:1;
+}
+.manaMeterFill::before{
+  content:"";
+  position:absolute;
+  left:4px;
+  right:4px;
+  top:2px;
+  height:4px;
+  border-radius:999px;
+  background:rgba(220,244,255,.52);
+}
+.manaMeterGlow{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 24% 18%,rgba(255,255,255,.38) 0 4%,transparent 15%),
+    linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.16));
+}
+.manaMeterStat #manaStat,
+.manaMeterStat span{
+  position:relative;
+  z-index:3;
+}
+.manaMeterStat #manaStat{
+  color:#f4fbff !important;
+  text-shadow:
+    0 1px 2px #06111c,
+    0 0 5px rgba(69,160,232,.72);
+  font-size:18px !important;
+}
+.manaMeterStat span{
+  color:#d6ecff !important;
+  text-shadow:0 1px 1px rgba(0,0,0,.5);
+}
+.manaMeterStat.empty{
+  border-color:#434d58 !important;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.60) !important;
+}
+.manaMeterStat.empty #manaStat{
+  color:#a5b2bd !important;
+  text-shadow:0 1px 2px #000;
+}
+.manaMeterStat.empty span{
+  color:#9aa6b2 !important;
+}
+@media(max-width:900px){
+  .stats .stat{min-height:46px}
+  .manaMeterStat #manaStat{font-size:17px !important}
+}
+</style>
+
+
+<style id="altarTimerFullBoxMeters">
+/* Every tracker box: number + label centered as one compact group */
+.stats .stat{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  gap:2px !important;
+  min-height:50px !important;
+  position:relative !important;
+  overflow:hidden !important;
+}
+.stats .stat b,
+.stats .stat span{
+  position:relative;
+  z-index:5;
+  margin:0 !important;
+  pointer-events:none;
+}
+.stats .stat b{
+  line-height:1 !important;
+}
+.stats .stat span{
+  line-height:1 !important;
+  margin-top:1px !important;
+}
+
+/* Shared full-box fill behavior */
+.meterStat{
+  isolation:isolate;
+}
+.meterFill{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:100%;
+  z-index:1;
+  transition:height .28s ease;
+}
+.meterFill::before{
+  content:"";
+  position:absolute;
+  left:4px;
+  right:4px;
+  top:2px;
+  height:3px;
+  border-radius:999px;
+}
+.meterGlass{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 24% 18%,rgba(255,255,255,.25) 0 4%,transparent 15%),
+    linear-gradient(180deg,rgba(255,255,255,.025),rgba(0,0,0,.16));
+}
+
+/* Turn Timer — white / silver liquid */
+.turnTimerStat{
+  background:linear-gradient(180deg,#17191c,#0b0d0f) !important;
+  border-color:#777d84 !important;
+  box-shadow:inset 0 0 16px rgba(0,0,0,.46) !important;
+}
+.turnTimerStat .meterGlass{
+  background:
+    radial-gradient(circle at 24% 18%,rgba(255,255,255,.32) 0 5%,transparent 16%),
+    linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.01) 48%,rgba(0,0,0,.06));
+}
+.turnTimerFill{
+  background:
+    radial-gradient(circle at 26% 18%,rgba(255,255,255,.98) 0 5%,rgba(255,255,255,0) 18%),
+    linear-gradient(180deg,#ffffff 0%,#fcfcfd 24%,#f1f3f5 52%,#dde2e7 78%,#c5ccd3 100%);
+  box-shadow:
+    inset 0 6px 11px rgba(255,255,255,.62),
+    inset 0 -1px 3px rgba(255,255,255,.35),
+    0 -2px 8px rgba(255,255,255,.50);
+}
+.turnTimerFill::before{
+  background:rgba(255,255,255,.92);
+}
+.turnTimerStat #turnTimerStatValue{
+  color:#edc875 !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.65),0 0 6px rgba(196,137,48,.18);
+}
+.turnTimerStat span{
+  color:#b3a287 !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.72);
+}
+/* When the white level drops below the centered text, switch text light */
+.turnTimerStat.lowFill #turnTimerStatValue,
+.turnTimerStat.lowFill span{
+  color:inherit !important;
+  text-shadow:inherit !important;
+}
+.turnTimerStat.warning{
+  border-color:#b9aa7a !important;
+  background:linear-gradient(180deg,#17191c,#0b0d0f) !important;
+  box-shadow:inset 0 0 16px rgba(0,0,0,.46) !important;
+}
+.turnTimerStat.warning b,
+.turnTimerStat.critical b{
+  color:inherit !important;
+}
+.turnTimerStat.critical{
+  border-color:#9c6b6b !important;
+  background:linear-gradient(180deg,#17191c,#0b0d0f) !important;
+  box-shadow:inset 0 0 16px rgba(0,0,0,.46) !important;
+}
+
+/* Altar Protection — halo / sacred gold liquid */
+.altarMeterStat{
+  background:
+    radial-gradient(circle at 50% 30%,rgba(255,227,130,.07),transparent 45%),
+    linear-gradient(180deg,#19160e,#0d0b08) !important;
+  border-color:#a98c45 !important;
+  box-shadow:
+    inset 0 0 16px rgba(0,0,0,.42),
+    0 0 7px rgba(210,174,75,.10) !important;
+}
+.altarMeterFill{
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,232,.84) 0 4%,rgba(255,255,232,0) 16%),
+    radial-gradient(circle at 70% 62%,rgba(255,226,116,.34) 0 9%,rgba(255,226,116,0) 27%),
+    linear-gradient(180deg,#fff4b1 0%,#e7c75f 38%,#b48a2d 72%,#755313 100%);
+  box-shadow:
+    inset 0 5px 9px rgba(255,250,204,.30),
+    0 -2px 7px rgba(255,220,106,.48);
+}
+.altarMeterFill::before{
+  background:rgba(255,251,214,.70);
+}
+.altarMeterStat #altarStat{
+  color:#fff9dc !important;
+  text-shadow:
+    0 1px 2px #2d2108,
+    0 0 5px rgba(255,222,111,.65);
+}
+.altarMeterStat span{
+  color:#fff0b4 !important;
+  text-shadow:0 1px 2px rgba(42,29,4,.85);
+}
+.altarMeterStat.empty{
+  border-color:#554b34 !important;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.60) !important;
+}
+.altarMeterStat.empty #altarStat,
+.altarMeterStat.empty span{
+  color:#9d9279 !important;
+  text-shadow:0 1px 2px #000 !important;
+}
+
+/* Mana text remains centered over the full blue meter */
+.manaMeterStat #manaStat,
+.manaMeterStat span{
+  position:relative !important;
+  z-index:5 !important;
+}
+@media(max-width:900px){
+  .stats .stat{min-height:46px !important}
+}
+</style>
+
+
+<style id="reliablePageWheelScrolling">
+html,body{
+  overflow-y:auto !important;
+  overscroll-behavior-y:auto !important;
+}
+body{
+  touch-action:auto !important;
+}
+.board,.hand{
