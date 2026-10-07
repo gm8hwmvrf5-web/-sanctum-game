@@ -506,40 +506,10 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   line-height:1.35;
 }
 .mpGroupVoteIntro b{color:#f0d49b}
-.mpGroupVoteProgress{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-top:7px;
-  font-size:10px;
-}
-.mpGroupVoteProgress .yourVote{color:#d6ecff}
 #rogueChoiceModal .rogueChoice.mpGroupVoteOption{
   position:relative;
   overflow:hidden;
   border-width:2px;
-}
-#rogueChoiceModal .rogueChoice.mpGroupVoteOption.mpMyVote{
-  border-color:#75a7d8 !important;
-  box-shadow:0 0 0 2px rgba(92,156,214,.18),inset 0 0 18px rgba(73,132,183,.12) !important;
-}
-.mpVoteCount{
-  position:absolute;
-  top:6px;
-  right:6px;
-  min-width:24px;
-  height:24px;
-  display:grid;
-  place-items:center;
-  padding:0 6px;
-  border:1px solid #7d673f;
-  border-radius:999px;
-  background:#0d0c0b;
-  color:#f0d49b;
-  font-size:11px;
-  font-weight:800;
-  z-index:4;
 }
 .mpVoteCardArt{
   height:92px;
@@ -549,13 +519,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   background-size:cover;
   border:1px solid rgba(181,145,86,.45);
 }
-.mpVoteWaiting{
-  color:#b9aa91;
-}
-.mpVoteComplete{
-  color:#b9dfb2;
-  font-weight:700;
-}
 @media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
   #rogueChoiceModal[data-mp-group-vote="1"] .modalbox{
     width:min(920px,97vw) !important;
@@ -563,9 +526,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     padding:7px !important;
   }
   .mpGroupVoteIntro{font-size:8px;padding:4px 6px;margin-top:3px}
-  .mpGroupVoteProgress{font-size:7.5px;margin-top:3px}
-  .mpVoteCount{top:3px;right:3px;min-width:18px;height:18px;font-size:8px;padding:0 4px}
-  .mpVoteCardArt{height:58px;margin:-1px -1px 4px}
+      .mpVoteCardArt{height:58px;margin:-1px -1px 4px}
 }
 </style>
 
@@ -718,15 +679,11 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   let lobbyRosterRefreshBusy=false;
   let sessionEnded=false;
   const voteActionRegistry=new Map();
-  const voteSummaryById=new Map();
-  const voteFetchBusy=new Set();
   const resolvingVoteIds=new Set();
   const voteOpeningIds=new Set();
   let resolvingVoteTransition=false;
   let choiceAuthorityRepairBusy=false;
   let choiceRecoveryTimer=0;
-  let voteSummaryPollTimer=0;
-  let voteSummaryPollId='';
 
   function applyMonkFirstRitualBalanceText(){
     try{
@@ -891,43 +848,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     return null;
   }
 
-  function voteSummaryFor(id){
-    return voteSummaryById.get(String(id))||null;
-  }
-
-  function stopGroupVoteSummaryPolling(){
-    if(voteSummaryPollTimer){
-      clearInterval(voteSummaryPollTimer);
-      voteSummaryPollTimer=0;
-    }
-    voteSummaryPollId='';
-  }
-
-  function startGroupVoteSummaryPolling(voteId){
-    voteId=String(voteId||'');
-    if(!session||!voteId)return;
-    if(voteSummaryPollTimer&&voteSummaryPollId===voteId)return;
-    stopGroupVoteSummaryPolling();
-    voteSummaryPollId=voteId;
-    voteSummaryPollTimer=setInterval(()=>{
-      const live=S?.multiplayerVote;
-      if(!session||!live||live.open!==true||String(live.id)!==voteId){
-        stopGroupVoteSummaryPolling();
-        return;
-      }
-      fetchGroupVoteSummary(voteId);
-    },900);
-  }
-
-  function groupVoteCounts(vote,summary){
-    const counts=(vote?.options||[]).map(()=>0);
-    for(const row of (summary?.votes||[])){
-      const i=Number(row.option_index);
-      if(Number.isInteger(i)&&i>=0&&i<counts.length)counts[i]++;
-    }
-    return counts;
-  }
-
   function closeGroupVoteModal(){
     const modal=document.getElementById('rogueChoiceModal');
     if(!modal||modal.dataset.mpGroupVote!=='1')return;
@@ -1014,7 +934,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 
     // Group voting is disabled. The Priest who cleared the passage owns the
     // entire reward -> draft -> next-passage choice chain.
-    stopGroupVoteSummaryPolling();
 
     if(!session||!S?.started||!choice||choice.open!==true){
       closeGroupVoteModal();
@@ -1150,8 +1069,7 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
 
       S.multiplayerVote=null;
       voteActionRegistry.delete(id);
-      voteSummaryById.delete(id);
-      closeGroupVoteModal();
+        closeGroupVoteModal();
 
       // Apply the selected action to the shared state.
       const result=fn();
@@ -1259,7 +1177,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     S.current=ownerSeat-1;
     S.multiplayerVote=choice;
     voteActionRegistry.set(choiceId,choices.map(c=>c.action));
-    voteSummaryById.delete(choiceId);
     voteOpeningIds.add(choiceId);
 
     if(publishTimer){
@@ -1366,10 +1283,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       if(demonIndex>=0)return {d:room[demonIndex],roomIndex,demonIndex,room};
     }
     return null;
-  }
-
-  function findBoardDemonById(id){
-    return findBoardDemonLocation(id)?.d||null;
   }
 
   function renderRoomDemonDetails(modal,d,roomIndex){
@@ -1923,8 +1836,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
       return false;
     }
     const voteLifecycleCommit=
-      actionType==='group_vote_open'||actionType==='group_vote_resolved'||
-      actionType==='leader_choice_open'||actionType==='leader_choice_resolved'||
       actionType==='choice_authority_handoff'||
       actionType==='passage_clear_choice_open'||actionType==='passage_clear_choice_resolved';
     if(blockingGameplayModalOpen()&&!voteLifecycleCommit){
@@ -2313,18 +2224,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
           refreshRoom().catch(err=>console.error(err));
         }
       })
-      .on('postgres_changes',{
-        event:'INSERT',schema:'public',table:'game_actions',
-        filter:'game_id=eq.'+session.gameId
-      },payload=>{
-        const row=payload&&payload.new;
-        if(row&&row.action_type==='group_vote'){
-          const voteId=row.payload&&row.payload.vote_id;
-          if(voteId&&S?.multiplayerVote?.id===voteId){
-            fetchGroupVoteSummary(String(voteId));
-          }
-        }
-      })
       .subscribe();
   }
 
@@ -2405,7 +2304,6 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
     stopChoiceRecoveryWatchdog();
     await stopRosterSubscription();
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
-    stopGroupVoteSummaryPolling();
     resolvingVoteTransition=false;
     choiceAuthorityRepairBusy=false;
     channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
