@@ -35,7 +35,7 @@ for(const dir of ['src/js','src/styles']){
     const file=path.join(root,dir,name);
     if(!fs.statSync(file).isFile()) continue;
     const text=fs.readFileSync(file,'utf8');
-    if(/data:image\\/[^;]+;base64,/i.test(text)) throw new Error('Base64 image payload remains in '+path.relative(root,file));
+    if(text.includes('data:image/') && text.includes(';base64,')) throw new Error('Base64 image payload remains in '+path.relative(root,file));
     if(text.includes('parts/game-')) throw new Error('Legacy stitched-part reference remains in '+path.relative(root,file));
   }
 }
