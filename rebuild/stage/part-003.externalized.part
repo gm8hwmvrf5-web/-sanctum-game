@@ -1,0 +1,1000 @@
+ {
+  n:"Mercy of the Grave",t:"double",choice:true,
+  txt:"The dead offer to take one enemy with them.",
+  choices:[
+   {label:"Accept the Mercy",desc:"Banish the Demon closest to the Altar without reward. Lose 4 Altar Protection.",
+    can:s=>!!closestDemon(),
+    fx:s=>{let d=closestDemon();let name=d?demonName(d):"the Demon";if(d)crucifixBanishDemon(d);damageAltar(4,"Mercy of the Grave");return `${name} is banished without reward. The Altar loses 4 Protection.`;}},
+   {label:"Refuse the Dead",desc:"Leave all Demons in play. Gain 1 shared Mana.",
+    fx:s=>{addMana(1);return "The dead are refused. The party gains 1 Mana.";}}
+  ]
+ },
+ {
+  n:"Borrowed Dawn",t:"double",choice:true,
+  txt:"A false sunrise grants knowledge while feeding the Chapel's corruption.",
+  choices:[
+   {label:"Take the Dawn",desc:"Current player draws 2 Priest cards. Add 2 Corruption to the Chapel.",
+    fx:s=>{drawPriest(s.players[s.current],2);addCorruption(2,"Borrowed Dawn");addCorruption(2,"Borrowed Dawn");return "The current player draws 2 Priest cards, but the Chapel gains 2 Corruption.";}},
+   {label:"Turn Away",desc:"Current player discards 1 random Priest card. Restore 4 Altar Protection.",
+    can:s=>s.players[s.current]&&s.players[s.current].hand.length>0,
+    fx:s=>{discardRandom(s.players[s.current]);healAltar(4,"Borrowed Dawn");return "The current player discards 1 random Priest card and the Altar restores 4 Protection.";}}
+  ]
+ },
+ {
+  n:"The Unpaid Vow",t:"double",choice:true,
+  txt:"An ancient vow demands that the party either honor it or break it.",
+  choices:[
+   {label:"Honor the Vow",desc:"Every player spends 1 Demon Blood. Restore 5 Altar Protection.",
+    can:s=>s.players.length>0&&s.players.every(p=>p.blood>=1),
+    fx:s=>{s.players.forEach(p=>p.blood--);healAltar(5,"The Unpaid Vow");return "Every player spends 1 Demon Blood. The Altar restores 5 Protection.";}},
+   {label:"Break the Vow",desc:"Lose 2 Altar Protection. Every player gains 1 Demon Blood.",
+    fx:s=>{damageAltar(2,"The Unpaid Vow");crucifixGiveAllBlood(1);return "The Altar loses 2 Protection. Every player gains 1 Demon Blood.";}}
+  ]
+ },
+ {
+  n:"Cross of Cinders",t:"double",choice:true,
+  txt:"Ash gathers on the Crucifix. Cleanse it or draw power from it.",
+  choices:[
+   {label:"Sweep Away the Ash",desc:"Spend 3 shared Mana. Remove 1 Corruption from every room.",
+    can:s=>s.mana>=3,
+    fx:s=>{addMana(-3);for(let i=0;i<4;i++)setRoomCorruption(i,(s.corruption[i]||0)-1,s);return "The party spends 3 Mana and removes 1 Corruption from every room.";}},
+   {label:"Breathe the Ash",desc:"Gain 4 shared Mana. Add 1 Corruption to every room.",
+    fx:s=>{addMana(4);for(let i=0;i<4;i++)addCorruption(i,"Cross of Cinders");return "The party gains 4 Mana, but every room gains 1 Corruption.";}}
+  ]
+ },
+ {
+  n:"The Saint's Gamble",t:"double",choice:true,
+  txt:"The Crucifix offers certainty—or a dangerous throw of fate.",
+  choices:[
+   {label:"Gamble on Faith",desc:"Roll d20: 1–9 lose 4 Altar; 10–19 restore 6; Natural 20 restore 8 and gain 2 Mana.",
+    fx:s=>{let r=Math.floor(Math.random()*20)+1;if(r===20){healAltar(8,"The Saint's Gamble");addMana(2);return `Natural 20! Restore 8 Altar Protection and gain 2 Mana.`}if(r>=10){healAltar(6,"The Saint's Gamble");return `Rolled ${r}. Restore 6 Altar Protection.`}damageAltar(4,"The Saint's Gamble");return `Rolled ${r}. The Altar loses 4 Protection.`;}},
+   {label:"Choose Certainty",desc:"Restore 2 Altar Protection with no roll.",
+    fx:s=>{healAltar(2,"The Saint's Gamble");return "The party refuses the gamble and restores 2 Altar Protection.";}}
+  ]
+ },
+ {
+  n:"Burdened Reliquary",t:"double",choice:true,
+  txt:"A sealed reliquary can be opened only by surrendering power.",
+  choices:[
+   {label:"Empty the Vessel",desc:"Current player loses all Demon Blood. Restore that much Altar Protection, plus 2.",
+    can:s=>s.players[s.current]&&s.players[s.current].blood>0,
+    fx:s=>{let p=s.players[s.current],lost=p.blood;p.blood=0;healAltar(lost+2,"Burdened Reliquary");return `${p.name} loses ${lost} Demon Blood. The Altar restores ${lost+2} Protection.`;}},
+   {label:"Leave It Sealed",desc:"Lose 2 shared Mana. Add 1 Corruption to the Crypt.",
+    fx:s=>{addMana(-2);addCorruption(3,"Burdened Reliquary");return "The reliquary remains sealed. Lose 2 Mana and add 1 Corruption to the Crypt.";}}
+  ]
+ }
+];
+
+
+CRUCIFIX.push(...CHOICE_CRUCIFIX);
+
+const CURSED_CRUCIFIX=[
+ {
+  n:"Legion of the Pit",
+  t:"cursed",
+  cursed:true,
+  txt:"Add 1 Demon to every room. If a room is already full, that Demon is sent to the Gate Queue.",
+  fx:s=>{
+   let placed=0,queued=0;
+   for(let r=0;r<4;r++){
+    let result=crucifixSpawnDemonIntoRoom(r);
+    if(result==='placed')placed++;
+    else if(result==='queued')queued++;
+   }
+   log(`CURSED CRUCIFIX — Legion of the Pit adds ${placed} Demon${placed===1?'':'s'} directly to the Sanctum${queued?` and sends ${queued} to the Gate Queue`:''}.`,'bad');
+  }
+ },
+ {
+  n:"Black Mass",
+  t:"cursed",
+  cursed:true,
+  txt:"Lose 6 Altar Protection. Set shared Mana to 0. Add 1 Corruption to every room.",
+  fx:s=>{
+   damageAltar(6,"Black Mass");
+   s.mana=0;
+   for(let r=0;r<4;r++)addCorruption(r,"Black Mass");
+   log("CURSED CRUCIFIX — Black Mass drains the Mana pool and corrupts every room.",'bad');
+  }
+ },
+ {
+  n:"March of Damnation",
+  t:"cursed",
+  cursed:true,
+  txt:"Every Demon immediately moves forward 1 room. Demons reaching the Altar attack normally.",
+  fx:s=>{
+   let march=allDemons().sort((a,b)=>b.r-a.r).map(x=>x.d);
+   let moved=0;
+   for(let d of march){
+    if(findDemonLocation(d)&&moveOneForward(d,"March of Damnation"))moved++;
+   }
+   log(`CURSED CRUCIFIX — March of Damnation forces ${moved} Demon${moved===1?'':'s'} forward.`,'bad');
+  }
+ }
+];
+
+CRUCIFIX.push(...CURSED_CRUCIFIX);
+
+const priestArtByName = Object.fromEntries(PRIEST.filter(c=>c.art).map(c=>[c.n,c.art]));
+const PRIEST_CARD_ARTS = {"Blessed Steel":"./assets/embedded/50507fe2-34688.webp","Circle of Protection":"./assets/embedded/1cc817d7-34488.webp","Consecration":"./assets/embedded/544ba5a8-37296.webp","Dawnfire":"./assets/embedded/dceb33de-29084.webp","Divine Shield":"./assets/embedded/3a4deaa9-34444.webp","Divine Wrath":"./assets/embedded/4fae8728-33852.webp","Guardian Prayer":"./assets/embedded/01e038a8-41244.webp","Holy Barrier":"./assets/embedded/9984c66d-32592.webp","Holy Bolt":"./assets/embedded/e0da572d-23512.webp","Holy Echo":"./assets/embedded/7b352f21-34496.webp","Iron Faith":"./assets/embedded/ccd31a4a-41664.webp","Judgment":"./assets/embedded/04b51eec-26704.webp","Last Rites":"./assets/embedded/a877c3e8-34576.webp","Light of Truth":"./assets/embedded/9f783f3e-38384.webp","Mana Blessing":"./assets/embedded/6dc8c6d9-36488.webp","Purifying Flame":"./assets/embedded/b3bc0dcf-41920.webp","Quick Prayer":"./assets/embedded/17da3e85-29144.webp","Radiant Spear":"./assets/embedded/68506439-29320.webp","Sacred Brand":"./assets/embedded/d046909f-35268.webp","Sacred Nova":"./assets/embedded/17d4c420-34856.webp","Shared Faith":"./assets/embedded/c6aa6fb0-38616.webp","Shield of Faith":"./assets/embedded/daa5cb37-39592.webp","Smite":"./assets/embedded/8ccc28ed-27624.webp","Sunburst":"./assets/embedded/840ed6f0-36568.webp","Wrath of the Saints":"./assets/embedded/c7022245-37240.webp","Blood Tithe":"./assets/embedded/71296315-31216.webp","Crimson Siphon":"./assets/embedded/8e72b943-30600.webp","Leech Rite":"./assets/embedded/6197f959-30560.webp","Essence Decanter":"./assets/embedded/fa1aa7fb-33256.webp","Mana Distillation":"./assets/embedded/a9865bb9-29152.webp","Altar Exchange":"./assets/embedded/d440d50c-30196.webp","Sanguine Channel":"./assets/embedded/dc230a4f-36464.webp"};
+const priestArtFallbacks = {
+  "Cast Into Hell":"Divine Wrath",
+  "Sever the Unholy":"Radiant Spear",
+  "Final Exorcism":"Last Rites",
+  "Vision of Fate":"Light of Truth",
+  "Foretold Death":"Judgment",
+  "Rewrite Destiny":"Holy Echo",
+  "Hold the Line":"Divine Shield",
+  "Martyr's Guard":"Guardian Prayer",
+  "Sacred Mark":"Sacred Brand",
+  "Divine Intervention":"Guardian Prayer",
+  "Chains of Faith":"Circle of Protection",
+  "Palm of Judgment":"Judgment",
+  "Still the Wicked":"Divine Shield",
+  "Inner Peace":"Mana Blessing",
+  "Echoed Grace":"Holy Echo",
+  "Sacred Rebuke":"Divine Wrath",
+  "Miracle of Unity":"Shared Faith"
+};
+PRIEST.forEach(c=>{ if(!c.art){ c.art = priestArtByName[priestArtFallbacks[c.n]] || priestArtByName['Guardian Prayer'] || ''; } });
+
+function buildCrucifixDeck(){return shuffle(CRUCIFIX.map(e=>e.n))}
+function resetCrucifixDeck(){S.crucifixDeck=buildCrucifixDeck();S.crucifixDiscard=[]}
+function ensureCrucifixDeckState(){
+ const names=CRUCIFIX.map(e=>e.n),valid=new Set(names);
+ const deck=Array.isArray(S.crucifixDeck)?S.crucifixDeck:[],discard=Array.isArray(S.crucifixDiscard)?S.crucifixDiscard:[];
+ const combined=[...deck,...discard],unique=new Set(combined);
+ const ok=combined.length===names.length&&unique.size===names.length&&combined.every(n=>valid.has(n));
+ if(!ok)resetCrucifixDeck();
+}
+function takeCrucifixCard(){
+ ensureCrucifixDeckState();
+ if(!S.crucifixDeck.length){
+  S.crucifixDeck=shuffle([...S.crucifixDiscard]);
+  S.crucifixDiscard=[];
+  log('All 36 Crucifix cards have been used. The full Crucifix deck is reshuffled.','info');
+ }
+ const name=S.crucifixDeck.pop();
+ S.crucifixDiscard.push(name);
+ return CRUCIFIX.find(e=>e.n===name);
+}
+let S = freshState();
+let choiceResolve=null, choiceCancelSerial=0, selectedDemonId=null, crucifixDisplayQueue=[];
+let overflowDamageQueue=[], overflowPromptActive=false;
+function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
+function demonName(d){return d.greater?d.g:d.n}
+function demonMaxHP(d){let max=d.greater?d.ghp:d.hp;max+=(d.status&&d.status.bossHpBonus)||0;max+=(d.status&&d.status.extraHpBonus)||0;if(bossIs("boneKing")){let loc=findDemonLocation(d);if(loc&&loc.r===3)max+=1}return max}
+function demonBlood(d){let printed=d.greater?d.gb:d.b;let drained=(d.status&&d.status.bloodDrained)||0;return Math.max(0,printed-drained)}
+function baseDemonAttack(d){return d.greater?d.gatk:d.atk}
+function demonAttack(d){
+ let atk=baseDemonAttack(d)+(d.status?.attackBonus||0)+(d.status?.attackRoundBonus||0);
+ let loc=findDemonLocation(d);
+ if(loc){
+  let room=S.rooms[loc.r]||[];
+  if(demonCode(d)==='packAttack'&&room.some(x=>x.id!==d.id))atk+=demonValue(d);
+  for(let x of room)if(demonCode(x)==='roomAttack')atk+=demonValue(x);
+ }
+ return Math.max(0,atk);
+}
+function demonAbility(d){return d.status&&d.status.abilityRemoved?'ABILITY REMOVED':(d.greater?d.gability:d.ability)}
+function demonCode(d){return d.status&&d.status.abilityRemoved?null:(d.greater?(d.ga||d.a):d.a)}
+function demonValue(d){return d.status&&d.status.abilityRemoved?0:(d.greater?(d.gv??d.v):d.v)}
+function demonArt(d){return d.greater?d.gart:d.art}
+function priestTax(){let tax=allDemons().reduce((sum,x)=>sum+(demonCode(x.d)==='priestTax'?demonValue(x.d):0),0);if(roomDesecrated(2))tax+=1;return tax}
+function closestDemon(excludeId=null){for(let r=3;r>=0;r--){for(let i=0;i<S.rooms[r].length;i++){let d=S.rooms[r][i];if(d.id!==excludeId)return d}}return null}
+function stopIsBlocked(d){if(demonCode(d)!=='stopWard')return false;let used=d.status.stopWardUsed||0, cap=demonValue(d);if(used<cap){d.status.stopWardUsed=used+1;log(`${demonName(d)} prevents a movement-stopping effect (${d.status.stopWardUsed}/${cap}).`,'bad');return true}return false}
+function applyStop(d){if(!d)return;if(stopIsBlocked(d))return;d.status.stop=true;log(`${demonName(d)} will not move this Demon Phase.`,'good')}
+async function chooseAndStopDemons(ritualName,max,sourceRoom=null,checkHalving=true){let used=new Set(),stopped=0;for(let i=0;i<max;i++){let pool=(sourceRoom===null?allDemons():S.rooms[sourceRoom].map(d=>({d,r:sourceRoom}))).filter(x=>!used.has(x.d.id));if(!pool.length)break;if(i>0)pool.push({kind:'done',done:true,label:'DONE — keep the stops already resolved'});let x=await chooseVisualDemonTargets(`${ritualName} — choose Demon ${i+1} of up to ${max}${i>0?' or Done':''}`,pool);if(!x)return stopped;if(x.done||x.kind==='done')break;used.add(x.d.id);if(checkHalving)ritualIsHalved(x.d);applyStop(x.d);stopped++}return stopped}
+async function chooseAndStopRooms(ritualName,max){let used=new Set();for(let i=0;i<max;i++){let occupied=ROOM_NAMES.map((n,idx)=>({n,i:idx})).filter(x=>S.rooms[x.i].length&&!used.has(x.i));if(!occupied.length)break;if(i>0)occupied.push({done:true});let rm=await choose(`${ritualName} — choose room ${i+1} of up to ${max}${i>0?' or Done':''}`,occupied,x=>x.done?'DONE — keep the rooms already held':`${x.n} (${S.rooms[x.i].length} Demon${S.rooms[x.i].length===1?'':'s'})`);if(!rm)return;if(rm.done)break;used.add(rm.i);let halved=S.rooms[rm.i].filter(d=>demonCode(d)==='ritualHalf').some(d=>ritualIsHalved(d));if(halved){await chooseAndStopDemons(`${ritualName} is halved in ${rm.n}`,ritualScale(1),rm.i,false);log(`${ritualName} is reduced to its Lesser effect in ${rm.n}.`,'bad')}else{S.rooms[rm.i].forEach(d=>applyStop(d));log(`${ritualName} holds ${rm.n}.`,'good')}}}
+function moveDemonBackOne(d,source='Ritual'){let loc=findDemonLocation(d);if(!loc)return false;if(loc.r<=0){log(`${demonName(d)} is already in the Gateway and cannot move back.`);return false}if(S.rooms[loc.r-1].length>=4){log(`${source} cannot move ${demonName(d)} back because the previous room is full.`,'bad');return false}let destination=loc.r-1;S.rooms[loc.r].splice(loc.i,1);S.rooms[destination].push(d);d.cur=Math.min(d.cur,demonMaxHP(d));log(`${source} moves ${demonName(d)} back to ${['Gateway','Hall','Chapel','Crypt'][destination]}.`,'good');triggerEnterRoom(d);let after=findDemonLocation(d);if(after)checkMerge(d);render();return true}
+function ritualIsHalved(d){if(demonCode(d)!=='ritualHalf')return false;let used=d.status.ritualHalfUsed||0,cap=demonValue(d);if(used<cap){d.status.ritualHalfUsed=used+1;log(`${demonName(d)} forces this Ritual to resolve at half effect.`,'bad');return true}return false}
+
+const ROOM_NAMES=["Gateway","Hall","Chapel","Crypt"];
+const DESECRATION_THRESHOLDS=[3,4,5,6];
+function roomDesecrationThreshold(i){return DESECRATION_THRESHOLDS[i]||3}
+const RELICS=[
+ {key:'varoSword',n:"Sword of Saint Varo",cat:'Basic Attack',effect:'Basic Attack permanently deals +1 damage.',mods:{basic:1}},
+ {key:'crusaderTooth',n:"Crusader's Tooth",cat:'Basic Attack',effect:'Basic Attack permanently deals +1 damage.',mods:{basic:1}},
+ {key:'ashenBell',n:'Ashen War Bell',cat:'Basic Attack',effect:'Basic Attack permanently deals +1 damage.',mods:{basic:1}},
+ {key:'martyrNail',n:"Martyr's Nail",cat:'Basic Attack',effect:'Basic Attack permanently deals +1 damage.',mods:{basic:1}},
+ {key:'dawnSpear',n:'Spear of First Dawn',cat:'Basic Attack',effect:'Basic Attack permanently deals +2 damage.',mods:{basic:2}},
+ {key:'ironReliquary',n:'Iron Reliquary',cat:'Basic Attack',effect:'Basic Attack permanently deals +1 damage.',mods:{basic:1}},
+ {key:'gospelFragment',n:'Gospel Fragment',cat:'Hand Size',effect:'Maximum Priest hand size permanently increases by 1.',mods:{hand:1}},
+ {key:'archivistKey',n:"Archivist's Key",cat:'Hand Size',effect:'Maximum Priest hand size permanently increases by 1.',mods:{hand:1}},
+ {key:'pilgrimSatchel',n:"Pilgrim's Satchel",cat:'Hand Size',effect:'Maximum Priest hand size permanently increases by 1.',mods:{hand:1}},
+ {key:'illuminatedPsalm',n:'Illuminated Psalm',cat:'Hand Size',effect:'Maximum Priest hand size permanently increases by 1.',mods:{hand:1}},
+ {key:'saintLedger',n:"Saint's Ledger",cat:'Hand Size',effect:'Maximum Priest hand size permanently increases by 2.',mods:{hand:2}},
+ {key:'keeperSeal',n:"Keeper's Seal",cat:'Hand Size',effect:'Maximum Priest hand size permanently increases by 1.',mods:{hand:1}},
+ {key:'firstLightChalice',n:'Chalice of First Light',cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
+ {key:'oracleEye',n:"Oracle's Eye",cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
+ {key:'vesperBell',n:'Bell of Vespers',cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
+ {key:'sacredEmber',n:'Sacred Ember',cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
+ {key:'crownThorns',n:'Crown of Thorns',cat:'Ritual Power',effect:'Permanent +2 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:2}},
+ {key:'seerBones',n:'Bones of the Seer',cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
+ {key:'trinityReliquary',n:'Trinity Reliquary',cat:'Hybrid Relic',effect:'Basic Attack permanently deals +1 damage and maximum Priest hand size increases by 1.',mods:{basic:1,hand:1}},
+ {key:'sanctumHeart',n:'Heart of the Sanctum',cat:'Hybrid Relic',effect:'Maximum Priest hand size permanently increases by 1 and Ritual numerical effects gain +1.',mods:{hand:1,ritual:1}}
+];
+function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
+function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
+function basicAttackDamage(){return 2+((S&&S.relicMods&&S.relicMods.basic)||0)}
+function ritualScale(n){return Math.ceil(n*1.2)}
+function ritualBoost(n){return ritualScale(n)+((S&&S.relicMods&&S.relicMods.ritual)||0)}
+function applyRelic(r){if(!r)return;S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0};for(let k of ['basic','hand','ritual'])S.relicMods[k]=(S.relicMods[k]||0)+((r.mods&&r.mods[k])||0);S.activeRelics=S.activeRelics||[];S.activeRelics.push(r.key);log(`RELIC — ${r.n}: ${r.effect}`,'good')}
+function relicModalBlocked(){return !document.getElementById('crucifixModal').classList.contains('hidden')||!document.getElementById('choiceModal').classList.contains('hidden')||!document.getElementById('consecrateModal').classList.contains('hidden')||!document.getElementById('desecrationModal').classList.contains('hidden')||!document.getElementById('descendModal').classList.contains('hidden')}
+function showNextRelicPopup(){S.relicPopupQueue=S.relicPopupQueue||[];if(!S.relicPopupQueue.length||relicModalBlocked())return;let q=S.relicPopupQueue[0],r=relicByKey(q.key);if(!r){S.relicPopupQueue.shift();showNextRelicPopup();return}document.getElementById('relicName').textContent=r.n;document.getElementById('relicCategory').textContent=r.cat;document.getElementById('relicEffect').textContent=r.effect;document.getElementById('relicReason').textContent=q.reason||'A Relic has been recovered from the Sanctum.';document.getElementById('relicModal').classList.remove('hidden');setTimeout(()=>document.getElementById('relicClose').focus(),0)}
+function closeRelicPopup(){document.getElementById('relicModal').classList.add('hidden');if(S.relicPopupQueue&&S.relicPopupQueue.length)S.relicPopupQueue.shift();if(S.relicPopupQueue&&S.relicPopupQueue.length){showNextRelicPopup();return}processOverflowDamageQueue();if(S.pendingBossChoice){setTimeout(()=>{showBossVictoryChoice();resumeTurnTimerIfReady()},80);return}if(S.pendingVictory){S.pendingVictory=false;setTimeout(()=>alert('Congratulations! You have saved the Sanctum!'),100)}resumeTurnTimerIfReady()}
+function pullRelic(reason){S.relicDeck=S.relicDeck||[];if(!S.relicDeck.length){log('The Relic deck is empty. No further Relics can be drawn.');return null}let key=S.relicDeck.pop(),r=relicByKey(key);if(!r)return null;applyRelic(r);S.relicPopupQueue=S.relicPopupQueue||[];S.relicPopupQueue.push({key,reason});render();showNextRelicPopup();return r}
+function checkBossDamageRelics(){if(S?.rogue?.enabled)return;S.bossDamageTotal=S.bossDamageTotal||0;S.relicBossThresholds=S.relicBossThresholds||0;let earned=Math.floor(S.bossDamageTotal/25);while(S.relicBossThresholds<earned){S.relicBossThresholds++;pullRelic(`The Priests have dealt ${S.relicBossThresholds*25} cumulative damage to the Boss.`)}}
+function rollGreaterDemonRelic(){
+ let roll=Math.floor(Math.random()*100)+1;
+ if(roll<=33){
+  log(`GREATER DEMON RELIC ROLL — ${roll}/100: SUCCESS. A Relic is recovered.`,'good');
+  pullRelic(`A Greater Demon was defeated and the Relic roll succeeded (${roll}/100 — 33% chance).`);
+  return true;
+ }
+ log(`GREATER DEMON RELIC ROLL — ${roll}/100: no Relic.`,'info');
+ return false;
+}
+function relicSummaryHtml(){let mods=S.relicMods||{basic:0,hand:0,ritual:0},keys=S.activeRelics||[];if(!keys.length)return '<div class="relicSummary"><b>Relics:</b> None recovered yet. In Roguelite mode, Demon Blood earned from kills also counts as Relic XP.</div>';let names=keys.map(k=>relicByKey(k)).filter(Boolean).map(r=>`<span class="relicChip">${r.n}</span>`).join('');return `<div class="relicSummary"><b>Relics ${keys.length}/20</b> • Basic Attack ${basicAttackDamage()} • Hand Limit ${handLimit()} • Ritual +${mods.ritual||0}<br>${names}</div>`}
+
+const DESECRATION_EFFECTS=[
+ 'Desecrated Gateway: every newly spawned Demon entering the Gateway gains +1 HP.',
+ 'Desecrated Hall: every Demon entering the Hall gains +1 Attack for the current round.',
+ 'Desecrated Chapel: all Priest cards cost +1 additional shared Mana while the Chapel remains Desecrated.',
+ 'Desecrated Crypt: every Demon entering the Crypt heals 1 HP.'
+];
+function openDesecrationInfo(i){
+ document.getElementById('desecrationRoomName').textContent=ROOM_NAMES[i];
+ document.getElementById('desecrationEffect').textContent=`${DESECRATION_EFFECTS[i]} This room becomes Desecrated after ${roomDesecrationThreshold(i)} Demons leave it while moving toward the Altar. It remains Desecrated while at least 1 Corruption tracker remains. If Corruption reaches 0, Desecration is cleared and the cracks disappear.`;
+ document.getElementById('desecrationModal').classList.remove('hidden');
+ setTimeout(()=>document.getElementById('desecrationClose').focus(),0);
+}
+function closeDesecrationInfo(){
+ document.getElementById('desecrationModal').classList.add('hidden');
+}
+
+function roomCorruption(i){return (S.corruption&&S.corruption[i])||0}
+function setRoomCorruption(i,value,state=S){
+ if(!state||i<0||i>3)return 0;
+ if(!Array.isArray(state.corruption))state.corruption=[0,0,0,0];
+ while(state.corruption.length<4)state.corruption.push(0);
+ if(!Array.isArray(state.desecratedRooms))state.desecratedRooms=[false,false,false,false];
+ while(state.desecratedRooms.length<4)state.desecratedRooms.push(false);
+ state.corruption[i]=Math.max(0,Math.floor(Number(value)||0));
+ if(state.corruption[i]===0)state.desecratedRooms[i]=false;
+ else if(state.corruption[i]>=roomDesecrationThreshold(i))state.desecratedRooms[i]=true;
+ return state.corruption[i];
+}
+function roomDesecrated(i){
+ return !!(S.desecratedRooms&&S.desecratedRooms[i])||roomCorruption(i)>=roomDesecrationThreshold(i)
+}
+function roomConsecrated(i){return !!(S.consecrated&&S.consecrated[i])}
+function roomStateHtml(i){
+ let parts=[`Maximum 4 Demons • Corruption ${roomCorruption(i)}/${roomDesecrationThreshold(i)}`];
+ if(roomDesecrated(i))parts.push(`<button type="button" class="desecrationInfoBtn" data-desecrate-info="${i}">Desecrated — Clear at 0 Corruption</button>`);
+ if(roomConsecrated(i))parts.push('<span class="tag good">Consecrated</span>');
+ if(roomDesecrated(i))parts.push(`<div class="desecrationEffectText">${DESECRATION_EFFECTS[i]}</div>`);
+ return parts.join(' ');
+}
+function consecrateUnavailableReason(i){
+ if(!S.started)return 'Start a game first.';
+ if(S.phase!=='Priest')return 'Rooms can only be consecrated during the Priest phase.';
+ let p=currentPlayer();
+ if(!p)return 'There is no active player.';
+ if(p.consecrateUsed)return `${p.name} has already consecrated a room this turn.`;
+ if(S.mana<3)return `You need 3 shared Mana, but only ${S.mana} is available.`;
+ if(p.blood<1)return `${p.name} needs 1 Demon Blood, but has ${p.blood}.`;
+ if(roomConsecrated(i))return `${ROOM_NAMES[i]} is already consecrated for this round.`;
+ return '';
+}
+const CONSECRATE_EFFECTS=[
+ 'Cleanse all Corruption. Until the round ends, newly spawned Demons entering the Gateway take 1 damage.',
+ 'Cleanse all Corruption. Until the round ends, Demons entering the Hall are stopped for the next Demon Phase.',
+ 'Cleanse all Corruption. Until the round ends, every effect that restores Altar Protection restores +1 additional Protection.',
+ 'Cleanse all Corruption. Until the round ends, Demon merging is prevented.'
+];
+let pendingConsecrateRoom=null;
+function openConsecrateModal(i){
+ pendingConsecrateRoom=i;
+ let modal=document.getElementById('consecrateModal');
+ let p=currentPlayer();
+ let reason=consecrateUnavailableReason(i);
+ document.getElementById('consecrateRoomName').textContent=ROOM_NAMES[i];
+ document.getElementById('consecrateEffect').textContent=CONSECRATE_EFFECTS[i];
+ let status=document.getElementById('consecrateStatus');
+ let mana=S.mana||0,blood=p?p.blood:0,corruption=roomCorruption(i);
+ if(reason){
+   status.className='consecrateStatus bad';
+   status.textContent=`Cannot play yet: ${reason} Current resources — Mana ${mana}/10, Demon Blood ${blood}/10, Corruption ${corruption}/${roomDesecrationThreshold(i)}.`;
+ }else{
+   status.className='consecrateStatus good';
+   status.textContent=`Ready to play. Current resources — Mana ${mana}/10, Demon Blood ${blood}/10, Corruption ${corruption}/${roomDesecrationThreshold(i)}.`;
+ }
+ let play=document.getElementById('consecratePlay');
+ play.disabled=!!reason;
+ play.textContent=reason?'Cannot Play':'Play — Pay 3 Mana + 1 Blood';
+ modal.classList.remove('hidden');
+ setTimeout(()=>document.getElementById(reason?'consecrateClose':'consecratePlay').focus(),0);
+}
+function closeConsecrateModal(){
+ pendingConsecrateRoom=null;
+ document.getElementById('consecrateModal').classList.add('hidden');
+}
+function consecrateRoom(i){
+ let reason=consecrateUnavailableReason(i);
+ if(reason){openConsecrateModal(i);return false}
+ let p=currentPlayer();
+ S.mana=Math.max(0,S.mana-3);
+ p.blood=Math.max(0,p.blood-1);
+ p.consecrateUsed=true;
+ let removed=roomCorruption(i);
+ let wasDesecrated=roomDesecrated(i);
+ S.corruption[i]=0;
+ S.desecratedRooms=S.desecratedRooms||[false,false,false,false];
+ S.desecratedRooms[i]=false;
+ S.consecrated[i]=true;
+ log(`${p.name} consecrates the ${ROOM_NAMES[i]} for this round by spending 3 Mana and 1 Demon Blood.`,'good');
+ if(removed>0)log(`The consecration cleanses ${removed} Corruption tracker${removed===1?'':'s'} from the ${ROOM_NAMES[i]}.`,'good');
+ if(wasDesecrated)log(`${ROOM_NAMES[i]} reaches 0 Corruption. Its Desecration is cleared and the cracks fade away.`,'good');
+ switch(i){
+  case 0: log('Consecrated Gateway: newly spawned Demons take 1 damage on entry.','good'); break;
+  case 1: log('Consecrated Hall: Demons entering the Hall are stopped for the next Demon Phase.','good'); break;
+  case 2: log('Consecrated Chapel: Altar-healing effects restore +1 additional Protection.','good'); break;
+  case 3: log('Consecrated Crypt: Demon merging is prevented while it remains consecrated.','good'); break;
+ }
+ closeConsecrateModal();
+ render();
+ return true;
+}
+function addCorruption(i,source='Demon movement'){
+ if(i<0||i>3)return;
+ let threshold=roomDesecrationThreshold(i);
+ if(roomConsecrated(i)){log(`${source} would corrupt the ${ROOM_NAMES[i]}, but its consecration holds.`, 'good');return}
+ if(roomCorruption(i)>=threshold){log(`${source} deepens the taint, but the ${ROOM_NAMES[i]} is already Desecrated.`, 'bad');return}
+ S.corruption[i]=(S.corruption[i]||0)+1;
+ if(S.corruption[i]>=threshold){
+  S.desecratedRooms=S.desecratedRooms||[false,false,false,false];
+  if(!S.desecratedRooms[i]){
+   S.desecratedRooms[i]=true;
+   log(`${ROOM_NAMES[i]} becomes Desecrated at ${threshold} Corruption! Reduce it to 0 Corruption to clear the Desecration.`, 'bad');
+  }else{
+   log(`${ROOM_NAMES[i]} gains 1 Corruption (${S.corruption[i]}/${threshold}). It remains Desecrated.`, 'bad');
+  }
+ }else log(`${ROOM_NAMES[i]} gains 1 Corruption (${S.corruption[i]}/${threshold}).`, 'bad');
+}
+function reduceRoomCorruptionOnDemonDefeat(roomIndex){
+ if(roomIndex<0||roomIndex>3)return 0;
+ let before=roomCorruption(roomIndex);
+ if(before<=0)return 0;
+ let wasDesecrated=roomDesecrated(roomIndex);
+ S.corruption[roomIndex]=Math.max(0,before-1);
+ let after=S.corruption[roomIndex];
+ if(after===0){
+  S.desecratedRooms=S.desecratedRooms||[false,false,false,false];
+  S.desecratedRooms[roomIndex]=false;
+  log(`A Demon defeated in the ${ROOM_NAMES[roomIndex]} removes the final Corruption tracker (0/${roomDesecrationThreshold(roomIndex)}).`,'good');
+  if(wasDesecrated)log(`${ROOM_NAMES[roomIndex]} is cleansed: Desecration ends, its penalty is removed, and the cracks disappear.`,'good');
+ }else if(wasDesecrated){
+  log(`A Demon defeated in the ${ROOM_NAMES[roomIndex]} removes 1 Corruption tracker (${after}/${roomDesecrationThreshold(roomIndex)}). The room remains Desecrated until Corruption reaches 0.`,'good');
+ }else{
+  log(`A Demon defeated in the ${ROOM_NAMES[roomIndex]} removes 1 Corruption tracker (${after}/${roomDesecrationThreshold(roomIndex)}).`,'good');
+ }
+ return 1;
+}
+function applyRoomEntryEffects(d){
+ let loc=findDemonLocation(d);if(!loc)return;
+ if(loc.r===1&&roomDesecrated(1)){
+  d.status=d.status||{};
+  d.status.attackRoundBonus=(d.status.attackRoundBonus||0)+1;
+  log(`${demonName(d)} gains +1 Attack from the Desecrated Hall.`, 'bad');
+ }
+ if(loc.r===1&&roomConsecrated(1)){
+  applyStop(d);
+  log(`Consecrated Hall stops ${demonName(d)}.`, 'good');
+ }
+ if(loc.r===3&&roomDesecrated(3)){
+  let before=d.cur;
+  d.cur=Math.min(demonMaxHP(d),d.cur+1);
+  if(d.cur>before)log(`${demonName(d)} heals 1 HP in the Desecrated Crypt.`, 'bad');
+ }
+}
+function normalizeSanctumState(){
+ ensureCrucifixDeckState();
+ if(!S.corruption||!Array.isArray(S.corruption))S.corruption=[0,0,0,0];
+ while(S.corruption.length<4)S.corruption.push(0);
+ if(!S.desecratedRooms||!Array.isArray(S.desecratedRooms)){
+   S.desecratedRooms=[0,1,2,3].map(i=>roomCorruption(i)>=roomDesecrationThreshold(i));
+ }
+ while(S.desecratedRooms.length<4)S.desecratedRooms.push(false);
+ for(let i=0;i<4;i++){
+   if(roomCorruption(i)<=0)S.desecratedRooms[i]=false;
+   else if(roomCorruption(i)>=roomDesecrationThreshold(i))S.desecratedRooms[i]=true;
+   S.desecratedRooms[i]=!!S.desecratedRooms[i];
+ }
+ if(!S.consecrated||!Array.isArray(S.consecrated))S.consecrated=[false,false,false,false];
+ while(S.consecrated.length<4)S.consecrated.push(false);
+ S.players=(S.players||[]).map(p=>({consecrateUsed:false,...p, consecrateUsed:!!p.consecrateUsed}));
+ S.rooms=(S.rooms||[[],[],[],[]]);
+ while(S.rooms.length<4)S.rooms.push([]);
+ if(!Array.isArray(S.priestCycleUsed))S.priestCycleUsed=[];
+ if(!Array.isArray(S.demonDiscard))S.demonDiscard=[];
+ if(!Array.isArray(S.demonCycleUsed))S.demonCycleUsed=[];
+ if(!Array.isArray(S.priestDeck))S.priestDeck=[];
+ if(!Array.isArray(S.priestDiscard))S.priestDiscard=[];
+ S.priestDeck=S.priestDeck.filter(c=>c&&!c.temp&&!String(c.id||'').startsWith('echo-'));
+ S.priestDiscard=S.priestDiscard.filter(c=>c&&!c.temp&&!String(c.id||'').startsWith('echo-'));
+ if(!S.relicDeck||!Array.isArray(S.relicDeck))S.relicDeck=shuffle(RELICS.map(r=>r.key));
+ if(!S.activeRelics||!Array.isArray(S.activeRelics))S.activeRelics=[];
+ if(!S.relicMods)S.relicMods={basic:0,hand:0,ritual:0};
+ for(let k of ['basic','hand','ritual'])if(!Number.isFinite(S.relicMods[k]))S.relicMods[k]=0;
+ if(typeof S.relicFiveDefeatClaimed!=='boolean')S.relicFiveDefeatClaimed=S.defeats>=5;
+ if(!Number.isFinite(S.bossDamageTotal))S.bossDamageTotal=0;
+ if(!Number.isFinite(S.bossStageRoundsElapsed))S.bossStageRoundsElapsed=0;
+ S.bossStageRoundsElapsed=Math.max(0,Math.floor(S.bossStageRoundsElapsed));
+ if(!Number.isFinite(S.relicBossThresholds))S.relicBossThresholds=Math.floor(S.bossDamageTotal/25);
+ if(!S.relicPopupQueue||!Array.isArray(S.relicPopupQueue))S.relicPopupQueue=[];
+ if(typeof S.pendingVictory!=='boolean')S.pendingVictory=false;
+ if(typeof S.pendingBossChoice!=='boolean')S.pendingBossChoice=false;
+ if(typeof S.bossDefeatHandled!=='boolean')S.bossDefeatHandled=false;
+ if(!Number.isFinite(S.bossesDefeated))S.bossesDefeated=0;
+ if(typeof S.phaseBeforeBossChoice!=='string')S.phaseBeforeBossChoice=null;
+ if(typeof S.lastDefeatedBossName!=='string')S.lastDefeatedBossName='';
+ if(!S.lastPriestCardPlayed||typeof S.lastPriestCardPlayed!=='object'||S.lastPriestCardPlayed.k==='echo')S.lastPriestCardPlayed=null;
+ if(S.lastPriestCardPlayed){
+  let echoBase=PRIEST.find(c=>c.n===S.lastPriestCardPlayed.n);
+  if(echoBase){let {art,...echoDefinition}=echoBase;S.lastPriestCardPlayed={...echoDefinition};}
+ }
+ if(!S.runStats||typeof S.runStats!=='object')S.runStats={};
+ for(let k of ['damageToDemons','cardsPlayed','ritualsUsed','natural20s','greaterDemonsDefeated']){
+   if(!Number.isFinite(S.runStats[k]))S.runStats[k]=0;
+ }
+ if(typeof S.runStatsShown!=='boolean')S.runStatsShown=false;
+ if(!Array.isArray(S.altarTurnRenewals))S.altarTurnRenewals=[];
+ if(!Array.isArray(S.altarDefeatBlessings))S.altarDefeatBlessings=[];
+ if(!Array.isArray(S.altarRoundRenewals))S.altarRoundRenewals=[];
+ if(!Number.isFinite(S.altarBarrier))S.altarBarrier=0;
+ if(!Number.isFinite(S.altarBarrierRound))S.altarBarrierRound=0;
+ S.altarTurnRenewals=S.altarTurnRenewals.filter(x=>x&&Number.isFinite(x.amount)&&Number.isFinite(x.remaining)&&x.remaining>0);
+ S.altarDefeatBlessings=S.altarDefeatBlessings.filter(x=>x&&Number.isFinite(x.amount)&&Number.isFinite(x.remaining)&&x.remaining>0);
+ S.altarRoundRenewals=S.altarRoundRenewals.filter(x=>x&&Number.isFinite(x.amount)&&Number.isFinite(x.remaining)&&Number.isFinite(x.nextRound)&&x.remaining>0);
+ if(!Number.isFinite(S.turnTimerSeconds))S.turnTimerSeconds=60;
+ S.turnTimerSeconds=Math.max(30,Math.min(120,Math.round(S.turnTimerSeconds/15)*15));
+ if(typeof TURN_TIMER_SECONDS!=='undefined')TURN_TIMER_SECONDS=S.turnTimerSeconds;
+ if(!Number.isFinite(S.turnTimerRemaining))S.turnTimerRemaining=S.turnTimerSeconds;
+ S.turnTimerRemaining=Math.max(0,Math.min(S.turnTimerSeconds,Math.ceil(S.turnTimerRemaining)));
+ if(typeof S.manualPaused!=='boolean')S.manualPaused=false;
+}
+
+function bossIs(code){return !!(S&&S.bossRevealed&&S.boss&&S.boss.key===code)}
+function ensureBossFlags(){if(!S.bossFlags)S.bossFlags={};if(!S.bossFlags.spores)S.bossFlags.spores={};return S.bossFlags}
+function resetBossRoundFlags(){let f=ensureBossFlags(),spores=f.spores||{};S.bossFlags={spores,blackRitualUsed:false,soulSupportUsed:false,seraphHaloUsed:false,reaperPreventUsed:false,omenUsed:false,breachUsed:false,ashenWakeUsed:false}}
+const SUPPORT_RITUAL_KINDS=new Set(["visionFate","foretoldDeath","rewriteDestiny","holdLine","martyrGuard","sacredMark","divineIntervention","chainsFaith","stillWicked","innerPeace","echoedGrace","miracleUnity","severUnholy"]);
+function applyBossRitualRestriction(r,full){let f=ensureBossFlags();if(bossIs("blackSovereign")&&!f.blackRitualUsed){f.blackRitualUsed=true;log(`${S.boss.n} — Edict of Silence: the first Ritual this round resolves at half effect.`,"bad");return false}if(bossIs("soulTyrant")&&SUPPORT_RITUAL_KINDS.has(r.kind)&&!f.soulSupportUsed){f.soulSupportUsed=true;log(`${S.boss.n} — Chains of Dominion: the first Support Ritual this round resolves at half effect.`,"bad");return false}return full}
+function addBossHpBonus(d,n,label){if(!d||n<=0)return;d.status=d.status||{};d.status.bossHpBonus=(d.status.bossHpBonus||0)+n;d.cur+=n;if(label)log(`${demonName(d)} gains ${n} HP from ${label}.`,"bad")}
+function bossBreachBonus(loss){let f=ensureBossFlags();if(bossIs("lordOfAsh")&&!f.ashenWakeUsed){f.ashenWakeUsed=true;loss+=1;log(`${S.boss.n} — Ashen Wake adds 1 Altar loss to the first breach this round.`,"bad")}return loss}
+function spawnBossSummonedLesser(count=1,fireImp=false){for(let i=0;i<count;i++){let d;if(fireImp){let base=DEMON_TYPES.find(x=>x.key==="imp_fire")||DEMON_TYPES[1];d={...base,id:`fireimp-${uid()}`,greater:false,cur:base.hp,status:{summoned:true,noMerge:true}}}else{let base=drawDemon();if(!base){log(`${S.boss.n} cannot summon: no Demon card is available.`,'bad');continue}d={...base,greater:false,cur:base.hp,status:{summoned:true,noMerge:true}}}if(S.rooms[0].length<4){S.rooms[0].push(d);triggerEnterPlay(d);triggerEnterRoom(d);if(roomDesecrated(0)&&findDemonLocation(d)){d.status=d.status||{};d.status.extraHpBonus=(d.status.extraHpBonus||0)+1;d.cur+=1;log(`${demonName(d)} gains +1 HP from the Desecrated Gateway.`,'bad')}if(roomConsecrated(0)&&findDemonLocation(d))damageDemon(d,1,'Consecrated Gateway')}else S.queue.push(d);log(`${demonName(d)} is summoned by ${S.boss.n} and cannot merge.`,"bad")}render()}
+function recallOldestDefeated(){let idx=S.defeated.findIndex(d=>!d.greater);if(idx<0){log(`${S.boss.n} finds no defeated Lesser Demon to return.`);return}let old=S.defeated.splice(idx,1)[0];S.defeats=Math.max(0,S.defeats-1);let d={...old,greater:false,cur:old.hp,status:{}};if(S.rooms[0].length<4){S.rooms[0].push(d);triggerEnterPlay(d);triggerEnterRoom(d);if(roomDesecrated(0)&&findDemonLocation(d)){d.status=d.status||{};d.status.extraHpBonus=(d.status.extraHpBonus||0)+1;d.cur+=1;log(`${demonName(d)} gains +1 HP from the Desecrated Gateway.`,'bad')}if(roomConsecrated(0)&&findDemonLocation(d))damageDemon(d,1,'Consecrated Gateway');if(findDemonLocation(d))checkMerge(d)}else S.queue.push(d);log(`${S.boss.n} returns ${d.n} from the defeated row to the Entrance. Defeat count falls to ${S.defeats}.`,"bad")}
+async function crimsonProphecy(){
+ if(S.demonDeck.length<2)return;
+ let top=S.demonDeck[S.demonDeck.length-1],second=S.demonDeck[S.demonDeck.length-2];
+ let picked=await showRevealedDemonCards(`${S.boss.n} — Blood Prophecy`,[top,second],{
+  selectTop:true,
+  subtitle:'Blood Prophecy reveals the next two Demon cards in full. Choose which Demon should enter first.'
+ });
+ if(picked===1){
+  S.demonDeck[S.demonDeck.length-1]=second;
+  S.demonDeck[S.demonDeck.length-2]=top;
+  log(`${S.boss.n} reorders the top two Demon cards: ${demonName(second)} will enter first.`,'bad');
+ }else{
+  log(`${S.boss.n} keeps ${demonName(top)} on top of the Demon deck.`,'bad');
+ }
+}
+function plagueBloom(){for(let r=0;r<4;r++){if(!S.rooms[r].length)continue;let d=S.rooms[r][0],before=d.cur;d.cur=Math.min(demonMaxHP(d),d.cur+1);if(d.cur>before)log(`${S.boss.n} — Pestilent Bloom heals ${demonName(d)} in ${["Gateway","Hall","Chapel","Crypt"][r]} for 1 HP.`,"bad")}}
+function damageBoss(amt,source="Damage",ritual=false){if(!S.bossRevealed||!S.boss||amt<=0)return;let f=ensureBossFlags();if(f.bossMark){amt+=f.bossMark;log(`Sacred marking adds ${f.bossMark} damage to ${S.boss.n}.`,'good');f.bossMarkCharges=(f.bossMarkCharges||1)-1;if(f.bossMarkCharges<=0){delete f.bossMark;delete f.bossMarkCharges}}let original=amt;if(ritual&&bossIs("fallenSeraph")&&!f.seraphHaloUsed){f.seraphHaloUsed=true;amt=Math.max(1,Math.floor(amt/2));log(`${S.boss.n} — Profane Halo halves the first Ritual that targets it this round (${original} → ${amt}).`,"bad")}if(ritual&&bossIs("devourer")){let reduced=Math.max(1,amt-1);if(reduced!==amt)log(`${S.boss.n} — Hungering Maw reduces Ritual damage by 1 (${amt} → ${reduced}).`,"bad");amt=reduced}if(bossIs("dreadReaper")&&!f.reaperPreventUsed){f.reaperPreventUsed=true;let blocked=Math.min(2,amt);amt-=blocked;log(`${S.boss.n} — Harvest Unending prevents ${blocked} of the first damage it would take this round.`,"bad")}if(amt<=0){render();return}let before=S.boss.cur;S.boss.cur=Math.max(0,S.boss.cur-amt);let dealt=before-S.boss.cur;S.bossDamageTotal=(S.bossDamageTotal||0)+dealt;log(`${source} deals ${dealt} damage to ${S.boss.n}. Total Boss damage: ${S.bossDamageTotal}.`,"good");checkBossDamageRelics();defeatBossIfNeeded();render()}
+function triggerEnterRoom(d){let code=demonCode(d),v=demonValue(d);if(code==='roomAltar'){damageAltar(v,`${demonName(d)} enters a room`)}let loc=findDemonLocation(d);if(!loc)return;applyRoomEntryEffects(d);loc=findDemonLocation(d);if(!loc)return;let f=ensureBossFlags();if(bossIs("boneKing")&&loc.r===3){d.cur+=1;log(`${S.boss.n} — Ossuary Court grants ${demonName(d)} +1 HP in the Crypt.`,"bad")}let sporeCount=f.spores[loc.r]||0;if(bossIs("plagueFather")&&sporeCount>0){f.spores[loc.r]=sporeCount-1;addBossHpBonus(d,1,"Corruption Spores")}if(bossIs("gatebreaker")&&!f.breachUsed&&(loc.r===1||loc.r===2)){f.breachUsed=true;let moved=moveOneForward(d,`${S.boss.n} — Breach the Sanctum`);if(moved)log(`${S.boss.n} — Breach the Sanctum moves ${demonName(d)} 1 additional room forward.`,"bad");else log(`${S.boss.n} — Breach the Sanctum tries to move ${demonName(d)}, but the next room is full.`,"bad")}}
+function triggerEnterPlay(d){let code=demonCode(d),v=demonValue(d);if(code==='enterMana'){addMana(-v);log(`${demonName(d)} enters play: lose ${v} shared Mana.`,'bad')}if(d.family==='Undead'){let bonus=0;for(let x of allDemons()){if(x.d.id!==d.id&&demonCode(x.d)==='undeadAttack')bonus+=demonValue(x.d)}if(bonus>0){d.status=d.status||{};d.status.attackRoundBonus=(d.status.attackRoundBonus||0)+bonus;log(`${demonName(d)} gains +${bonus} Attack this round from Death Hierophant / Soul Conqueror.`,'bad')}}let f=ensureBossFlags();if(bossIs("crimsonOracle")&&!f.omenUsed){f.omenUsed=true;addBossHpBonus(d,2,"Omen Unbound")}}
+function spawnSpecificImp(count=1){let base=DEMON_TYPES[0];for(let i=0;i<count;i++){let d={...base,id:`imp-${uid()}`,greater:false,cur:base.hp,status:{}};if(S.rooms[0].length<4){S.rooms[0].push(d);triggerEnterPlay(d);triggerEnterRoom(d);if(roomDesecrated(0)&&findDemonLocation(d)){d.status=d.status||{};d.status.extraHpBonus=(d.status.extraHpBonus||0)+1;d.cur+=1;log(`${demonName(d)} gains +1 HP from the Desecrated Gateway.`,'bad')}if(roomConsecrated(0)&&findDemonLocation(d))damageDemon(d,1,'Consecrated Gateway');if(findDemonLocation(d))checkMerge(d)}else S.queue.push(d);log(`${d.n} is spawned by a Demon ability.`,'bad')}}
+
+function moveOneForward(d,reason='Demon movement'){let loc=findDemonLocation(d);if(!loc)return false;let r=loc.r;if(r===3){let printed=baseDemonAttack(d),attack=demonAttack(d),code=demonCode(d),v=demonValue(d);S.rooms[3].splice(loc.i,1);addCorruption(3, `${demonName(d)} leaving the Crypt`);let loss=attack;if(code==='altarPlus')loss+=v;if(d.status.ruinBonus&&d.status.ruinRound===S.round)loss+=d.status.ruinBonus;loss=bossBreachBonus(loss);let mod=attack-printed;log(`${demonName(d)} reaches the Altar and attacks for ${attack}${mod?` (${printed}${mod>0?'+':''}${mod})`:''}.`,'bad');damageAltar(loss,`${demonName(d)} attack`);if(code==='attackMove'){let t=closestDemon();if(t){t.status=t.status||{};t.status.attackMoveBonus=(t.status.attackMoveBonus||0)+v;log(`${demonName(d)} attack grants ${demonName(t)} +${v} movement this Demon Phase.`,'bad')}}S.demonDeck.unshift(resetDemon(d));return true}if(S.rooms[r+1].length>=4)return false;S.rooms[r].splice(loc.i,1);addCorruption(r, `${demonName(d)} leaving the ${ROOM_NAMES[r]}`);S.rooms[r+1].push(d);triggerEnterRoom(d);return true}
+function resolveStartDemonPhaseAbilities(){let snapshot=allDemons().map(x=>x.d);for(let d of snapshot){let code=demonCode(d),v=demonValue(d);if(code==='spawnImp')spawnSpecificImp(v);else if(code==='phasePush'){let moved=new Set();for(let k=0;k<v;k++){let t=null;for(let r=3;r>=0&&!t;r--){t=S.rooms[r].find(x=>!moved.has(x.id))||null}if(!t)break;moved.add(t.id);log(`${demonName(d)} moves ${demonName(t)} forward 1 room (automatic closest distinct target).`,'bad');moveOneForward(t,`${demonName(d)} ability`)}}}}
+function resolveEndDemonPhaseAbilities(){for(let x of allDemons()){let d=x.d;if(demonCode(d)==='endHeal'){let v=demonValue(d),before=d.cur;d.cur=Math.min(demonMaxHP(d),d.cur+v);if(d.cur>before)log(`${demonName(d)} heals ${d.cur-before} HP at the end of the Demon Phase.`,'bad')}}}
+function triggerDefeatAbility(d,opts={}){let code=demonCode(d),v=demonValue(d);if(opts.suppressNegative&&['defeatMana','defeatPush','defeatRuin','defeatAttack'].includes(code)){log(`${demonName(d)}'s negative defeat ability is suppressed by the Ritual.`,'good');return}if(code==='defeatBlood'&&!opts.skipBlood){distributeBlood(v);log(`${demonName(d)} ability grants ${v} additional Blood.`,'good')}else if(code==='defeatMana'){addMana(-v);log(`${demonName(d)} ability removes ${v} shared Mana.`,'bad')}else if(code==='defeatPush'){let t=closestDemon(d.id);if(t){log(`${demonName(d)} pushes ${demonName(t)} forward ${v} space${v===1?'':'s'} (automatic next-target choice).`,'bad');for(let i=0;i<v;i++)if(!moveOneForward(t,`${demonName(d)} defeat ability`))break}}else if(code==='defeatRuin'){let t=closestDemon(d.id);if(t){t.status.ruinBonus=(t.status.ruinBonus||0)+v;t.status.ruinRound=S.round;log(`${demonName(t)} gains +${v} Altar damage if it breaches this round.`,'bad')}}else if(code==='defeatAttack'){let t=closestDemon(d.id);if(t){t.status=t.status||{};t.status.attackBonus=(t.status.attackBonus||0)+v;log(`${demonName(d)} grants ${demonName(t)} +${v} Attack until it reaches the Altar.`,'bad')}}}
+function resetRoundDemonStatuses(){allDemons().forEach(x=>{delete x.d.status.damageIgnoreUsed;delete x.d.status.stopWardUsed;delete x.d.status.ritualHalfUsed;delete x.d.status.ruinBonus;delete x.d.status.ruinRound;delete x.d.status.attackRoundBonus;delete x.d.status.attackMoveBonus})}
+function randomUnit(){
+ try{
+  if(globalThis.crypto&&typeof globalThis.crypto.getRandomValues==='function'){
+   let a=new Uint32Array(1);globalThis.crypto.getRandomValues(a);return a[0]/4294967296;
+  }
+ }catch(e){}
+ return Math.random();
+}
+function shuffle(a){
+ // Full Fisher-Yates pass: every card in the supplied deck participates in the shuffle.
+ for(let i=a.length-1;i>0;i--){let j=Math.floor(randomUnit()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+ return a;
+}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function log(msg,type="info"){S.log.unshift({msg,type,t:Date.now()}); if(S.log.length>120)S.log.pop(); renderLog();}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function addMana(v){S.mana=clamp(S.mana+v,0,10);render()}
+function healAltar(v,source="Altar healing"){
+ let bonus=(v>0&&roomConsecrated(2))?1:0;
+ let actual=Math.max(0,Math.min(30,S.altar+v+bonus)-S.altar);
+ S.altar=clamp(S.altar+v+bonus,0,30);
+ if(bonus>0&&actual>0)log(`Consecrated Chapel adds +1 Altar Protection to ${source}.`,'good');
+ render();
+}
+function restoreAltarLogged(v,source){
+ let before=S.altar;
+ healAltar(v,source);
+ let restored=Math.max(0,S.altar-before);
+ log(`${source} restores ${restored} Altar Protection.`,'good');
+ return restored;
+}
+function addAltarTurnRenewal(amount,turns,source){
+ S.altarTurnRenewals=S.altarTurnRenewals||[];
+ S.altarTurnRenewals.push({amount,remaining:turns,source});
+ log(`${source} creates a lingering renewal: +${amount} Altar Protection at the start of the next ${turns} Priest turn${turns===1?'':'s'}.`,'good');
+}
+function resolveAltarTurnRenewals(){
+ if(!S.altarTurnRenewals||!S.altarTurnRenewals.length)return;
+ for(let fx of S.altarTurnRenewals){
+  if(fx.remaining>0){restoreAltarLogged(fx.amount,`${fx.source} lingering renewal`);fx.remaining--}
+ }
+ S.altarTurnRenewals=S.altarTurnRenewals.filter(fx=>fx.remaining>0);
+}
+function addAltarDefeatBlessing(amount,charges,source){
+ S.altarDefeatBlessings=S.altarDefeatBlessings||[];
+ S.altarDefeatBlessings.push({amount,remaining:charges,source});
+ log(`${source} blesses the next ${charges} Demon defeat${charges===1?'':'s'}: each restores ${amount} Altar Protection.`,'good');
+}
+function resolveAltarDefeatBlessings(){
+ if(!S.altarDefeatBlessings||!S.altarDefeatBlessings.length)return;
+ for(let fx of S.altarDefeatBlessings){
+  if(fx.remaining>0){restoreAltarLogged(fx.amount,`${fx.source} defeat blessing`);fx.remaining--}
+ }
+ S.altarDefeatBlessings=S.altarDefeatBlessings.filter(fx=>fx.remaining>0);
+}
+function addAltarRoundRenewal(amount,rounds,source){
+ S.altarRoundRenewals=S.altarRoundRenewals||[];
+ S.altarRoundRenewals.push({amount,remaining:rounds,nextRound:S.round+1,source});
+ log(`${source} will restore ${amount} Altar Protection at the start of each of the next ${rounds} round${rounds===1?'':'s'}.`,'good');
+}
+function resolveAltarRoundRenewals(){
+ if(!S.altarRoundRenewals||!S.altarRoundRenewals.length)return;
+ for(let fx of S.altarRoundRenewals){
+  if(fx.remaining>0&&S.round>=fx.nextRound){
+   restoreAltarLogged(fx.amount,`${fx.source} round renewal`);
+   fx.remaining--;
+   fx.nextRound=S.round+1;
+  }
+ }
+ S.altarRoundRenewals=S.altarRoundRenewals.filter(fx=>fx.remaining>0);
+}
+function addAltarBarrier(amount,source){
+ if(S.altarBarrierRound!==S.round){S.altarBarrier=0;S.altarBarrierRound=S.round}
+ S.altarBarrier=(S.altarBarrier||0)+amount;
+ log(`${source} wards the Altar against the next ${amount} Protection loss this round.`,'good');
+}
+function damageAltar(v,source="Demon"){
+  v += S.nextAltarBonus; S.nextAltarBonus=0;
+  if(S.altarBarrierRound!==S.round)S.altarBarrier=0;
+  if(S.altarBarrier>0){let blocked=Math.min(v,S.altarBarrier);v-=blocked;S.altarBarrier-=blocked;log(`Holy Barrier prevents ${blocked} Altar Protection loss. ${S.altarBarrier} ward remains this round.`,"good")}
+  if(source==="Demon" && S.altarShield>0){let blocked=Math.min(v,S.altarShield);v-=blocked;S.altarShield-=blocked;log(`Sanctum protection blocks ${blocked} Altar loss.`,"good")}
+  if(v>0){S.altar=Math.max(0,S.altar-v);log(`${source} causes ${v} Altar loss.`,"bad")}
+  if(S.altar<=0) gameOver(false); render();
+}
+function buildPriestDeck(){
+ // Roguelite starting deck: exactly one copy of each of the 32 Priest cards.
+ // Extra copies only enter the run when the player drafts them as rewards.
+ let d=PRIEST.map((c,i)=>({...c,id:`p${i}-base-${uid()}`}));
+ return shuffle(d);
+}
+function buildDemonDeck(){
+ let d=[];
+ DEMON_TYPES.forEach((t,i)=>{for(let j=0;j<4;j++)d.push({...t,id:`d${i}-${j}-${uid()}`,greater:false,cur:t.hp,status:{}})});
+ // 25 Demon types × 4 physical copies = exactly 100 cards.
+ return shuffle(d);
+}
+function resetPriestCardForDeck(card){
+ if(!card||card.temp)return null;
+ let base=PRIEST.find(c=>c.n===card.n);
+ if(!base)return {...card,empowered:false,empowerPaid:false,empManaDiscount:0,empBloodDiscount:0};
+ return {...base,id:card.id};
+}
+function returnPriestCardToDiscard(card){
+ if(!card||card.temp)return false;
+ let reset=resetPriestCardForDeck(card);if(!reset)return false;
+ S.priestDiscard.push(reset);return true;
+}
+function returnPriestCardToBottom(card){
+ if(!card||card.temp)return false;
+ let reset=resetPriestCardForDeck(card);if(!reset)return false;
+ S.priestDeck.unshift(reset);return true;
+}
+function reshufflePriestAvailable(reason='Priest draw pile exhausted'){
+ let pool=[...(S.priestDeck||[]),...(S.priestDiscard||[])].filter(c=>c&&!c.temp&&!String(c.id||'').startsWith('echo-')).map(resetPriestCardForDeck).filter(Boolean);
+ if(!pool.length)return false;
+ // Preserve physical-card identity and remove only accidental duplicate IDs from legacy saves.
+ let seen=new Set();pool=pool.filter(c=>{if(!c||!c.id||seen.has(c.id))return false;seen.add(c.id);return true});
+ S.priestDiscard=[];
+ S.priestDeck=shuffle(pool);
+ S.priestCycleUsed=[];
+ log(`${reason}. ${S.priestDeck.length} available Priest cards are fully reshuffled.`);
+ return true;
+}
+function reshuffleDemonCycle(reason='Demon deck cycle complete'){
+ if(!S.demonDeck.length)return false;
+ S.demonDeck=shuffle(S.demonDeck);
+ S.demonCycleUsed=[];
+ log(`${reason}. The remaining Demon deck is fully reshuffled.`);
+ return true;
+}
+const HAND_LIMIT=7;
+function addPriestToHand(p,card){if(!p||!card)return false;let limit=handLimit();if(p.hand.length>=limit){log(`${p.name} is at the ${limit}-card hand limit. No card is added.`);return false}p.hand.push(card);return true}
+function drawPriest(p,n){
+ let drawn=0,limit=handLimit();
+ S.priestCycleUsed=Array.isArray(S.priestCycleUsed)?S.priestCycleUsed:[];
+ for(let i=0;i<n;i++){
+  if(p.hand.length>=limit){if(i===0)log(`${p.name} is at the ${limit}-card hand limit and draws no cards.`);else log(`${p.name} reaches the ${limit}-card hand limit; remaining draws are skipped.`);break}
+  if(!S.priestDeck.length){if(!reshufflePriestAvailable('Priest draw pile exhausted'))break}
+  let used=new Set(S.priestCycleUsed);
+  let next=S.priestDeck[S.priestDeck.length-1];
+  // A card returned to the bottom of the deck cannot be drawn a second time in the same cycle.
+  // Reaching one means every still-unseen card ahead of it has already been drawn, so reshuffle now.
+  if(next&&used.has(next.id)){if(!reshufflePriestAvailable('All currently available Priest cards have been seen once this cycle'))break;next=S.priestDeck[S.priestDeck.length-1]}
+  let card=S.priestDeck.pop();
+  if(!card)break;
+  S.priestCycleUsed.push(card.id);
+  if(addPriestToHand(p,card))drawn++;
+ }
+ render();return drawn;
+}
+function drawDemon(){
+ S.demonCycleUsed=Array.isArray(S.demonCycleUsed)?S.demonCycleUsed:[];
+ S.demonDiscard=Array.isArray(S.demonDiscard)?S.demonDiscard:[];
+ if(!S.demonDeck.length){
+  let banishedCount=S.demonDiscard.length;
+  S.demonDeck=buildDemonDeck();
+  S.demonDiscard=[];
+  S.demonCycleUsed=[];
+  log(`Demon draw pile exhausted. A fresh 100-card Demon deck is fully reshuffled${banishedCount?`; ${banishedCount} banished card${banishedCount===1?'':'s'} return for the new cycle`:''}.`);
+ }
+ if(!S.demonDeck.length)return null;
+ let used=new Set(S.demonCycleUsed),next=S.demonDeck[S.demonDeck.length-1];
+ // Demons that reached the Altar may sit on the bottom by rule, but cannot be drawn twice
+ // before the rest of the current Demon cycle has been exhausted.
+ if(next&&used.has(next.id)){reshuffleDemonCycle('All Demon cards available in this cycle have been seen once');next=S.demonDeck[S.demonDeck.length-1]}
+ let d=S.demonDeck.pop();
+ if(d)S.demonCycleUsed.push(d.id);
+ return d;
+}
+
+const BOSS_BAG_STORAGE_KEY='sanctum-boss-bag-v1';
+function secureRandomIndex(max){
+ if(max<=1)return 0;
+ try{
+  if(window.crypto&&window.crypto.getRandomValues){
+   const range=0x100000000;
+   const limit=range-(range%max);
+   const buf=new Uint32Array(1);
+   do{window.crypto.getRandomValues(buf)}while(buf[0]>=limit);
+   return buf[0]%max;
+  }
+ }catch(e){}
+ return Math.floor(Math.random()*max);
+}
+function secureShuffle(arr){
+ let a=[...arr];
+ for(let i=a.length-1;i>0;i--){
+  let j=secureRandomIndex(i+1);
+  [a[i],a[j]]=[a[j],a[i]];
+ }
+ return a;
+}
+function loadBossBag(){
+ let keys=BOSSES.map(b=>b.key);
+ try{
+  let saved=JSON.parse(localStorage.getItem(BOSS_BAG_STORAGE_KEY)||'null');
+  if(Array.isArray(saved)){
+   saved=saved.filter((k,i)=>keys.includes(k)&&saved.indexOf(k)===i);
+   if(saved.length)return saved;
+  }
+ }catch(e){}
+ return secureShuffle(keys);
+}
+function saveBossBag(bag){
+ try{localStorage.setItem(BOSS_BAG_STORAGE_KEY,JSON.stringify(bag))}catch(e){}
+}
+function drawHiddenBoss(){
+ let bag=loadBossBag();
+ if(!bag.length)bag=secureShuffle(BOSSES.map(b=>b.key));
+ let key=bag.shift();
+ saveBossBag(bag);
+ let picked=BOSSES.find(b=>b.key===key)||BOSSES[secureRandomIndex(BOSSES.length)];
+ return {...picked,cur:null};
+}
+
+function drawBossForDescent(excludeKey){
+ let keys=BOSSES.map(b=>b.key);
+ let bag=loadBossBag();
+ if(!bag.length)bag=secureShuffle(keys);
+ let idx=bag.findIndex(k=>k!==excludeKey);
+ if(idx<0){
+   bag=secureShuffle(keys.filter(k=>k!==excludeKey));
+   if(!bag.length)bag=[excludeKey];
+   idx=0;
+ }
+ let key=bag.splice(idx,1)[0];
+ saveBossBag(bag);
+ let picked=BOSSES.find(b=>b.key===key)||BOSSES[secureRandomIndex(BOSSES.length)];
+ return {...picked,cur:null};
+}
+
+
+
+let TURN_TIMER_SECONDS=60;
+let turnTimerInterval=null;
+let turnTimerDeadline=0;
+let turnTimerWaitingForPopup=false;
+let turnTimerPausedForSetup=false;
+let turnTimeoutInProgress=false;
+
+function updateTurnTimerDisplay(){
+ let value=document.getElementById('turnTimerStatValue');
+ let stat=document.getElementById('turnTimerStat');
+ let fill=document.getElementById('turnTimerFill');
+ if(!value||!stat)return;
+ stat.classList.remove('warning','critical','lowFill');
+
+ if(!S.started||S.phase!=='Priest'){
+  value.textContent='—';
+  if(fill)fill.style.height='0%';
+  stat.setAttribute('aria-valuenow','0');
+  stat.classList.add('lowFill');
+  return;
+ }
+
+ let seconds=Math.max(0,Math.min(TURN_TIMER_SECONDS,Math.ceil(Number(S.turnTimerRemaining)||0)));
+ value.textContent=`${seconds}s`;
+ if(fill)fill.style.height=`${(seconds/TURN_TIMER_SECONDS)*100}%`;
+ stat.setAttribute('aria-valuenow',String(seconds));
+ if(seconds<=30)stat.classList.add('lowFill');
+ if(seconds<=5)stat.classList.add('critical');
+ else if(seconds<=10)stat.classList.add('warning');
+}
+
+function clearTurnTimerInterval(){
+ if(turnTimerInterval){
+  clearInterval(turnTimerInterval);
+  turnTimerInterval=null;
+ }
+ turnTimerDeadline=0;
+}
+
+function turnTimerBlockedByRequiredPopup(){
+ let ids=['crucifixModal','relicModal','descendModal','endRunStatsModal'];
+ return ids.some(id=>{
+  let el=document.getElementById(id);
+  return el&&!el.classList.contains('hidden');
+ });
+}
+
+function pauseTurnTimer(forSetup=false){
+ if(S.started&&S.phase==='Priest'&&turnTimerDeadline){
+  S.turnTimerRemaining=Math.max(0,Math.ceil((turnTimerDeadline-Date.now())/1000));
+ }
+ clearTurnTimerInterval();
+ if(forSetup)turnTimerPausedForSetup=true;
+ updateTurnTimerDisplay();
+}
+
+function startTurnTimer(seconds=TURN_TIMER_SECONDS){
+ clearTurnTimerInterval();
+ turnTimeoutInProgress=false;
+ if(window.__sanctumManualPaused||S.manualPaused){updateTurnTimerDisplay();return;}
+
+ if(!S.started||S.phase!=='Priest'){
+  turnTimerWaitingForPopup=false;
+  updateTurnTimerDisplay();
+  return;
+ }
+
+ let n=Number.isFinite(seconds)?Math.ceil(seconds):TURN_TIMER_SECONDS;
+ n=Math.max(1,Math.min(TURN_TIMER_SECONDS,n));
+ S.turnTimerRemaining=n;
+ updateTurnTimerDisplay();
+
+ if(turnTimerPausedForSetup)return;
+
+ if(turnTimerBlockedByRequiredPopup()){
+  turnTimerWaitingForPopup=true;
+  return;
+ }
+
+ turnTimerWaitingForPopup=false;
+ turnTimerDeadline=Date.now()+n*1000;
+ turnTimerInterval=setInterval(tickTurnTimer,200);
+}
+
+function resumeTurnTimerIfReady(){
+ if(window.__sanctumManualPaused||S.manualPaused){clearTurnTimerInterval();updateTurnTimerDisplay();return;}
+ if(!S.started||S.phase!=='Priest'){
+  clearTurnTimerInterval();
+  turnTimerWaitingForPopup=false;
+  updateTurnTimerDisplay();
+  return;
+ }
+ if(turnTimerPausedForSetup||turnTimerBlockedByRequiredPopup()){
+  turnTimerWaitingForPopup=true;
+  return;
+ }
+ if(!turnTimerInterval){
+  startTurnTimer(S.turnTimerRemaining||TURN_TIMER_SECONDS);
+ }
+}
+
+function tickTurnTimer(){
+ if(window.__sanctumManualPaused||S.manualPaused){clearTurnTimerInterval();updateTurnTimerDisplay();return;}
+ if(!S.started||S.phase!=='Priest'){
+  clearTurnTimerInterval();
+  updateTurnTimerDisplay();
+  return;
+ }
+
+ // Mandatory Crucifix / Relic / Boss-choice screens must resolve before the
+ // next player can act, so the active countdown waits while they are visible.
+ if(turnTimerBlockedByRequiredPopup()){
+  S.turnTimerRemaining=Math.max(1,Math.ceil((turnTimerDeadline-Date.now())/1000));
+  clearTurnTimerInterval();
+  turnTimerWaitingForPopup=true;
+  updateTurnTimerDisplay();
+  return;
+ }
+
+ let remaining=Math.max(0,Math.ceil((turnTimerDeadline-Date.now())/1000));
+ if(remaining!==S.turnTimerRemaining){
+  S.turnTimerRemaining=remaining;
+  updateTurnTimerDisplay();
+ }
+
+ if(remaining<=0){
+  clearTurnTimerInterval();
+  handleTurnTimerExpired();
+ }
+}
+
+function cancelTimedOutPlayerAction(){
+ // Trigger the same transaction-cancel path used by the visible Cancel button.
+ choiceCancelSerial++;
+
+ if(choiceResolve){
+  let resolver=choiceResolve;
+  choiceResolve=null;
+  document.getElementById('choiceModal').classList.add('hidden');
+  try{resolver(null)}catch(e){}
+ }
+
+ let reveal=document.getElementById('cardRevealModal');
+ let revealClose=document.getElementById('cardRevealClose');
+ if(reveal&&!reveal.classList.contains('hidden')&&revealClose){
+  try{revealClose.click()}catch(e){reveal.classList.add('hidden')}
+ }
+
+ let damageModal=document.getElementById('damageAmountModal');
+ let damageCancel=document.getElementById('damageAmountCancel');
+ if(damageModal&&!damageModal.classList.contains('hidden')&&damageCancel){
+  try{damageCancel.click()}catch(e){damageModal.classList.add('hidden')}
+ }
+
+ let consecrate=document.getElementById('consecrateModal');
+ if(consecrate&&!consecrate.classList.contains('hidden'))closeConsecrateModal();
+
+ let desecration=document.getElementById('desecrationModal');
+ if(desecration&&!desecration.classList.contains('hidden'))closeDesecrationInfo();
+}
+
+function discardTimedOutHandOverage(p){
+ if(!p||!Array.isArray(p.hand))return;
+ let discarded=[];
+ while(p.hand.length>handLimit()){
+  let c=p.hand.pop();
+  if(!c)break;
+  returnPriestCardToBottom(c);
+  discarded.push(c.n);
+ }
+ if(discarded.length){
+  log(`${p.name} timed out above the hand limit. ${discarded.join(', ')} ${discarded.length===1?'is':'are'} placed on the bottom of the Priest deck.`,'bad');
+ }
+}
+
+function advanceTurnAfterTimeout(){
+ if(!S.started||S.phase!=='Priest')return;
+ let p=currentPlayer();
+ discardTimedOutHandOverage(p);
+ clearTurnTimerInterval();
+
+ if(S.current<S.players.length-1){
+  S.current++;
+  beginTurn(false);
+ }else{
+  runDemonPhase();
+ }
+}
+
+function handleTurnTimerExpired(){
+ if(turnTimeoutInProgress||!S.started||S.phase!=='Priest')return;
+ turnTimeoutInProgress=true;
+
+ let timedOutIndex=S.current;
+ let p=currentPlayer();
+ let playerName=p?p.name:`Player ${timedOutIndex+1}`;
+ S.turnTimerRemaining=0;
+ updateTurnTimerDisplay();
+
+ cancelTimedOutPlayerAction();
+ log(`${playerName}'s ${TURN_TIMER_SECONDS}-second turn timer expired. The turn ends automatically.`,'bad');
+ showGameStatus(`${playerName}: TIME — turn ended automatically.`,'bad');
+
+ // Give any cancelled async card/Ritual transaction a chance to roll back
+ // before advancing to the next player.
+ setTimeout(()=>{
+  if(S.started&&S.phase==='Priest'&&S.current===timedOutIndex){
+   advanceTurnAfterTimeout();
+  }
+  turnTimeoutInProgress=false;
+ },80);
+}
+
+function resetTurnTimerForNewTurn(){
+ turnTimerPausedForSetup=false;
+ S.turnTimerRemaining=TURN_TIMER_SECONDS;
+ startTurnTimer(TURN_TIMER_SECONDS);
+}
+
+function syncTurnTimerAfterLoad(){
+ clearTurnTimerInterval();
+ turnTimerPausedForSetup=false;
+ turnTimerWaitingForPopup=false;
+ turnTimeoutInProgress=false;
+ if(S.started&&S.phase==='Priest'){
+  let saved=Number.isFinite(S.turnTimerRemaining)?S.turnTimerRemaining:TURN_TIMER_SECONDS;
+  startTurnTimer(saved>0?saved:TURN_TIMER_SECONDS);
+ }else{
+  updateTurnTimerDisplay();
+ }
+}
+
+function setupPlayersUI(){const n=+document.getElementById('playerCount').value;const area=document.getElementById('setupPlayers');area.innerHTML='';const names=Object.keys(CHARACTERS);for(let i=0;i<n;i++){let div=document.createElement('div');div.className='setupPlayer';div.innerHTML=`<b>Player ${i+1}</b><br><input id="pname${i}" value="Player ${i+1}" style="width:100%;margin:5px 0;background:#0e0d0d;color:white;border:1px solid #594929;padding:6px"><select id="pchar${i}" style="width:100%;background:#0e0d0d;color:white;border:1px solid #594929;padding:6px">${names.map((x,j)=>`<option ${j===i?'selected':''}>${x}</option>`).join('')}</select>`;area.appendChild(div)}}
+function syncSetupTimerOption(){let el=document.getElementById('turnTimerSelect');if(el){let n=Number(S?.turnTimerSeconds||TURN_TIMER_SECONDS||60);n=Math.max(30,Math.min(120,Math.round(n/15)*15));el.value=String(n)}}
+function startGame(){const n=+document.getElementById('playerCount').value;let chars=[];for(let i=0;i<n;i++)chars.push(document.getElementById(`pchar${i}`).value);if(new Set(chars).size!==chars.length){alert('Choose a different character for each player.');return false}let chosenTimer=Number(document.getElementById('turnTimerSelect')?.value||60);chosenTimer=Math.max(30,Math.min(120,Math.round(chosenTimer/15)*15));S=freshState();S.turnTimerSeconds=chosenTimer;S.turnTimerRemaining=chosenTimer;TURN_TIMER_SECONDS=chosenTimer;S.started=true;S.phase='Priest';S.priestDeck=buildPriestDeck();S.priestCycleUsed=[];S.demonDeck=buildDemonDeck();S.demonCycleUsed=[];resetCrucifixDeck();S.boss=drawHiddenBoss();S.boss.cur=S.boss.hp;S.relicDeck=shuffle(RELICS.map(r=>r.key));for(let i=0;i<n;i++){let p={name:document.getElementById(`pname${i}`).value||`Player ${i+1}`,char:chars[i],blood:0,hand:[],basic:false,ritualUsed:[false,false,false],forceEmpower:false,discardUsed:false,consecrateUsed:false};S.players.push(p);drawPriest(p,4)}for(let i=0;i<normalSpawnCount();i++)spawnOne(false);document.getElementById('setupModal').classList.add('hidden');beginTurn(true);log('The Sanctum is besieged. The first round begins.');render();return true}
+function currentPlayer(){return S.players[S.current]}
+function beginTurn(skipDraw=false){if(!S.started)return;S.phase='Priest';let p=currentPlayer();p.basic=false;p.ritualUsed=[false,false,false];p.forceEmpower=false;p.discardUsed=false;p.consecrateUsed=false;S.mergeManaDiscount=0;S.mergeBloodDiscount=0;resolveAltarTurnRenewals();if(!skipDraw)drawPriest(p,2);log(`${p.name} (${p.char}) begins a turn.`);render();resetTurnTimerForNewTurn()}
+function endTurn(){let p=currentPlayer();if(p.hand.length>handLimit()){alert(`Hand limit is ${handLimit()}. Discard cards before ending your turn.`);return}clearTurnTimerInterval();if(S.current<S.players.length-1){S.current++;beginTurn(false)}else{runDemonPhase()}}
+function normalSpawnCount(){
+ // During the Boss Stage, normal deck spawns happen every other round.
+ // The first Demon Phase after the Boss awakens skips the normal spawn.
+ // Boss-specific summons use their own summon functions and are unaffected.
+ if(S.bossRevealed&&((S.bossStageRoundsElapsed||0)%2===0))return 0;
+ if(S.players.length===1)return 1;
+ if(S.players.length===2&&S.bossRevealed)return 1;
+ return 2;
+}
+function runDemonPhase(){clearTurnTimerInterval();S.phase='Demon';S.turnTimerRemaining=TURN_TIMER_SECONDS;log('Demon Phase begins.','bad');render();updateTurnTimerDisplay();setTimeout(()=>{resolveStartDemonPhaseAbilities();moveDemons();const bossStageAtSpawn=S.bossRevealed;const spawnCount=normalSpawnCount();if(bossStageAtSpawn&&spawnCount===0)log('Boss Stage: normal Demon spawning is skipped this round.','info');for(let i=0;i<spawnCount;i++)spawnOne();if(bossStageAtSpawn)S.bossStageRoundsElapsed=(S.bossStageRoundsElapsed||0)+1;resolveEndDemonPhaseAbilities();if(S.bossRevealed)runBossPhase();else endRound()},200)}
+function moveDemons(){for(let r=3;r>=0;r--){let room=[...S.rooms[r]];for(let d of room){let locNow=findDemonLocation(d);if(!locNow||locNow.r!==r)continue;let blockedByRoom=S.roomStop[r]&&!stopIsBlocked(d);if(d.status.stop||blockedByRoom){delete d.status.stop;delete d.status.attackMoveBonus;continue}let attackMoveBonus=d.status.attackMoveBonus||0;delete d.status.attackMoveBonus;let moved=moveOneForward(d);if(!moved)continue;let code=demonCode(d),extra=code==='fast'?demonValue(d):0;for(let k=0;k<extra;k++){let loc=findDemonLocation(d);if(!loc)break;if(S.rooms[loc.r].length!==1)break;if(!moveOneForward(d,`${demonName(d)} extra movement`))break}for(let k=0;k<attackMoveBonus;k++){let loc=findDemonLocation(d);if(!loc)break;if(!moveOneForward(d,`${demonName(d)} bonus movement from a Demon attack`))break}}}S.roomStop={};allDemons().forEach(x=>delete x.d.status.attackMoveBonus);render()}
+function resetDemon(d){d.greater=false;d.cur=d.hp;d.status={};return d}
+function spawnOne(doLog=true){let d=S.queue.length?S.queue.shift():drawDemon();if(!d){if(doLog)log('No Demon card is currently available to spawn.');return}if(S.rooms[0].length>=4){S.queue.push(d);if(doLog)log(`${d.n} waits in the Gate Queue.`,'bad');return}S.rooms[0].push(d);triggerEnterPlay(d);triggerEnterRoom(d);if(roomDesecrated(0)&&findDemonLocation(d)){d.status=d.status||{};d.status.extraHpBonus=(d.status.extraHpBonus||0)+1;d.cur+=1;log(`${demonName(d)} gains +1 HP from the Desecrated Gateway.`,'bad')}if(roomConsecrated(0)&&findDemonLocation(d))damageDemon(d,1,'Consecrated Gateway');if(doLog)log(`${d.n} enters the Gateway.`,'bad');if(findDemonLocation(d))checkMerge(d);render()}
+function mergeRogueHpBonus(d){return Math.max(0,Number(d?.status?.rogueHpBonus)||0)}
+function mergedDemonStatus(host,donor){
+ let a={...(host.status||{})},b={...(donor.status||{})};
+ let aExtra=Math.max(0,(a.extraHpBonus||0)-mergeRogueHpBonus(host)),bExtra=Math.max(0,(b.extraHpBonus||0)-mergeRogueHpBonus(donor));
+ let out={...a};
+ out.extraHpBonus=Math.max(aExtra,bExtra);
+ out.bossHpBonus=Math.max(a.bossHpBonus||0,b.bossHpBonus||0);
+ for(let k of ['attackBonus','attackRoundBonus','attackMoveBonus','ruinBonus','damageIgnoreUsed','stopWardUsed','ritualHalfUsed'])out[k]=Math.max(a[k]||0,b[k]||0);
+ out.bloodDrained=Math.max(0,(a.bloodDrained||0)+(b.bloodDrained||0));
+ if(a.abilityRemoved||b.abilityRemoved)out.abilityRemoved=true;
+ if(a.stop||b.stop)out.stop=true;
+ delete out.rogueScaledFloor;delete out.rogueDifficulty;delete out.rogueFloorHealth;delete out.rogueHpBonus;delete out.noMerge;
+ out.mergedThisPhase=true;
+ return out;
+}
