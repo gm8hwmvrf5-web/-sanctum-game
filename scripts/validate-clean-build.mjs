@@ -5,7 +5,7 @@ const root=process.cwd();
 const required=[
   'index.html','service-worker.js','manifest.webmanifest',
   'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css',
-  'src/js/00-data.js','src/js/10-engine.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
+  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
   'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
 ];
 
@@ -19,7 +19,7 @@ if(index.includes('data:image/')) throw new Error('Clean index still contains em
 if(!index.includes('</body>')||!index.includes('</html>')) throw new Error('Index markup is incomplete.');
 
 const ordered=[
- 'src/js/00-data.js','src/js/10-engine.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
+ 'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
  'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
 ];
 let last=-1;
@@ -42,7 +42,7 @@ for(const dir of ['src/js','src/styles']){
 
 const sourceFiles=[
   'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css',
-  'src/js/00-data.js','src/js/10-engine.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
+  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
   'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
 ];
 for(const source of sourceFiles){
