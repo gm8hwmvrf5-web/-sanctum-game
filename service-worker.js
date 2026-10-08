@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v2';
+const CACHE_NAME='sanctum-clean-v3';
 const CORE=[
   './',
   './index.html',
@@ -8,7 +8,8 @@ const CORE=[
   './src/styles/mobile.css',
   './src/styles/multiplayer.css',
   './src/js/00-data.js',
-  './src/js/10-engine.js',\n  './src/js/15-asset-loader.js',
+  './src/js/10-engine.js',
+  './src/js/15-asset-loader.js',
   './src/js/20-ui-foundation.js',
   './src/js/30-roguelite.js',
   './src/js/40-priest-ui.js',
