@@ -17,6 +17,9 @@ const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 if(index.includes('parts/game-')) throw new Error('Clean index still references stitched game parts.');
 if(index.includes('data:image/')) throw new Error('Clean index still contains embedded image data.');
 if(!index.includes('</body>')||!index.includes('</html>')) throw new Error('Index markup is incomplete.');
+if(index.includes('\\n<script')) throw new Error('Index contains a literal \\n before a script tag.');
+const serviceWorker=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
+if(serviceWorker.includes('\\n')) throw new Error('Service worker contains a literal \\n escape outside a string.');
 
 const ordered=[
  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
