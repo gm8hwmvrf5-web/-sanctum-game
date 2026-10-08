@@ -4,7 +4,7 @@
 (()=>{
   'use strict';
 
-  const SPRITE_URL='https://raw.githubusercontent.com/gm8hwmvrf5-web/-sanctum-game/multiplayer-dev/assets/bosses/boss-sprite.webp?v=20261006hq';
+  const SPRITE_URL='./assets/bosses/boss-sprite.webp';
   const BOSS_ART_ORDER=[
     'plagueFather',
     'blackSovereign',
@@ -75,20 +75,48 @@
     return urls;
   }
 
-  const sprite=new Image();
-  sprite.crossOrigin='anonymous';
-  sprite.decoding='async';
-  sprite.onload=()=>{
-    try{
-      installArtwork(cropSprite(sprite));
-    }catch(err){
-      console.error('Could not prepare the new Boss artwork.',err);
-    }
-  };
-  sprite.onerror=()=>{
-    console.error('Could not load the optimized Boss artwork sprite.');
-  };
-  sprite.src=SPRITE_URL;
+  let spriteStarted=false;
+  function ensureBossSprite(priority='low'){
+    if(spriteStarted||bossArtworkUrls)return;
+    spriteStarted=true;
+    const sprite=new Image();
+    sprite.decoding='async';
+    try{sprite.fetchPriority=priority}catch(_){}
+    sprite.onload=()=>{
+      try{
+        installArtwork(cropSprite(sprite));
+      }catch(err){
+        console.error('Could not prepare the new Boss artwork.',err);
+      }
+    };
+    sprite.onerror=()=>{
+      spriteStarted=false;
+      console.error('Could not load the optimized Boss artwork sprite.');
+    };
+    sprite.src=SPRITE_URL;
+  }
+
+  window.__sanctumEnsureBossArtwork=ensureBossSprite;
+
+  /* Do not let the 888 KB Boss sprite compete with the opening hand/board.
+     Load it immediately only when Boss artwork is actually needed. */
+  document.getElementById('bossDeckBtn')?.addEventListener('click',()=>ensureBossSprite('high'),{capture:true});
+  if(typeof revealBoss==='function'){
+    const _revealBossForArtwork=revealBoss;
+    revealBoss=function(){
+      ensureBossSprite('high');
+      return _revealBossForArtwork.apply(this,arguments);
+    };
+    try{window.revealBoss=revealBoss}catch(_){}
+  }
+
+  /* If the player stays in a run long enough, warm Boss art quietly after the
+     opening artwork has had time to settle. */
+  setTimeout(()=>{
+    const warm=()=>ensureBossSprite('low');
+    if(typeof requestIdleCallback==='function')requestIdleCallback(warm,{timeout:3000});
+    else warm();
+  },10000);
 
   /* Saved / remotely synced states omit art. Re-apply the new Boss art whenever
      static artwork is restored, without changing any state or Boss rules. */
@@ -453,7 +481,7 @@
       const normal=c.e||'No normal effect text.';
       const empowered=c.x||'No Empowered effect text.';
       return '<article class="priestDeckReferenceCard">'+
-        '<div class="priestDeckReferenceArt">'+(art?'<img src="'+esc(art)+'" alt="'+esc(c.n)+'">':'')+'</div>'+
+        '<div class="priestDeckReferenceArt">'+(art?'<img loading="lazy" decoding="async" fetchpriority="low" src="'+esc(art)+'" alt="'+esc(c.n)+'">':'')+'</div>'+
         '<div class="priestDeckReferenceBody">'+
           '<div class="priestDeckReferenceHead">'+
             '<div class="priestDeckReferenceName">'+esc(c.n)+'</div>'+
