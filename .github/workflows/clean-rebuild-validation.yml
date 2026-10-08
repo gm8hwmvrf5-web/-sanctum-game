@@ -24,6 +24,8 @@ jobs:
             echo "Checking $file"
             node --check "$file"
           done
+          echo "Checking service-worker.js"
+          node --check service-worker.js
       - name: Structural validation
         run: node scripts/validate-clean-build.mjs
       - name: Install browser smoke-test dependency
