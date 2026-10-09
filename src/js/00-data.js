@@ -21,7 +21,7 @@ const CHARACTERS = {
     {n:"Chains of Faith",m:0,b:2,h:"Move up to 2 different Demons back 1 room.",f:"Move up to 3 different Demons back 1 room.",kind:"chainsFaith"}
   ]},
   "Monk": {img:"./assets/embedded/7687d2a5-59728.webp", subtitle:"Mind-Bound Ascetic", rituals:[
-    {n:"Palm of Judgment",m:0,b:3,h:"Deal 3 damage to a Demon or Boss. If a Demon is targeted, move it back up to 2 rooms if possible.",f:"Deal 7 damage to a Demon or Boss. If a Demon is targeted, move it back up to 2 rooms if possible.",kind:"palmJudgment"},
+    {n:"Palm of Judgment",m:0,b:3,h:"Deal 2 damage to a Demon or Boss. If it is a Demon, move it back exactly 1 room.",f:"Deal 6 damage to a Demon or Boss. If it is a Demon, move it back exactly 2 rooms.",kind:"palmJudgment"},
     {n:"Still the Wicked",m:0,b:2,h:"Choose up to 2 Demons. They do not move this Demon Phase.",f:"Choose up to 2 rooms. All Demons there do not move this Demon Phase.",kind:"stillWicked"},
     {n:"Inner Peace",m:0,b:2,h:"Gain 3 Demon Blood.",f:"Gain 4 Demon Blood and draw 2 Priest cards.",kind:"innerPeace"}
   ]},
