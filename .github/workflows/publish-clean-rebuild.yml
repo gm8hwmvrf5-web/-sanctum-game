@@ -1,0 +1,58 @@
+name: Publish Clean Rebuild
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-multiplayer-clean-rebuild
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout clean rebuild
+        uses: actions/checkout@v4
+        with:
+          path: clean
+
+      - name: Checkout GitHub Pages source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+
+      - name: Mirror clean runtime into Pages folder
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="site/multiplayer-clean-rebuild"
+          rm -rf "$target"
+          mkdir -p "$target"
+          cp clean/index.html "$target/index.html"
+          cp clean/manifest.webmanifest "$target/manifest.webmanifest"
+          cp clean/service-worker.js "$target/service-worker.js"
+          cp -R clean/src "$target/src"
+          cp -R clean/assets "$target/assets"
+          cp -R clean/icons "$target/icons"
+
+      - name: Publish latest clean build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add multiplayer-clean-rebuild
+          if git diff --cached --quiet; then
+            echo "Pages copy is already current."
+            exit 0
+          fi
+          git commit -m "Publish latest multiplayer clean rebuild"
+          git push origin HEAD:main
