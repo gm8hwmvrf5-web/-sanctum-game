@@ -73,9 +73,21 @@ for(const file of ['index.html','src/js/20-ui-foundation.js','src/js/40-priest-u
   }
 }
 
+const dataSource=fs.readFileSync(path.join(root,'src/js/00-data.js'),'utf8');
+if(!dataSource.includes('Palm of Judgment')||!dataSource.includes('Deal 2 damage to a Demon or Boss')||!dataSource.includes('Deal 6 damage to a Demon or Boss')){
+  throw new Error('Monk Palm of Judgment must display 2 lesser / 6 greater damage.');
+}
 const multiplayer=fs.readFileSync(path.join(root,'src/js/60-multiplayer.js'),'utf8');
 if(!multiplayer.includes('supabase.co')) throw new Error('Supabase multiplayer configuration is missing.');
 if(!multiplayer.includes('pushSharedState')) throw new Error('Multiplayer state publishing logic is missing.');
+if(multiplayer.includes('Deal 4 damage to a Demon or Boss. If it is a Demon, move it back exactly 1 room.')||
+   multiplayer.includes('Deal 8 damage to a Demon or Boss. If it is a Demon, move it back exactly 2 rooms.')){
+  throw new Error('Old Monk 4/8 multiplayer override is still present.');
+}
+if(!multiplayer.includes('Deal 2 damage to a Demon or Boss. If it is a Demon, move it back exactly 1 room.')||
+   !multiplayer.includes('Deal 6 damage to a Demon or Boss. If it is a Demon, move it back exactly 2 rooms.')){
+  throw new Error('Monk multiplayer override must remain at 2/6 damage.');
+}
 if(!multiplayer.includes('applyRemoteGameRow')) throw new Error('Multiplayer state receive/apply logic is missing.');
 
 const engine=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
