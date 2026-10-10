@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v5';
+const CACHE_NAME='sanctum-clean-v6';
 const CORE=[
   './',
   './index.html',
@@ -7,10 +7,12 @@ const CORE=[
   './src/styles/roguelite.css',
   './src/styles/mobile.css',
   './src/styles/multiplayer.css',
+  './src/styles/accessibility.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
   './src/js/20-ui-foundation.js',
+  './src/js/25-font-settings.js',
   './src/js/30-roguelite.js',
   './src/js/40-priest-ui.js',
   './src/js/50-mobile.js',
