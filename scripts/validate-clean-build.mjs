@@ -4,9 +4,9 @@ import path from 'node:path';
 const root=process.cwd();
 const required=[
   'index.html','service-worker.js','manifest.webmanifest',
-  'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css',
-  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
-  'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
+  'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css','src/styles/accessibility.css','src/styles/accessibility.css',
+  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/25-font-settings.js','src/js/30-roguelite.js',
+  'src/js/25-font-settings.js','src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
 ];
 
 for(const file of required){
@@ -18,6 +18,10 @@ if(index.includes('parts/game-')) throw new Error('Clean index still references 
 if(index.includes('data:image/')) throw new Error('Clean index still contains embedded image data.');
 if(!index.includes('</body>')||!index.includes('</html>')) throw new Error('Index markup is incomplete.');
 if(index.includes('\\n<script')) throw new Error('Index contains a literal \\n before a script tag.');
+if(index.includes('\\n<link')) throw new Error('Index contains a literal \\n before a stylesheet link.');
+for(const token of ['damageFontSize','abilityFontSize','src/styles/accessibility.css','src/js/25-font-settings.js']){
+  if(!index.includes(token)) throw new Error('Font controls wiring missing: '+token);
+}
 const serviceWorker=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
 if(serviceWorker.includes('\\n')) throw new Error('Service worker contains a literal \\n escape outside a string.');
 
@@ -77,6 +81,11 @@ const dataSource=fs.readFileSync(path.join(root,'src/js/00-data.js'),'utf8');
 if(!dataSource.includes('Palm of Judgment')||!dataSource.includes('Deal 2 damage to a Demon or Boss')||!dataSource.includes('Deal 6 damage to a Demon or Boss')){
   throw new Error('Monk Palm of Judgment must display 2 lesser / 6 greater damage.');
 }
+const fontSettings=fs.readFileSync(path.join(root,'src/js/25-font-settings.js'),'utf8');
+for(const token of ['sanctum_font_settings_v1','damageFontSize','abilityFontSize']){
+  if(!fontSettings.includes(token)) throw new Error('Font settings module missing: '+token);
+}
+
 const multiplayer=fs.readFileSync(path.join(root,'src/js/60-multiplayer.js'),'utf8');
 if(!multiplayer.includes('supabase.co')) throw new Error('Supabase multiplayer configuration is missing.');
 if(!multiplayer.includes('pushSharedState')) throw new Error('Multiplayer state publishing logic is missing.');
