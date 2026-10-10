@@ -107,10 +107,10 @@
 
 
 
-<link rel="stylesheet" href="./src/styles/base.css?v=clean5">
-<link rel="stylesheet" href="./src/styles/roguelite.css?v=clean5">
-<link rel="stylesheet" href="./src/styles/mobile.css?v=clean5">
-<link rel="stylesheet" href="./src/styles/multiplayer.css?v=clean5">
+<link rel="stylesheet" href="./src/styles/base.css?v=clean6">
+<link rel="stylesheet" href="./src/styles/roguelite.css?v=clean6">
+<link rel="stylesheet" href="./src/styles/mobile.css?v=clean6">
+<link rel="stylesheet" href="./src/styles/multiplayer.css?v=clean6">\n<link rel="stylesheet" href="./src/styles/accessibility.css?v=clean6">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -402,6 +402,20 @@
       <button class="btn" id="pauseLoadBtn" type="button">Load</button>
       <button class="btn green" id="resumeGameBtn" type="button">Resume</button>
     </div>
+    <div class="fontSettingsPanel" aria-label="Font size settings">
+      <div class="fontSettingsTitle">Text Size</div>
+      <div class="fontSettingRow">
+        <label for="damageFontSize">Damage / Stat Numbers</label>
+        <input id="damageFontSize" type="range" min="70" max="180" step="5" value="100" aria-label="Damage and stat number font size">
+        <output class="fontSettingValue" id="damageFontSizeValue" for="damageFontSize">100%</output>
+      </div>
+      <div class="fontSettingRow">
+        <label for="abilityFontSize">Ability Text</label>
+        <input id="abilityFontSize" type="range" min="70" max="180" step="5" value="100" aria-label="Ability text font size">
+        <output class="fontSettingValue" id="abilityFontSizeValue" for="abilityFontSize">100%</output>
+      </div>
+      <p class="fontSettingsHint">These display settings apply instantly and are saved only on this device.</p>
+    </div>
     <p class="menuHint"><kbd>Tab</kbd> opens this menu and pauses automatically • <kbd>Esc</kbd> resumes</p>
     <section id="pauseLogSection" aria-label="Game Log"></section>
     <section id="pauseManualSection" aria-label="Manual Prototype Controls"></section>
@@ -610,14 +624,14 @@
 
 
 
-<script src="./src/js/00-data.js?v=clean5"></script>
-<script src="./src/js/10-engine.js?v=clean5"></script>
-<script src="./src/js/15-asset-loader.js?v=clean5"></script>
-<script src="./src/js/20-ui-foundation.js?v=clean5"></script>
-<script src="./src/js/30-roguelite.js?v=clean5"></script>
-<script src="./src/js/40-priest-ui.js?v=clean5"></script>
-<script src="./src/js/50-mobile.js?v=clean5"></script>
-<script src="./src/js/60-multiplayer.js?v=clean5"></script>
-<script src="./src/js/70-multiplayer-patches.js?v=clean5"></script>
+<script src="./src/js/00-data.js?v=clean6"></script>
+<script src="./src/js/10-engine.js?v=clean6"></script>
+<script src="./src/js/15-asset-loader.js?v=clean6"></script>
+<script src="./src/js/20-ui-foundation.js?v=clean6"></script>\n<script src="./src/js/25-font-settings.js?v=clean6"></script>
+<script src="./src/js/30-roguelite.js?v=clean6"></script>
+<script src="./src/js/40-priest-ui.js?v=clean6"></script>
+<script src="./src/js/50-mobile.js?v=clean6"></script>
+<script src="./src/js/60-multiplayer.js?v=clean6"></script>
+<script src="./src/js/70-multiplayer-patches.js?v=clean6"></script>
 </body>
 </html>
