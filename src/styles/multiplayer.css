@@ -1128,3 +1128,21 @@ body.rogue-tutorial-active.sanctum-menu-subdialog-open #pauseOverlay{
     font-size:12px;
   }
 }
+
+
+/* New Boss artwork is authoritative. Never flash the legacy embedded Boss cards
+   while the optimized artwork-only sprite is being prepared. */
+html:not(.sanctumBossArtReady) #bossArea .bossArt,
+html:not(.sanctumBossArtReady) .bossDeckCard img,
+html:not(.sanctumBossArtReady) dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderArt img,
+html:not(.sanctumBossArtReady) .damageTargetCard.bossTarget .demonArt{
+  visibility:hidden !important;
+}
+.bossArtworkLoading{
+  grid-column:1 / -1;
+  padding:24px 12px;
+  text-align:center;
+  color:#d8c29a;
+  font-size:13px;
+  letter-spacing:.4px;
+}
