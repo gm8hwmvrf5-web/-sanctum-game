@@ -38,6 +38,7 @@
 
     window.__sanctumBossArtworkUrls=urls;
     window.__sanctumBossArtworkReady=true;
+    document.documentElement.classList.add('sanctumBossArtReady');
 
     try{
       if(typeof render==='function')render();
@@ -76,30 +77,63 @@
   }
 
   let spriteStarted=false;
-  function ensureBossSprite(priority='low'){
-    if(spriteStarted||bossArtworkUrls)return;
+  let bossArtworkPromise=null;
+  function ensureBossSprite(priority='high'){
+    if(bossArtworkUrls)return Promise.resolve(bossArtworkUrls);
+    if(bossArtworkPromise)return bossArtworkPromise;
     spriteStarted=true;
-    const sprite=new Image();
-    sprite.decoding='async';
-    try{sprite.fetchPriority=priority}catch(_){}
-    sprite.onload=()=>{
-      try{
-        installArtwork(cropSprite(sprite));
-      }catch(err){
-        console.error('Could not prepare the new Boss artwork.',err);
-      }
-    };
-    sprite.onerror=()=>{
-      spriteStarted=false;
-      console.error('Could not load the optimized Boss artwork sprite.');
-    };
-    sprite.src=SPRITE_URL;
+    bossArtworkPromise=new Promise(resolve=>{
+      const sprite=new Image();
+      sprite.decoding='async';
+      try{sprite.fetchPriority=priority}catch(_){}
+      sprite.onload=()=>{
+        try{
+          const urls=cropSprite(sprite);
+          installArtwork(urls);
+          resolve(urls);
+        }catch(err){
+          console.error('Could not prepare the new Boss artwork.',err);
+          bossArtworkPromise=null;
+          spriteStarted=false;
+          resolve(null);
+        }
+      };
+      sprite.onerror=()=>{
+        bossArtworkPromise=null;
+        spriteStarted=false;
+        console.error('Could not load the optimized Boss artwork sprite.');
+        resolve(null);
+      };
+      sprite.src=SPRITE_URL;
+    });
+    return bossArtworkPromise;
   }
 
   window.__sanctumEnsureBossArtwork=ensureBossSprite;
 
-  /* Do not let the 888 KB Boss sprite compete with the opening hand/board.
-     Load it immediately only when Boss artwork is actually needed. */
+  /* The new artwork-only Boss set is authoritative. Start it immediately so
+     old embedded Boss-card artwork is never used as the visible final art. */
+  ensureBossSprite('high');
+
+  if(typeof renderBossCodex==='function'){
+    const _renderBossCodexArtwork=renderBossCodex;
+    renderBossCodex=function(){
+      if(!bossArtworkUrls){
+        const el=document.getElementById('bossDeckGrid');
+        if(el)el.innerHTML='<div class="bossArtworkLoading">Loading new Boss artwork…</div>';
+        ensureBossSprite('high').then(urls=>{
+          if(urls){
+            const modal=document.getElementById('bossDeckModal');
+            if(modal&&!modal.classList.contains('hidden'))_renderBossCodexArtwork();
+          }
+        });
+        return;
+      }
+      return _renderBossCodexArtwork.apply(this,arguments);
+    };
+    try{window.renderBossCodex=renderBossCodex}catch(_){}
+  }
+
   document.getElementById('bossDeckBtn')?.addEventListener('click',()=>ensureBossSprite('high'),{capture:true});
   if(typeof revealBoss==='function'){
     const _revealBossForArtwork=revealBoss;
@@ -109,14 +143,6 @@
     };
     try{window.revealBoss=revealBoss}catch(_){}
   }
-
-  /* If the player stays in a run long enough, warm Boss art quietly after the
-     opening artwork has had time to settle. */
-  setTimeout(()=>{
-    const warm=()=>ensureBossSprite('low');
-    if(typeof requestIdleCallback==='function')requestIdleCallback(warm,{timeout:3000});
-    else warm();
-  },10000);
 
   /* Saved / remotely synced states omit art. Re-apply the new Boss art whenever
      static artwork is restored, without changing any state or Boss rules. */
