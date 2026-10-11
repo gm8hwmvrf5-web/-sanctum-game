@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v6';
+const CACHE_NAME='sanctum-clean-v7';
 const CORE=[
   './',
   './index.html',
@@ -18,6 +18,7 @@ const CORE=[
   './src/js/50-mobile.js',
   './src/js/60-multiplayer.js',
   './src/js/70-multiplayer-patches.js',
+  './assets/bosses/boss-sprite.webp',
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png'
