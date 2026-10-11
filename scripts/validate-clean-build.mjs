@@ -86,6 +86,19 @@ for(const token of ['sanctum_font_settings_v1','damageFontSize','abilityFontSize
   if(!fontSettings.includes(token)) throw new Error('Font settings module missing: '+token);
 }
 
+const bossPatch=fs.readFileSync(path.join(root,'src/js/70-multiplayer-patches.js'),'utf8');
+for(const token of ["const SPRITE_URL='./assets/bosses/boss-sprite.webp'","ensureBossSprite('high')","sanctumBossArtReady"]){
+  if(!bossPatch.includes(token)) throw new Error('Authoritative Boss artwork wiring missing: '+token);
+}
+if(bossPatch.includes('},10000);')) throw new Error('Legacy delayed 10-second Boss artwork warmup is still present.');
+const multiplayerStyles=fs.readFileSync(path.join(root,'src/styles/multiplayer.css'),'utf8');
+if(!multiplayerStyles.includes('html:not(.sanctumBossArtReady) #bossArea .bossArt')){
+  throw new Error('Legacy Boss artwork flash guard is missing.');
+}
+if(!serviceWorker.includes('./assets/bosses/boss-sprite.webp')){
+  throw new Error('Boss artwork sprite is not pre-cached by the clean service worker.');
+}
+
 const multiplayer=fs.readFileSync(path.join(root,'src/js/60-multiplayer.js'),'utf8');
 if(!multiplayer.includes('supabase.co')) throw new Error('Supabase multiplayer configuration is missing.');
 if(!multiplayer.includes('pushSharedState')) throw new Error('Multiplayer state publishing logic is missing.');
