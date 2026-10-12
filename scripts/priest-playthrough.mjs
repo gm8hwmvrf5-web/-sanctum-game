@@ -265,6 +265,127 @@ try {
           completed.push({name,pass:true,...details});
         }catch(err){completed.push({name,pass:false,error:err.message})}
       }
+      // Test persistent effects through the actual future trigger, not just
+      // the presence of a scheduled-effect object in shared state.
+      for(const [cardName,effectName] of [
+        ['Divine Shield','turnRenewal'],
+        ['Circle of Protection','roundRenewal'],
+        ['Shield of Faith','defeatRenewal'],
+        ['Sacred Brand','markConsumption'],
+        ['Iron Faith','altarBarrier'],
+        ['Holy Barrier','altarBarrier']
+      ]){
+        for(const empowered of [false,true]){
+          const name=cardName+' / '+(empowered?'Empowered':'Normal')+' future trigger';
+          try{
+            const c=PRIEST.find(x=>x.n===cardName);
+            await run(c,empowered);
+            const amount=empowered?c.xv:c.v;
+            if(effectName==='turnRenewal'){
+              const heal=empowered?c.xregen:c.regen,ticks=empowered?c.xticks:c.ticks;
+              const before=S.altar;
+              for(let i=0;i<ticks;i++)resolveAltarTurnRenewals();
+              assert(S.altar===before+heal*ticks,
+                'Delayed Altar turn healing incorrect for '+name);
+              assert(S.altarTurnRenewals.length===0,'Turn healing effect failed to expire');
+            }else if(effectName==='roundRenewal'){
+              const heal=empowered?c.xroundHeal:c.roundHeal,
+                ticks=empowered?c.xrounds:c.rounds,before=S.altar;
+              for(let i=0;i<ticks;i++){S.round++;resolveAltarRoundRenewals()}
+              assert(S.altar===before+heal*ticks,
+                'Delayed round healing incorrect for '+name);
+              assert(S.altarRoundRenewals.length===0,'Round healing failed to expire');
+            }else if(effectName==='defeatRenewal'){
+              const heal=empowered?c.xdefeatHeal:c.defeatHeal,
+                ticks=empowered?c.xcharges:c.charges,before=S.altar;
+              for(let i=0;i<ticks;i++){
+                const d=S.rooms.flat().find(d=>d.id==='audit-demon-'+(i+2));
+                assert(!!d,'Expected an eligible Demon for defeat trigger');
+                d.b=0;d.a=null;d.crucifixAttached=false;
+                defeatDemon(d);
+              }
+              assert(S.altar===before+heal*ticks,
+                'Defeat-based Altar healing incorrect for '+name);
+              assert(S.altarDefeatBlessings.length===0,'Defeat blessing failed to expire');
+            }else if(effectName==='markConsumption'){
+              const d=S.rooms[0][0],cur=d.cur,bonus=d.status.mark;
+              damageDemon(d,1,'Audit follow-up attack');
+              assert(d.cur===cur-1-bonus,'Marked next damage failed to include bonus');
+              assert(!d.status.mark,'Mark did not expire after its damage source');
+            }else if(effectName==='altarBarrier'){
+              const before=S.altar,guard=empowered?(c.xguard||c.xv):(c.guard||c.v);
+              damageAltar(guard,'Audit Altar hit');
+              assert(S.altar===before,'Altar barrier did not block its promised damage');
+              damageAltar(1,'Audit Altar hit');
+              assert(S.altar===before-1,'Altar barrier still blocked after exhausting');
+            }
+            completed.push({name,pass:true});
+          }catch(err){completed.push({name,pass:false,error:err.message})}
+        }
+      }
+
+      // Boss targeting is a different modal branch from ordinary Demon targets.
+      for(const [cardName,kind] of [
+        ['Holy Bolt','damage'],['Dawnfire','multiDamage'],
+        ['Sunburst','roomDamage'],['Holy Barrier','altarBarrierDamage'],
+        ['Consecration','altarChoice']
+      ]){
+        for(const empowered of [false,true]){
+          const name=cardName+' / '+(empowered?'Empowered':'Normal')+' Boss targeting';
+          try{
+            const c=PRIEST.find(x=>x.n===cardName);
+            fresh(c,empowered);
+            S.rooms=[[],[],[],[]];
+            S.boss={...BOSSES[0],hp:200,baseHp:200,cur:200,b:5};
+            S.bossRevealed=true;
+            S.relicDeck=[];
+            alerts=[];chooseMode=kind==='altarChoice'?'damageAlternative':'normal';
+            await Promise.race([
+              playCard('audit-keep'),
+              new Promise((_,reject)=>setTimeout(()=>reject(new Error('Boss target timed out')),3500))
+            ]);
+            assert(!alerts.length,'Boss target raised alert '+alerts.join('; '));
+            assert(S.boss.cur===200-(empowered?c.xv:c.v),
+              'Boss HP did not fall by declared '+(empowered?c.xv:c.v)+
+              ' damage; remaining '+S.boss.cur);
+            completed.push({name,pass:true});
+          }catch(err){completed.push({name,pass:false,error:err.message})}
+        }
+      }
+
+      // Targeting failures and resource shortages must NOT consume a card.
+      for(const [name,cardName,setup] of [
+        ['Cannot play a card without its Mana','Divine Wrath',()=>{
+          S.mana=0;
+        }],
+        ['Cannot play Empowered card without Demon Blood','Divine Wrath',()=>{
+          S.players[0].blood=0;
+        }],
+        ['Execute rejects Demons above threshold','Last Rites',()=>{
+          S.rooms[0][0].cur=30;
+          S.rooms[0][1].cur=30;
+          S.rooms[0][2].cur=30;
+          S.rooms[1].forEach(d=>d.cur=30);
+        }]
+      ]){
+        try{
+          const c=PRIEST.find(x=>x.n===cardName);
+          const empowered=name.includes('Empowered');
+          fresh(c,empowered);
+          setup();alerts=[];chooseMode='normal';
+          const beforeMana=S.mana, beforeBlood=S.players[0].blood;
+          await Promise.race([
+            playCard('audit-keep'),
+            new Promise((_,reject)=>setTimeout(()=>reject(new Error('Invalid play timed out')),3500))
+          ]);
+          assert(alerts.length>0,'Invalid card action did not give a warning');
+          assert(S.players[0].hand.some(x=>x.id==='audit-keep'),
+            'Invalid card action consumed the card');
+          assert(S.mana===beforeMana&&S.players[0].blood===beforeBlood,
+            'Invalid card action spent resources');
+          completed.push({name,pass:true});
+        }catch(err){completed.push({name,pass:false,error:err.message})}
+      }
       // Explicit cancellation check: a canceled targeted Priest card must
       // refund its cost and return to the same hand with no damage.
       try{
