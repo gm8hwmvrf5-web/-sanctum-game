@@ -107,6 +107,13 @@ for(const token of ["const SPRITE_URL='./assets/bosses/boss-sprite.webp'","ensur
 }
 if(bossPatch.includes('},10000);')) throw new Error('Legacy delayed 10-second Boss artwork warmup is still present.');
 const multiplayerStyles=fs.readFileSync(path.join(root,'src/styles/multiplayer.css'),'utf8');
+if(!multiplayerStyles.includes('body.sanctum-menu-subdialog-open #relicDeckModal[data-from-game-menu="1"]')){
+  throw new Error('Relic Deck is not layered above the paused Game Menu.');
+}
+if(!multiplayerStyles.includes('#relicDeckModal{')||!multiplayerStyles.includes('z-index:205')){
+  throw new Error('Relic Deck base modal stacking rule is missing.');
+}
+
 if(!multiplayerStyles.includes('html:not(.sanctumBossArtReady) #bossArea .bossArt')){
   throw new Error('Legacy Boss artwork flash guard is missing.');
 }
