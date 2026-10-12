@@ -55,7 +55,15 @@ const demonCards=await page.evaluate(async()=>{
   const pairs=document.querySelectorAll('#demonDeckGrid .deckpair').length;
   const faces=document.querySelectorAll('#demonDeckGrid .deckface.demon').length;
   const placeholder=document.querySelector('#demonDeckGrid [data-demon-type="new_hollow_scribe"] img');
-  if(placeholder)try{await placeholder.decode()}catch(_){}
+  if(placeholder){
+    placeholder.loading='eager';
+    try{
+      await Promise.race([
+        placeholder.decode(),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error('placeholder load timeout')),4000))
+      ]);
+    }catch(_){}
+  }
   const placeholderReady=!!placeholder&&placeholder.naturalWidth>0;
   document.getElementById('demonDeckClose').click();
   return {
