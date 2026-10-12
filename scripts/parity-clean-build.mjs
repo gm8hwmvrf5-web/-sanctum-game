@@ -46,10 +46,6 @@ async function loadRun(browser,url,label){
   const response=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
   if(!response||!response.ok())throw new Error(label+' index failed to load');
   await page.waitForFunction(()=>typeof startGame==='function'&&document.getElementById('startBtn'),{timeout:60000});
-  // Intentional catalog expansion: compare unchanged original gameplay
-  // mechanics against multiplayer-dev using its original 25-card definition
-  // catalog. The new ten types are covered by demon-boss-playthrough.mjs.
-  if(label==='clean')await page.evaluate(()=>{DEMON_TYPES.splice(25)});
 
   await page.selectOption('#playerCount','1');
   await page.evaluate(()=>{ if(typeof setupPlayersUI==='function')setupPlayersUI(); });

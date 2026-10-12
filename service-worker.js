@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v25';
+const CACHE_NAME='sanctum-clean-v21';
 const CORE=[
   './',
   './index.html',
@@ -19,26 +19,6 @@ const CORE=[
   './src/js/60-multiplayer.js',
   './src/js/70-multiplayer-patches.js',
   './assets/bosses/boss-sprite.webp',
-  './assets/embedded/new_hollow_scribe-lesser.webp',
-  './assets/embedded/new_hollow_scribe-greater.webp',
-  './assets/embedded/new_iron_husk-lesser.webp',
-  './assets/embedded/new_iron_husk-greater.webp',
-  './assets/embedded/new_rot_oracle-lesser.webp',
-  './assets/embedded/new_rot_oracle-greater.webp',
-  './assets/embedded/new_dirge_cantor-lesser.webp',
-  './assets/embedded/new_dirge_cantor-greater.webp',
-  './assets/embedded/new_thorn_martyr-lesser.webp',
-  './assets/embedded/new_thorn_martyr-greater.webp',
-  './assets/embedded/new_chalice_thief-lesser.webp',
-  './assets/embedded/new_chalice_thief-greater.webp',
-  './assets/embedded/new_grave_brood-lesser.webp',
-  './assets/embedded/new_grave_brood-greater.webp',
-  './assets/embedded/new_vowbreaker-lesser.webp',
-  './assets/embedded/new_vowbreaker-greater.webp',
-  './assets/embedded/new_rift_strider-lesser.webp',
-  './assets/embedded/new_rift_strider-greater.webp',
-  './assets/embedded/new_censer_tyrant-lesser.webp',
-  './assets/embedded/new_censer_tyrant-greater.webp',
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png'

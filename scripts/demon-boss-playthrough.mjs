@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 
-// Demon / Boss encounter playthrough: all 35 catalog types in Lesser and
+// Demon / Boss encounter playthrough: all 25 catalog types in Lesser and
 // Greater form, all 10 bosses, their triggered effects and lifecycle events.
 // Uses the actual game engine in a real browser without touching live rooms.
 const browser=await chromium.launch({headless:true});
@@ -10,66 +10,6 @@ page.on('pageerror',e=>pageErrors.push(e.message));
 try{
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'load',timeout:60000});
   await page.waitForFunction(()=>typeof DEMON_TYPES!=='undefined'&&typeof runBossPhase==='function',null,{timeout:20000});
-  // Open the actual Demon Deck UI and verify all Lesser/Greater pairs use
-  // the existing gothic card components and have loadable image assets.
-  await page.evaluate(()=>document.getElementById('demonDeckBtn').click());
-  const gallery=await page.evaluate(async()=>{
-    const cards=[...document.querySelectorAll('#demonDeckGrid .deckpair')];
-    const images=[...document.querySelectorAll('#demonDeckGrid .deckface img')];
-    // Match the live on-board Demon cards, including artwork framing,
-    // stat labels and text; reject obsolete Boss/Crucifix illustrations.
-    const boardStyle=cards.every((row,index)=>{
-      const faces=[...row.querySelectorAll('.deckface.demon.codexDemon')];
-      const def=DEMON_TYPES[index];
-      return faces.length===2&&
-        row.dataset.demonType===def.key&&
-        faces.every((face,i)=>{
-          const img=face.querySelector('.demonArtWrap img.demonArt');
-          const stats=face.querySelectorAll('.demonStats .statLabel');
-          return face.dataset.key===def.key&&
-            face.dataset.form===(i?'greater':'lesser')&&
-            img?.getAttribute('src')===(i?def.gart:def.art)&&
-            face.querySelector('.demonBody .name')&&
-            face.querySelector('.familyTag')&&
-            face.querySelector('.abilityText')&&
-            [...stats].map(x=>x.textContent).join(',')==='HP,BLD,ATK';
-        });
-    });
-    // All new Demon pairs must use twenty dedicated, optimized illustrations,
-    // never placeholders from the original Demon or legacy Boss collection.
-    const originalArt=new Set(DEMON_TYPES.slice(0,25).flatMap(d=>[d.art,d.gart]));
-    const newArt=DEMON_TYPES.slice(25).flatMap(d=>[d.art,d.gart]);
-    const noOldBossArt=DEMON_TYPES.slice(25).every(d=>
-      !originalArt.has(d.art)&&!originalArt.has(d.gart)&&
-      d.art==='./assets/embedded/'+d.key+'-lesser.webp'&&
-      d.gart==='./assets/embedded/'+d.key+'-greater.webp')&&
-      new Set(newArt).size===20;
-    const imageFraming=(()=>{
-      const first=document.querySelector('#demonDeckGrid .codexDemon .demonArtWrap');
-      const img=first?.querySelector('img.demonArt');
-      if(!first||!img)return false;
-      const style=getComputedStyle(img);
-      return first.getBoundingClientRect().height>=120&&
-        style.objectFit==='contain'&&img.getBoundingClientRect().height>110;
-    })();
-    const all=await Promise.all(images.map(async img=>{
-      img.loading='eager';
-      try{await img.decode()}catch(_){}
-      const isNew=img.closest('[data-demon-type]')?.dataset.demonType.startsWith('new_');
-      return {src:img.getAttribute('src'),
-        valid:img.complete&&img.naturalWidth>0&&
-          (!isNew||(img.naturalWidth===480&&img.naturalHeight===360))};
-    }));
-    document.getElementById('demonDeckClose').click();
-    return {pairs:cards.length,images:images.length,boardStyle:!!boardStyle,
-      noOldBossArt,imageFraming,
-      missing:all.filter(x=>!x.valid).map(x=>x.src)};
-  });
-  console.log('DEMON CODEX UI:',JSON.stringify(gallery));
-  if(gallery.pairs!==35||gallery.images!==70||gallery.missing.length||
-    !gallery.boardStyle||!gallery.noOldBossArt||!gallery.imageFraming){
-    throw new Error('Demon codex cards or artwork missing: '+JSON.stringify(gallery));
-  }
   const results=await page.evaluate(async()=>{
     const report=[];
     window.alert=()=>{};
@@ -290,81 +230,6 @@ try{
           assert(ritualIsHalved(d),'Ritual-halving did not reset next round');
           break;
         }
-        case 'entryDiscard':{
-          const before=S.priestDiscard.length;
-          for(let i=0;i<3;i++){
-            S.players[0].hand.push({...PRIEST[i],id:'discard-A-'+i});
-            S.players[1].hand.push({...PRIEST[i+3],id:'discard-B-'+i});
-          }
-          triggerEnterPlay(d);
-          assert(S.players.every(p=>p.hand.length===3-v),
-            'Entry discard did not remove '+v+' card(s) from each Priest');
-          assert(S.priestDiscard.length===before+v*2,
-            'Randomly discarded Priest cards did not reach discard pile');
-          break;
-        }
-        case 'basicArmor':{
-          d.cur=20;d.hp=20;d.ghp=20;
-          damageDemon(d,6,'Basic Attack test',{basicAttack:true});
-          assert(d.cur===20-(6-v),'Basic Attack did not resist '+v+' damage');
-          damageDemon(d,3,'Priest direct damage');
-          assert(d.cur===20-(6-v)-3,'Non-Basic damage was incorrectly reduced');
-          break;
-        }
-        case 'enterCorruption':{
-          triggerEnterRoom(d);
-          assert(roomCorruption(0)===v,'Entry corruption expected '+v+' got '+roomCorruption(0)+' code '+demonCode(d)+' room '+JSON.stringify(findDemonLocation(d))+' log '+S.log.slice(0,2).map(x=>x.msg).join('; '));
-          break;
-        }
-        case 'roomManaLoss':{
-          triggerEnterRoom(d);
-          assert(S.mana===12-v,'Room entry expected '+(12-v)+' Mana got '+S.mana+' code '+demonCode(d)+' log '+S.log.slice(0,2).map(x=>x.msg).join('; '));
-          moveOneForward(d);
-          assert(S.mana===12-v*2,'Next room entry failed to drain Mana again');
-          break;
-        }
-        case 'hurtAltar':{
-          const before=S.altar;
-          damageDemon(d,1,'Direct attack');
-          assert(S.altar===before-v,'Damage retaliation should drain '+v+' Altar');
-          break;
-        }
-        case 'breachBlood':{
-          S.players.forEach(p=>p.blood=3);
-          S.rooms[0]=[];S.rooms[3]=[d];
-          moveOneForward(d);
-          assert(S.players.every(p=>p.blood===3-v),
-            'Altar breach did not steal '+v+' Blood from each Priest');
-          break;
-        }
-        case 'defeatSpawnImp':{
-          defeatDemon(d);
-          const imps=allDemons().filter(x=>x.d.key==='imp_lesser').map(x=>x.d);
-          const equivalents=imps.reduce((n,x)=>n+(x.greater?2:1),0);
-          assert(equivalents===v,'Defeat should summon '+v+' Imp copies');
-          break;
-        }
-        case 'defeatAltarCurse':{
-          defeatDemon(d);
-          assert(S.nextAltarBonus===v,'Death curse did not add '+v+' to next Altar loss');
-          const before=S.altar;damageAltar(1,'test attack');
-          assert(S.altar===before-1-v,'Next Altar damage ignored curse');
-          assert(S.nextAltarBonus===0,'Death curse did not consume itself');
-          break;
-        }
-        case 'relentless':{
-          const companion=dummy('traveler');
-          S.rooms[0].push(companion);
-          moveDemons();
-          assert(pos(d)===1+v,
-            'Relentless movement should travel '+(1+v)+' rooms even when accompanied');
-          break;
-        }
-        case 'phaseManaDrain':{
-          resolveStartDemonPhaseAbilities();
-          assert(S.mana===12-v,'Start phase expected '+(12-v)+' Mana got '+S.mana+' code '+demonCode(d)+' log '+S.log.slice(0,3).map(x=>x.msg).join('; '));
-          break;
-        }
         case 'spawnImp':{
           const before=allDemons().length;
           resolveStartDemonPhaseAbilities();
@@ -379,7 +244,7 @@ try{
         default:throw new Error('Uncovered Demon ability '+k);
       }
     };
-    assert(DEMON_TYPES.length===35,'Expected 35 Demon types');
+    assert(DEMON_TYPES.length===25,'Expected 25 Demon types');
     assert(BOSSES.length===10,'Expected 10 Bosses');
     for(const def of DEMON_TYPES){
       for(const greater of [false,true]){
@@ -429,13 +294,6 @@ try{
           a.cur=a.hp-2;b.cur=b.hp-2;
           S.rooms[0]=[a];S.rooms[2]=[b];
         }
-        // Isolate each Boss activation from unrelated freshly drawn Demon
-        // entry effects; ability interactions have separate dedicated tests.
-        S.demonDeck=[
-          make(DEMON_TYPES[0],false,'fixed-imp'),
-          make(DEMON_TYPES[1],false,'fixed-fire-imp'),
-          make(DEMON_TYPES[2],false,'fixed-carrion-imp')
-        ];
         const top=S.demonDeck.at(-1)?.id,second=S.demonDeck.at(-2)?.id;
         let clicks=0;
         const auto=setInterval(()=>{

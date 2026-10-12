@@ -39,17 +39,17 @@ try{
 
     test('Complete starting card/deck catalog',()=>{
       check(PRIEST.length>=32,'Priest definition count '+PRIEST.length);
-      check(DEMON_TYPES.length===35,'Demon definition count '+DEMON_TYPES.length);
+      check(DEMON_TYPES.length===25,'Demon definition count '+DEMON_TYPES.length);
       check(BOSSES.length===10,'Boss definition count '+BOSSES.length);
       check(CRUCIFIX.length===36,'Crucifix catalog count '+CRUCIFIX.length);
       check(S.priestDeck.length===PRIEST.length,'Priest deck size mismatch');
       check(new Set(S.priestDeck.map(c=>c.n)).size===PRIEST.length,'Priest deck should start with unique definitions');
-      check(S.demonDeck.length===140,'Demon physical card deck not 140');
-      check(new Set(S.demonDeck.map(d=>d.id)).size===140,'Demon physical IDs repeat');
+      check(S.demonDeck.length===100,'Demon physical card deck not 100');
+      check(new Set(S.demonDeck.map(d=>d.id)).size===100,'Demon physical IDs repeat');
       check(S.crucifixDeck.length===36,'Crucifix deck is missing cards');
     });
-    test('Exactly 15 percent of 140 Demons carry hidden Crucifixes',()=>{
-      check(S.demonDeck.filter(d=>d.crucifixAttached).length===21,'Exactly 21 of 140 Demons must be marked');
+    test('Exactly 15 percent of Demons carry hidden Crucifixes',()=>{
+      check(S.demonDeck.filter(d=>d.crucifixAttached).length===15,'Exactly 15 of 100 Demons must be marked');
     });
     test('Mana pool caps and refill by player count',()=>{
       for(const [n,cap] of [[1,10],[2,15],[3,20],[4,35]]){
