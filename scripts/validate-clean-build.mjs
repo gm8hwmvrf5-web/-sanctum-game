@@ -167,7 +167,7 @@ for(const token of [
 for(const token of [
   "key:'martyrEye'",
   'function basicAttackCritChance',
-  '25+((S&&S.relicMods&&S.relicMods.crit)||0)',
+  '15+((S&&S.relicMods&&S.relicMods.crit)||0)',
   'CRITICAL HIT',
   "critical?base*2:base"
 ]){
