@@ -10,6 +10,25 @@ page.on('pageerror',e=>pageErrors.push(e.message));
 try{
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'load',timeout:60000});
   await page.waitForFunction(()=>typeof DEMON_TYPES!=='undefined'&&typeof runBossPhase==='function',null,{timeout:20000});
+  // Open the actual Demon Deck UI and verify all Lesser/Greater pairs use
+  // the existing gothic card components and have loadable image assets.
+  await page.evaluate(()=>document.getElementById('demonDeckBtn').click());
+  const gallery=await page.evaluate(async()=>{
+    const cards=[...document.querySelectorAll('#demonDeckGrid .deckpair')];
+    const images=[...document.querySelectorAll('#demonDeckGrid .deckface img')];
+    const all=await Promise.all(images.map(async img=>{
+      img.loading='eager';
+      try{await img.decode()}catch(_){}
+      return {src:img.getAttribute('src'),valid:img.complete&&img.naturalWidth>0};
+    }));
+    document.getElementById('demonDeckClose').click();
+    return {pairs:cards.length,images:images.length,
+      missing:all.filter(x=>!x.valid).map(x=>x.src)};
+  });
+  console.log('DEMON CODEX UI:',JSON.stringify(gallery));
+  if(gallery.pairs!==35||gallery.images!==70||gallery.missing.length){
+    throw new Error('Demon codex cards or artwork missing: '+JSON.stringify(gallery));
+  }
   const results=await page.evaluate(async()=>{
     const report=[];
     window.alert=()=>{};
