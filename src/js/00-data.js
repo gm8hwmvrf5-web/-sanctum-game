@@ -55,7 +55,7 @@ const PRIEST = [
  {n:"Wrath of the Saints",m:5,e:"Deal 8 damage.",x:"Deal 18 damage.",k:"damage",v:8,xv:18},
  {n:"Mana Blessing",m:1,e:"Gain 2 shared Mana.",x:"Gain 5 shared Mana.",k:"mana",v:2,xv:5},
  {n:"Shared Faith",m:1,e:"Another player draws 1 card.",x:"Distribute 3 Priest card draws among other players; the same Priest may receive multiple draws.",k:"sharedDraw",v:1,xv:3},
- {n:"Quick Prayer",m:1,e:"Draw 1 Priest card.",x:"Draw 3 Priest cards.",k:"draw",v:1,xv:3},
+ {n:"Quick Prayer",m:4,e:"Choose Attack or Protection. Draw 2 random Priest cards of the chosen type.",x:"Choose Attack or Protection. Draw 3 random Priest cards of the chosen type.",k:"quickPrayer",v:2,xv:3},
  {n:"Consecration",m:3,e:"Choose 1: Restore 3 Altar Protection OR deal 3 damage to a Demon.",x:"Choose 1: Restore 7 Altar Protection OR deal 7 damage to a Demon.",k:"altarChoice",v:3,xv:7},
  {n:"Holy Echo",m:2,e:"Repeat the last successfully played non-Holy Echo Priest card using its normal effect.",x:"Repeat the last successfully played non-Holy Echo Priest card using its Empowered effect.",k:"echo",v:2,xv:3},
  {n:"Blood Tithe",m:1,e:"Drain 1 Demon Blood from target Demon. Gain that Blood.",x:"Drain 2 Demon Blood from target Demon. Gain that Blood.",k:"drainBlood",v:1,xv:2,eb:0},
