@@ -78,6 +78,11 @@ for(const file of ['index.html','src/js/20-ui-foundation.js','src/js/40-priest-u
 }
 
 const dataSource=fs.readFileSync(path.join(root,'src/js/00-data.js'),'utf8');
+if(!dataSource.includes('{n:"Quick Prayer",m:4')||
+   !dataSource.includes('k:"quickPrayer",v:2,xv:3')){
+  throw new Error('Quick Prayer must cost 4 Mana and use the targeted 2-card draw effect.');
+}
+
 if(!dataSource.includes('Palm of Judgment')||!dataSource.includes('Deal 2 damage to a Demon or Boss')||!dataSource.includes('Deal 6 damage to a Demon or Boss')){
   throw new Error('Monk Palm of Judgment must display 2 lesser / 6 greater damage.');
 }
@@ -113,6 +118,15 @@ if(!multiplayer.includes('Deal 2 damage to a Demon or Boss. If it is a Demon, mo
 if(!multiplayer.includes('applyRemoteGameRow')) throw new Error('Multiplayer state receive/apply logic is missing.');
 
 const engine=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
+for(const token of [
+  'QUICK_PRAYER_ATTACK_KINDS',
+  'QUICK_PRAYER_PROTECTION_KINDS',
+  "case'quickPrayer'",
+  'drawPriestByQuickPrayerCategory'
+]){
+  if(!engine.includes(token)) throw new Error('Quick Prayer targeted draw wiring missing: '+token);
+}
+
 for(const symbol of ['startGame','moveDemons','defeatDemon','resolveRitual','render']){
   if(!engine.includes('function '+symbol) && !engine.includes(symbol+'=')) throw new Error('Core engine symbol missing: '+symbol);
 }
