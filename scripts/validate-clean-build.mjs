@@ -104,6 +104,26 @@ if(!serviceWorker.includes('./assets/bosses/boss-sprite.webp')){
   throw new Error('Boss artwork sprite is not pre-cached by the clean service worker.');
 }
 
+const rogueSource=fs.readFileSync(path.join(root,'src/js/30-roguelite.js'),'utf8');
+for(const token of [
+  "rogueSilentRelic('Elite room-clear reward','rogueRoute')",
+  "rogueSilentRelic('Boss room-clear reward','rogueRoute')",
+  "__sanctumRelicPopupAfter",
+  "after:popupAfter"
+]){
+  if(!rogueSource.includes(token)) throw new Error('Relic reward popup wiring missing: '+token);
+}
+const relicCore=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
+if(!relicCore.includes("completed&&completed.after")||!relicCore.includes("__sanctumRelicPopupAfter")){
+  throw new Error('Relic popup continuation support is missing.');
+}
+for(const token of [
+  "rogueSilentRelic('Elite room-clear reward','rogueRoute')",
+  "rogueSilentRelic('Boss room-clear reward','rogueRoute')"
+]){
+  if(!multiplayer.includes(token)) throw new Error('Multiplayer Relic reward popup wiring missing: '+token);
+}
+
 const multiplayer=fs.readFileSync(path.join(root,'src/js/60-multiplayer.js'),'utf8');
 if(!multiplayer.includes('supabase.co')) throw new Error('Supabase multiplayer configuration is missing.');
 if(!multiplayer.includes('pushSharedState')) throw new Error('Multiplayer state publishing logic is missing.');
