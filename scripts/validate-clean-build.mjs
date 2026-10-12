@@ -115,6 +115,13 @@ if(!serviceWorker.includes('./assets/bosses/boss-sprite.webp')){
 }
 
 const rogueSource=fs.readFileSync(path.join(root,'src/js/30-roguelite.js'),'utf8');
+if(!rogueSource.includes('function rogueFloorHealthMultiplier(){return 1+(0.05*Math.max')){
+  throw new Error('Roguelite HP growth must be 5% per floor.');
+}
+if(!rogueSource.includes('function rogueFloorDamageMultiplier(){return 1+(0.05*Math.max')){
+  throw new Error('Roguelite damage growth must remain 5% per floor.');
+}
+
 for(const token of [
   "rogueSilentRelic('Elite room-clear reward','rogueRoute')",
   "rogueSilentRelic('Boss room-clear reward','rogueRoute')",
@@ -148,6 +155,15 @@ if(!multiplayer.includes('Deal 2 damage to a Demon or Boss. If it is a Demon, mo
 if(!multiplayer.includes('applyRemoteGameRow')) throw new Error('Multiplayer state receive/apply logic is missing.');
 
 const engine=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
+for(const token of [
+  '15+((S&&S.relicMods&&S.relicMods.crit)||0)',
+  "S.players.length===3?.90:1.10",
+  'if(S.players.length>=4)return 3',
+  'return n>=4?30:n===3?20:n===2?15:10'
+]){
+  if(!engine.includes(token)) throw new Error('Player-count / crit balance wiring missing: '+token);
+}
+
 for(const token of [
   "key:'martyrEye'",
   'function basicAttackCritChance',
