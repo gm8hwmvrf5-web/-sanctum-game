@@ -28,13 +28,15 @@ try{
   await host.waitForFunction(()=>document.querySelector('.mpRoster')?.textContent?.includes('Sanctum Host CI'),null,{timeout:10000});
   await guest.locator('#pname0').fill('Sanctum Guest CI');
   await guest.locator('#mpRoomInput').fill(roomCode.value);
+  const enteredCode=await guest.locator('#mpRoomInput').inputValue();
+  console.log('LIVE JOIN INPUT:',JSON.stringify({roomCode:roomCode.value,enteredCode,sourceLength:roomCode.value.length,enteredLength:enteredCode.length}));
   await guest.locator('#mpJoinBtn').click();
   await guest.waitForFunction(()=>document.querySelector('.mpRoster')?.textContent?.includes('Sanctum Guest CI'),null,{timeout:15000});
   await host.waitForFunction(()=>document.querySelector('.mpRoster')?.textContent?.includes('Sanctum Guest CI'),null,{timeout:12000});
   const hostUI=await host.evaluate(()=>({status:document.querySelector('.mpStatus')?.textContent,roster:document.querySelector('.mpRoster')?.textContent,setupNames:[...document.querySelectorAll('#setupPlayers input')].map(x=>x.value)}));
   console.log('LIVE SUPABASE LOBBY PASS:',JSON.stringify(hostUI));
 }catch(err){
-  const details=await Promise.all([host,guest].map(p=>p.evaluate(()=>({status:document.querySelector('.mpStatus')?.textContent,roster:document.querySelector('.mpRoster')?.textContent,session:window.SanctumMultiplayerDev?.session,setupNames:[...document.querySelectorAll('#setupPlayers input')].map(x=>x.value)})).catch(e=>({error:e.message}))));
+  const details=await Promise.all([host,guest].map(p=>p.evaluate(()=>({status:document.querySelector('.mpStatus')?.textContent,input:document.querySelector('#mpRoomInput')?.value,roster:document.querySelector('.mpRoster')?.textContent,session:window.SanctumMultiplayerDev?.session,setupNames:[...document.querySelectorAll('#setupPlayers input')].map(x=>x.value)})).catch(e=>({error:e.message}))));
   console.error('LIVE SUPABASE LOBBY FAILURE:',err.message);
   console.error('DETAILS:',JSON.stringify(details));
   console.error('BROWSER:',JSON.stringify(reports.slice(-40)));
