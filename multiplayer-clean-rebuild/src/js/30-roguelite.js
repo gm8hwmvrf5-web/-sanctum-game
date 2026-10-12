@@ -23,7 +23,7 @@ const ROGUE_UPGRADES={
 };
 let rogueModalActions=[];
 
-function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,history:[],lastReward:'',runStartedAt:Date.now()}}
+function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryCandleReduction:0,history:[],lastReward:'',runStartedAt:Date.now()}}
 function rogueState(){if(!S.rogue||typeof S.rogue!=='object')S.rogue=rogueDefaultState();return S.rogue}
 function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,basicAttack:0,relicXpGain:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
 function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify(m));return true}catch(e){console.warn('Legacy storage unavailable',e);return false}}
@@ -113,6 +113,20 @@ function rogueRepositoryBuyRelic(key,cost){
  render();showNextRelicPopup();
  return true;
 }
+function rogueRepositoryCandleReductionForFloor(floor=rogueCycleFloorFor(rogueState().floor)){
+ floor=Math.max(1,Math.min(15,Math.floor(Number(floor)||1)));
+ return floor<=5?0.10:floor<=10?0.125:0.15;
+}
+function rogueRepositoryCandleReduction(){
+ return Math.max(0,Math.min(0.15,Number(rogueState().repositoryCandleReduction)||0));
+}
+function rogueRepositoryCandlePercent(v=rogueRepositoryCandleReductionForFloor()){
+ return Math.round(Number(v||0)*1000)/10;
+}
+function rogueRepositoryEnemyScaleFactor(){
+ return Math.max(0.85,1-rogueRepositoryCandleReduction());
+}
+
 function rogueRepositoryPurchaseByActionKey(actionKey){
  const parts=String(actionKey||'').split(':');
  if(parts[0]!=='repository')return false;
@@ -126,8 +140,12 @@ function rogueRepositoryPurchaseByActionKey(actionKey){
   return rogueRepositoryBuyRelic(key,cost);
  }
  if(parts[1]==='candles'){
-  const cost=Number(parts[2]||0);if(!rogueRepositorySpend(cost,'Votive Candle Bundle'))return false;
-  restoreAltarLogged(10,'Votive Candle Bundle');rogueState().repositoryOffer=null;render();rogueliteOpenRoute();return true;
+  const cost=Number(parts[2]||0),r=rogueState(),reduction=rogueRepositoryCandleReductionForFloor(),before=rogueRepositoryCandleReduction();
+  if(!rogueRepositorySpend(cost,'Votive Candle Bundle'))return false;
+  r.repositoryCandleReduction=Math.max(before,reduction);
+  const pct=rogueRepositoryCandlePercent(r.repositoryCandleReduction);
+  log(`VOTIVE CANDLE BUNDLE — Demon HP and Attack scaling are reduced by ${pct}% for the rest of this run. Repeated purchases do not stack beyond the strongest tier.`,'good');
+  r.repositoryOffer=null;render();rogueliteOpenRoute();return true;
  }
  if(parts[1]==='folio'){
   const cost=Number(parts[2]||0);if(!rogueRepositorySpend(cost,'Forbidden Folio'))return false;
@@ -166,11 +184,14 @@ function rogueliteOpenRepository(){
     action:()=>unavailable?rogueRepositoryPurchaseByActionKey('repository:leave'):rogueRepositoryPurchaseByActionKey(`repository:relic:${encodeURIComponent(key)}:${cost}`)
    };
   }
-  if(good.kind==='candles')return {
-   icon:'✚',title:'Votive Candle Bundle',cls:'repository',desc:'Restore 10 Altar Protection immediately.',
-   reward:`${cost} Cinders • immediate recovery`,actionKey:`repository:candles:${cost}`,
-   action:()=>rogueRepositoryPurchaseByActionKey(`repository:candles:${cost}`)
-  };
+  if(good.kind==='candles'){
+   const pct=rogueRepositoryCandlePercent();
+   return {
+    icon:'✚',title:'Votive Candle Bundle',cls:'repository',desc:`Reduce Demon HP and Attack scaling by ${pct}% for the rest of this run. Cycle floors 1–5 grant 10%, 6–10 grant 12.5%, and 11–15 grant 15%. This does not stack beyond the strongest tier purchased.`,
+    reward:`${cost} Cinders • ${pct}% Demon scaling reduction`,actionKey:`repository:candles:${cost}`,
+    action:()=>rogueRepositoryPurchaseByActionKey(`repository:candles:${cost}`)
+   };
+  }
   return {
    icon:'✠',title:'Forbidden Folio',cls:'repository',desc:'Increase maximum Priest hand size by 1 for the rest of this run.',
    reward:`${cost} Cinders • run-only upgrade`,actionKey:`repository:folio:${cost}`,
@@ -320,7 +341,8 @@ function rogueliteMutateDemon(d){
  let mult=rogueDifficultyMultiplier(),floorHp=rogueFloorHealthMultiplier();
  let printed=Math.max(1,d.greater?d.ghp:d.hp);
  let actHp=Math.max(0,rogueAct()-1)+(r.nodeType==='elite'?1:0);
- let target=Math.max(1,Math.round((printed+actHp)*mult*floorHp));
+ let candleFactor=rogueRepositoryEnemyScaleFactor();
+ let target=Math.max(printed+actHp,Math.round((printed+actHp)*mult*floorHp*candleFactor));
  let extra=Math.max(0,target-printed);
  if(extra){d.status.extraHpBonus=(d.status.extraHpBonus||0)+extra;d.status.rogueHpBonus=(d.status.rogueHpBonus||0)+extra;d.cur+=extra}
  if(r.nodeType==='elite')d.status.attackBonus=(d.status.attackBonus||0)+1;
@@ -467,7 +489,7 @@ const _defeatBossIfNeeded=defeatBossIfNeeded;defeatBossIfNeeded=function(){if(S?
 const _normalSpawnCount=normalSpawnCount;normalSpawnCount=function(){let n=_normalSpawnCount();if(S?.rogue?.enabled&&!S.bossRevealed&&rogueState().nodeType==='swarm')n=Math.min(4,n+1);return n};
 const _triggerEnterPlay=triggerEnterPlay;triggerEnterPlay=function(d){if(S?.rogue?.enabled)rogueliteMutateDemon(d);return _triggerEnterPlay(d)};
 const _spawnOne=spawnOne;spawnOne=function(doLog=true){let before=new Set((S.rooms||[]).flat().map(d=>d.id));let out=_spawnOne(doLog);if(S?.rogue?.enabled){let d=(S.rooms||[]).flat().find(x=>!before.has(x.id));if(d){rogueliteMutateDemon(d);render()}}return out};
-const _demonAttack=demonAttack;demonAttack=function(d){let n=_demonAttack(d);if(S?.rogue?.enabled)return Math.max(0,Math.round(n*rogueDifficultyMultiplier()*rogueFloorDamageMultiplier()));return n};
+const _demonAttack=demonAttack;demonAttack=function(d){let n=_demonAttack(d);if(S?.rogue?.enabled){let scaled=n*rogueDifficultyMultiplier()*rogueFloorDamageMultiplier()*rogueRepositoryEnemyScaleFactor();return Math.max(n,Math.round(scaled))}return n};
 const _bossDrainAmount=bossDrainAmount;bossDrainAmount=function(){let n=_bossDrainAmount();if(S?.rogue?.enabled&&S.bossRevealed){let reduction=Math.max(0,4-rogueAct()),base=Math.max(2,n-reduction);return Math.max(2,Math.round(base*rogueDifficultyMultiplier()*rogueFloorDamageMultiplier()))}return n};
 const _gameOver=gameOver;gameOver=function(win){if(S?.rogue?.enabled)rogueliteBankRun(!!win);return _gameOver(win)};
 const _render=render;render=function(){let out=_render();rogueliteRenderHud();if(S?.rogue?.enabled&&!S.bossRevealed){let a=document.getElementById('bossArea');if(a){let r=rogueState(),c=rogueCycle(),cf=rogueCycleFloorFor(r.floor),mult=rogueDifficultyMultiplier();a.innerHTML=rogueIsBossFloor()?'<div class="cap">The Boss Gate is opening…</div>':`<div class="cap">Boss Floors each cycle: 5 • 10 • 15<br><span class="muted">Cycle ${c} • Act ${r.act} • Floor ${cf} • ${mult}× difficulty</span></div>`}}return out};
