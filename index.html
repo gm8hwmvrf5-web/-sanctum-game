@@ -107,11 +107,11 @@
 
 
 
-<link rel="stylesheet" href="./src/styles/base.css?v=clean21">
-<link rel="stylesheet" href="./src/styles/roguelite.css?v=clean21">
-<link rel="stylesheet" href="./src/styles/mobile.css?v=clean21">
-<link rel="stylesheet" href="./src/styles/multiplayer.css?v=clean21">
-<link rel="stylesheet" href="./src/styles/accessibility.css?v=clean21">
+<link rel="stylesheet" href="./src/styles/base.css?v=clean22">
+<link rel="stylesheet" href="./src/styles/roguelite.css?v=clean22">
+<link rel="stylesheet" href="./src/styles/mobile.css?v=clean22">
+<link rel="stylesheet" href="./src/styles/multiplayer.css?v=clean22">
+<link rel="stylesheet" href="./src/styles/accessibility.css?v=clean22">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -198,7 +198,7 @@
     <h3>Sanctum of the Damned</h3>
     <div class="bottomSubtitle">Roguelite Edition • Original Art & Layout</div>
     <div class="installHint hidden" id="installHint"><b>Standalone file:</b> open this HTML directly in your browser. No server or additional folder is required.</div>
-    <div class="notice"><b>Browser Edition:</b> optimized for desktop Chrome, Edge, Firefox, and Safari while retaining phone/tablet support. This build uses the 25 Demon types from the five Demon sheets we created (4 copies each) plus the official 10-card Boss Demon deck. Demon and Boss art, HP, Blood, and printed abilities are built into this single file. Compatible abilities resolve automatically. Demon Attack is now resolved when a Demon reaches the Altar: its current Attack becomes the base Altar loss, and Attack-based Demon abilities are applied automatically.</div>
+    <div class="notice"><b>Browser Edition:</b> optimized for desktop Chrome, Edge, Firefox, and Safari while retaining phone/tablet support. This build uses the 35 Demon types from seven Demon sheets (4 copies each) plus the official 10-card Boss Demon deck. Demon and Boss art, HP, Blood, and printed abilities are built into this single file. Compatible abilities resolve automatically. Demon Attack is now resolved when a Demon reaches the Altar: its current Attack becomes the base Altar loss, and Attack-based Demon abilities are applied automatically.</div>
     <div class="footer">Roguelite browser playtest • Original Sanctum artwork and board preserved • 15-floor runs • 3 Acts • Persistent Cinders • No install or server required</div>
   </section>
   <div class="titlebar" id="topMenuBar">
@@ -337,7 +337,7 @@
   </div>
 </div>
 
-<div class="modal hidden" id="demonDeckModal"><div class="modalbox demonDeckBox"><h2>Created Demon Deck</h2><p>25 Demon types × 4 copies = 100-card digital Demon deck. Each row shows the normal face and its Greater face.</p><div id="demonDeckGrid" class="deckgrid"></div><button class="btn" id="demonDeckClose">Close</button></div></div>
+<div class="modal hidden" id="demonDeckModal"><div class="modalbox demonDeckBox"><h2>Created Demon Deck</h2><p>35 Demon types × 4 copies = 140-card digital Demon deck. Each row shows the normal face and its Greater face.</p><div id="demonDeckGrid" class="deckgrid"></div><button class="btn" id="demonDeckClose">Close</button></div></div>
 <div class="modal hidden" id="bossDeckModal"><div class="modalbox bossDeckBox"><h2>Official Boss Demon Deck</h2><p>10 unique Boss Demons. The first is secretly drawn at setup and awakens after the 13th base Demon defeat. After defeating a Boss, you may end the run or Descend Further and immediately draw another Boss from the randomized Boss bag.</p><div id="bossDeckGrid" class="bossDeckGrid"></div><button class="btn" id="bossDeckClose">Close</button></div></div>
 <div class="modal hidden" id="rulesModal"><div class="modalbox"><h2>Core Digital Rules</h2><div id="rulesText"></div><button class="btn" id="rulesClose">Close</button></div></div>
 
@@ -374,7 +374,7 @@
       <div class="rogueGuideStep"><b>Build during the run.</b> Rewards still include Priest-card drafts using the original card pool/art, recovery, Demon Blood, and bonus Relics.</div>
       <div class="rogueGuideStep"><b>Cinders bank every 3 Acts.</b> Defeat the third Boss of a cycle to secure the Cinders you earned, open the Legacy shop, then continue the same run at double the previous cycle difficulty.</div>
       <div class="rogueGuideStep"><b>Enemies rise with depth.</b> Demon and Boss HP and damage both gain +5% of base per floor, stacking with Ascension-cycle difficulty.</div>
-      <div class="rogueGuideStep"><b>Hidden Crucifix Demons.</b> Every fresh 100-card Demon deck secretly marks exactly 15 Demons. If a marked Demon is defeated or reaches the Altar, draw one random Crucifix card. The mark is never shown before it triggers.</div>
+      <div class="rogueGuideStep"><b>Hidden Crucifix Demons.</b> Every fresh 140-card Demon deck secretly marks exactly 21 Demons. If a marked Demon is defeated or reaches the Altar, draw one random Crucifix card. The mark is never shown before it triggers.</div>
       <div class="rogueGuideStep"><b>Visual target popups for Priest cards.</b> Any Priest card that targets a Demon now opens the illustrated target popup, showing all current Demons on the board, and Boss illustrations whenever that card can legally target the Boss.</div>
     </div>
     <button class="btn green" id="rogueGuideClose">Return to the Sanctum</button>
@@ -625,15 +625,15 @@
 
 
 
-<script src="./src/js/00-data.js?v=clean21"></script>
-<script src="./src/js/10-engine.js?v=clean21"></script>
-<script src="./src/js/15-asset-loader.js?v=clean21"></script>
-<script src="./src/js/20-ui-foundation.js?v=clean21"></script>
-<script src="./src/js/25-font-settings.js?v=clean21"></script>
-<script src="./src/js/30-roguelite.js?v=clean21"></script>
-<script src="./src/js/40-priest-ui.js?v=clean21"></script>
-<script src="./src/js/50-mobile.js?v=clean21"></script>
-<script src="./src/js/60-multiplayer.js?v=clean21"></script>
-<script src="./src/js/70-multiplayer-patches.js?v=clean21"></script>
+<script src="./src/js/00-data.js?v=clean22"></script>
+<script src="./src/js/10-engine.js?v=clean22"></script>
+<script src="./src/js/15-asset-loader.js?v=clean22"></script>
+<script src="./src/js/20-ui-foundation.js?v=clean22"></script>
+<script src="./src/js/25-font-settings.js?v=clean22"></script>
+<script src="./src/js/30-roguelite.js?v=clean22"></script>
+<script src="./src/js/40-priest-ui.js?v=clean22"></script>
+<script src="./src/js/50-mobile.js?v=clean22"></script>
+<script src="./src/js/60-multiplayer.js?v=clean22"></script>
+<script src="./src/js/70-multiplayer-patches.js?v=clean22"></script>
 </body>
 </html>

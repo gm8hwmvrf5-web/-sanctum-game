@@ -230,6 +230,81 @@ try{
           assert(ritualIsHalved(d),'Ritual-halving did not reset next round');
           break;
         }
+        case 'entryDiscard':{
+          const before=S.priestDiscard.length;
+          for(let i=0;i<3;i++){
+            S.players[0].hand.push({...PRIEST[i],id:'discard-A-'+i});
+            S.players[1].hand.push({...PRIEST[i+3],id:'discard-B-'+i});
+          }
+          triggerEnterPlay(d);
+          assert(S.players.every(p=>p.hand.length===3-v),
+            'Entry discard did not remove '+v+' card(s) from each Priest');
+          assert(S.priestDiscard.length===before+v*2,
+            'Randomly discarded Priest cards did not reach discard pile');
+          break;
+        }
+        case 'basicArmor':{
+          d.cur=20;d.hp=20;d.ghp=20;
+          damageDemon(d,6,'Basic Attack test',{basicAttack:true});
+          assert(d.cur===20-(6-v),'Basic Attack did not resist '+v+' damage');
+          damageDemon(d,3,'Priest direct damage');
+          assert(d.cur===20-(6-v)-3,'Non-Basic damage was incorrectly reduced');
+          break;
+        }
+        case 'enterCorruption':{
+          triggerEnterRoom(d);
+          assert(roomCorruption(0)===v,'Entry corruption should add '+v+' tracker(s)');
+          break;
+        }
+        case 'roomManaLoss':{
+          triggerEnterRoom(d);
+          assert(S.mana===12-v,'Room entry should drain '+v+' Mana');
+          moveOneForward(d);
+          assert(S.mana===12-v*2,'Next room entry failed to drain Mana again');
+          break;
+        }
+        case 'hurtAltar':{
+          const before=S.altar;
+          damageDemon(d,1,'Direct attack');
+          assert(S.altar===before-v,'Damage retaliation should drain '+v+' Altar');
+          break;
+        }
+        case 'breachBlood':{
+          S.players.forEach(p=>p.blood=3);
+          S.rooms[0]=[];S.rooms[3]=[d];
+          moveOneForward(d);
+          assert(S.players.every(p=>p.blood===3-v),
+            'Altar breach did not steal '+v+' Blood from each Priest');
+          break;
+        }
+        case 'defeatSpawnImp':{
+          defeatDemon(d);
+          const imps=allDemons().filter(x=>x.d.key==='imp_lesser').map(x=>x.d);
+          const equivalents=imps.reduce((n,x)=>n+(x.greater?2:1),0);
+          assert(equivalents===v,'Defeat should summon '+v+' Imp copies');
+          break;
+        }
+        case 'defeatAltarCurse':{
+          defeatDemon(d);
+          assert(S.nextAltarBonus===v,'Death curse did not add '+v+' to next Altar loss');
+          const before=S.altar;damageAltar(1,'test attack');
+          assert(S.altar===before-1-v,'Next Altar damage ignored curse');
+          assert(S.nextAltarBonus===0,'Death curse did not consume itself');
+          break;
+        }
+        case 'relentless':{
+          const companion=dummy('traveler');
+          S.rooms[0].push(companion);
+          moveDemons();
+          assert(pos(d)===1+v,
+            'Relentless movement should travel '+(1+v)+' rooms even when accompanied');
+          break;
+        }
+        case 'phaseManaDrain':{
+          resolveStartDemonPhaseAbilities();
+          assert(S.mana===12-v,'Start of Demon Phase should drain '+v+' Mana');
+          break;
+        }
         case 'spawnImp':{
           const before=allDemons().length;
           resolveStartDemonPhaseAbilities();
@@ -244,7 +319,7 @@ try{
         default:throw new Error('Uncovered Demon ability '+k);
       }
     };
-    assert(DEMON_TYPES.length===25,'Expected 25 Demon types');
+    assert(DEMON_TYPES.length===35,'Expected 35 Demon types');
     assert(BOSSES.length===10,'Expected 10 Bosses');
     for(const def of DEMON_TYPES){
       for(const greater of [false,true]){
