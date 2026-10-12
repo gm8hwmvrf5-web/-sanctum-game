@@ -514,6 +514,14 @@ dialog.mpDemonReader[data-reader-kind="boss"] .mpDemonReaderStats .blood{
   overflow:hidden;
   border-width:2px;
 }
+#rogueChoiceModal[data-mp-group-vote="1"] .rogueDraftCard .rogueDraftArt img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 24%;
+}
+
 .mpVoteCardArt{
   height:92px;
   margin:-2px -2px 7px;
