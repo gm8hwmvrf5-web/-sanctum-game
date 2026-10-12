@@ -455,12 +455,18 @@ function buildPriestDeck(){
  return shuffle(d);
 }
 const DEMON_CRUCIFIX_ATTACHMENT_RATE=0.15;
+function demonCrucifixMarkerScore(d){
+ const s=String(d?.id||d?.key||'');
+ let h=2166136261;
+ for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}
+ return h>>>0;
+}
 function attachHiddenCrucifixCards(deck){
  if(!Array.isArray(deck)||!deck.length)return deck;
  deck.forEach(d=>{if(d)delete d.crucifixAttached});
  const count=Math.max(0,Math.min(deck.length,Math.round(deck.length*DEMON_CRUCIFIX_ATTACHMENT_RATE)));
- const order=shuffle(deck.map((_,i)=>i));
- for(let i=0;i<count;i++)deck[order[i]].crucifixAttached=true;
+ const ranked=deck.map((d,i)=>({d,i,score:demonCrucifixMarkerScore(d)})).sort((a,b)=>a.score-b.score||a.i-b.i);
+ for(let i=0;i<count;i++)ranked[i].d.crucifixAttached=true;
  return deck;
 }
 function buildDemonDeck(){
