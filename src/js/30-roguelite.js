@@ -205,7 +205,11 @@ function rogueliteOpenRepository(){
 
 function rogueClearRooms(){
  let carried=0;
- (S.rooms||[]).forEach(room=>(room||[]).forEach(d=>{if(d&&d.crucifixAttached){carried++;delete d.crucifixAttached}}));
+ // Demons waiting in the hidden Gate Queue can also carry attachments.
+ // When a floor ends, preserve their Crucifixes alongside those on the board.
+ [...(S.rooms||[]).flat(),...(S.queue||[])].forEach(d=>{
+  if(d&&d.crucifixAttached){carried++;delete d.crucifixAttached}
+ });
  if(carried)S.pendingCrucifixTransfers=Math.max(0,Math.floor(Number(S.pendingCrucifixTransfers)||0))+carried;
  S.rooms=[[],[],[],[]];S.queue=[];selectedDemonId=null;
 }

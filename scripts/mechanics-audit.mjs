@@ -52,8 +52,12 @@ try{
       check(S.demonDeck.filter(d=>d.crucifixAttached).length===15,'Exactly 15 of 100 Demons must be marked');
     });
     test('Mana pool caps and refill by player count',()=>{
-      for(const [n,cap] of [[1,10],[2,15],[3,20],[4,30]]){
-        S.players=Array.from({length:n},(_,i)=>({name:'Test '+i,hand:[],blood:0}));
+      for(const [n,cap] of [[1,10],[2,15],[3,20],[4,35]]){
+        S.players=Array.from({length:n},(_,i)=>({
+          name:'Test '+i,char:Object.keys(CHARACTERS)[i],
+          hand:[],blood:0,basic:false,ritualUsed:[false,false,false],
+          discardUsed:false,consecrateUsed:false
+        }));
         check(sharedManaRoundValue()===cap,'Unexpected round mana cap for '+n+' Priests');
         S.mana=cap-2;addMana(99);
         check(S.mana===cap,'Mana gain did not respect '+n+'-Priest cap');
@@ -89,8 +93,8 @@ try{
     test('Full rooms and stop effects prevent Demon movement',()=>{
       const d=demon(0,'blocked');S.rooms[0].push(d);
       for(let i=0;i<4;i++)S.rooms[1].push(demon((i+1)%25,'hall-'+i));
-      moveDemons();
-      check(S.rooms[0].some(x=>x.id==='blocked'),'Demon walked into a full Hall');
+      check(moveOneForward(d)===false,'A Demon moved into a fully occupied Hall');
+      check(S.rooms[0].some(x=>x.id==='blocked'),'Blocked Demon left the Gateway');
       const stopped=demon(0,'stopped');S.rooms[0]=[stopped];S.rooms[1]=[];
       stopped.status.stop=true;moveDemons();
       check(S.rooms[0].some(x=>x.id==='stopped'),'Stopped Demon moved');
