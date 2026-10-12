@@ -263,7 +263,7 @@ try{
           S.crucifixDeck=['Holy Respite'];
           S.crucifixDiscard=CRUCIFIX.filter(x=>x.n!=='Holy Respite').map(x=>x.n);
           S.altar=20;
-          const start=S.altar,baseAttack=baseDemonAttack(d),
+          const start=S.altar,baseAttack=demonAttack(d),
             bonus=demonCode(d)==='altarPlus'?demonValue(d):0;
           moveOneForward(d);
           assert(!findDemonLocation(d),'Demon did not leave Crypt on Altar breach');
@@ -290,7 +290,7 @@ try{
           S.defeated=[previously];S.defeats=1;
         }
         if(def.key==='plagueFather'){
-          const a=dummy('wounded-a'),b=dummy('wounded-b');
+          const a=dummy('wounded-a'),b=make(DEMON_TYPES[2],false,'wounded-b');
           a.cur=a.hp-2;b.cur=b.hp-2;
           S.rooms[0]=[a];S.rooms[2]=[b];
         }
