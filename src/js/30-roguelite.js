@@ -4,12 +4,13 @@
 (()=>{
 'use strict';
 const ROGUE_META_KEY='sanctumRogueliteLegacyV1';
-const ROGUE_VERSION=5;
+const ROGUE_VERSION=6;
 const ROGUE_NODE_INFO={
  battle:{name:'Standard Battle',icon:'✦',cls:'',desc:'A balanced encounter using the normal Sanctum pressure.',reward:'1 Cinder • normal reward choice'},
  elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Demons gain additional HP and Attack. The encounter is longer, but its spoils are richer.',reward:'3 Cinders • bonus Relic choice available'},
  swarm:{name:'Hellgate Swarm',icon:'♜',cls:'elite',desc:'More Demons spawn each Demon Phase. Individual foes are less enhanced than Elites.',reward:'2 Cinders • normal reward choice'},
  sanctuary:{name:'Ruined Sanctuary',icon:'✚',cls:'sanctuary',desc:'No combat. Choose one recovery or preparation blessing, then continue deeper.',reward:'1 Cinder • recovery choice'},
+ repository:{name:'The Sinking Repository',icon:'⌘',cls:'repository',desc:'A drowned archive-market where unbanked Cinders can buy powerful benefits for this run only.',reward:'Cinder store • one purchase'},
  boss:{name:'Boss Gate',icon:'♛',cls:'boss',desc:'A Boss Demon seals the next descent. Defeat it to reach the next Act.',reward:'Boss Cinders • major reward'}
 };
 const ROGUE_UPGRADES={
@@ -22,7 +23,7 @@ const ROGUE_UPGRADES={
 };
 let rogueModalActions=[];
 
-function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,history:[],lastReward:'',runStartedAt:Date.now()}}
+function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,history:[],lastReward:'',runStartedAt:Date.now()}}
 function rogueState(){if(!S.rogue||typeof S.rogue!=='object')S.rogue=rogueDefaultState();return S.rogue}
 function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,basicAttack:0,relicXpGain:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
 function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify(m));return true}catch(e){console.warn('Legacy storage unavailable',e);return false}}
@@ -48,6 +49,139 @@ function rogueNode(type){return ROGUE_NODE_INFO[type]||ROGUE_NODE_INFO.battle}
 function rogueCap(v,min,max){return Math.max(min,Math.min(max,v))}
 function rogueShuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function rogueAddCinders(n,why=''){let r=rogueState();r.cindersRun=Math.max(0,(r.cindersRun||0)+n);if(why)log(`CINDERS +${n} — ${why}.`,'good');rogueliteRenderHud()}
+
+function rogueRepositoryVisitCount(cycle=rogueCycle()){
+ let r=rogueState();r.repositoryVisits=(r.repositoryVisits&&typeof r.repositoryVisits==='object')?r.repositoryVisits:{};
+ return Math.max(0,Math.floor(Number(r.repositoryVisits[String(cycle)])||0));
+}
+function rogueRepositoryCanAppear(cycle=rogueCycle()){
+ let r=rogueState();
+ return rogueRepositoryVisitCount(cycle)<2 && Math.max(0,Math.floor(Number(r.cindersRun)||0))>=8;
+}
+function rogueRepositoryMarkVisit(){
+ let r=rogueState(),cycle=rogueCycle();r.repositoryVisits=(r.repositoryVisits&&typeof r.repositoryVisits==='object')?r.repositoryVisits:{};
+ r.repositoryVisits[String(cycle)]=rogueRepositoryVisitCount(cycle)+1;
+ return r.repositoryVisits[String(cycle)];
+}
+function rogueRepositoryPrices(balance){
+ balance=Math.max(8,Math.floor(Number(balance)||0));
+ return [.50,.625,.75,.875,1].map(p=>Math.min(balance,Math.max(1,Math.ceil(balance*p))));
+}
+function rogueRepositoryAllRelics(){
+ const core=typeof RELICS!=='undefined'&&Array.isArray(RELICS)?RELICS:[];
+ const extra=Array.isArray(window.__sanctumExtraRelics)?window.__sanctumExtraRelics:[];
+ const seen=new Set(),out=[];
+ [...core,...extra].forEach(rel=>{
+  if(!rel)return;
+  const key=String(rel.key||rel.k||rel.id||'');
+  if(key&&!seen.has(key)){seen.add(key);out.push(rel)}
+ });
+ return out;
+}
+function rogueRepositoryOwnedKeys(){
+ return new Set((S.activeRelics||[]).map(v=>typeof v==='string'?v:String(v?.key||v?.k||v?.id||'')));
+}
+function rogueRepositoryRelicPool(){
+ const owned=rogueRepositoryOwnedKeys();
+ return rogueRepositoryAllRelics().filter(rel=>!owned.has(String(rel.key||rel.k||rel.id||'')));
+}
+function rogueRepositoryRemoveRelicFromDeck(key){
+ if(Array.isArray(S.relicDeck)){
+  const i=S.relicDeck.indexOf(key);
+  if(i>=0)S.relicDeck.splice(i,1);
+ }
+}
+function rogueRepositorySpend(cost,label){
+ let r=rogueState();cost=Math.max(0,Math.floor(Number(cost)||0));
+ if(cost<=0||Math.max(0,Math.floor(Number(r.cindersRun)||0))<cost){
+  showGameStatus('You no longer have enough unbanked Cinders for that purchase.','bad');
+  return false;
+ }
+ r.cindersRun-=cost;
+ log(`THE SINKING REPOSITORY — spent ${cost} Cinders on ${label}. ${r.cindersRun} unbanked Cinders remain.`,'good');
+ rogueliteRenderHud();
+ return true;
+}
+function rogueRepositoryBuyRelic(key,cost){
+ const rel=relicByKey(key);if(!rel)return false;
+ if(!rogueRepositorySpend(cost,rel.n))return false;
+ rogueRepositoryRemoveRelicFromDeck(key);
+ applyRelic(rel);
+ S.relicPopupQueue=S.relicPopupQueue||[];
+ S.relicPopupQueue.push({key,reason:`Purchased in The Sinking Repository for ${cost} Cinders. This Relic lasts for the current run.`,after:'rogueRoute'});
+ rogueState().repositoryOffer=null;
+ render();showNextRelicPopup();
+ return true;
+}
+function rogueRepositoryPurchaseByActionKey(actionKey){
+ const parts=String(actionKey||'').split(':');
+ if(parts[0]!=='repository')return false;
+ if(parts[1]==='leave'){
+  rogueState().repositoryOffer=null;
+  log('You leave The Sinking Repository with your remaining Cinders unspent.','info');
+  rogueliteOpenRoute();return true;
+ }
+ if(parts[1]==='relic'){
+  const key=decodeURIComponent(parts[2]||''),cost=Number(parts[3]||0);
+  return rogueRepositoryBuyRelic(key,cost);
+ }
+ if(parts[1]==='candles'){
+  const cost=Number(parts[2]||0);if(!rogueRepositorySpend(cost,'Votive Candle Bundle'))return false;
+  restoreAltarLogged(10,'Votive Candle Bundle');rogueState().repositoryOffer=null;render();rogueliteOpenRoute();return true;
+ }
+ if(parts[1]==='folio'){
+  const cost=Number(parts[2]||0);if(!rogueRepositorySpend(cost,'Forbidden Folio'))return false;
+  S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};
+  S.relicMods.hand=(Number(S.relicMods.hand)||0)+1;
+  log('FORBIDDEN FOLIO — maximum Priest hand size increases by 1 for the rest of this run.','good');
+  rogueState().repositoryOffer=null;render();rogueliteOpenRoute();return true;
+ }
+ return false;
+}
+window.__sanctumRepositoryPurchaseByActionKey=rogueRepositoryPurchaseByActionKey;
+
+function rogueliteOpenRepository(){
+ let r=rogueState(),balance=Math.max(0,Math.floor(Number(r.cindersRun)||0));
+ if(balance<1){log('The Sinking Repository finds no Cinders to trade.','info');rogueliteOpenRoute();return}
+ const prices=rogueRepositoryPrices(balance);
+ let relics=rogueShuffle(rogueRepositoryRelicPool()).slice(0,3);
+ while(relics.length<3){
+  relics.push({key:'repositoryFallback'+relics.length,n:'Sealed Empty Reliquary',cat:'Unavailable',effect:'No unowned Relic remains in this slot.'});
+ }
+ let goods=[
+  ...relics.map(rel=>({kind:'relic',rel})),
+  {kind:'candles'},
+  {kind:'folio'}
+ ];
+ goods=rogueShuffle(goods);
+ const offers=goods.map((good,i)=>{
+  const cost=prices[i];
+  if(good.kind==='relic'){
+   const rel=good.rel,key=String(rel.key||rel.k||rel.id||'');
+   const unavailable=key.startsWith('repositoryFallback');
+   return {
+    icon:'◆',title:rel.n,cls:'repository',desc:rel.effect||rel.e||rel.txt||rel.desc||'Relic',
+    reward:unavailable?'Sold out':`${cost} Cinders • Relic for this run`,
+    actionKey:unavailable?'repository:leave':`repository:relic:${encodeURIComponent(key)}:${cost}`,
+    action:()=>unavailable?rogueRepositoryPurchaseByActionKey('repository:leave'):rogueRepositoryPurchaseByActionKey(`repository:relic:${encodeURIComponent(key)}:${cost}`)
+   };
+  }
+  if(good.kind==='candles')return {
+   icon:'✚',title:'Votive Candle Bundle',cls:'repository',desc:'Restore 10 Altar Protection immediately.',
+   reward:`${cost} Cinders • immediate recovery`,actionKey:`repository:candles:${cost}`,
+   action:()=>rogueRepositoryPurchaseByActionKey(`repository:candles:${cost}`)
+  };
+  return {
+   icon:'✠',title:'Forbidden Folio',cls:'repository',desc:'Increase maximum Priest hand size by 1 for the rest of this run.',
+   reward:`${cost} Cinders • run-only upgrade`,actionKey:`repository:folio:${cost}`,
+   action:()=>rogueRepositoryPurchaseByActionKey(`repository:folio:${cost}`)
+  };
+ });
+ r.repositoryOffer={cycle:rogueCycle(),floor:r.floor,balance,prices:[...prices],titles:offers.map(o=>o.title)};
+ offers.push({icon:'↩',title:'Leave Empty-Handed',cls:'repository leave',desc:'Spend nothing and keep every remaining Cinder available for the cycle bank.',reward:'No purchase',actionKey:'repository:leave',action:()=>rogueRepositoryPurchaseByActionKey('repository:leave')});
+ rogueShowChoice(`Cycle ${rogueCycle()} • Floor ${rogueCycleFloorFor(r.floor)} • ${balance} Cinders`,'The Sinking Repository','Waterlogged shelves descend into black water. Choose at most one purchase. Prices were fixed when you entered; spent Cinders will not be banked at the cycle checkpoint.',offers);
+}
+
 function rogueClearRooms(){S.rooms=[[],[],[],[]];S.queue=[];selectedDemonId=null}
 function rogueCleanseAll(){for(let i=0;i<4;i++){S.corruption[i]=0;S.desecratedRooms[i]=false}}
 function rogueGiveBlood(n){S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+n));log(`Each Priest gains ${n} Demon Blood.`,'good')}
@@ -211,6 +345,12 @@ function rogueliteEnterCurrentFloor(type){
  if(r.nodeType==='sanctuary'){
    S.phase='Sanctuary';clearTurnTimerInterval();rogueAddCinders(1,'the Sanctuary is reached');render();setTimeout(rogueliteOpenSanctuary,120);return;
  }
+ if(r.nodeType==='repository'){
+   S.phase='Repository';clearTurnTimerInterval();
+   const visit=rogueRepositoryMarkVisit();
+   log(`THE SINKING REPOSITORY — visit ${visit}/2 for Cycle ${rogueCycle()}. Unbanked Cinders can be spent here for this run only.`,'good');
+   render();setTimeout(rogueliteOpenRepository,120);return;
+ }
  // Two visible threats establish the next room; normal original spawning takes over afterwards.
  let opening=S.players.length===1?1:2;for(let i=0;i<opening;i++)spawnOne(false);
  log(`CYCLE ${rogueCycle()} • ACT ${rogueAct()} • FLOOR ${rogueCycleFloorFor(r.floor)} — ${r.nodeName}. Defeat ${r.encounterGoal} Demons to advance at ${rogueDifficultyMultiplier()}× Ascension difficulty, ${rogueFloorHealthMultiplier().toFixed(2)}× floor HP, and ${rogueFloorDamageMultiplier().toFixed(2)}× floor damage.`,'good');
@@ -250,13 +390,13 @@ function rogueliteOpenSanctuary(){
   {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood. Shared Mana is restored to the current player-count baseline.',reward:'Ritual preparation',action:()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()}}
  ]);
 }
-function rogueliteRouteOptions(){let pool=['battle','elite','swarm','sanctuary'];return rogueShuffle(pool).slice(0,3)}
+function rogueliteRouteOptions(){let pool=['battle','elite','swarm','sanctuary'],options=rogueShuffle(pool).slice(0,3);if(rogueRepositoryCanAppear()&&Math.random()<0.25){options[Math.floor(Math.random()*options.length)]='repository'}return options}
 function rogueliteOpenRoute(){
  let r=rogueState();r.pendingClear=false;let next=r.floor+1,nextCycle=rogueCycleForFloor(next),nextFloor=rogueCycleFloorFor(next),nextAct=rogueActForFloor(next),nextMult=Math.pow(2,Math.max(0,nextCycle-1));
  if((next%5)===0){
   let n=rogueNode('boss');rogueShowChoice(`Cycle ${nextCycle} • Act ${nextAct} • Floor ${nextFloor}`,'The Boss Gate Opens',`There is no safe route around the next chamber. Ascension pressure is ${nextMult}×.`,[{icon:n.icon,title:`Enter Boss Floor ${nextFloor}`,cls:n.cls,desc:n.desc,reward:n.reward,action:()=>{r.floor=next;rogueliteEnterCurrentFloor('boss')}}]);return;
  }
- let options=rogueliteRouteOptions().map(type=>{let n=rogueNode(type);return {icon:n.icon,title:n.name,cls:n.cls,desc:n.desc,reward:n.reward,action:()=>{r.floor=next;rogueliteEnterCurrentFloor(type)}}});
+ let options=rogueliteRouteOptions().map(type=>{let n=rogueNode(type);return {icon:n.icon,title:n.name,cls:n.cls,desc:n.desc,reward:n.reward,actionKey:'route:'+type,action:()=>{r.floor=next;rogueliteEnterCurrentFloor(type)}}});
  rogueShowChoice(`Cycle ${nextCycle} • Act ${nextAct} • Floor ${nextFloor}`,'Choose Your Route',`Each route changes the pressure and reward profile. Cycle ${nextCycle} enemies fight at ${nextMult}× difficulty.`,options);
 }
 function rogueliteBossDefeated(){
@@ -345,8 +485,8 @@ document.getElementById('rogueLegacyClose').onclick=rogueliteContinueAfterLegacy
 document.getElementById('rogueGuideClose').onclick=rogueliteCloseGuide;
 
 // Setup/rules copy: clarify the new run structure without disturbing the original controls.
-const setupBox=document.querySelector('#setupModal .modalbox');if(setupBox&&!document.getElementById('rogueSetupNotice')){let n=document.createElement('div');n.id='rogueSetupNotice';n.className='notice';n.innerHTML='<b>Endless Roguelite:</b> Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss, Cinders bank, the Legacy shop opens, and the same run continues into a new cycle at double difficulty. Demon kills no longer draw Crucifix cards. Demon Blood earned from kills also becomes Relic XP: 15 XP for the first XP Relic, then +5 required for each XP-earned Relic. Room-clear Relic choices do not raise that requirement. Demon and Boss HP gains +15% of base per floor, while their damage gains +5% per floor. The online Priest run deck is built per player: <b>one of every Priest card + 15 randomized duplicate cards for each player</b>, all combined into one shared shuffled draw deck. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies. Choose a 30–120 second Priest turn timer before starting the run.';let h=setupBox.querySelector('h2');h?.insertAdjacentElement('afterend',n)}
-const rules=document.getElementById('rulesText');if(rules){rules.innerHTML=`<div class="notice"><b>Endless Roguelite Structure:</b> Clear short encounters, choose a reward, then choose the next route. Every cycle has Bosses on Floors 5, 10, and 15. The third Boss banks your Cinders and opens the Legacy shop; continuing starts another 3 Acts at double the previous cycle difficulty. Demon Blood from kills doubles as Relic XP. XP Relics cost 15, then 20, 25, 30… XP; room-clear Relic choices do not increase that cost. Demon kills do not draw Crucifix cards. Altar Protection, Priest hands, Blood, XP progress, Corruption, Relics, and your evolving Priest run deck persist between floors. Drafted Priest cards are shuffled into future random draws. Cinders bank only when the run ends.</div>`+rules.innerHTML;rules.innerHTML=rules.innerHTML.replace(/The Boss appears after the 13th base Demon defeat\./g,'In Roguelite mode, Bosses appear on Floors 5, 10, and 15.').replace(/progress toward the 13 required base-Demon defeats/g,'progress toward the current encounter-clear requirement')}
+const setupBox=document.querySelector('#setupModal .modalbox');if(setupBox&&!document.getElementById('rogueSetupNotice')){let n=document.createElement('div');n.id='rogueSetupNotice';n.className='notice';n.innerHTML='<b>Endless Roguelite:</b> Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss, Cinders bank, the Legacy shop opens, and the same run continues into a new cycle at double difficulty. Demon kills no longer draw Crucifix cards. Demon Blood earned from kills also becomes Relic XP: 15 XP for the first XP Relic, then +5 required for each XP-earned Relic. Room-clear Relic choices do not raise that requirement. Demon and Boss HP and damage both gain +5% of base per floor. The online Priest run deck is built per player: <b>one of every Priest card + 15 randomized duplicate cards for each player</b>, all combined into one shared shuffled draw deck. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies. The Sinking Repository can randomly appear as a passage up to twice per cycle, offering five run-only purchases for unbanked Cinders. Choose a 30–120 second Priest turn timer before starting the run.';let h=setupBox.querySelector('h2');h?.insertAdjacentElement('afterend',n)}
+const rules=document.getElementById('rulesText');if(rules){rules.innerHTML=`<div class="notice"><b>Endless Roguelite Structure:</b> Clear short encounters, choose a reward, then choose the next route. Every cycle has Bosses on Floors 5, 10, and 15. The third Boss banks your Cinders and opens the Legacy shop; continuing starts another 3 Acts at double the previous cycle difficulty. Demon Blood from kills doubles as Relic XP. XP Relics cost 15, then 20, 25, 30… XP; room-clear Relic choices do not increase that cost. Demon kills do not draw Crucifix cards. Altar Protection, Priest hands, Blood, XP progress, Corruption, Relics, and your evolving Priest run deck persist between floors. Drafted Priest cards are shuffled into future random draws. Cinders spent in The Sinking Repository are removed from the run balance and therefore are not banked at the cycle checkpoint. Cinders bank only when the run ends.</div>`+rules.innerHTML;rules.innerHTML=rules.innerHTML.replace(/The Boss appears after the 13th base Demon defeat\./g,'In Roguelite mode, Bosses appear on Floors 5, 10, and 15.').replace(/progress toward the 13 required base-Demon defeats/g,'progress toward the current encounter-clear requirement')}
 const bossDeckP=document.querySelector('#bossDeckModal p');if(bossDeckP)bossDeckP.textContent='10 unique Boss Demons from the original Boss deck. In this Roguelite Edition, a randomized Boss guards Floors 5, 10, and 15. Boss identity, artwork, abilities, and the existing hidden Boss bag are preserved.';
 
 document.title='Sanctum of the Damned — Compact Card Carousel Edition';
