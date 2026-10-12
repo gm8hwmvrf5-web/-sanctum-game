@@ -43,7 +43,17 @@ jobs:
           node scripts/smoke-clean-build.mjs
           node scripts/mechanics-audit.mjs
           node scripts/priest-playthrough.mjs
-          node scripts/demon-boss-playthrough.mjs
+          node scripts/demon-boss-playthrough.mjs 2>&1 | tee demon-codex-validation.log
+      - name: Demon gallery diagnostics
+        if: always()
+        shell: bash
+        run: |
+          if [ -f demon-codex-validation.log ]; then
+            echo "### Demon Deck browser test" >> "$GITHUB_STEP_SUMMARY"
+            echo '~~~~' >> "$GITHUB_STEP_SUMMARY"
+            tail -n 22 demon-codex-validation.log >> "$GITHUB_STEP_SUMMARY"
+            echo '~~~~' >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   live-sync:
     runs-on: ubuntu-latest
