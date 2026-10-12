@@ -37,7 +37,7 @@ function rogueCycleFloorFor(f){return ((Math.max(1,Number(f)||1)-1)%15)+1}
 function rogueActForFloor(f){return Math.ceil(rogueCycleFloorFor(f)/5)}
 function rogueCycle(){let r=rogueState();r.cycle=rogueCycleForFloor(r.floor||1);return r.cycle}
 function rogueDifficultyMultiplier(){return Math.pow(2,Math.max(0,rogueCycle()-1))}
-function rogueFloorHealthMultiplier(){return 1+(0.15*Math.max(0,(Math.max(1,Number(rogueState().floor)||1)-1)))}
+function rogueFloorHealthMultiplier(){return 1+(0.05*Math.max(0,(Math.max(1,Number(rogueState().floor)||1)-1)))}
 function rogueFloorDamageMultiplier(){return 1+(0.05*Math.max(0,(Math.max(1,Number(rogueState().floor)||1)-1)))}
 function rogueAct(){let r=rogueState();r.act=Math.min(3,Math.max(1,rogueActForFloor(r.floor||1)));return r.act}
 function rogueStep(){return ((rogueState().floor-1)%5)+1}
