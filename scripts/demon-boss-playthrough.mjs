@@ -39,7 +39,7 @@ try{
     const make=(def,greater=false,id='audit-target')=>({
       ...def,id,greater,cur:greater?def.ghp:def.hp,status:{}
     });
-    const dummy=(id='dummy')=>make(DEMON_TYPES[1],false,id);
+    const dummy=(id='dummy')=>make(DEMON_TYPES[0],false,id);
     const pos=d=>findDemonLocation(d)?.r;
     const checkAbility=(def,greater)=>{
       reset();
@@ -56,16 +56,20 @@ try{
         case 'defeatBlood':{
           const blood=demonBlood(d);
           defeatDemon(d);
-          assert(S.players[0].blood===Math.min(10,blood+v),
-            'Defeat must grant printed Blood and extra '+v);
+          // The printed kill reward belongs to the killer; this separate
+          // Defeat Blood ability distributes extra Blood round-robin.
+          assert(S.players[0].blood===Math.min(10,blood+Math.ceil(v/2)),
+            'Killer Blood plus extra round-robin amount incorrect');
+          assert(S.players[1].blood===blood/2+Math.floor(v/2),
+            'Teammate Blood plus extra round-robin amount incorrect');
           assert(S.defeats===1,'Defeat was not counted');
           break;
         }
         case 'altarPlus':{
           S.rooms[0]=[];S.rooms[3]=[d];
-          const before=S.altar;
+          const before=S.altar,printedAttack=baseDemonAttack(d);
           moveOneForward(d);
-          assert(S.altar===before-baseDemonAttack(d)-v,
+          assert(S.altar===before-printedAttack-v,
             'Breach should add '+v+' Altar loss to printed Attack');
           assert(!findDemonLocation(d),'Breached Demon remained on board');
           break;
@@ -100,6 +104,9 @@ try{
           break;
         }
         case 'ignoreDamage':{
+          // This is a three-hit test. Increase only the test creature's HP
+          // so that the second hit doesn't kill it before the third.
+          d.hp=30;d.ghp=30;d.cur=30;
           const hp=d.cur;
           damageDemon(d,5,'Audit damage');
           assert(d.cur===hp-(5-v),'First hit should block '+v);
@@ -176,6 +183,15 @@ try{
             'Altar attack did not grant '+v+' movement to next Demon');
           break;
         }
+        case 'defeatAttack':{
+          const target=dummy();S.rooms[1].push(target);
+          defeatDemon(d);
+          assert(target.status.attackBonus===v,
+            'Defeat should grant next Demon +'+v+' lasting Attack');
+          assert(demonAttack(target)===baseDemonAttack(target)+v,
+            'Next Demon attack did not include lasting bonus');
+          break;
+        }
         case 'priestTax':{
           assert(priestTax()===v,'Priest Mana tax should be +'+v);
           defeatDemon(d);
@@ -217,8 +233,12 @@ try{
         case 'spawnImp':{
           const before=allDemons().length;
           resolveStartDemonPhaseAbilities();
-          assert(allDemons().length-before===v,
-            'Summoning added '+(allDemons().length-before)+' instead of '+v+' Imps');
+          const newImps=allDemons().filter(x=>x.d.id!==d.id).map(x=>x.d);
+          // Two imps can immediately merge into one Greater Imp as part
+          // of normal gameplay; count the two physical copies consumed.
+          const equivalent=newImps.reduce((n,x)=>n+(x.greater?2:1),0);
+          assert(equivalent===v,
+            'Summoning created '+equivalent+' Lesser-Imp equivalents instead of '+v);
           break;
         }
         default:throw new Error('Uncovered Demon ability '+k);
@@ -242,13 +262,17 @@ try{
           S.rooms[3].push(d);
           S.crucifixDeck=['Holy Respite'];
           S.crucifixDiscard=CRUCIFIX.filter(x=>x.n!=='Holy Respite').map(x=>x.n);
-          const start=S.altar;
+          S.altar=20;
+          const start=S.altar,baseAttack=baseDemonAttack(d),
+            bonus=demonCode(d)==='altarPlus'?demonValue(d):0;
           moveOneForward(d);
           assert(!findDemonLocation(d),'Demon did not leave Crypt on Altar breach');
           assert(S.demonDeck.some(x=>x.id===d.id),'Breached Demon not recycled into Demon deck');
           assert(!d.crucifixAttached,'Hidden Crucifix was not cleared after breach');
           assert(S.crucifixDiscard.includes('Holy Respite'),'Attached Crucifix was not drawn');
-          assert(S.altar<=start,'Altar breach unexpectedly gained net Protection');
+          assert(S.altar===Math.min(30,start-baseAttack-bonus+3),
+            'Altar / Holy Respite resolution incorrect: got '+S.altar+
+              ', expected '+(start-baseAttack-bonus+3));
         });
       }
     }
@@ -298,8 +322,12 @@ try{
           assert(S.rooms[0].some(d=>d.id==='old-defeated'),'Boss recall did not restore Demon');
         }
         if(def.key==='plagueFather'){
-          assert(S.rooms[0][0].cur===S.rooms[0][0].hp-1,'Pestilent Bloom failed in Gateway');
-          assert(S.rooms[2][0].cur===S.rooms[2][0].hp-1,'Pestilent Bloom failed in Chapel');
+          assert(S.rooms[0][0].cur===S.rooms[0][0].hp-1,
+            'Pestilent Bloom failed in Gateway: cur '+S.rooms[0][0].cur+
+            ', printed hp '+S.rooms[0][0].hp);
+          assert(S.rooms[2][0].cur===S.rooms[2][0].hp-1,
+            'Pestilent Bloom failed in Chapel: cur '+S.rooms[2][0].cur+
+            ', printed hp '+S.rooms[2][0].hp);
         }
         if(def.key==='crimsonOracle'){
           assert(clicks>0,'Blood Prophecy choice was not shown');
