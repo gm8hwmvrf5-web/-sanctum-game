@@ -288,6 +288,7 @@ function normalizeSanctumState(){
  S.priestDiscard=S.priestDiscard.filter(c=>c&&!c.temp&&!String(c.id||'').startsWith('echo-'));
  if(!S.relicDeck||!Array.isArray(S.relicDeck))S.relicDeck=shuffle(RELICS.map(r=>r.key));
  if(!S.activeRelics||!Array.isArray(S.activeRelics))S.activeRelics=[];
+ if(!S.activeRelics.includes('martyrEye')&&!S.relicDeck.includes('martyrEye'))S.relicDeck.splice(Math.floor(S.relicDeck.length/2),0,'martyrEye');
  if(!S.relicMods)S.relicMods={basic:0,hand:0,ritual:0,crit:0};
  for(let k of ['basic','hand','ritual','crit'])if(!Number.isFinite(S.relicMods[k]))S.relicMods[k]=0;
  if(typeof S.relicFiveDefeatClaimed!=='boolean')S.relicFiveDefeatClaimed=S.defeats>=5;
