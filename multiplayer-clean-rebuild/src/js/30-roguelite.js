@@ -77,12 +77,31 @@ function rogueAwardKillXp(amount,d){
  }
  rogueliteRenderHud();
 }
-function rogueSilentRelic(reason='Roguelite reward'){
+function rogueSilentRelic(reason='Roguelite reward',popupAfter=''){
  S.relicDeck=S.relicDeck||[];
  if(!S.relicDeck.length)return null;
  let key=S.relicDeck.pop(),rel=relicByKey(key);if(!rel)return null;
- applyRelic(rel);log(`${reason}: ${rel.n}. Bonus reward Relics do not increase the Relic XP requirement.`,'good');return rel;
+ applyRelic(rel);
+ log(`${reason}: ${rel.n}. Bonus reward Relics do not increase the Relic XP requirement.`,'good');
+ if(popupAfter){
+  S.relicPopupQueue=S.relicPopupQueue||[];
+  S.relicPopupQueue.push({
+   key,
+   reason:`${reason}. Review this Relic before continuing.`,
+   after:popupAfter
+  });
+  render();
+  showNextRelicPopup();
+ }
+ return rel;
 }
+window.__sanctumRelicPopupAfter=function(action){
+ if(action==='rogueRoute'){
+  rogueliteOpenRoute();
+  return true;
+ }
+ return false;
+};
 function rogueOtherModalOpen(){
  const ignore=new Set(['setupModal','pauseOverlay','rogueChoiceModal','rogueLegacyModal','rogueGuideModal']);
  return [...document.querySelectorAll('.modal')].some(el=>!ignore.has(el.id)&&!el.classList.contains('hidden'));
@@ -213,7 +232,7 @@ function rogueliteOpenEncounterReward(){
    {icon:'✠',title:'Draft a Priest Card',desc:'Reveal three Priest cards. Shuffle one extra copy into your run deck for future random draws.',reward:'Deck-building reward',action:()=>rogueliteOpenDraft(rogueliteOpenRoute)},
    {icon:'✚',title:'Recover the Altar',desc:'Restore 6 Altar Protection and gain 2 shared Mana.',reward:'Immediate recovery',action:()=>{restoreAltarLogged(6,'Encounter recovery');addMana(2);rogueliteOpenRoute()}},
    r.nodeType==='elite'
-    ?{icon:'◆',title:'Claim a Relic',cls:'elite',desc:'Recover one random Relic from the original Sanctum Relic deck. Because this is a room-clear choice, it does not raise your next Relic XP requirement.',reward:'Bonus Relic • no XP-cost increase',action:()=>{let rel=rogueSilentRelic('Elite room-clear reward');showGameStatus(rel?`Relic claimed: ${rel.n}`:'The Relic deck is empty.','good');rogueliteOpenRoute()}}
+    ?{icon:'◆',title:'Claim a Relic',cls:'elite',desc:'Recover one random Relic from the original Sanctum Relic deck. Because this is a room-clear choice, it does not raise your next Relic XP requirement.',reward:'Bonus Relic • no XP-cost increase',action:()=>{let rel=rogueSilentRelic('Elite room-clear reward','rogueRoute');showGameStatus(rel?`Relic claimed: ${rel.n}`:'The Relic deck is empty.','good');if(!rel)rogueliteOpenRoute()}}
     :{icon:'♦',title:'Blood Cache',desc:'Each Priest gains 2 Demon Blood and you collect 1 extra Cinder.',reward:'+2 Blood each • +1 Cinder',action:()=>{rogueGiveBlood(2);rogueAddCinders(1,'Blood Cache');rogueliteOpenRoute()}}
  ];
  rogueShowChoice(`Floor ${r.floor} Cleared`,'Choose One Reward','Your combat build persists through the entire run. Choose one reward before selecting the next route.',choices);
@@ -246,7 +265,7 @@ function rogueliteBossDefeated(){
  let gain=5+rogueAct();rogueAddCinders(gain,`${S.boss.n} defeated`);log(`${S.boss.n} HAS BEEN DEFEATED — Cycle ${rogueCycle()}, Act ${rogueAct()}, Floor ${rogueCycleFloorFor(r.floor)}.`,'good');render();
  if(rogueIsCycleBoss()){rogueWhenClear(rogueliteCycleCheckpoint);return}
  rogueWhenClear(()=>rogueShowChoice(`Boss Defeated • Cycle ${rogueCycle()} • Act ${r.act}`,'Claim an Act Reward','Choose one major reward before entering the next Act.',[
-  {icon:'◆',title:'Reliquary',cls:'elite',desc:'Gain a random Relic and restore 4 Altar Protection. This room-clear Relic does not raise your next Relic XP requirement.',reward:'Bonus Relic • +4 Protection',action:()=>{rogueSilentRelic('Boss room-clear reward');restoreAltarLogged(4,'Boss reward');rogueliteOpenRoute()}},
+  {icon:'◆',title:'Reliquary',cls:'elite',desc:'Gain a random Relic and restore 4 Altar Protection. This room-clear Relic does not raise your next Relic XP requirement.',reward:'Bonus Relic • +4 Protection',action:()=>{restoreAltarLogged(4,'Boss reward');let rel=rogueSilentRelic('Boss room-clear reward','rogueRoute');if(!rel)rogueliteOpenRoute()}},
   {icon:'✚',title:'Purification',cls:'sanctuary',desc:'Restore 10 Altar Protection and cleanse all room Corruption.',reward:'Large recovery',action:()=>{restoreAltarLogged(10,'Boss purification');rogueCleanseAll();render();rogueliteOpenRoute()}},
   {icon:'✠',title:'Arsenal of Faith',desc:'Draft a Priest card and each Priest gains 2 Demon Blood.',reward:'Card draft • +2 Blood each',action:()=>{rogueGiveBlood(2);rogueliteOpenDraft(rogueliteOpenRoute)}}
  ]));
