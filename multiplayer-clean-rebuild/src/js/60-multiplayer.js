@@ -120,7 +120,8 @@
       'Standard Battle':'route:battle',
       'Elite Procession':'route:elite',
       'Hellgate Swarm':'route:swarm',
-      'Ruined Sanctuary':'route:sanctuary'
+      'Ruined Sanctuary':'route:sanctuary',
+      'The Sinking Repository':'route:repository'
     };
     if(category==='passage'&&/^Enter Boss Floor\s+\d+/i.test(title))return 'route:boss';
     return exact[title]||'';
@@ -136,7 +137,7 @@
       cls:String(choice?.cls||''),
       cardName:choice?.voteCard?String(choice.voteCard):'',
       empowered:choice?.voteEmpowered?String(choice.voteEmpowered):'',
-      actionKey:inferGroupVoteActionKey(meta,choice,index)
+      actionKey:String(choice?.actionKey||inferGroupVoteActionKey(meta,choice,index)||'')
     };
   }
 
@@ -146,6 +147,14 @@
       title:vote?.title||'',
       eyebrow:vote?.eyebrow||''
     },opt,index)||'');
+
+    if(key.startsWith('repository:')){
+      return ()=>{
+        const fn=window.__sanctumRepositoryPurchaseByActionKey;
+        if(typeof fn!=='function')throw new Error('Sinking Repository purchase handler is unavailable.');
+        return fn(key);
+      };
+    }
 
     if(key.startsWith('draft:')){
       const cardName=key.slice(6)||opt?.cardName||title;
@@ -179,6 +188,7 @@
       'route:elite':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('elite')},
       'route:swarm':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('swarm')},
       'route:sanctuary':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('sanctuary')},
+      'route:repository':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('repository')},
       'route:boss':()=>{const r=rogueState();r.floor=(Number(r.floor)||1)+1;rogueliteEnterCurrentFloor('boss')}
     };
     return actions[key]||null;
