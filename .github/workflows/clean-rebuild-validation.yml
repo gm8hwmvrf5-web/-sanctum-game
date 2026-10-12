@@ -44,3 +44,4 @@ jobs:
           node scripts/live-lobby-join.mjs
           node scripts/mechanics-audit.mjs
           node scripts/priest-playthrough.mjs
+          node scripts/demon-boss-playthrough.mjs
