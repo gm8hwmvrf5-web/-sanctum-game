@@ -245,6 +245,7 @@
     pauseRulesBtn:'rulesModal',
     pauseDemonDeckBtn:'demonDeckModal',
     pausePriestDeckBtn:'priestDeckModal',
+    pauseRelicDeckBtn:'relicDeckModal',
     pauseBossDeckBtn:'bossDeckModal',
     pauseRunGuideBtn:'rogueGuideModal',
     pauseLegacyBtn:'rogueLegacyModal'
@@ -255,6 +256,7 @@
     rulesClose:'rulesModal',
     demonDeckClose:'demonDeckModal',
     priestDeckClose:'priestDeckModal',
+    relicDeckClose:'relicDeckModal',
     bossDeckClose:'bossDeckModal',
     rogueGuideClose:'rogueGuideModal',
     rogueLegacyClose:'rogueLegacyModal'
@@ -544,6 +546,77 @@
 })();
 
 
+/* source: relicDeckReferencePatch */
+(()=>{
+  'use strict';
+  if(window.__sanctumRelicDeckReferenceInstalled)return;
+  window.__sanctumRelicDeckReferenceInstalled=true;
+
+  function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+  function allRelics(){
+    const core=typeof RELICS!=='undefined'&&Array.isArray(RELICS)?RELICS:[];
+    const extra=Array.isArray(window.__sanctumExtraRelics)?window.__sanctumExtraRelics:[];
+    const byKey=new Map();
+    [...core,...extra].forEach(r=>{
+      if(!r)return;
+      const key=String(r.key||r.k||r.id||r.n||r.name||'');
+      if(key&&!byKey.has(key))byKey.set(key,r);
+    });
+    return [...byKey.values()];
+  }
+  function effectOf(r){return r.effect||r.e||r.txt||r.desc||'No effect text.'}
+
+  function ensureModal(){
+    let modal=document.getElementById('relicDeckModal');
+    if(modal)return modal;
+    modal=document.createElement('div');
+    modal.id='relicDeckModal';
+    modal.className='modal hidden';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.setAttribute('aria-labelledby','relicDeckTitle');
+    modal.innerHTML='<div class="modalbox relicDeckReferenceBox"><h2 id="relicDeckTitle">Relic Deck</h2><p class="relicDeckReferenceIntro">All Relics that can appear during a run. Owned Relics are marked below.</p><div id="relicDeckReferenceGrid" class="relicDeckReferenceGrid"></div><button class="btn" id="relicDeckClose" type="button">Close</button></div>';
+    document.body.appendChild(modal);
+    modal.querySelector('#relicDeckClose').addEventListener('click',()=>modal.classList.add('hidden'));
+    return modal;
+  }
+
+  function renderRelicDeckReference(){
+    const grid=document.getElementById('relicDeckReferenceGrid');
+    if(!grid)return;
+    const owned=new Set(Array.isArray(S?.activeRelics)?S.activeRelics.map(v=>typeof v==='string'?v:String(v?.key||v?.k||v?.id||'')):[]);
+    grid.innerHTML=allRelics().map(r=>{
+      const key=String(r.key||r.k||r.id||'');
+      const isOwned=owned.has(key);
+      return '<article class="relicDeckReferenceCard'+(isOwned?' owned':'')+'">'+
+        '<div class="relicDeckReferenceTop"><span class="relicDeckReferenceName">'+esc(r.n||r.name||key)+'</span><span class="relicDeckReferenceCategory">'+esc(r.cat||r.category||r.type||'Relic')+'</span></div>'+
+        '<div class="relicDeckReferenceEffect">'+esc(effectOf(r))+'</div>'+
+        (isOwned?'<div class="relicDeckOwnedTag">OWNED</div>':'')+
+      '</article>';
+    }).join('');
+  }
+
+  const modal=ensureModal();
+  const host=document.querySelector('#pauseOverlay .pauseActions');
+  if(host&&!document.getElementById('pauseRelicDeckBtn')){
+    const b=document.createElement('button');
+    b.type='button';
+    b.id='pauseRelicDeckBtn';
+    b.className='btn';
+    b.textContent='Relic Deck';
+    const priestBtn=document.getElementById('pausePriestDeckBtn');
+    host.insertBefore(b,priestBtn||document.getElementById('resumeGameBtn')||null);
+    b.addEventListener('click',()=>{
+      renderRelicDeckReference();
+      modal.classList.remove('hidden');
+      setTimeout(()=>modal.querySelector('#relicDeckClose')?.focus(),0);
+    });
+  }
+
+  window.renderRelicDeckReference=renderRelicDeckReference;
+})();
+
+
 /* source: elementalBasicAttackRelicsPatch */
 (()=>{
 'use strict';
@@ -560,6 +633,7 @@ const E={
   txt:'Your Basic Attack applies Poison. On the second Poison Basic Attack hit against the same target, it immediately takes bonus damage equal to your current Basic Attack damage, then its Poison count resets.'}
 };
 E[FIRE].d=E[FIRE].desc=E[FIRE].e;E[POISON].d=E[POISON].desc=E[POISON].e;
+window.__sanctumExtraRelics=Object.values(E);
 
 function rk(v){return typeof v==='string'?v:(v&&typeof v==='object'?String(v.key||v.k||v.id||''):'')}
 function rn(v){return v&&typeof v==='object'?String(v.n||v.name||''):''}
@@ -657,7 +731,8 @@ if(rawDeal){
    }else try{log("Serpent's Fang poisons "+nameOf(x)+' (1/2).','good')}catch(_){}
   }
   if(enabled('fire')&&alive(x)){
-   const burn=Math.max(1,Math.floor(base/2));
+   const burnBase=Math.max(1,Math.floor(Number(typeof basicAttackDamage==='function'?basicAttackDamage():base)||base||1));
+   const burn=Math.max(1,Math.floor(burnBase/2));
    addBurn(x,burn,owner);
    try{log('Cinderbrand ignites '+nameOf(x)+' for '+burn+' Fire damage at the end of this turn.','good')}catch(_){}
   }
