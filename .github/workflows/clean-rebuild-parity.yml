@@ -1,9 +1,6 @@
 name: Clean Rebuild Parity
 
 on:
-  push:
-    branches:
-      - multiplayer-clean-rebuild
   workflow_dispatch:
 
 jobs:
