@@ -632,7 +632,8 @@ const E={
   e:'Your Basic Attack applies Poison. On the second Poison Basic Attack hit against the same target, it immediately takes bonus damage equal to your current Basic Attack damage, then its Poison count resets.',
   txt:'Your Basic Attack applies Poison. On the second Poison Basic Attack hit against the same target, it immediately takes bonus damage equal to your current Basic Attack damage, then its Poison count resets.'}
 };
-E[FIRE].d=E[FIRE].desc=E[FIRE].e;E[POISON].d=E[POISON].desc=E[POISON].e;
+E[FIRE].d=E[FIRE].desc=E[FIRE].effect=E[FIRE].e;
+E[POISON].d=E[POISON].desc=E[POISON].effect=E[POISON].e;
 window.__sanctumExtraRelics=Object.values(E);
 
 function rk(v){return typeof v==='string'?v:(v&&typeof v==='object'?String(v.key||v.k||v.id||''):'')}
