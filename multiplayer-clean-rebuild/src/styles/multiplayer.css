@@ -879,6 +879,7 @@ body.sanctum-menu-subdialog-open #loadChooserModal[data-from-game-menu="1"],
 body.sanctum-menu-subdialog-open #rulesModal[data-from-game-menu="1"],
 body.sanctum-menu-subdialog-open #demonDeckModal[data-from-game-menu="1"],
 body.sanctum-menu-subdialog-open #priestDeckModal[data-from-game-menu="1"],
+body.sanctum-menu-subdialog-open #relicDeckModal[data-from-game-menu="1"],
 body.sanctum-menu-subdialog-open #bossDeckModal[data-from-game-menu="1"],
 body.sanctum-menu-subdialog-open #rogueGuideModal[data-from-game-menu="1"],
 body.sanctum-menu-subdialog-open #rogueLegacyModal[data-from-game-menu="1"]{
@@ -1149,6 +1150,10 @@ html:not(.sanctumBossArtReady) .damageTargetCard.bossTarget .demonArt{
 
 
 /* Relic Deck reference opened from the paused Game Menu. */
+#relicDeckModal{
+  z-index:205;
+}
+
 .relicDeckReferenceBox{
   width:min(900px,96vw);
   max-height:88vh;
