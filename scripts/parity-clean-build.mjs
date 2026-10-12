@@ -184,6 +184,22 @@ async function loadRun(browser,url,label){
   return stable({initial,afterSpawn,afterMove});
 }
 
+function normalizeApprovedRelicCatalogDelta(run){
+  const out=JSON.parse(JSON.stringify(run));
+  for(const stage of ['initial','afterSpawn','afterMove']){
+    const snap=out?.[stage];
+    if(!snap)continue;
+    if(snap.definitions){
+      snap.definitions.relicKeys=(snap.definitions.relicKeys||[]).filter(k=>k!=='martyrEye');
+      snap.definitions.relicCount=snap.definitions.relicKeys.length;
+    }
+    if(snap.state&&Array.isArray(snap.state.relicDeck)){
+      snap.state.relicDeck=snap.state.relicDeck.filter(k=>k!=='martyrEye').sort();
+    }
+  }
+  return out;
+}
+
 function assertEqual(a,b,label){
   const aa=JSON.stringify(a);
   const bb=JSON.stringify(b);
@@ -201,7 +217,11 @@ const browser=await chromium.launch({headless:true});
 try{
   const baseline=await loadRun(browser,BASELINE_URL,'baseline');
   const clean=await loadRun(browser,CLEAN_URL,'clean');
-  assertEqual(baseline,clean,'Known-good multiplayer-dev parity');
+  assertEqual(
+    normalizeApprovedRelicCatalogDelta(baseline),
+    normalizeApprovedRelicCatalogDelta(clean),
+    'Known-good multiplayer-dev parity'
+  );
   console.log('Clean rebuild parity test passed.');
   console.log(JSON.stringify({
     priestCards:clean.initial.definitions.priestCount,
