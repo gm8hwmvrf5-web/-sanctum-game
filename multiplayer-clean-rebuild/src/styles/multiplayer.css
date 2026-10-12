@@ -1146,3 +1146,81 @@ html:not(.sanctumBossArtReady) .damageTargetCard.bossTarget .demonArt{
   font-size:13px;
   letter-spacing:.4px;
 }
+
+
+/* Relic Deck reference opened from the paused Game Menu. */
+.relicDeckReferenceBox{
+  width:min(900px,96vw);
+  max-height:88vh;
+  overflow:auto;
+}
+.relicDeckReferenceIntro{
+  margin:2px 0 12px;
+  color:#b9aa91;
+  font-size:12px;
+  line-height:1.4;
+}
+.relicDeckReferenceGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-bottom:12px;
+}
+.relicDeckReferenceCard{
+  position:relative;
+  min-width:0;
+  padding:10px;
+  border:1px solid #5f4b31;
+  border-radius:9px;
+  background:linear-gradient(180deg,#15110f,#0c0a0a);
+}
+.relicDeckReferenceCard.owned{
+  border-color:#a98647;
+  box-shadow:inset 0 0 0 1px rgba(226,190,111,.14);
+}
+.relicDeckReferenceTop{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+.relicDeckReferenceName{
+  color:#efd29a;
+  font-size:13px;
+  font-weight:800;
+}
+.relicDeckReferenceCategory{
+  flex:0 0 auto;
+  padding:2px 6px;
+  border:1px solid #5f4b31;
+  border-radius:999px;
+  color:#bda77e;
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+}
+.relicDeckReferenceEffect{
+  color:#d9ccb6;
+  font-size:11px;
+  line-height:1.42;
+  padding-right:2px;
+}
+.relicDeckOwnedTag{
+  margin-top:7px;
+  color:#e6c26f;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+@media(max-width:680px){
+  .relicDeckReferenceGrid{grid-template-columns:1fr}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .relicDeckReferenceBox{width:96vw;max-height:94vh;padding:9px}
+  .relicDeckReferenceGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .relicDeckReferenceCard{padding:7px}
+  .relicDeckReferenceName{font-size:11px}
+  .relicDeckReferenceEffect{font-size:9px}
+  .relicDeckReferenceCategory{font-size:7px}
+}
