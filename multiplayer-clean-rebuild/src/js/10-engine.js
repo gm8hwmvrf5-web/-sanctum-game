@@ -2095,7 +2095,18 @@ function save(){
 }
 function migratePriestBalance(){
  const swaps={"Aegis":"Blessed Steel","Sanctuary":"Sacred Nova","Bulwark":"Wrath of the Saints"};
- const replaceCard=c=>{if(!c)return c;let name=swaps[c.n]||c.n;let def=PRIEST.find(x=>x.n===name);return def?{...def,id:c.id,temp:c.temp}:c};
+ const replaceCard=c=>{
+  if(!c)return c;
+  const name=swaps[c.n]||c.n;
+  const def=PRIEST.find(x=>x.n===name);
+  if(!def)return c;
+  // Keep the current balanced definition without discarding per-card state.
+  // In particular, empowered cards must retain their merge status, payment
+  // flag and saved Mana/Blood discounts through every multiplayer state load.
+  const runtime={...c};
+  Object.keys(def).forEach(key=>delete runtime[key]);
+  return {...def,...runtime};
+ };
  S.priestDeck=(S.priestDeck||[]).map(replaceCard);
  S.priestDiscard=(S.priestDiscard||[]).map(replaceCard);
  (S.players||[]).forEach(p=>{p.hand=(p.hand||[]).map(replaceCard);if(typeof p.discardUsed!=='boolean')p.discardUsed=false;if(!Array.isArray(p.ritualUsed))p.ritualUsed=[false,false,false]});if(typeof S.ritualRerolls!=='number')S.ritualRerolls=0;if(typeof S.nextRitualFixed==='undefined')S.nextRitualFixed=null;
