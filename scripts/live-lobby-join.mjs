@@ -58,7 +58,16 @@ try{
   await host.waitForFunction(()=>S?.started&&
     window.SanctumMultiplayerDev?.authoritativeActiveSeat===1,null,{timeout:20000});
   await host.waitForTimeout(650);
-  await host.evaluate(()=>rogueliteOpenDraft(()=>{}));
+  await host.evaluate(()=>{
+    const choices=PRIEST.slice(0,3).map(c=>({
+      title:c.n,desc:c.e,reward:'Empowered: '+c.x,
+      voteCard:c.n,voteEmpowered:c.x,cls:'rogueDraftCard',
+      action:()=>{}
+    }));
+    if(!window.__sanctumMultiplayerGroupChoice(
+      {eyebrow:'Priest Draft',title:'Choose One Card',text:'Select a Priest card.'},
+      choices))throw new Error('Multiplayer Priest Draft choice was not accepted');
+  });
   await host.waitForFunction(()=>
     document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.rogueDraftCard .rogueDraftArt img').length===3,
     null,{timeout:16000});
