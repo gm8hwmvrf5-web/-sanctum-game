@@ -54,7 +54,7 @@ const sourceFiles=[
 ];
 for(const source of sourceFiles){
   const text=fs.readFileSync(path.join(root,source),'utf8');
-  const refs=[...text.matchAll(/(?:\.\.\/\.\.\/|\.\/)assets\/embedded\/([a-f0-9-]+\.webp)/gi)].map(m=>m[1]);
+  const refs=[...text.matchAll(/(?:\.\.\/\.\.\/|\.\/)assets\/embedded\/([a-z0-9_-]+\.webp)/gi)].map(m=>m[1]);
   for(const ref of refs){
     if(!fs.existsSync(path.join(root,'assets/embedded',ref))) throw new Error('Missing extracted asset '+ref+' referenced by '+source);
   }
@@ -62,7 +62,7 @@ for(const source of sourceFiles){
 
 const embeddedDir=path.join(root,'assets/embedded');
 const embedded=fs.existsSync(embeddedDir)?fs.readdirSync(embeddedDir).filter(x=>x.endsWith('.webp')):[];
-if(embedded.length!==98) throw new Error('Expected 98 extracted WebP assets, found '+embedded.length);
+if(embedded.length!==118) throw new Error('Expected 118 optimized WebP assets (including 20 new Demon portraits), found '+embedded.length);
 
 
 const obsoleteTokens=[
