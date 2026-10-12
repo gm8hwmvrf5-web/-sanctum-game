@@ -17,6 +17,9 @@
 .rogueChoice:hover{transform:translateY(-2px);filter:brightness(1.08);border-color:#aa7b3f}
 .rogueChoice.elite{border-color:#903d37;background:linear-gradient(180deg,#321313,#150d0d)}
 .rogueChoice.sanctuary{border-color:#77714b;background:linear-gradient(180deg,#242319,#11100d)}
+.rogueChoice.repository{border-color:#596f72;background:radial-gradient(circle at 50% 0,rgba(54,91,96,.24),transparent 48%),linear-gradient(180deg,#182326,#0d1214)}
+.rogueChoice.repository .nodeReward{color:#9fc8c7;border-top-color:rgba(103,151,151,.35)}
+.rogueChoice.repository.leave{opacity:.78;border-style:dashed}
 .rogueChoice.boss{border-color:#a14a38;background:radial-gradient(circle at 50% 0,rgba(139,38,29,.3),transparent 45%),linear-gradient(180deg,#2c1110,#100a0a)}
 .rogueChoice .nodeIcon{font-size:30px;line-height:1;margin-bottom:9px;filter:drop-shadow(0 2px 5px #000)}
 .rogueChoice h3{margin:0 0 7px;color:#f0d59b;font-size:17px;letter-spacing:.4px}
