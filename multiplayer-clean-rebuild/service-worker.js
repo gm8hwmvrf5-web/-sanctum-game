@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v17';
+const CACHE_NAME='sanctum-clean-v18';
 const CORE=[
   './',
   './index.html',
@@ -57,6 +57,11 @@ self.addEventListener('fetch',event=>{
   const request=event.request;
   if(request.method!=='GET')return;
   const url=new URL(request.url);
+  // Only cache assets belonging to this game. Fetch events also fire for
+  // cross-origin requests made by controlled pages; caching Supabase REST GETs
+  // served an outdated lobby roster forever after the first player joined.
+  // Leave Supabase, Realtime, CDNs, and all other external traffic to the network.
+  if(url.origin!==self.location.origin)return;
   const isSource=url.pathname.includes('/src/');
   const isHtml=request.mode==='navigate'||url.pathname.endsWith('/index.html')||url.pathname.endsWith('/');
   if(isSource||isHtml){
