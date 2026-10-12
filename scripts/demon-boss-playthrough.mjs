@@ -35,9 +35,15 @@ try{
             [...stats].map(x=>x.textContent).join(',')==='HP,BLD,ATK';
         });
     });
+    // All new Demon pairs must use twenty dedicated, optimized illustrations,
+    // never placeholders from the original Demon or legacy Boss collection.
     const originalArt=new Set(DEMON_TYPES.slice(0,25).flatMap(d=>[d.art,d.gart]));
+    const newArt=DEMON_TYPES.slice(25).flatMap(d=>[d.art,d.gart]);
     const noOldBossArt=DEMON_TYPES.slice(25).every(d=>
-      originalArt.has(d.art)&&originalArt.has(d.gart));
+      !originalArt.has(d.art)&&!originalArt.has(d.gart)&&
+      d.art==='./assets/embedded/'+d.key+'-lesser.webp'&&
+      d.gart==='./assets/embedded/'+d.key+'-greater.webp')&&
+      new Set(newArt).size===20;
     const imageFraming=(()=>{
       const first=document.querySelector('#demonDeckGrid .codexDemon .demonArtWrap');
       const img=first?.querySelector('img.demonArt');
@@ -49,7 +55,10 @@ try{
     const all=await Promise.all(images.map(async img=>{
       img.loading='eager';
       try{await img.decode()}catch(_){}
-      return {src:img.getAttribute('src'),valid:img.complete&&img.naturalWidth>0};
+      const isNew=img.closest('[data-demon-type]')?.dataset.demonType.startsWith('new_');
+      return {src:img.getAttribute('src'),
+        valid:img.complete&&img.naturalWidth>0&&
+          (!isNew||(img.naturalWidth===480&&img.naturalHeight===360))};
     }));
     document.getElementById('demonDeckClose').click();
     return {pairs:cards.length,images:images.length,boardStyle:!!boardStyle,
