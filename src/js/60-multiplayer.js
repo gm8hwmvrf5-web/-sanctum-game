@@ -214,6 +214,8 @@
     if(!modal||modal.dataset.mpGroupVote!=='1')return;
     modal.classList.add('hidden');
     delete modal.dataset.mpGroupVote;
+    delete modal.dataset.mpChoiceId;
+    delete modal.dataset.mpChoiceSignature;
   }
 
   function transitionChoiceOwnerSeat(choice){
@@ -348,24 +350,51 @@
     }
 
     if(grid){
-      grid.innerHTML='';
-      (choice.options||[]).forEach((opt,i)=>{
+      const options=choice.options||[];
+      const choiceId=String(choice.id||'');
+      const signature=JSON.stringify(options);
+      const disabled=resolvingVoteTransition||resolvingVoteIds.has(choiceId);
+      const existing=grid.querySelectorAll('button[data-mp-vote-option]');
+
+      // The choice watchdog runs once a second for multiplayer recovery.
+      // Preserve the same DOM nodes, images, focus and scroll position until
+      // the choice actually changes; rebuilding them caused visible flashing.
+      if(modal.dataset.mpGroupVote==='1'&&
+         modal.dataset.mpChoiceId===choiceId&&
+         modal.dataset.mpChoiceSignature===signature&&
+         existing.length===options.length){
+        existing.forEach(btn=>{btn.disabled=disabled});
+        modal.classList.remove('hidden');
+        return;
+      }
+
+      grid.replaceChildren();
+      options.forEach((opt,i)=>{
         const btn=document.createElement('button');
         btn.type='button';
         btn.className='rogueChoice mpGroupVoteOption '+(opt.cls||'');
         btn.dataset.mpVoteOption=String(i);
-        btn.disabled=resolvingVoteTransition||resolvingVoteIds.has(String(choice.id));
+        btn.disabled=disabled;
 
         if(opt.cardName){
-          const art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS[opt.cardName])||'';
-          const artHtml=art?'<div class="mpVoteCardArt"></div>':'';
-          btn.innerHTML=artHtml+
-            '<h3>'+escapeHtml(opt.title)+'</h3>'+
-            '<p>'+escapeHtml(opt.desc)+'</p>'+
-            (opt.empowered?'<small><b>Empowered:</b> '+escapeHtml(opt.empowered)+'</small>':'')+
-            (opt.reward?'<span class="nodeReward">'+escapeHtml(opt.reward)+'</span>':'');
-          const artEl=btn.querySelector('.mpVoteCardArt');
-          if(artEl)artEl.style.backgroundImage='url("'+String(art).replace(/"/g,'%22')+'")';
+          // Use the original full-size Priest Draft artwork and card layout.
+          const priest=typeof PRIEST!=='undefined'&&Array.isArray(PRIEST)
+            ?PRIEST.find(c=>c.n===opt.cardName):null;
+          const art=(typeof PRIEST_CARD_ARTS!=='undefined'&&PRIEST_CARD_ARTS[opt.cardName])||
+            priest?.art||
+            (typeof priestArtByName!=='undefined'&&priestArtByName['Guardian Prayer'])||'';
+          const artwork=art
+            ?'<img src="'+escapeHtml(art)+'" alt="'+escapeHtml(opt.cardName)+' artwork" loading="eager" decoding="async">'
+            :'';
+          btn.innerHTML=
+            '<div class="rogueDraftCost">'+escapeHtml(priest?.m??'—')+'</div>'+
+            '<div class="rogueDraftArt">'+artwork+'</div>'+
+            '<div class="rogueDraftBody">'+
+              '<h3>'+escapeHtml(opt.title)+'</h3>'+
+              '<p>'+escapeHtml(opt.desc)+'</p>'+
+              (opt.empowered?'<small><b>Empowered:</b> '+escapeHtml(opt.empowered)+'</small>':'')+
+              '<span class="nodeReward">Shuffle an extra copy into this run</span>'+
+            '</div>';
         }else{
           btn.innerHTML=
             '<div class="nodeIcon">'+escapeHtml(opt.icon||'✦')+'</div>'+
@@ -377,6 +406,8 @@
         btn.onclick=()=>resolveTransitionOwnerChoice(i);
         grid.appendChild(btn);
       });
+      modal.dataset.mpChoiceId=choiceId;
+      modal.dataset.mpChoiceSignature=signature;
     }
 
     modal.classList.remove('hidden');

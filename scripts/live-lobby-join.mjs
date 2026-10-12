@@ -51,6 +51,32 @@ try{
   await host.waitForFunction(()=>document.querySelector('.mpRoster')?.textContent?.includes('Sanctum Guest CI'),null,{timeout:12000});
   const hostUI=await host.evaluate(()=>({status:document.querySelector('.mpStatus')?.textContent,roster:document.querySelector('.mpRoster')?.textContent,setupNames:[...document.querySelectorAll('#setupPlayers input')].map(x=>x.value)}));
   console.log('LIVE SUPABASE LOBBY PASS:',JSON.stringify(hostUI));
+
+  // Exercise a multiplayer Priest Draft with real browser assets. The
+  // recovery watchdog must not replace its cards once per second.
+  await host.locator('#startBtn').click();
+  await host.waitForFunction(()=>S?.started&&
+    window.SanctumMultiplayerDev?.authoritativeActiveSeat===1,null,{timeout:20000});
+  await host.waitForTimeout(650);
+  await host.evaluate(()=>rogueliteOpenDraft(()=>{}));
+  await host.waitForFunction(()=>
+    document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.rogueDraftCard .rogueDraftArt img').length===3,
+    null,{timeout:16000});
+  await host.waitForFunction(()=>
+    [...document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.rogueDraftCard .rogueDraftArt img')]
+      .every(img=>img.complete&&img.naturalWidth>0),null,{timeout:15000});
+  await host.evaluate(()=>{
+    window.__sanctumDraftOriginalCards=[...document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.rogueDraftCard')];
+  });
+  await host.waitForTimeout(2400);
+  const draftStable=await host.evaluate(()=>{
+    const current=[...document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.rogueDraftCard')];
+    return current.length===3&&
+      current.every((card,i)=>card===window.__sanctumDraftOriginalCards[i])&&
+      current.every(card=>card.querySelector('img')?.naturalWidth>0);
+  });
+  if(!draftStable)throw new Error('Priest Draft cards changed or lost artwork during 1-second recovery watchdog');
+  console.log('LIVE PRIEST DRAFT PASS: artwork loaded and card elements stayed stable across watchdog refreshes.');
 }catch(err){
   const before=await host.evaluate(()=>({
     status:document.querySelector('.mpStatus')?.textContent,
