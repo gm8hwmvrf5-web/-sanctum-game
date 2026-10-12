@@ -5,6 +5,12 @@ const browser=await chromium.launch({headless:true});
 const host=await browser.newPage({viewport:{width:1280,height:720}});
 const guest=await browser.newPage({viewport:{width:1280,height:720}});
 const reports=[];
+const hostRosterRequests=[];
+host.on('request',req=>{
+  if(req.method()==='GET'&&req.url().includes('/rest/v1/players?')){
+    hostRosterRequests.push({at:Date.now(),url:req.url()});
+  }
+});
 let hostToken=null;
 const roomCode={value:''};
 for(const [label,page] of [['host',host],['guest',guest]]){
@@ -26,6 +32,16 @@ try{
   await host.waitForFunction(()=>/^[A-Z2-9]{6}$/.test(document.querySelector('.mpRoomCode')?.textContent?.trim()||''),null,{timeout:15000});
   roomCode.value=(await host.locator('.mpRoomCode').innerText()).trim();
   await host.waitForFunction(()=>document.querySelector('.mpRoster')?.textContent?.includes('Sanctum Host CI'),null,{timeout:10000});
+  // Confirm that the host continues making fresh uncached roster requests
+  // once per second even when no player has joined yet.
+  await host.waitForTimeout(2400);
+  const polls=hostRosterRequests.slice();
+  if(!polls.some((a,i)=>polls.slice(i+1).some(b=>b.at-a.at>=650&&b.at-a.at<=1600))){
+    throw new Error('Host did not poll roster approximately once per second: '+JSON.stringify(polls.map(x=>x.at)));
+  }
+  if(new Set(polls.map(r=>r.url)).size<2){
+    throw new Error('Host roster requests reused a cached URL instead of fetching fresh');
+  }
   await guest.locator('#pname0').fill('Sanctum Guest CI');
   await guest.locator('#mpRoomInput').fill(roomCode.value);
   const enteredCode=await guest.locator('#mpRoomInput').inputValue();
