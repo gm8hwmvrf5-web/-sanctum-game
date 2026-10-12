@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 
-// Demon / Boss encounter playthrough: all 25 catalog types in Lesser and
+// Demon / Boss encounter playthrough: all 35 catalog types in Lesser and
 // Greater form, all 10 bosses, their triggered effects and lifecycle events.
 // Uses the actual game engine in a real browser without touching live rooms.
 const browser=await chromium.launch({headless:true});
@@ -16,17 +16,49 @@ try{
   const gallery=await page.evaluate(async()=>{
     const cards=[...document.querySelectorAll('#demonDeckGrid .deckpair')];
     const images=[...document.querySelectorAll('#demonDeckGrid .deckface img')];
+    // Match the live on-board Demon cards, including artwork framing,
+    // stat labels and text; reject obsolete Boss/Crucifix illustrations.
+    const boardStyle=cards.every((row,index)=>{
+      const faces=[...row.querySelectorAll('.deckface.demon.codexDemon')];
+      const def=DEMON_TYPES[index];
+      return faces.length===2&&
+        row.dataset.demonType===def.key&&
+        faces.every((face,i)=>{
+          const img=face.querySelector('.demonArtWrap img.demonArt');
+          const stats=face.querySelectorAll('.demonStats .statLabel');
+          return face.dataset.key===def.key&&
+            face.dataset.form===(i?'greater':'lesser')&&
+            img?.getAttribute('src')===(i?def.gart:def.art)&&
+            face.querySelector('.demonBody .name')&&
+            face.querySelector('.familyTag')&&
+            face.querySelector('.abilityText')&&
+            [...stats].map(x=>x.textContent).join(',')==='HP,BLD,ATK';
+        });
+    });
+    const originalArt=new Set(DEMON_TYPES.slice(0,25).flatMap(d=>[d.art,d.gart]));
+    const noOldBossArt=DEMON_TYPES.slice(25).every(d=>
+      originalArt.has(d.art)&&originalArt.has(d.gart));
+    const imageFraming=(()=>{
+      const first=document.querySelector('#demonDeckGrid .codexDemon .demonArtWrap');
+      const img=first?.querySelector('img.demonArt');
+      if(!first||!img)return false;
+      const style=getComputedStyle(img);
+      return first.getBoundingClientRect().height>=120&&
+        style.objectFit==='contain'&&img.getBoundingClientRect().height>110;
+    })();
     const all=await Promise.all(images.map(async img=>{
       img.loading='eager';
       try{await img.decode()}catch(_){}
       return {src:img.getAttribute('src'),valid:img.complete&&img.naturalWidth>0};
     }));
     document.getElementById('demonDeckClose').click();
-    return {pairs:cards.length,images:images.length,
+    return {pairs:cards.length,images:images.length,boardStyle:!!boardStyle,
+      noOldBossArt,imageFraming,
       missing:all.filter(x=>!x.valid).map(x=>x.src)};
   });
   console.log('DEMON CODEX UI:',JSON.stringify(gallery));
-  if(gallery.pairs!==35||gallery.images!==70||gallery.missing.length){
+  if(gallery.pairs!==35||gallery.images!==70||gallery.missing.length||
+    !gallery.boardStyle||!gallery.noOldBossArt||!gallery.imageFraming){
     throw new Error('Demon codex cards or artwork missing: '+JSON.stringify(gallery));
   }
   const results=await page.evaluate(async()=>{
