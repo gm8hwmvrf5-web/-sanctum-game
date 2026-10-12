@@ -511,6 +511,61 @@ function drawPriest(p,n){
  }
  render();return drawn;
 }
+
+const QUICK_PRAYER_ATTACK_KINDS=new Set([
+ 'damage','multiDamage','mark','roomDamage','purify','execute',
+ 'drainBlood','drainBloodDraw','drainBloodMana','multiDrainBlood'
+]);
+const QUICK_PRAYER_PROTECTION_KINDS=new Set([
+ 'altarTurnRenewal','altarBarrierDamage','stop',
+ 'altarDefeatBlessingDamage','altarRoundRenewal','iron','altarChoice'
+]);
+function quickPrayerCategoryMatches(card,mode){
+ if(!card)return false;
+ if(mode==='attack')return QUICK_PRAYER_ATTACK_KINDS.has(card.k);
+ if(mode==='protection')return QUICK_PRAYER_PROTECTION_KINDS.has(card.k);
+ return false;
+}
+function drawPriestByQuickPrayerCategory(p,mode,n,source='Quick Prayer'){
+ let drawn=0,limit=handLimit();
+ S.priestCycleUsed=Array.isArray(S.priestCycleUsed)?S.priestCycleUsed:[];
+ const label=mode==='attack'?'Attack':'Protection';
+ for(let i=0;i<n;i++){
+  if(p.hand.length>=limit){
+   if(i===0)log(`${p.name} is at the ${limit}-card hand limit and draws no ${label} cards.`);
+   else log(`${p.name} reaches the ${limit}-card hand limit; remaining Quick Prayer draws are skipped.`);
+   break;
+  }
+  let used=new Set(S.priestCycleUsed);
+  let candidates=S.priestDeck
+   .map((card,index)=>({card,index}))
+   .filter(x=>quickPrayerCategoryMatches(x.card,mode)&&!used.has(x.card.id));
+
+  if(!candidates.length){
+   let anyAvailable=[...(S.priestDeck||[]),...(S.priestDiscard||[])]
+    .some(card=>quickPrayerCategoryMatches(card,mode));
+   if(!anyAvailable)break;
+   if(!reshufflePriestAvailable(`${source}: no unseen ${label} cards remain in the current Priest draw pile`))break;
+   used=new Set(S.priestCycleUsed);
+   candidates=S.priestDeck
+    .map((card,index)=>({card,index}))
+    .filter(x=>quickPrayerCategoryMatches(x.card,mode)&&!used.has(x.card.id));
+   if(!candidates.length)break;
+  }
+
+  const pick=candidates[secureRandomIndex(candidates.length)];
+  const card=S.priestDeck.splice(pick.index,1)[0];
+  if(!card)break;
+  S.priestCycleUsed.push(card.id);
+  if(addPriestToHand(p,card)){
+   drawn++;
+   log(`${source} draws ${card.n} from the ${label} pool.`,'good');
+  }
+ }
+ render();
+ return drawn;
+}
+
 function drawDemon(){
  S.demonCycleUsed=Array.isArray(S.demonCycleUsed)?S.demonCycleUsed:[];
  S.demonDiscard=Array.isArray(S.demonDiscard)?S.demonDiscard:[];
@@ -1522,6 +1577,23 @@ async function resolvePriest(c,emp){
   case'iron':addAltarBarrier(v,c.n);if(emp)drawPriest(currentPlayer(),1);return true;
   case'mana':addMana(v);return true;
   case'draw':drawPriest(currentPlayer(),v);return true;
+  case'quickPrayer':{
+   const count=emp?(c.xv||3):(c.v||2);
+   const pick=await choose(
+    `${c.n} — choose what kind of cards to draw`,
+    [{mode:'attack'},{mode:'protection'}],
+    o=>o.mode==='attack'
+      ?`ATTACK — draw ${count} random offensive Priest card${count===1?'':'s'}`
+      :`PROTECTION — draw ${count} random defensive Priest card${count===1?'':'s'}`
+   );
+   if(!pick)return false;
+   const drawn=drawPriestByQuickPrayerCategory(currentPlayer(),pick.mode,count,c.n);
+   if(!drawn){
+    alert(`${c.n} cannot find an available ${pick.mode==='attack'?'Attack':'Protection'} card to draw.`);
+    return false;
+   }
+   return true;
+  }
   case'sharedDraw':{
    if(S.players.length===1){if(currentPlayer().hand.length>=handLimit()){alert(`${c.n} has no effect because your hand is full.`);return false}drawPriest(currentPlayer(),v);log(`${c.n} affects the solo Priest instead.`,'good');return true}
    let draws=0;
