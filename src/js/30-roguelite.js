@@ -203,7 +203,12 @@ function rogueliteOpenRepository(){
  rogueShowChoice(`Cycle ${rogueCycle()} • Floor ${rogueCycleFloorFor(r.floor)} • ${balance} Cinders`,'The Sinking Repository','Waterlogged shelves descend into black water. Choose at most one purchase. Prices were fixed when you entered; spent Cinders will not be banked at the cycle checkpoint.',offers);
 }
 
-function rogueClearRooms(){S.rooms=[[],[],[],[]];S.queue=[];selectedDemonId=null}
+function rogueClearRooms(){
+ let carried=0;
+ (S.rooms||[]).forEach(room=>(room||[]).forEach(d=>{if(d&&d.crucifixAttached){carried++;delete d.crucifixAttached}}));
+ if(carried)S.pendingCrucifixTransfers=Math.max(0,Math.floor(Number(S.pendingCrucifixTransfers)||0))+carried;
+ S.rooms=[[],[],[],[]];S.queue=[];selectedDemonId=null;
+}
 function rogueCleanseAll(){for(let i=0;i<4;i++){S.corruption[i]=0;S.desecratedRooms[i]=false}}
 function rogueGiveBlood(n){S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+n));log(`Each Priest gains ${n} Demon Blood.`,'good')}
 function rogueRelicXpNeed(){let r=rogueState();return 15+5*Math.max(0,r.xpRelics||0)}
