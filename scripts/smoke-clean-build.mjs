@@ -46,6 +46,33 @@ for(const [name,value] of [['startGame',state.startGame],['render',state.render]
 if(state.loadedScripts.length<8) failures.push('expected 8 clean JS modules, found '+state.loadedScripts.length);
 if(state.localBrokenImages.length) failures.push('broken local images: '+state.localBrokenImages.join(', '));
 
+const demonCards=await page.evaluate(async()=>{
+  const catalog=DEMON_TYPES;
+  const added=catalog.filter(d=>d.key.startsWith('new_'));
+  const pile=buildDemonDeck();
+  const attached=pile.filter(d=>d.crucifixAttached).length;
+  document.getElementById('demonDeckBtn').click();
+  const pairs=document.querySelectorAll('#demonDeckGrid .deckpair').length;
+  const faces=document.querySelectorAll('#demonDeckGrid .deckface.demon').length;
+  const placeholder=document.querySelector('#demonDeckGrid [data-demon-type="new_hollow_scribe"] img');
+  if(placeholder)try{await placeholder.decode()}catch(_){}
+  const placeholderReady=!!placeholder&&placeholder.naturalWidth>0;
+  document.getElementById('demonDeckClose').click();
+  return {
+    types:catalog.length,added:added.length,physical:pile.length,attached,
+    pairs,faces,placeholderReady,
+    printed:added.every(d=>d.hp>0&&d.ghp>0&&d.b>=0&&d.gb>=0&&d.atk>=0&&d.gatk>=0&&!!d.a&&!!d.ga),
+    allUsePendingArt:added.every(d=>d.art?.endsWith('/demon-art-pending.svg')&&d.gart?.endsWith('/demon-art-pending.svg'))
+  };
+});
+if(demonCards.types!==35||demonCards.added!==10||demonCards.physical!==140||
+  demonCards.attached!==21||demonCards.pairs!==35||demonCards.faces!==70||
+  !demonCards.placeholderReady||!demonCards.printed||!demonCards.allUsePendingArt){
+  failures.push('new Demon cards startup check failed: '+JSON.stringify(demonCards));
+}
+console.log('NEW DEMON CARDS SMOKE:',JSON.stringify(demonCards));
+
+
 // Regression: the host's lobby must refresh when a guest joins, even if
 // local gameplay state is stale and the Realtime channel emits no INSERT.
 const lobbyPage=await browser.newPage({viewport:{width:1280,height:720}});
