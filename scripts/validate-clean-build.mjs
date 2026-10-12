@@ -122,6 +122,13 @@ if(!serviceWorker.includes('./assets/bosses/boss-sprite.webp')){
 }
 
 const rogueSource=fs.readFileSync(path.join(root,'src/js/30-roguelite.js'),'utf8');
+if(!rogueSource.includes("if(d&&d.crucifixAttached){carried++;delete d.crucifixAttached}")){
+  throw new Error('Floor clear does not preserve Crucifix attachments from board Demons.');
+}
+if(!rogueSource.includes("S.pendingCrucifixTransfers=Math.max(0,Math.floor(Number(S.pendingCrucifixTransfers)||0))+carried")){
+  throw new Error('Floor clear Crucifix carry count is missing.');
+}
+
 for(const token of [
   'repositoryCandleReduction:0',
   'rogueRepositoryCandleReductionForFloor',
@@ -204,6 +211,20 @@ if(!multiplayer.includes('Deal 2 damage to a Demon or Boss. If it is a Demon, mo
 if(!multiplayer.includes('applyRemoteGameRow')) throw new Error('Multiplayer state receive/apply logic is missing.');
 
 const engine=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
+for(const token of [
+  'pendingCrucifixTransfers:0',
+  'function placeTransferredCrucifixInRemainingDeck',
+  'const candidates=S.demonDeck.filter(d=>d&&!d.crucifixAttached)',
+  'target.crucifixAttached=true',
+  'function applyPendingCrucifixTransferToSpawn',
+  'if(d.crucifixAttached)',
+  'if(!placeTransferredCrucifixInRemainingDeck())S.pendingCrucifixTransfers++',
+  'applyPendingCrucifixTransferToSpawn(d);if(S.rooms[0].length>=4)',
+  'applyPendingCrucifixTransferToSpawn(d);if(S.rooms[0].length<4)'
+]){
+  if(!engine.includes(token)) throw new Error('Hidden Crucifix floor-transfer wiring missing: '+token);
+}
+
 for(const token of [
   'const DEMON_CRUCIFIX_ATTACHMENT_RATE=0.15',
   'function attachHiddenCrucifixCards',
