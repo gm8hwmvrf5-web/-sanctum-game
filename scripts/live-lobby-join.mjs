@@ -23,7 +23,7 @@ try{
   await Promise.all([host.goto(url,{waitUntil:'load',timeout:45000}),guest.goto(url,{waitUntil:'load',timeout:45000})]);
   await host.locator('#pname0').fill('Sanctum Host CI');
   await host.locator('#mpHostBtn').click();
-  await host.waitForFunction(()=>document.querySelector('.mpRoomCode')?.textContent?.trim()?.length===6,null,{timeout:15000});
+  await host.waitForFunction(()=>/^[A-Z2-9]{6}$/.test(document.querySelector('.mpRoomCode')?.textContent?.trim()||''),null,{timeout:15000});
   roomCode.value=(await host.locator('.mpRoomCode').innerText()).trim();
   await host.waitForFunction(()=>document.querySelector('.mpRoster')?.textContent?.includes('Sanctum Host CI'),null,{timeout:10000});
   await guest.locator('#pname0').fill('Sanctum Guest CI');
