@@ -54,28 +54,30 @@ const demonCards=await page.evaluate(async()=>{
   document.getElementById('demonDeckBtn').click();
   const pairs=document.querySelectorAll('#demonDeckGrid .deckpair').length;
   const faces=document.querySelectorAll('#demonDeckGrid .deckface.demon').length;
-  const placeholder=document.querySelector('#demonDeckGrid [data-demon-type="new_hollow_scribe"] img');
-  if(placeholder){
-    placeholder.loading='eager';
-    try{
-      await Promise.race([
-        placeholder.decode(),
-        new Promise((_,reject)=>setTimeout(()=>reject(new Error('placeholder load timeout')),4000))
-      ]);
-    }catch(_){}
-  }
-  const placeholderReady=!!placeholder&&placeholder.naturalWidth>0;
+  const allMatch=added.every(d=>
+    d.art==='./assets/embedded/'+d.key+'.webp'&&d.gart===d.art);
+  const images=[...document.querySelectorAll('#demonDeckGrid .deckpair[data-demon-type^="new_"] img')];
+  const artChecks=await Promise.all(images.map(async img=>{
+    img.loading='eager';
+    try{await Promise.race([
+      img.decode(),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('art timeout')),7000))
+    ])}catch(_){}
+    return {width:img.naturalWidth,height:img.naturalHeight};
+  }));
+  const artworkLoaded=images.length===20&&
+    artChecks.every(x=>x.width===480&&x.height===360);
   document.getElementById('demonDeckClose').click();
   return {
     types:catalog.length,added:added.length,physical:pile.length,attached,
-    pairs,faces,placeholderReady,
+    pairs,faces,artworkLoaded,allMatch,
     printed:added.every(d=>d.hp>0&&d.ghp>0&&d.b>=0&&d.gb>=0&&d.atk>=0&&d.gatk>=0&&!!d.a&&!!d.ga),
-    allUsePendingArt:added.every(d=>d.art?.endsWith('/demon-art-pending.svg')&&d.gart?.endsWith('/demon-art-pending.svg'))
+    // Greater cards intentionally share their Lesser form artwork for now.
   };
 });
 if(demonCards.types!==35||demonCards.added!==10||demonCards.physical!==140||
   demonCards.attached!==21||demonCards.pairs!==35||demonCards.faces!==70||
-  !demonCards.placeholderReady||!demonCards.printed||!demonCards.allUsePendingArt){
+  !demonCards.artworkLoaded||!demonCards.printed||!demonCards.allMatch){
   failures.push('new Demon cards startup check failed: '+JSON.stringify(demonCards));
 }
 console.log('NEW DEMON CARDS SMOKE:',JSON.stringify(demonCards));

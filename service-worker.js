@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v22';
+const CACHE_NAME='sanctum-clean-v23';
 const CORE=[
   './',
   './index.html',
@@ -20,6 +20,16 @@ const CORE=[
   './src/js/70-multiplayer-patches.js',
   './assets/bosses/boss-sprite.webp',
   './assets/embedded/demon-art-pending.svg',
+  './assets/embedded/new_hollow_scribe.webp',
+  './assets/embedded/new_iron_husk.webp',
+  './assets/embedded/new_rot_oracle.webp',
+  './assets/embedded/new_dirge_cantor.webp',
+  './assets/embedded/new_thorn_martyr.webp',
+  './assets/embedded/new_chalice_thief.webp',
+  './assets/embedded/new_grave_brood.webp',
+  './assets/embedded/new_vowbreaker.webp',
+  './assets/embedded/new_rift_strider.webp',
+  './assets/embedded/new_censer_tyrant.webp',
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png'
