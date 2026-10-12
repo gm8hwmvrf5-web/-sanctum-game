@@ -115,6 +115,24 @@ if(!serviceWorker.includes('./assets/bosses/boss-sprite.webp')){
 }
 
 const rogueSource=fs.readFileSync(path.join(root,'src/js/30-roguelite.js'),'utf8');
+for(const token of [
+  "repository:{name:'The Sinking Repository'",
+  'rogueRepositoryCanAppear',
+  'rogueRepositoryMarkVisit',
+  'rogueRepositoryPrices',
+  'rogueliteOpenRepository',
+  "Math.random()<0.25",
+  "repository:candles:",
+  "repository:folio:",
+  "window.__sanctumRepositoryPurchaseByActionKey"
+]){
+  if(!rogueSource.includes(token)) throw new Error('Sinking Repository wiring missing: '+token);
+}
+if(!rogueSource.includes("rogueRepositoryVisitCount(cycle)<2")) throw new Error('Sinking Repository must be capped at two visits per cycle.');
+if(!rogueSource.includes("Math.max(0,Math.floor(Number(r.cindersRun)||0))>=8")) throw new Error('Sinking Repository minimum Cinder eligibility is missing.');
+if(!rogueSource.includes("r.cindersRun-=cost")) throw new Error('Sinking Repository purchases must spend unbanked run Cinders.');
+if(!rogueSource.includes("[.50,.625,.75,.875,1]")) throw new Error('Sinking Repository price ladder must run from 50% to 100%.');
+
 if(!rogueSource.includes('function rogueFloorHealthMultiplier(){return 1+(0.05*Math.max')){
   throw new Error('Roguelite HP growth must be 5% per floor.');
 }
@@ -135,6 +153,15 @@ if(!relicCore.includes("completed&&completed.after")||!relicCore.includes("__san
   throw new Error('Relic popup continuation support is missing.');
 }
 const multiplayer=fs.readFileSync(path.join(root,'src/js/60-multiplayer.js'),'utf8');
+for(const token of [
+  "choice?.actionKey||inferGroupVoteActionKey",
+  "'The Sinking Repository':'route:repository'",
+  "key.startsWith('repository:')",
+  "'route:repository'"
+]){
+  if(!multiplayer.includes(token)) throw new Error('Multiplayer Sinking Repository recovery missing: '+token);
+}
+
 for(const token of [
   "rogueSilentRelic('Elite room-clear reward','rogueRoute')",
   "rogueSilentRelic('Boss room-clear reward','rogueRoute')"
