@@ -42,3 +42,4 @@ jobs:
           sleep 1
           node scripts/smoke-clean-build.mjs
           node scripts/live-lobby-join.mjs
+          node scripts/mechanics-audit.mjs
