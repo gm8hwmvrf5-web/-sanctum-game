@@ -58,6 +58,43 @@ try{
   await host.waitForFunction(()=>S?.started&&
     window.SanctumMultiplayerDev?.authoritativeActiveSeat===1,null,{timeout:20000});
   await host.waitForTimeout(650);
+
+  // Regression: the shared-state restore path used to replace Priest cards
+  // with base definitions, deleting empowered status and merge discounts.
+  await host.evaluate(()=>{
+    const base=PRIEST.find(c=>c.n==='Holy Bolt');
+    if(!base)throw new Error('Holy Bolt missing from Priest deck definitions');
+    const priest=S.players[0];
+    priest.hand=[
+      {...base,id:'ci-empower-keep',empowered:false},
+      {...base,id:'ci-empower-sacrifice',empowered:false}
+    ];
+    S.mergeManaDiscount=1;
+    S.mergeBloodDiscount=1;
+    empowerCard('ci-empower-keep');
+    const card=S.players[0].hand.find(c=>c.id==='ci-empower-keep');
+    if(!card?.empowered||card.empManaDiscount!==1||card.empBloodDiscount!==1){
+      throw new Error('Local Priest empowerment was not applied');
+    }
+  });
+  if(!await host.evaluate(()=>window.SanctumMultiplayerDev.push())){
+    throw new Error('Could not synchronize empowered Priest card to Supabase');
+  }
+  const checkEmpowered=()=>S?.players?.[0]?.hand?.some(c=>
+    c.id==='ci-empower-keep'&&c.empowered===true&&
+    c.empManaDiscount===1&&c.empBloodDiscount===1&&
+    c.empowerPaid===false);
+  await guest.waitForFunction(checkEmpowered,null,{timeout:15000});
+  await host.evaluate(()=>window.SanctumMultiplayerDev.refresh());
+  await host.waitForFunction(checkEmpowered,null,{timeout:12000});
+  await guest.evaluate(()=>window.SanctumMultiplayerDev.refresh());
+  await guest.waitForFunction(checkEmpowered,null,{timeout:12000});
+  const empoweredCardLabel=await host.locator('#handContent .empoweredCard').first().innerText();
+  if(!empoweredCardLabel.includes('EMPOWERED')){
+    throw new Error('Restored Priest card is not rendered as Empowered');
+  }
+  console.log('LIVE EMPOWERED PRIEST SYNC PASS: card and merge discounts survive refresh on both players.');
+
   await host.evaluate(()=>{
     const choices=PRIEST.slice(0,3).map(c=>({
       title:c.n,desc:c.e,reward:'Empowered: '+c.x,
