@@ -205,6 +205,23 @@ if(!multiplayer.includes('applyRemoteGameRow')) throw new Error('Multiplayer sta
 
 const engine=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
 for(const token of [
+  'const DEMON_CRUCIFIX_ATTACHMENT_RATE=0.15',
+  'function attachHiddenCrucifixCards',
+  'Math.round(deck.length*DEMON_CRUCIFIX_ATTACHMENT_RATE)',
+  'crucifixAttached=true',
+  'function takeDemonCrucifixAttachment',
+  'function revealAttachedCrucifix',
+  "if(attachedCrucifix)revealAttachedCrucifix(d,'was defeated",
+  "if(attachedCrucifix)revealAttachedCrucifix(d,'reached the Altar",
+  'host.crucifixAttached=!!(host.crucifixAttached||donor.crucifixAttached)'
+]){
+  if(!engine.includes(token)) throw new Error('Hidden Crucifix Demon wiring missing: '+token);
+}
+if(engine.includes("if(!S?.rogue?.enabled){drawCrucifix();")){
+  throw new Error('Legacy every-kill Crucifix draw is still active.');
+}
+
+for(const token of [
   '15+((S&&S.relicMods&&S.relicMods.crit)||0)',
   "S.players.length===3?.90:1.10",
   'if(S.players.length>=4)return 3',
