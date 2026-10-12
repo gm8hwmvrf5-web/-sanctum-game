@@ -74,6 +74,7 @@ await lobbyPage.addInitScript(()=>{
       from:()=>({
         select(){return this;},
         eq(){return this;},
+        gte(){return this;},
         maybeSingle:async()=>({data:{...game},error:null}),
         order:async()=>({data:roster.map(player=>({...player})),error:null})
       }),
