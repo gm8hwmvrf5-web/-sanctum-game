@@ -41,3 +41,4 @@ jobs:
           trap 'kill "$server_pid"' EXIT
           sleep 1
           node scripts/smoke-clean-build.mjs
+          node scripts/live-lobby-join.mjs
