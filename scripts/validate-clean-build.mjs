@@ -246,7 +246,7 @@ for(const token of [
   '15+((S&&S.relicMods&&S.relicMods.crit)||0)',
   "S.players.length===3?.90:1.10",
   'if(S.players.length>=4)return 3',
-  'return n>=4?30:n===3?20:n===2?15:10'
+  'return n>=4?35:n===3?20:n===2?15:10'
 ]){
   if(!engine.includes(token)) throw new Error('Player-count / crit balance wiring missing: '+token);
 }
