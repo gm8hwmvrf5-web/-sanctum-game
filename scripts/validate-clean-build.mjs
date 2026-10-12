@@ -92,6 +92,16 @@ for(const token of ['sanctum_font_settings_v1','damageFontSize','abilityFontSize
 }
 
 const bossPatch=fs.readFileSync(path.join(root,'src/js/70-multiplayer-patches.js'),'utf8');
+for(const token of [
+  'pauseRelicDeckBtn',
+  'relicDeckModal',
+  'renderRelicDeckReference',
+  '__sanctumExtraRelics',
+  'const burnBase=Math.max'
+]){
+  if(!bossPatch.includes(token)) throw new Error('Relic Deck / elemental crit compatibility missing: '+token);
+}
+
 for(const token of ["const SPRITE_URL='./assets/bosses/boss-sprite.webp'","ensureBossSprite('high')","sanctumBossArtReady"]){
   if(!bossPatch.includes(token)) throw new Error('Authoritative Boss artwork wiring missing: '+token);
 }
@@ -138,6 +148,16 @@ if(!multiplayer.includes('Deal 2 damage to a Demon or Boss. If it is a Demon, mo
 if(!multiplayer.includes('applyRemoteGameRow')) throw new Error('Multiplayer state receive/apply logic is missing.');
 
 const engine=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
+for(const token of [
+  "key:'martyrEye'",
+  'function basicAttackCritChance',
+  '25+((S&&S.relicMods&&S.relicMods.crit)||0)',
+  'CRITICAL HIT',
+  "critical?base*2:base"
+]){
+  if(!engine.includes(token)) throw new Error('Critical Basic Attack wiring missing: '+token);
+}
+
 for(const token of [
   'QUICK_PRAYER_ATTACK_KINDS',
   'QUICK_PRAYER_PROTECTION_KINDS',
