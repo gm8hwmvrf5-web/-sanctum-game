@@ -36,6 +36,19 @@ try{
   const hostUI=await host.evaluate(()=>({status:document.querySelector('.mpStatus')?.textContent,roster:document.querySelector('.mpRoster')?.textContent,setupNames:[...document.querySelectorAll('#setupPlayers input')].map(x=>x.value)}));
   console.log('LIVE SUPABASE LOBBY PASS:',JSON.stringify(hostUI));
 }catch(err){
+  const before=await host.evaluate(()=>({
+    status:document.querySelector('.mpStatus')?.textContent,
+    roster:document.querySelector('.mpRoster')?.textContent
+  })).catch(e=>({error:e.message}));
+  try{
+    await host.evaluate(()=>window.SanctumMultiplayerDev.refresh());
+    await host.waitForTimeout(600);
+  }catch(manualErr){console.error('MANUAL REFRESH ERROR:',manualErr.message);}
+  const after=await host.evaluate(()=>({
+    status:document.querySelector('.mpStatus')?.textContent,
+    roster:document.querySelector('.mpRoster')?.textContent
+  })).catch(e=>({error:e.message}));
+  console.error('HOST MANUAL REFRESH CHECK:',JSON.stringify({before,after}));
   const details=await Promise.all([host,guest].map(p=>p.evaluate(()=>({status:document.querySelector('.mpStatus')?.textContent,input:document.querySelector('#mpRoomInput')?.value,roster:document.querySelector('.mpRoster')?.textContent,session:window.SanctumMultiplayerDev?.session,setupNames:[...document.querySelectorAll('#setupPlayers input')].map(x=>x.value)})).catch(e=>({error:e.message}))));
   console.error('LIVE SUPABASE LOBBY FAILURE:',err.message);
   console.error('DETAILS:',JSON.stringify(details));
