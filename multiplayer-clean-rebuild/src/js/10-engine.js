@@ -168,10 +168,10 @@ function openConsecrateModal(i){
  let mana=S.mana||0,blood=p?p.blood:0,corruption=roomCorruption(i);
  if(reason){
    status.className='consecrateStatus bad';
-   status.textContent=`Cannot play yet: ${reason} Current resources — Mana ${mana}/10, Demon Blood ${blood}/10, Corruption ${corruption}/${roomDesecrationThreshold(i)}.`;
+   status.textContent=`Cannot play yet: ${reason} Current resources — Mana ${mana}/${sharedManaRoundValue()}, Demon Blood ${blood}/10, Corruption ${corruption}/${roomDesecrationThreshold(i)}.`;
  }else{
    status.className='consecrateStatus good';
-   status.textContent=`Ready to play. Current resources — Mana ${mana}/10, Demon Blood ${blood}/10, Corruption ${corruption}/${roomDesecrationThreshold(i)}.`;
+   status.textContent=`Ready to play. Current resources — Mana ${mana}/${sharedManaRoundValue()}, Demon Blood ${blood}/10, Corruption ${corruption}/${roomDesecrationThreshold(i)}.`;
  }
  let play=document.getElementById('consecratePlay');
  play.disabled=!!reason;
@@ -904,7 +904,7 @@ function syncTurnTimerAfterLoad(){
 
 function setupPlayersUI(){const n=+document.getElementById('playerCount').value;const area=document.getElementById('setupPlayers');area.innerHTML='';const names=Object.keys(CHARACTERS);for(let i=0;i<n;i++){let div=document.createElement('div');div.className='setupPlayer';div.innerHTML=`<b>Player ${i+1}</b><br><input id="pname${i}" value="Player ${i+1}" style="width:100%;margin:5px 0;background:#0e0d0d;color:white;border:1px solid #594929;padding:6px"><select id="pchar${i}" style="width:100%;background:#0e0d0d;color:white;border:1px solid #594929;padding:6px">${names.map((x,j)=>`<option ${j===i?'selected':''}>${x}</option>`).join('')}</select>`;area.appendChild(div)}}
 function syncSetupTimerOption(){let el=document.getElementById('turnTimerSelect');if(el){let n=Number(S?.turnTimerSeconds||TURN_TIMER_SECONDS||60);n=Math.max(30,Math.min(120,Math.round(n/15)*15));el.value=String(n)}}
-function startGame(){const n=+document.getElementById('playerCount').value;let chars=[];for(let i=0;i<n;i++)chars.push(document.getElementById(`pchar${i}`).value);if(new Set(chars).size!==chars.length){alert('Choose a different character for each player.');return false}let chosenTimer=Number(document.getElementById('turnTimerSelect')?.value||60);chosenTimer=Math.max(30,Math.min(120,Math.round(chosenTimer/15)*15));S=freshState();S.turnTimerSeconds=chosenTimer;S.turnTimerRemaining=chosenTimer;TURN_TIMER_SECONDS=chosenTimer;S.started=true;S.phase='Priest';S.priestDeck=buildPriestDeck();S.priestCycleUsed=[];S.demonDeck=buildDemonDeck();S.demonCycleUsed=[];resetCrucifixDeck();S.boss=drawHiddenBoss();S.boss.cur=S.boss.hp;S.relicDeck=shuffle(RELICS.map(r=>r.key));for(let i=0;i<n;i++){let p={name:document.getElementById(`pname${i}`).value||`Player ${i+1}`,char:chars[i],blood:0,hand:[],basic:false,ritualUsed:[false,false,false],forceEmpower:false,discardUsed:false,consecrateUsed:false};S.players.push(p);drawPriest(p,4)}for(let i=0;i<normalSpawnCount();i++)spawnOne(false);document.getElementById('setupModal').classList.add('hidden');beginTurn(true);log('The Sanctum is besieged. The first round begins.');render();return true}
+function startGame(){const n=+document.getElementById('playerCount').value;let chars=[];for(let i=0;i<n;i++)chars.push(document.getElementById(`pchar${i}`).value);if(new Set(chars).size!==chars.length){alert('Choose a different character for each player.');return false}let chosenTimer=Number(document.getElementById('turnTimerSelect')?.value||60);chosenTimer=Math.max(30,Math.min(120,Math.round(chosenTimer/15)*15));S=freshState();S.turnTimerSeconds=chosenTimer;S.turnTimerRemaining=chosenTimer;TURN_TIMER_SECONDS=chosenTimer;S.started=true;S.phase='Priest';S.priestDeck=buildPriestDeck();S.priestCycleUsed=[];S.demonDeck=buildDemonDeck();S.demonCycleUsed=[];resetCrucifixDeck();S.boss=drawHiddenBoss();S.boss.cur=S.boss.hp;S.relicDeck=shuffle(RELICS.map(r=>r.key));for(let i=0;i<n;i++){let p={name:document.getElementById(`pname${i}`).value||`Player ${i+1}`,char:chars[i],blood:0,hand:[],basic:false,ritualUsed:[false,false,false],forceEmpower:false,discardUsed:false,consecrateUsed:false};S.players.push(p);drawPriest(p,4)}S.mana=sharedManaRoundValue();for(let i=0;i<normalSpawnCount();i++)spawnOne(false);document.getElementById('setupModal').classList.add('hidden');beginTurn(true);log('The Sanctum is besieged. The first round begins.');render();return true}
 function currentPlayer(){return S.players[S.current]}
 function beginTurn(skipDraw=false){if(!S.started)return;S.phase='Priest';let p=currentPlayer();p.basic=false;p.ritualUsed=[false,false,false];p.forceEmpower=false;p.discardUsed=false;p.consecrateUsed=false;S.mergeManaDiscount=0;S.mergeBloodDiscount=0;resolveAltarTurnRenewals();if(!skipDraw)drawPriest(p,2);log(`${p.name} (${p.char}) begins a turn.`);render();resetTurnTimerForNewTurn()}
 function endTurn(){let p=currentPlayer();if(p.hand.length>handLimit()){alert(`Hand limit is ${handLimit()}. Discard cards before ending your turn.`);return}clearTurnTimerInterval();if(S.current<S.players.length-1){S.current++;beginTurn(false)}else{runDemonPhase()}}
@@ -980,8 +980,18 @@ function checkMerge(d){
  let host=d,donor=other.d;
  if(other.r<here.r){host=other.d;donor=d}
  let donorLoc=findDemonLocation(donor);if(!donorLoc)return false;
+ // When two marked Demons merge, preserve both hidden Crucifixes.
+ // One stays with the Greater Demon; the other returns to the remaining
+ // Demon deck, or waits for the next spawn if there is no unmarked card.
+ const duplicateCrucifix=!!(host.crucifixAttached&&donor.crucifixAttached);
  host.crucifixAttached=!!(host.crucifixAttached||donor.crucifixAttached);
  delete donor.crucifixAttached;
+ if(duplicateCrucifix){
+   if(!placeTransferredCrucifixInRemainingDeck()){
+     S.pendingCrucifixTransfers=(S.pendingCrucifixTransfers||0)+1;
+   }
+   log('Two hidden Crucifixes merged; one remains with the Greater Demon, and the other transfers to a future Demon.','info');
+ }
  let status=mergedDemonStatus(host,donor);
  S.rooms[donorLoc.r].splice(donorLoc.i,1);
  if(selectedDemonId===donor.id)selectedDemonId=host.id;
@@ -1007,7 +1017,7 @@ function bossDrainAmount(){
  return S.boss.b;
 }
 async function runBossPhase(){S.phase='Boss';ensureBossFlags();log(`${S.boss.n} begins its Boss Phase.`,"bad");render();if(bossIs("crimsonOracle"))await crimsonProphecy();let drain=bossDrainAmount();damageAltar(drain,`${S.boss.n} Boss Rule (${drain} scaled from ${S.boss.b})`);if(S.altar<=0)return;switch(S.boss.key){case"blackSovereign":spawnBossSummonedLesser(1);break;case"boneKing":recallOldestDefeated();break;case"gatebreaker":spawnBossSummonedLesser(2);break;case"lordOfAsh":spawnBossSummonedLesser(1,true);break;case"dreadReaper":recallOldestDefeated();break;case"devourer":spawnBossSummonedLesser(1);break}if(bossIs("plagueFather"))plagueBloom();endRound()}
-function sharedManaRoundValue(){let n=Number(S?.players?.length||1);return n>=4?30:n===3?20:n===2?15:10}
+function sharedManaRoundValue(){let n=Number(S?.players?.length||1);return n>=4?35:n===3?20:n===2?15:10}
 /* Multiplayer Mana gains/losses use the same player-count pool cap as round resets.
    This fixes Mana Blessing and every other addMana() effect still inheriting the old 10-Mana ceiling. */
 addMana=function(v){let cap=sharedManaRoundValue();S.mana=clamp(S.mana+v,0,cap);render()}
