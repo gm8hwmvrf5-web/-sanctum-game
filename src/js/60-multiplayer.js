@@ -11,6 +11,7 @@
   let client=null;
   let channel=null;
   let rosterChannel=null;
+  let rosterSubscribedGameId=null;
   let session=null;
   let panel=null;
   let lastRosterSnapshot=null;
@@ -1477,7 +1478,7 @@
   }
 
   function startLobbyRosterPolling(){
-    if(!session||sessionEnded||S?.started||lastRosterSnapshot?.game?.status==='playing'){
+    if(!session||sessionEnded||(lastRosterSnapshot?.game?.status&&lastRosterSnapshot.game.status!=='lobby')){
       stopLobbyRosterPolling();
       return;
     }
@@ -1486,29 +1487,37 @@
   }
 
   async function stopRosterSubscription(){
-    if(client&&rosterChannel){
-      try{await client.removeChannel(rosterChannel)}catch(_){}
-    }
+    const previous=rosterChannel;
     rosterChannel=null;
+    rosterSubscribedGameId=null;
+    if(client&&previous){
+      try{await client.removeChannel(previous)}catch(_){}
+    }
   }
 
   async function startRosterSubscription(){
     if(!session?.gameId||sessionEnded)return;
-    if(S?.started||lastRosterSnapshot?.game?.status==='playing'){
+    if((lastRosterSnapshot?.game?.status&&lastRosterSnapshot.game.status!=='lobby')){
       await stopRosterSubscription();
       return;
     }
-    if(rosterChannel)return;
+    if(rosterChannel&&rosterSubscribedGameId===session.gameId)return;
+    if(rosterChannel)await stopRosterSubscription();
+    const gameId=session.gameId;
     const sb=await ensureClient();
-    rosterChannel=sb.channel('sanctum-roster-'+session.gameId)
+    if(!session||session.gameId!==gameId||sessionEnded)return;
+    rosterSubscribedGameId=gameId;
+    rosterChannel=sb.channel('sanctum-roster-'+gameId)
       .on('postgres_changes',{
         event:'*',schema:'public',table:'players',
-        filter:'game_id=eq.'+session.gameId
+        filter:'game_id=eq.'+gameId
       },()=>{
         refreshRoom(false).catch(err=>console.warn('Roster realtime refresh failed',err));
       })
       .subscribe(state=>{
-        if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'){
+        if(state==='SUBSCRIBED'){
+          refreshRoom(false).catch(err=>console.warn('Initial roster refresh failed',err));
+        }else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'||state==='CLOSED'){
           console.warn('Roster realtime unavailable; lobby polling remains active.');
           startLobbyRosterPolling();
         }
@@ -1517,9 +1526,11 @@
   }
 
   async function refreshRoom(forceState=false){
-    if(!session)return;
+    if(!session||sessionEnded)return;
+    const requestedGameId=session.gameId;
     try{
       const snap=await fetchRoom();
+      if(!session||sessionEnded||session.gameId!==requestedGameId)return;
       lastRosterSnapshot=snap;
       session.roomCode=snap.game.room_code;
       if(snap.game.status==='abandoned'||snap.game.status==='finished'){
@@ -1587,6 +1598,26 @@
       .subscribe();
   }
 
+  async function resetRoomListeners(){
+    stopHeartbeat();
+    stopLobbyRosterPolling();
+    await stopRosterSubscription();
+    if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
+    channel=null;
+    lastRosterSnapshot=null;
+    sessionEnded=false;
+  }
+
+  function refreshLobbyWhenActive(){
+    if(!session||sessionEnded||lastRosterSnapshot?.game?.status!=='lobby')return;
+    refreshRoom(false).catch(err=>console.warn('Lobby wake refresh failed',err));
+  }
+  window.addEventListener('focus',refreshLobbyWhenActive);
+  window.addEventListener('pageshow',refreshLobbyWhenActive);
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden)refreshLobbyWhenActive();
+  });
+
   async function host(){
     const btn=panel.querySelector('#mpHostBtn');
     btn.disabled=true;
@@ -1600,6 +1631,7 @@
       if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;
       if(!row)throw new Error('Room creation returned no data.');
+      await resetRoomListeners();
       session={
         gameId:row.game_id,
         roomCode:row.room_code,
@@ -1637,6 +1669,7 @@
       if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;
       if(!row)throw new Error('Join returned no data.');
+      await resetRoomListeners();
       session={
         gameId:row.game_id,
         roomCode:row.room_code,
@@ -1666,7 +1699,7 @@
     if(client&&channel){try{await client.removeChannel(channel)}catch(_){}}
     resolvingVoteTransition=false;
     choiceAuthorityRepairBusy=false;
-    channel=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
+    channel=null;rosterSubscribedGameId=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
     const handPanel=document.getElementById('handPanel');
