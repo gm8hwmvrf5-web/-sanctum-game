@@ -253,12 +253,12 @@ try{
         }
         case 'enterCorruption':{
           triggerEnterRoom(d);
-          assert(roomCorruption(0)===v,'Entry corruption should add '+v+' tracker(s)');
+          assert(roomCorruption(0)===v,'Entry corruption expected '+v+' got '+roomCorruption(0)+' code '+demonCode(d)+' room '+JSON.stringify(findDemonLocation(d))+' log '+S.log.slice(0,2).map(x=>x.msg).join('; '));
           break;
         }
         case 'roomManaLoss':{
           triggerEnterRoom(d);
-          assert(S.mana===12-v,'Room entry should drain '+v+' Mana');
+          assert(S.mana===12-v,'Room entry expected '+(12-v)+' Mana got '+S.mana+' code '+demonCode(d)+' log '+S.log.slice(0,2).map(x=>x.msg).join('; '));
           moveOneForward(d);
           assert(S.mana===12-v*2,'Next room entry failed to drain Mana again');
           break;
@@ -302,7 +302,7 @@ try{
         }
         case 'phaseManaDrain':{
           resolveStartDemonPhaseAbilities();
-          assert(S.mana===12-v,'Start of Demon Phase should drain '+v+' Mana');
+          assert(S.mana===12-v,'Start phase expected '+(12-v)+' Mana got '+S.mana+' code '+demonCode(d)+' log '+S.log.slice(0,3).map(x=>x.msg).join('; '));
           break;
         }
         case 'spawnImp':{
@@ -369,6 +369,13 @@ try{
           a.cur=a.hp-2;b.cur=b.hp-2;
           S.rooms[0]=[a];S.rooms[2]=[b];
         }
+        // Isolate each Boss activation from unrelated freshly drawn Demon
+        // entry effects; ability interactions have separate dedicated tests.
+        S.demonDeck=[
+          make(DEMON_TYPES[0],false,'fixed-imp'),
+          make(DEMON_TYPES[1],false,'fixed-fire-imp'),
+          make(DEMON_TYPES[2],false,'fixed-carrion-imp')
+        ];
         const top=S.demonDeck.at(-1)?.id,second=S.demonDeck.at(-2)?.id;
         let clicks=0;
         const auto=setInterval(()=>{
