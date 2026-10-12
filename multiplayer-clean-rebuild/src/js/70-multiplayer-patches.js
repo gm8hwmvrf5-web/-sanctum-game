@@ -859,15 +859,6 @@ if(typeof triggerEnterRoom==='function'){
     let loc=findDemonLocation(d);
     if(!loc)return;
 
-    // The movement-audit wrapper replaces the core entry handler, so it
-    // must preserve each newer Demon ability in live multiplayer.
-    if(code==='enterCorruption'){
-      for(let i=0;i<v;i++)addCorruption(loc.r,demonName(d)+' spreads Corruption');
-    }else if(code==='roomManaLoss'){
-      addMana(-v);
-      log(demonName(d)+' enters '+ROOM_NAMES[loc.r]+' and drains '+v+' Mana.','bad');
-    }
-
     applyRoomEntryEffects(d);
     loc=findDemonLocation(d);
     if(!loc)return;
@@ -905,9 +896,6 @@ if(typeof resolveStartDemonPhaseAbilities==='function'){
       let code=demonCode(d),v=demonValue(d);
       if(code==='spawnImp'){
         spawnSpecificImp(v);
-      }else if(code==='phaseManaDrain'){
-        addMana(-v);
-        log(demonName(d)+' drains '+v+' shared Mana at the start of the Demon Phase.','bad');
       }else if(code==='phasePush'){
         let movedTargets=new Set();
         for(let k=0;k<v;k++){
