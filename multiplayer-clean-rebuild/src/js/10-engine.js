@@ -22,7 +22,7 @@ function takeCrucifixCard(){
 let S = freshState();
 let choiceResolve=null, choiceCancelSerial=0, selectedDemonId=null, crucifixDisplayQueue=[];
 let overflowDamageQueue=[], overflowPromptActive=false;
-function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
+function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
 function demonName(d){return d.greater?d.g:d.n}
 function demonMaxHP(d){let max=d.greater?d.ghp:d.hp;max+=(d.status&&d.status.bossHpBonus)||0;max+=(d.status&&d.status.extraHpBonus)||0;if(bossIs("boneKing")){let loc=findDemonLocation(d);if(loc&&loc.r===3)max+=1}return max}
 function demonBlood(d){let printed=d.greater?d.gb:d.b;let drained=(d.status&&d.status.bloodDrained)||0;return Math.max(0,printed-drained)}
@@ -73,14 +73,16 @@ const RELICS=[
  {key:'crownThorns',n:'Crown of Thorns',cat:'Ritual Power',effect:'Permanent +2 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:2}},
  {key:'seerBones',n:'Bones of the Seer',cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
  {key:'trinityReliquary',n:'Trinity Reliquary',cat:'Hybrid Relic',effect:'Basic Attack permanently deals +1 damage and maximum Priest hand size increases by 1.',mods:{basic:1,hand:1}},
- {key:'sanctumHeart',n:'Heart of the Sanctum',cat:'Hybrid Relic',effect:'Maximum Priest hand size permanently increases by 1 and Ritual numerical effects gain +1.',mods:{hand:1,ritual:1}}
+ {key:'sanctumHeart',n:'Heart of the Sanctum',cat:'Hybrid Relic',effect:'Maximum Priest hand size permanently increases by 1 and Ritual numerical effects gain +1.',mods:{hand:1,ritual:1}},
+ {key:'martyrEye',n:"Martyr's Eye",cat:'Critical Strike',effect:'Basic Attack critical-hit chance permanently increases by 15 percentage points.',mods:{crit:15}}
 ];
 function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
 function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
 function basicAttackDamage(){return 2+((S&&S.relicMods&&S.relicMods.basic)||0)}
+function basicAttackCritChance(){return Math.max(0,Math.min(100,25+((S&&S.relicMods&&S.relicMods.crit)||0)))}
 function ritualScale(n){return Math.ceil(n*1.2)}
 function ritualBoost(n){return ritualScale(n)+((S&&S.relicMods&&S.relicMods.ritual)||0)}
-function applyRelic(r){if(!r)return;S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0};for(let k of ['basic','hand','ritual'])S.relicMods[k]=(S.relicMods[k]||0)+((r.mods&&r.mods[k])||0);S.activeRelics=S.activeRelics||[];S.activeRelics.push(r.key);log(`RELIC — ${r.n}: ${r.effect}`,'good')}
+function applyRelic(r){if(!r)return;S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};for(let k of ['basic','hand','ritual','crit'])S.relicMods[k]=(S.relicMods[k]||0)+((r.mods&&r.mods[k])||0);S.activeRelics=S.activeRelics||[];S.activeRelics.push(r.key);log(`RELIC — ${r.n}: ${r.effect}`,'good')}
 function relicModalBlocked(){return !document.getElementById('crucifixModal').classList.contains('hidden')||!document.getElementById('choiceModal').classList.contains('hidden')||!document.getElementById('consecrateModal').classList.contains('hidden')||!document.getElementById('desecrationModal').classList.contains('hidden')||!document.getElementById('descendModal').classList.contains('hidden')}
 function showNextRelicPopup(){S.relicPopupQueue=S.relicPopupQueue||[];if(!S.relicPopupQueue.length||relicModalBlocked())return;let q=S.relicPopupQueue[0],r=relicByKey(q.key);if(!r){S.relicPopupQueue.shift();showNextRelicPopup();return}document.getElementById('relicName').textContent=r.n;document.getElementById('relicCategory').textContent=r.cat;document.getElementById('relicEffect').textContent=r.effect;document.getElementById('relicReason').textContent=q.reason||'A Relic has been recovered from the Sanctum.';document.getElementById('relicModal').classList.remove('hidden');setTimeout(()=>document.getElementById('relicClose').focus(),0)}
 function closeRelicPopup(){document.getElementById('relicModal').classList.add('hidden');let completed=null;if(S.relicPopupQueue&&S.relicPopupQueue.length)completed=S.relicPopupQueue.shift();if(S.relicPopupQueue&&S.relicPopupQueue.length){showNextRelicPopup();return}processOverflowDamageQueue();if(completed&&completed.after&&typeof window.__sanctumRelicPopupAfter==='function'){try{if(window.__sanctumRelicPopupAfter(completed.after,completed))return}catch(err){console.error('Relic popup continuation failed',err)}}if(S.pendingBossChoice){setTimeout(()=>{showBossVictoryChoice();resumeTurnTimerIfReady()},80);return}if(S.pendingVictory){S.pendingVictory=false;setTimeout(()=>alert('Congratulations! You have saved the Sanctum!'),100)}resumeTurnTimerIfReady()}
@@ -96,7 +98,7 @@ function rollGreaterDemonRelic(){
  log(`GREATER DEMON RELIC ROLL — ${roll}/100: no Relic.`,'info');
  return false;
 }
-function relicSummaryHtml(){let mods=S.relicMods||{basic:0,hand:0,ritual:0},keys=S.activeRelics||[];if(!keys.length)return '<div class="relicSummary"><b>Relics:</b> None recovered yet. In Roguelite mode, Demon Blood earned from kills also counts as Relic XP.</div>';let names=keys.map(k=>relicByKey(k)).filter(Boolean).map(r=>`<span class="relicChip">${r.n}</span>`).join('');return `<div class="relicSummary"><b>Relics ${keys.length}/20</b> • Basic Attack ${basicAttackDamage()} • Hand Limit ${handLimit()} • Ritual +${mods.ritual||0}<br>${names}</div>`}
+function relicSummaryHtml(){let mods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0},keys=S.activeRelics||[];if(!keys.length)return `<div class="relicSummary"><b>Relics:</b> None recovered yet. Basic Attack crit chance: ${basicAttackCritChance()}%.</div>`;let names=keys.map(k=>relicByKey(k)).filter(Boolean).map(r=>`<span class="relicChip">${r.n}</span>`).join('');return `<div class="relicSummary"><b>Relics ${keys.length}</b> • Basic Attack ${basicAttackDamage()} • Crit ${basicAttackCritChance()}% • Hand Limit ${handLimit()} • Ritual +${mods.ritual||0}<br>${names}</div>`}
 
 const DESECRATION_EFFECTS=[
  'Desecrated Gateway: every newly spawned Demon entering the Gateway gains +1 HP.',
@@ -286,8 +288,8 @@ function normalizeSanctumState(){
  S.priestDiscard=S.priestDiscard.filter(c=>c&&!c.temp&&!String(c.id||'').startsWith('echo-'));
  if(!S.relicDeck||!Array.isArray(S.relicDeck))S.relicDeck=shuffle(RELICS.map(r=>r.key));
  if(!S.activeRelics||!Array.isArray(S.activeRelics))S.activeRelics=[];
- if(!S.relicMods)S.relicMods={basic:0,hand:0,ritual:0};
- for(let k of ['basic','hand','ritual'])if(!Number.isFinite(S.relicMods[k]))S.relicMods[k]=0;
+ if(!S.relicMods)S.relicMods={basic:0,hand:0,ritual:0,crit:0};
+ for(let k of ['basic','hand','ritual','crit'])if(!Number.isFinite(S.relicMods[k]))S.relicMods[k]=0;
  if(typeof S.relicFiveDefeatClaimed!=='boolean')S.relicFiveDefeatClaimed=S.defeats>=5;
  if(!Number.isFinite(S.bossDamageTotal))S.bossDamageTotal=0;
  if(!Number.isFinite(S.bossStageRoundsElapsed))S.bossStageRoundsElapsed=0;
@@ -1194,7 +1196,7 @@ async function chooseDamageRoom(title='Choose a room to damage'){
   setTimeout(()=>{let first=g.querySelector('button');if(first)first.focus()},0);
  });
 }
-async function basicAttack(){let p=currentPlayer();if(p.basic)return;let x=await chooseDamageTarget('Basic Attack — choose target');if(!x)return;p.basic=true;dealDamageTarget(x,basicAttackDamage(),`${p.name}'s Basic Attack`);render()}
+async function basicAttack(){let p=currentPlayer();if(p.basic)return;let x=await chooseDamageTarget('Basic Attack — choose target');if(!x)return;p.basic=true;let base=basicAttackDamage(),chance=basicAttackCritChance(),critical=Math.random()*100<chance,amount=critical?base*2:base;if(critical)log(`CRITICAL HIT — ${p.name}'s Basic Attack deals double damage (${amount}).`,'good');dealDamageTarget(x,amount,`${p.name}'s ${critical?'CRITICAL ':''}Basic Attack`);render()}
 function queueOverflowDamage(amount,source='Effect',opts={}){amount=Math.floor(amount||0);if(amount<=0)return;overflowDamageQueue.push({amount,source,opts:{ritual:!!opts.ritual,suppressNegativeDefeat:!!opts.suppressNegativeDefeat}});log(`${amount} overkill damage from ${source} is ready to transfer to another Demon.`,'good')}
 async function processOverflowDamageQueue(){
  if(overflowPromptActive||!overflowDamageQueue.length)return;
