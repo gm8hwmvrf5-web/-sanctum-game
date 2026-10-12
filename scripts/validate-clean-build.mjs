@@ -116,6 +116,21 @@ if(!serviceWorker.includes('./assets/bosses/boss-sprite.webp')){
 
 const rogueSource=fs.readFileSync(path.join(root,'src/js/30-roguelite.js'),'utf8');
 for(const token of [
+  'repositoryCandleReduction:0',
+  'rogueRepositoryCandleReductionForFloor',
+  'floor<=5?0.10:floor<=10?0.125:0.15',
+  'rogueRepositoryEnemyScaleFactor',
+  'Demon HP and Attack scaling are reduced by',
+  'mult*floorHp*candleFactor',
+  'rogueFloorDamageMultiplier()*rogueRepositoryEnemyScaleFactor()'
+]){
+  if(!rogueSource.includes(token)) throw new Error('Votive Candle Demon-scaling wiring missing: '+token);
+}
+if(rogueSource.includes("restoreAltarLogged(10,'Votive Candle Bundle')")){
+  throw new Error('Votive Candle Bundle still restores Altar Protection instead of reducing Demon scaling.');
+}
+
+for(const token of [
   "repository:{name:'The Sinking Repository'",
   'rogueRepositoryCanAppear',
   'rogueRepositoryMarkVisit',
