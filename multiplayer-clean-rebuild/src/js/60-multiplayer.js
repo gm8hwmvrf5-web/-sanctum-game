@@ -935,15 +935,22 @@
   async function fetchRoom(){
     if(!session?.gameId)return null;
     const sb=await ensureClient();
+    // The host checks the real roster every second until the server starts the
+    // game. Use a varying, always-past timestamp filter so older installed
+    // service workers cannot replay their cached one-player REST response.
+    const rosterQuery=sb.from('players')
+      .select('id,game_id,seat,display_name,character_key,is_host,connected,created_at,last_seen')
+      .eq('game_id',session.gameId);
+    if(session.isHost&&(!lastRosterSnapshot||lastRosterSnapshot.game?.status==='lobby')){
+      const cacheKey=String(Date.now()%1000000).padStart(6,'0');
+      rosterQuery.gte('created_at','1970-01-01T00:00:00.'+cacheKey+'Z');
+    }
     const [g,p]=await Promise.all([
       sb.from('games')
         .select('id,room_code,status,state,state_version,max_players')
         .eq('id',session.gameId)
         .maybeSingle(),
-      sb.from('players')
-        .select('id,game_id,seat,display_name,character_key,is_host,connected,created_at,last_seen')
-        .eq('game_id',session.gameId)
-        .order('seat',{ascending:true})
+      rosterQuery.order('seat',{ascending:true})
     ]);
     if(g.error)throw g.error;
     if(p.error)throw p.error;
@@ -1462,7 +1469,7 @@
   }
 
   async function pollLobbyRoster(){
-    if(!session||sessionEnded||lobbyRosterRefreshBusy)return;
+    if(!session?.isHost||sessionEnded||lobbyRosterRefreshBusy)return;
     if(lastRosterSnapshot?.game?.status&&lastRosterSnapshot.game.status!=='lobby'){
       stopLobbyRosterPolling();
       return;
@@ -1478,12 +1485,12 @@
   }
 
   function startLobbyRosterPolling(){
-    if(!session||sessionEnded||(lastRosterSnapshot?.game?.status&&lastRosterSnapshot.game.status!=='lobby')){
+    if(!session?.isHost||sessionEnded||(lastRosterSnapshot?.game?.status&&lastRosterSnapshot.game.status!=='lobby')){
       stopLobbyRosterPolling();
       return;
     }
     if(lobbyRosterPollTimer)return;
-    lobbyRosterPollTimer=setInterval(pollLobbyRoster,1200);
+    lobbyRosterPollTimer=setInterval(pollLobbyRoster,1000);
   }
 
   async function stopRosterSubscription(){
@@ -1542,7 +1549,7 @@
         return;
       }
       saveSession();
-      status(`Connected to room ${snap.game.room_code} • ${snap.players.length}/${snap.game.max_players} players • ${snap.game.status}`);
+      status(`Connected to room ${snap.game.room_code} • ${snap.players.length}/${snap.game.max_players} players • ${snap.game.status}${session.isHost&&snap.game.status==='lobby'?' • Refreshing every second':''}`);
       document.body.classList.remove('mpSessionEnded');
     const code=panel?.querySelector('.mpRoomCode');
       if(code)code.textContent=snap.game.room_code;
