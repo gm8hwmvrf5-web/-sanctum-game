@@ -146,19 +146,23 @@ if(rogueSource.includes("restoreAltarLogged(10,'Votive Candle Bundle')")){
 
 for(const token of [
   "repository:{name:'The Sinking Repository'",
-  'rogueRepositoryCanAppear',
   'rogueRepositoryMarkVisit',
   'rogueRepositoryPrices',
   'rogueliteOpenRepository',
-  "Math.random()<0.25",
+  "function rogueliteEnterBossRepository",
+  "function rogueliteFinishRepository",
+  "r.repositoryPendingBossFloor=r.floor",
+  "rogueIsCycleBoss()){rogueWhenClear(()=>rogueliteEnterBossRepository('cycleCheckpoint'))",
+  "rogueliteEnterBossRepository('route')",
   "repository:candles:",
   "repository:folio:",
   "window.__sanctumRepositoryPurchaseByActionKey"
 ]){
-  if(!rogueSource.includes(token)) throw new Error('Sinking Repository wiring missing: '+token);
+  if(!rogueSource.includes(token)) throw new Error('Post-Boss Sinking Repository wiring missing: '+token);
 }
-if(!rogueSource.includes("rogueRepositoryVisitCount(cycle)<2")) throw new Error('Sinking Repository must be capped at two visits per cycle.');
-if(!rogueSource.includes("Math.max(0,Math.floor(Number(r.cindersRun)||0))>=8")) throw new Error('Sinking Repository minimum Cinder eligibility is missing.');
+if(rogueSource.includes("Math.random()<0.25")||rogueSource.includes("rogueRepositoryVisitCount(cycle)<2")){
+  throw new Error('Sinking Repository still has random access or a two-visit cap.');
+}
 if(!rogueSource.includes("r.cindersRun-=cost")) throw new Error('Sinking Repository purchases must spend unbanked run Cinders.');
 if(!rogueSource.includes("[.50,.625,.75,.875,1]")) throw new Error('Sinking Repository price ladder must run from 50% to 100%.');
 
