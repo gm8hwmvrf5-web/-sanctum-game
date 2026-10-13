@@ -12,7 +12,7 @@ const result=await page.evaluate(async()=>{
  if(!ws||ws.definitions.length!==10)throw new Error('Missing the 10 Ward definitions');
  if(!ws.definitions.every(w=>w.mana>=0&&w.charges>=1&&w.color&&w.name&&w.desc))throw new Error('Invalid Ward data');
  const response=await fetch('./assets/wards/ward-art-sprite.webp',{cache:'no-store'});
- if(!response.ok()||(await response.arrayBuffer()).byteLength<3000)throw new Error('Missing optimized Ward artwork');
+ if(!response.ok||(await response.arrayBuffer()).byteLength<3000)throw new Error('Missing optimized Ward artwork');
  document.querySelector('#playerCount').value='1';
  document.getElementById('startBtn').click();
  if(!S?.started)throw new Error('Game did not start');
