@@ -21,9 +21,9 @@ const CHARACTERS = {
     {n:"Chains of Faith",m:0,b:2,h:"Move up to 2 different Demons back 1 room.",f:"Move up to 3 different Demons back 1 room.",kind:"chainsFaith"}
   ]},
   "Monk": {img:"./assets/embedded/7687d2a5-59728.webp", subtitle:"Mind-Bound Ascetic", rituals:[
-    {n:"Palm of Judgment",m:0,b:3,h:"Deal 2 damage to a Demon or Boss. If it is a Demon, move it back exactly 1 room.",f:"Deal 6 damage to a Demon or Boss. If it is a Demon, move it back exactly 2 rooms.",kind:"palmJudgment"},
+    {n:"Palm of Judgment",m:0,b:3,h:"Deal 2 damage to a Demon (or 4 to a Boss). If it is a Demon, move it back exactly 1 room.",f:"Deal 6 damage to a Demon (or 8 to a Boss). If it is a Demon, move it back exactly 2 rooms.",kind:"palmJudgment"},
     {n:"Still the Wicked",m:0,b:2,h:"Choose up to 2 Demons. They do not move this Demon Phase.",f:"Choose up to 2 rooms. All Demons there do not move this Demon Phase.",kind:"stillWicked"},
-    {n:"Inner Peace",m:0,b:2,h:"Gain 3 Demon Blood.",f:"Gain 4 Demon Blood and draw 2 Priest cards.",kind:"innerPeace"}
+    {n:"Inner Peace",m:0,b:2,h:"Gain 2 Demon Blood.",f:"Gain 3 Demon Blood and draw 2 Priest cards.",kind:"innerPeace"}
   ]},
   "Abbess": {img:"./assets/embedded/e95d771f-80184.webp", subtitle:"Mistress of Echoed Grace", rituals:[
     {n:"Echoed Grace",m:0,b:3,h:"Copy up to 2 Priest cards held by another player into your hand as temporary normal cards. Copies vanish when they leave your hand.",f:"Copy up to 2 Priest cards held by another player into your hand as temporary EMPOWERED • READY cards. Copies vanish when they leave your hand.",kind:"echoedGrace"},
