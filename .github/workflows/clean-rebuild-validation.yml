@@ -45,3 +45,14 @@ jobs:
           node scripts/wards-mechanics.mjs
           node scripts/altar-protection-audit.mjs
           node scripts/live-lobby-join.mjs
+
+      - name: Focused demon ability audit (explicitly requested)
+        if: contains(github.event.head_commit.message, '[demon-audit]')
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 >/tmp/sanctum-demon-ability-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 1
+          node scripts/demon-abilities-audit.mjs
