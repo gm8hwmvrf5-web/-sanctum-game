@@ -335,6 +335,77 @@ try{
         assert(allDemons().length===0,'Suppressed defeat still summoned an Imp');
       });
     }
+
+    // Regression: Demon Phase Mana damage must remain visible after endRound()
+    // refills the shared pool. Test the actual patched movement and phase calls.
+    for(const greater of [false,true]){
+      await record('Dirge Cantor / '+(greater?'Greater':'Lesser')+' / next round Mana',()=>{
+        reset();
+        const def=DEMON_TYPES.find(x=>x.key==='new_dirge_cantor');
+        const d=make(def,greater,'dirge-round');
+        const v=greater?def.gv:def.v;
+        S.rooms[0]=[d];S.phase='Demon';S.mana=12;
+        moveDemons();
+        assert(pos(d)===1,'Dirge Cantor did not enter the Hall');
+        assert(S.mana===12-v,'Dirge Cantor failed to drain Mana immediately');
+        assert(S.pendingDemonManaDrain===v,'Dirge Cantor Mana loss was not carried forward');
+        endRound();
+        assert(S.phase==='Priest','Demon Phase did not transition to Priest Phase');
+        assert(S.mana===sharedManaRoundValue()-v,'Dirge Cantor drain was erased by round Mana refill');
+        assert(S.pendingDemonManaDrain===0,'Pending Demon Mana loss did not reset');
+      });
+      await record('Censer Tyrant / '+(greater?'Greater':'Lesser')+' / next round Mana',()=>{
+        reset();
+        const def=DEMON_TYPES.find(x=>x.key==='new_censer_tyrant');
+        const d=make(def,greater,'censer-round'),v=greater?def.gv:def.v;
+        S.rooms[0]=[d];S.phase='Demon';S.mana=12;
+        resolveStartDemonPhaseAbilities();
+        assert(S.mana===12-v,'Censer Tyrant did not drain immediately');
+        endRound();
+        assert(S.mana===sharedManaRoundValue()-v,'Censer Tyrant drain was erased by refill');
+      });
+      await record('Death Banshee / '+(greater?'Greater':'Lesser')+' / next round Mana',()=>{
+        reset();
+        const def=DEMON_TYPES.find(x=>x.key==='undead_banshee');
+        const d=make(def,greater,'banshee-round'),v=greater?def.gv:def.v;
+        S.rooms[0]=[d];S.phase='Demon';S.mana=12;
+        triggerEnterPlay(d);
+        assert(S.mana===12-v,'Death Banshee failed to drain Mana on entry');
+        endRound();
+        assert(S.mana===sharedManaRoundValue()-v,'Death Banshee drain was erased by refill');
+      });
+    }
+    await record('Dirge Cantor / multiple rooms in one Demon Phase',()=>{
+      reset();
+      const d=make(DEMON_TYPES.find(x=>x.key==='new_dirge_cantor'),false,'dirge-twice');
+      S.rooms[0]=[d];S.phase='Demon';S.mana=12;
+      assert(moveOneForward(d),'Dirge failed to enter Hall');
+      assert(moveOneForward(d),'Dirge failed to enter Chapel');
+      assert(S.pendingDemonManaDrain===2,'Each room entry should cause another Mana loss');
+      endRound();
+      assert(S.mana===sharedManaRoundValue()-2,'Two room-entry drains did not stack');
+    });
+    await record('Demon Mana drain / mixed effects stack even if Mana already zero',()=>{
+      reset();
+      const dirge=make(DEMON_TYPES.find(x=>x.key==='new_dirge_cantor'),false,'dirge-stack');
+      const censer=make(DEMON_TYPES.find(x=>x.key==='new_censer_tyrant'),false,'censer-stack');
+      const banshee=make(DEMON_TYPES.find(x=>x.key==='undead_banshee'),false,'banshee-stack');
+      S.rooms[0]=[dirge,censer,banshee];S.phase='Demon';S.mana=0;
+      triggerEnterPlay(banshee);
+      resolveStartDemonPhaseAbilities();
+      moveDemons();
+      assert(S.pendingDemonManaDrain===3,'Three Demon-Phase drains did not stack');
+      endRound();
+      assert(S.mana===sharedManaRoundValue()-3,'Zero pre-refill Mana incorrectly cancelled the penalty');
+    });
+    await record('Dirge Cantor / Priest Phase room entry is immediate only',()=>{
+      reset();
+      const d=make(DEMON_TYPES.find(x=>x.key==='new_dirge_cantor'),false,'dirge-priest');
+      S.rooms[0]=[d];S.phase='Priest';S.mana=12;
+      triggerEnterRoom(d);
+      assert(S.mana===11,'Priest Phase room entry failed to drain Mana');
+      assert(!S.pendingDemonManaDrain,'Priest Phase room entry incorrectly queued next-round drain');
+    });
     return report;
   });
   for(const test of results)console.log((test.pass?'PASS ':'FAIL ')+test.name+(test.error?' — '+test.error:''));
