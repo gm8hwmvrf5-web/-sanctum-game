@@ -42,4 +42,5 @@ jobs:
           sleep 1
           node scripts/smoke-clean-build.mjs
           node scripts/wards-smoke.mjs
+          node scripts/wards-mechanics.mjs
           node scripts/live-lobby-join.mjs
