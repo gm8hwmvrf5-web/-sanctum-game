@@ -7,15 +7,15 @@ window.__sanctumWardcraftInstalled=true;
 
 const WARDS=Object.freeze([
  {key:'cinder',name:'Cinder Sigil',category:'Offense',mana:3,blood:1,charges:2,trigger:'enter',color:'#ef672b',art:0,desc:'The first Demon entering this room each Demon Phase takes 3 damage (scales by floor). Up to two activations.'},
- {key:'thorns',name:'Thorns of Retribution',category:'Offense',mana:4,blood:1,charges:1,trigger:'defeat',color:'#de463b',art:1,desc:'When a Demon is defeated here, deal 2 damage (scales by floor) to up to two other Demons in the same room.'},
- {key:'chains',name:'Chains of Penitence',category:'Control',mana:3,blood:1,charges:1,trigger:'enter',color:'#84b8ff',art:2,desc:'The first entering Demon is bound and cannot advance in its next Demon Phase.'},
- {key:'bell',name:'Bell of Return',category:'Control',mana:4,blood:2,charges:1,trigger:'enter',color:'#f3bd64',art:3,desc:'Push the first entering Demon back one room. If the prior room is full, stop the Demon instead.',rooms:[1,2,3]},
+ {key:'thorns',name:'Thorns of Retribution',category:'Offense',mana:3,blood:1,charges:1,trigger:'defeat',color:'#de463b',art:1,desc:'When a Demon is defeated here, deal 2 damage (scales by floor) to up to two other Demons in the same room.'},
+ {key:'chains',name:'Chains of Penitence',category:'Control',mana:2,blood:1,charges:1,trigger:'enter',color:'#84b8ff',art:2,desc:'The first entering Demon is bound and cannot advance in its next Demon Phase.'},
+ {key:'bell',name:'Bell of Return',category:'Control',mana:3,blood:1,charges:1,trigger:'enter',color:'#f3bd64',art:3,desc:'Push the first entering Demon back one room. If the prior room is full, stop the Demon instead.',rooms:[1,2,3]},
  {key:'silence',name:'Seal of Silence',category:'Control',mana:3,blood:1,charges:1,trigger:'enter',color:'#c596e5',art:4,desc:'The first entering Demon loses its special ability through its next Demon Phase.'},
- {key:'lantern',name:"Martyr's Lantern",category:'Defense',mana:3,blood:1,charges:1,trigger:'defeat',color:'#ffce7b',art:5,desc:'The first Demon defeated here restores 3 Altar Protection (scales by floor).'},
+ {key:'lantern',name:"Martyr's Lantern",category:'Defense',mana:2,blood:1,charges:1,trigger:'defeat',color:'#ffce7b',art:5,desc:'The first Demon defeated here restores 3 Altar Protection (scales by floor).'},
  {key:'vigil',name:'Vigil of Iron',category:'Defense',mana:2,blood:1,charges:1,trigger:'exit',color:'#e4e8ec',art:6,desc:'The first Demon advancing out of the room permanently loses 2 Attack (scales by floor).'},
- {key:'absolution',name:'Seal of Absolution',category:'Purification',mana:3,blood:0,charges:2,trigger:'defeat',color:'#ffe4a2',art:7,desc:'Each of the next two Demons defeated in this room clears an additional Corruption tracker.'},
+ {key:'absolution',name:'Seal of Absolution',category:'Purification',mana:2,blood:0,charges:2,trigger:'defeat',color:'#ffe4a2',art:7,desc:'Each of the next two Demons defeated in this room clears an additional Corruption tracker.'},
  {key:'siphon',name:'Siphon Script',category:'Resources',mana:2,blood:0,charges:1,trigger:'defeat',color:'#6ce8bb',art:8,desc:'The first Demon defeated in this room restores 3 shared Mana, subject to the normal Mana cap.'},
- {key:'chalice',name:'Blood Chalice',category:'Resources',mana:3,blood:0,charges:1,trigger:'defeat',color:'#f06a73',art:9,desc:'The first Demon defeated here grants the killing player 2 additional Demon Blood (up to their normal cap).'}
+ {key:'chalice',name:'Blood Chalice',category:'Resources',mana:2,blood:0,charges:1,trigger:'defeat',color:'#f06a73',art:9,desc:'The first Demon defeated here grants the killing player 2 additional Demon Blood (up to their normal cap).'}
 ]);
 const lookup=key=>WARDS.find(w=>w.key===key)||null;
 const fmt=w=>w.mana+' Mana'+(w.blood?' + '+w.blood+' Blood':'');
