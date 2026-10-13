@@ -277,7 +277,10 @@ try{
           const start=S.altar;
           damageDemon(d,1,'Audit attack');
           damageDemon(d,1,'Audit follow-up');
-          assert(S.altar===start-2*v,'Thorn Martyr did not retaliate on each damaging hit');
+          assert(S.altar===start-v,'Thorn Martyr should retaliate once per Priest round');
+          S.round++;
+          damageDemon(d,1,'Audit new Priest round');
+          assert(S.altar===start-2*v,'Thorn Martyr should retaliate again in the next Priest round');
           break;
         }
         case 'breachBlood':{
