@@ -17,9 +17,13 @@ const result=await page.evaluate(async()=>{
  document.getElementById('startBtn').click();
  if(!S?.started)throw new Error('Game did not start');
  if(!S?.wardcraft?.offers||S.wardcraft.offers.length!==3)throw new Error('Initial Ward selection not shown');
- if(!document.getElementById('rogueChoiceModal').classList.contains('hidden'))throw new Error('Opening Ward draft blocked Priest gameplay');
  const selected=S.wardcraft.offers[0];
- document.querySelector('[data-ward-inline="'+selected+'"]')?.click();
+ await new Promise(resolve=>setTimeout(resolve,400));
+ const draft=document.getElementById('rogueChoiceModal');
+ if(draft.classList.contains('hidden')||!document.querySelector('#rogueChoiceGrid .wardDraftChoice'))throw new Error('Opening Ward selection popup is missing');
+ const chosenButton=[...document.querySelectorAll('#rogueChoiceGrid .wardDraftChoice')].find(b=>b.textContent.includes(ws.definitions.find(w=>w.key===selected).name));
+ if(!chosenButton)throw new Error('Opening Ward not visible as a draft option');
+ chosenButton.click();
  if(S.wardcraft.selected!==selected)throw new Error('Selecting a Ward failed');
  S.mana=30;S.players[S.current].blood=8;render();
  const selectedWard=ws.definitions.find(x=>x.key===selected);

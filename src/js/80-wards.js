@@ -129,6 +129,9 @@ function choose(key){
  const w=lookup(key),a=ensure();
  if(!w||!a||!a.offers.includes(key)||!S?.started)return false;
  a.selected=key;a.offers=[];a.active=null;
+ clearDraftRetry();draftAttempts=0;
+ const choiceModal=document.getElementById('rogueChoiceModal');
+ if(choiceModal)delete choiceModal.dataset.wardDraftFloor;
  if(typeof log==='function')log('WARDCRAFT — '+w.name+' unlocked for this passage. Any Priest may place it once.','good');
  document.getElementById('wardCastModal')?.classList.add('hidden');
  publishRender();
@@ -141,20 +144,79 @@ function shuffled(){
  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
  return a.slice(0,3);
 }
+let draftRetryTimer=0;
+let draftAttempts=0;
+function clearDraftRetry(){
+ if(draftRetryTimer)clearTimeout(draftRetryTimer);
+ draftRetryTimer=0;
+}
+function wardChoices(){
+ return ensure().offers.map(key=>{
+   const w=lookup(key);
+   return {title:w.name,icon:'✧',actionKey:'ward:'+key,cls:'wardDraftChoice',desc:w.desc,reward:fmt(w),
+     html:'<div class="ward-draft-art" style="'+artStyle(w)+'"></div><div class="ward-draft-body"><h3>'+esc(w.name)+'</h3><small>'+esc(w.category)+' · '+esc(fmt(w))+'</small><p>'+esc(w.desc)+'</p><span class="nodeReward">Unlock for this passage</span></div>',
+     action:()=>choose(key)};
+ });
+}
+function queueDraft(delay=0){
+ clearDraftRetry();
+ draftRetryTimer=setTimeout(showPendingDraft,delay);
+}
+function showPendingDraft(){
+ draftRetryTimer=0;
+ const a=ensure();
+ if(!S?.started||!S.rogue?.enabled||!a?.offers?.length||a.selected||a.active)return;
+ if(a.floor!==Number(S.rogue.floor)||['Defeat','Victory','Repository','Sanctuary'].includes(S.phase))return;
+ const modal=document.getElementById('rogueChoiceModal');
+ const isWardVote=S.multiplayerVote?.open&&S.multiplayerVote?.options?.some(o=>String(o.actionKey||'').startsWith('ward:'));
+ if(isWardVote){
+   if(modal&&!modal.classList.contains('hidden'))return;
+   // Let the multiplayer choice renderer display the pending synchronized draft.
+   if(typeof render==='function')render();
+   return;
+ }
+ const online=typeof window.__sanctumWardOnlineInfo==='function'?window.__sanctumWardOnlineInfo():null;
+ if(online?.online&&(!online.canChoose||online.starting)){
+   // Game start must be committed to Supabase before starting its first choice.
+   // Retain the three offered Wards in S while waiting for authoritative host state.
+   queueDraft(Math.min(900,300+Math.min(draftAttempts++,10)*60));
+   return;
+ }
+ // A reward, Priest draft or route choice must finish before Wardcraft starts.
+ if(S.multiplayerVote?.open || (modal&&!modal.classList.contains('hidden')&&!modal.dataset.wardDraftFloor)){
+   queueDraft(250);return;
+ }
+ if(modal&&!modal.classList.contains('hidden')&&modal.dataset.wardDraftFloor===String(a.floor))return;
+ if(typeof window.__sanctumWardShowChoice!=='function'){queueDraft(350);return;}
+ const floor=a.floor;
+ window.__sanctumWardShowChoice('Floor '+floor+' · Wardcraft','Choose a Ward',
+   'Select one of three magical Wards. The selected Ward is shared by the party, and a Priest may place it during combat.',wardChoices());
+ if(online?.online){
+   // The multiplayer handler may decline while authority is being handed off.
+   if(!S.multiplayerVote?.open){queueDraft(400);return;}
+ }else if(modal){
+   modal.dataset.wardDraftFloor=String(floor);
+ }
+ draftAttempts=0;
+}
 function offer(force=false){
  const a=ensure(),r=S?.rogue;
- if(!a||!r?.enabled||!S.started||r.nodeType==='repository'||r.nodeType==='sanctuary'||S.phase==='Defeat'||S.phase==='Victory')return;
+ if(!a||!r?.enabled||!S.started||r.nodeType==='repository'||r.nodeType==='sanctuary'||['Defeat','Victory'].includes(S.phase))return;
  const floor=Math.max(1,Number(r.floor)||1);
- if(a.floor===floor&&!force)return;
- a.floor=floor;a.active=null;a.selected=null;a.offers=shuffled();a.lastPlacementRound=-1;
- const offerings=a.offers.map(key=>{
-   const w=lookup(key);
-   return {title:w.name,icon:'✧',actionKey:'ward:'+key,cls:'wardDraftChoice',desc:w.desc,reward:fmt(w),html:'<div class="ward-draft-art" style="'+artStyle(w)+'"></div><div class="ward-draft-body"><h3>'+esc(w.name)+'</h3><small>'+esc(w.category)+' · '+esc(fmt(w))+'</small><p>'+esc(w.desc)+'</p><span class="nodeReward">Unlock for this passage</span></div>',action:()=>choose(key)};
- });
- if(floor===1&&!force){publishRender();return;}
- if(typeof window.__sanctumWardShowChoice==='function'){
-   window.__sanctumWardShowChoice('Floor '+floor+' · Wardcraft','Choose a Ward','Select one of three runes. The entire team may use the chosen Ward once this combat passage.',offerings);
+ if(a.floor===floor&&!force){
+   if(a.offers.length&&!a.selected&&!a.active)queueDraft(120);
+   return;
  }
+ a.floor=floor;a.active=null;a.selected=null;a.offers=shuffled();a.lastPlacementRound=-1;
+ draftAttempts=0;
+ publishRender();
+ // Do not open a different choice inside the game-start state commit.
+ // In single player the popup appears immediately; online it waits for host authority.
+ queueDraft(onlineReadyDelay());
+}
+function onlineReadyDelay(){
+ const state=typeof window.__sanctumWardOnlineInfo==='function'?window.__sanctumWardOnlineInfo():null;
+ return state?.online?350:0;
 }
 function refuseText(w,room){
  const a=ensure(),p=S.players?.[S.current];
@@ -209,7 +271,11 @@ function addInterface(){
  const inlineDraft=document.createElement('div');
  inlineDraft.id='wardcraftInlineDraft';inlineDraft.className='wardcraft-inline-draft';inlineDraft.hidden=true;
  bar.insertAdjacentElement('afterend',inlineDraft);
- bar.querySelector('#wardcraftCast').addEventListener('click',castPopup);
+ bar.querySelector('#wardcraftCast').addEventListener('click',()=>{
+  const a=ensure();
+  if(a?.offers?.length&&!a.selected){queueDraft(0);return;}
+  castPopup();
+ });
  const modal=document.createElement('div');
  modal.id='wardCastModal';modal.className='modal hidden ward-cast-modal';
  modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Place a Ward');
@@ -223,13 +289,13 @@ function renderWardUI(){
  const a=state.active,w=a&&lookup(a.key),offer=lookup(state.selected),bar=document.getElementById('wardcraftBar');
  const inline=document.getElementById('wardcraftInlineDraft');
  if(inline){
-   const show=!!(S?.started&&state.floor===1&&state.offers.length&&!state.selected&&!state.active);
+   const show=!!(S?.started&&state.floor===Number(S.rogue?.floor)&&state.offers.length&&!state.selected&&!state.active);
    inline.hidden=!show;
    if(show){
      const signature=state.offers.join('|');
      if(inline.dataset.offers!==signature){
        inline.dataset.offers=signature;
-       inline.innerHTML='<div class="wardcraft-inline-title">Choose one Ward for the opening passage</div>'+state.offers.map(key=>{
+       inline.innerHTML='<div class="wardcraft-inline-title">Choose one Ward for this passage</div>'+state.offers.map(key=>{
          const def=lookup(key);
          return '<button type="button" class="wardcraft-inline-option" data-ward-inline="'+esc(key)+'" style="'+artStyle(def)+'"><span class="wardcraft-inline-art"></span><b>'+esc(def.name)+'</b><small>'+esc(fmt(def))+'</small></button>';
        }).join('');
@@ -243,10 +309,15 @@ function renderWardUI(){
  }
  if(bar){
    const label=bar.querySelector('#wardcraftStatus'),cast=bar.querySelector('#wardcraftCast');
-   if(w){label.textContent=w.name+' · '+ROOM_NAMES[a.room]+' · '+a.charges+' charge(s) · '+a.phasesLeft+' Demon Phase(s)';cast.disabled=true;}
-   else if(offer){label.textContent=offer.name+' · '+fmt(offer)+(state.lastPlacementRound===S.round?' · Placed this round':'');cast.disabled=!!refuseText(offer,allowed(offer)[0]);}
-   else {label.textContent=state.offers.length?'Selecting a Ward…':(S?.started?'No Ward prepared':'Choose a Ward when a passage begins.');cast.disabled=true;}
+   if(w){label.textContent=w.name+' · '+ROOM_NAMES[a.room]+' · '+a.charges+' charge(s) · '+a.phasesLeft+' Demon Phase(s)';cast.textContent='Ward Active';cast.disabled=true;}
+   else if(offer){label.textContent=offer.name+' · '+fmt(offer)+(state.lastPlacementRound===S.round?' · Placed this round':'');cast.textContent='Place Ward';cast.disabled=!!refuseText(offer,allowed(offer)[0]);}
+   else if(state.offers.length){label.textContent='Choose 1 of 3 offered Wards for Floor '+state.floor;cast.textContent='Choose Ward';cast.disabled=!!document.body.classList.contains('mpWaitingTurn');}
+   else {label.textContent=S?.started?'No Ward prepared':'Choose a Ward when a passage begins.';cast.textContent='Place Ward';cast.disabled=true;}
    bar.hidden=!S?.started||!S.rogue?.enabled;
+   // Old saves and reconnects may contain pending Ward offers without an open dialog.
+   if(state.offers.length&&!state.selected&&!state.active&&!draftRetryTimer&&!S.multiplayerVote?.open){
+     queueDraft(450);
+   }
  }
  for(let i=0;i<4;i++){
    const room=document.getElementById('room'+i)?.closest('.room');
@@ -370,5 +441,5 @@ const start=document.getElementById('startBtn');
 if(start&&typeof startGame==='function')start.onclick=()=>startGame();
 window.__sanctumWardOpenPassage=offer;
 window.__sanctumWardClosePassage=expire;
-window.__sanctumWards={definitions:WARDS,choose,place,offer,ensure,expire,render:renderWardUI};
+window.__sanctumWards={definitions:WARDS,choose,place,offer,ensure,expire,render:renderWardUI,reopenDraft:()=>queueDraft(0)};
 })();
