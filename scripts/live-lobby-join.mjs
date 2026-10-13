@@ -57,23 +57,20 @@ try{
   await host.locator('#startBtn').click();
   await host.waitForFunction(()=>S?.started&&
     window.SanctumMultiplayerDev?.authoritativeActiveSeat===1,null,{timeout:20000});
-  // Ward selection is now a real synchronized passage choice. Confirm it
-  // appears on the host, resolves, and reaches the guest before card actions.
-  await host.waitForFunction(()=>
-    S?.multiplayerVote?.open===true&&
-    S.multiplayerVote.options?.length===3&&
-    S.multiplayerVote.options.every(o=>String(o.actionKey||'').startsWith('ward:')),
+  // Wardcraft must not interrupt the opening combat. The first shared Ward
+  // draft will be offered on combat passage 3, not when the host starts a game.
+  await guest.waitForFunction(()=>S?.started&&S?.wardcraft?.combatPassages===1,
     null,{timeout:20000});
-  await host.waitForFunction(()=>
-    document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.wardDraftChoice').length===3,
-    null,{timeout:12000});
-  const pickedWard=await host.evaluate(()=>S.multiplayerVote.options[0].actionKey.slice(5));
-  await host.locator('#rogueChoiceGrid .mpGroupVoteOption.wardDraftChoice').first().click();
-  await host.waitForFunction(key=>S?.wardcraft?.selected===key&&!S?.multiplayerVote?.open,
-    pickedWard,{timeout:16000});
-  await guest.waitForFunction(key=>S?.wardcraft?.selected===key,
-    pickedWard,{timeout:16000});
-  console.log('LIVE MULTIPLAYER WARD CHOICE PASSED:',pickedWard);
+  const wardOpening=await Promise.all([host,guest].map(page=>page.evaluate(()=>({
+    count:S?.wardcraft?.combatPassages,
+    offers:S?.wardcraft?.offers?.length,
+    selected:S?.wardcraft?.selected,
+    wardVote:!!(S?.multiplayerVote?.open&&S.multiplayerVote.options?.some(o=>String(o.actionKey||'').startsWith('ward:'))),
+    visibleDrafts:document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.wardDraftChoice').length
+  }))));
+  if(wardOpening.some(w=>w.count!==1||w.offers!==0||w.selected||w.wardVote||w.visibleDrafts!==0))
+    throw new Error('Opening multiplayer Ward draft occurred before passage 3: '+JSON.stringify(wardOpening));
+  console.log('LIVE MULTIPLAYER WARD CADENCE PASS:',JSON.stringify(wardOpening));
 
   // Regression: the shared-state restore path used to replace Priest cards
   // with base definitions, deleting empowered status and merge discounts.
