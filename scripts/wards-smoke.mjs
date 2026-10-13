@@ -26,11 +26,22 @@ const result=await page.evaluate(async()=>{
  document.querySelector('#playerCount').value='1';
  document.getElementById('startBtn').click();
  if(!S?.started)throw new Error('Game did not start');
- if(!S?.wardcraft?.offers||S.wardcraft.offers.length!==3)throw new Error('Initial Ward selection not shown');
+ if(ws.interval!==3)throw new Error('Ward cadence must be every 3 combat passages');
+ if(!S?.wardcraft||S.wardcraft.combatPassages!==1||S.wardcraft.offers.length)throw new Error('Ward offered before third combat passage');
+ if(!document.getElementById('rogueChoiceModal').classList.contains('hidden'))throw new Error('Ward popup appeared on first combat passage');
+ const firstFloor=S.rogue.floor;
+ ws.offer();
+ if(S.wardcraft.combatPassages!==1)throw new Error('Same combat passage counted twice');
+ S.rogue.floor=2;
+ ws.closePassage();ws.offer();
+ if(S.wardcraft.combatPassages!==2||S.wardcraft.offers.length)throw new Error('Ward offered on second combat passage');
+ S.rogue.floor=3;
+ ws.closePassage();ws.offer();
+ if(S.wardcraft.combatPassages!==3||S.wardcraft.offers.length!==3)throw new Error('Third combat passage did not award a Ward');
  const selected=S.wardcraft.offers[0];
  await new Promise(resolve=>setTimeout(resolve,400));
  const draft=document.getElementById('rogueChoiceModal');
- if(draft.classList.contains('hidden')||!document.querySelector('#rogueChoiceGrid .wardDraftChoice'))throw new Error('Opening Ward selection popup is missing');
+ if(draft.classList.contains('hidden')||!document.querySelector('#rogueChoiceGrid .wardDraftChoice'))throw new Error('Third-passage Ward selection popup is missing');
  const chosenButton=[...document.querySelectorAll('#rogueChoiceGrid .wardDraftChoice')].find(b=>b.textContent.includes(ws.definitions.find(w=>w.key===selected).name));
  if(!chosenButton)throw new Error('Opening Ward not visible as a draft option');
  const artPreview=chosenButton.querySelector('.ward-draft-art');
@@ -68,8 +79,17 @@ const result=await page.evaluate(async()=>{
  S.phase='Priest';
  // All other ten Ward definitions remain serializable in save and multiplayer state.
  const cloned=JSON.parse(JSON.stringify(S.wardcraft));
- if(cloned.active?.key!=='cinder')throw new Error('Ward state not serializable');
- return {wardDefinitions:ws.definitions.length,artworksHD:artworks.length,offered:3,selected,placed:true,overlay:true,costs:true,cinderDamage:true,oncePerPhase:true,room:ROOM_NAMES[placementRoom],initialRound};
+ if(cloned.active?.key!=='cinder'||cloned.combatPassages!==3)throw new Error('Ward state and cadence not serializable');
+ // Noncombat visits do not consume Ward milestones; Boss fights do.
+ ws.closePassage();S.rogue.floor=4;S.rogue.nodeType='sanctuary';ws.offer();
+ if(S.wardcraft.combatPassages!==3||S.wardcraft.offers.length)throw new Error('Sanctuary incorrectly counted as combat');
+ S.rogue.floor=5;S.rogue.nodeType='boss';ws.offer();
+ if(S.wardcraft.combatPassages!==4||S.wardcraft.offers.length)throw new Error('Boss combat cadence incorrect');
+ ws.closePassage();S.rogue.floor=6;S.rogue.nodeType='battle';ws.offer();
+ if(S.wardcraft.combatPassages!==5||S.wardcraft.offers.length)throw new Error('Ward offered early after noncombat visit');
+ ws.closePassage();S.rogue.floor=7;ws.offer();
+ if(S.wardcraft.combatPassages!==6||S.wardcraft.offers.length!==3)throw new Error('Sixth combat passage should award Ward');
+ return {wardDefinitions:ws.definitions.length,artworksHD:artworks.length,offered:3,selected,placed:true,overlay:true,costs:true,cinderDamage:true,oncePerPhase:true,room:ROOM_NAMES[placementRoom],initialRound,firstFloor,wardCombatPassages:[3,6],sanctuaryIgnored:true,bossCounted:true};
 });
 await browser.close();
 if(errors.length)throw new Error('Wardcraft console errors: '+errors.join('; '));
