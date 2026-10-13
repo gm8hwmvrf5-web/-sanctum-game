@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 
-// Demon / Boss encounter playthrough: all 25 catalog types in Lesser and
+// Demon / Boss encounter playthrough: all 35 catalog types in Lesser and
 // Greater form, all 10 bosses, their triggered effects and lifecycle events.
 // Uses the actual game engine in a real browser without touching live rooms.
 const browser=await chromium.launch({headless:true});
@@ -241,10 +241,82 @@ try{
             'Summoning created '+equivalent+' Lesser-Imp equivalents instead of '+v);
           break;
         }
+
+        case 'entryDiscard':{
+          S.players.forEach(p=>{p.hand=S.priestDeck.splice(0,3)});
+          const before=S.priestDiscard.length;
+          triggerEnterPlay(d);
+          assert(S.players.every(p=>p.hand.length===3-v),'Hollow Scribe did not discard '+v+' cards from every Priest');
+          assert(S.priestDiscard.length===before+S.players.length*v,'Discarded Priest cards were not returned to the discard pile');
+          break;
+        }
+        case 'basicArmor':{
+          const hp=d.cur;
+          damageDemon(d,5,'Audit Basic Attack',{basicAttack:true});
+          assert(d.cur===hp-(5-v),'Iron Husk did not prevent '+v+' Basic Attack damage');
+          damageDemon(d,2,'Audit Ritual',{ritual:true});
+          assert(d.cur===hp-(5-v)-2,'Iron Husk incorrectly reduced Ritual damage');
+          break;
+        }
+        case 'enterCorruption':{
+          const before=roomCorruption(0);
+          triggerEnterRoom(d);
+          assert(roomCorruption(0)===before+v,'Rot Oracle entry Corruption incorrect in Gateway');
+          moveOneForward(d);
+          assert(roomCorruption(1)===v,'Rot Oracle entry Corruption incorrect in Hall');
+          break;
+        }
+        case 'roomManaLoss':{
+          triggerEnterRoom(d);
+          assert(S.mana===12-v,'Dirge Cantor entry Mana loss incorrect');
+          moveOneForward(d);
+          assert(S.mana===12-2*v,'Dirge Cantor movement did not trigger Mana drain');
+          break;
+        }
+        case 'hurtAltar':{
+          const start=S.altar;
+          damageDemon(d,1,'Audit attack');
+          damageDemon(d,1,'Audit follow-up');
+          assert(S.altar===start-2*v,'Thorn Martyr did not retaliate on each damaging hit');
+          break;
+        }
+        case 'breachBlood':{
+          S.players.forEach(p=>{p.blood=5});
+          S.rooms[0]=[];S.rooms[3]=[d];
+          moveOneForward(d);
+          assert(S.players.every(p=>p.blood===5-v),'Chalice Thief did not steal '+v+' Blood from each Priest at the Altar');
+          break;
+        }
+        case 'defeatSpawnImp':{
+          defeatDemon(d);
+          const equivalent=allDemons().reduce((n,x)=>n+(x.d.greater?2:1),0);
+          assert(equivalent===v,'Grave Brood summoned '+equivalent+' of '+v+' Lesser Imps');
+          break;
+        }
+        case 'defeatAltarCurse':{
+          defeatDemon(d);
+          assert(S.nextAltarBonus===v,'Vowbreaker did not apply its next Altar-loss curse');
+          const before=S.altar;
+          damageAltar(1,'Audit next Altar loss');
+          assert(S.altar===before-1-v,'Vowbreaker did not increase next Altar loss');
+          assert(S.nextAltarBonus===0,'Vowbreaker curse failed to expire after one hit');
+          break;
+        }
+        case 'relentless':{
+          const mate=dummy('room-mate');S.rooms[0].push(mate);
+          moveDemons();
+          assert(pos(d)===1+v,'Rift Strider moved '+pos(d)+' instead of '+(1+v)+' despite sharing its room');
+          break;
+        }
+        case 'phaseManaDrain':{
+          resolveStartDemonPhaseAbilities();
+          assert(S.mana===12-v,'Censer Tyrant did not drain '+v+' Mana at Demon Phase start');
+          break;
+        }
         default:throw new Error('Uncovered Demon ability '+k);
       }
     };
-    assert(DEMON_TYPES.length===25,'Expected 25 Demon types');
+    assert(DEMON_TYPES.length===35,'Expected 35 Demon types');
     assert(BOSSES.length===10,'Expected 10 Bosses');
     for(const def of DEMON_TYPES){
       for(const greater of [false,true]){
