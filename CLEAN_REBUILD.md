@@ -44,3 +44,15 @@ Ten individual optimized 900 × 600 WebP illustrations are stored in `assets/war
 ### Sinking Repository after Bosses
 
 The Sinking Repository now appears as a **guaranteed, separate stop after every Boss** (cycle floors 5, 10, and 15). Bosses on floors 5 and 10 still give their normal act rewards before the shop; the floor-15 shop opens before unspent Cinders bank at the Legacy checkpoint. The random route appearance, eight-Cinder requirement, and two-visits-per-cycle limit are removed. Purchases remain run-only; the shop can be left without buying. Its offers are limited to what the party can afford, with a free exit even at zero Cinders. The shop does not consume another floor or change Ward drafting cadence.
+
+### Balance Update 1.0 — Moderately challenging
+
+- **Enemy HP and Attack:** Each cycle resets its per-floor multiplier to `1 + 0.03 × (cycle floor − 1)`; cycle multipliers progress `1.0×, 1.5×, 2.25×, …` (cycle 1/2/3). Existing Elite and Greater differences remain. Votive Candle effects remain 10% / 12.5% / 15% non-stacking run reductions.
+- **Boss Altar Phase damage:** For Bosses with 6 printed Altar damage, Acts 1/2/3 drain 1/2/3 (solo), 2/3/4 (2P), 3/4/5 (3P), or 4/5/6 (4P). Bosses with 5 or 7 printed damage apply −1 or +1, to a minimum of 1. Each later cycle adds 1, maximum 8. This drain no longer uses the enemy stat multiplier. Boss summons and unique abilities remain.
+- **Relic XP:** Start at 20 XP, then +8 XP per XP-earned Relic (20, 28, 36, 44, 52). Reward and store Relics remain separate from XP cost increases.
+- **Sinking Repository:** Store remains guaranteed after each Boss, before Cycle banking. Fixed cycle 1 / 2 / 3+ Cinder prices: each random Relic 10 / 12 / 14; Candle Bundle 8 / 10 / 12; Forbidden Folio 12 / 14 / 16. Folio increases maximum hand size by 1, limited to 2 purchases per run. Existing effects, single purchase per visit, and Leave option are unchanged.
+- **Shared Mana:** 1P=10, 2P=15, 3P=23, 4P=32. Normal Demon spawns stay unchanged.
+- **Demon effect safety:** Thorn Martyr's damaged retaliation occurs at most once per Priest round (Lesser 1 / Greater 2 Altar). Combined Demon/Boss-Phase Mana drains carry to the next Priest round with caps of 3/4/6/8 for 1/2/3/4 players. Immediate Priest-Phase Mana losses and card taxes are unchanged.
+- **Wardcraft costs:** Cinder 3 Mana+1 Blood; Thorns 3+1; Chains 2+1; Bell 3+1; Silence 3+1; Lantern 2+1; Vigil 2+1; Absolution 2+0; Siphon 2+0; Chalice 2+0. Ward effects, charges, 2-phase lifespan, artwork, and every-third-combat-passage offers are unchanged.
+
+Balance changes are checked by `scripts/balance-1-0-smoke.mjs` alongside the gameplay and multiplayer browser smoke suite. The proposed first-cycle 65–75% completion target is a tuning goal, not an established measured win rate.
