@@ -22,7 +22,7 @@ function takeCrucifixCard(){
 let S = freshState();
 let choiceResolve=null, choiceCancelSerial=0, selectedDemonId=null, crucifixDisplayQueue=[];
 let overflowDamageQueue=[], overflowPromptActive=false;
-function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,pendingDemonManaDrain:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
+function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,pendingDemonManaDrain:0,bloodOverflowHealedRound:0,bloodOverflowHealedAmount:0,altarRenewalHealedRound:0,altarRenewalHealedAmount:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
 function demonName(d){return d.greater?d.g:d.n}
 function demonMaxHP(d){let max=d.greater?d.ghp:d.hp;max+=(d.status&&d.status.bossHpBonus)||0;max+=(d.status&&d.status.extraHpBonus)||0;if(bossIs("boneKing")){let loc=findDemonLocation(d);if(loc&&loc.r===3)max+=1}return max}
 function demonBlood(d){let printed=d.greater?d.gb:d.b;let drained=(d.status&&d.status.bloodDrained)||0;return Math.max(0,printed-drained)}
@@ -41,7 +41,12 @@ function demonAbility(d){return d.status&&d.status.abilityRemoved?'ABILITY REMOV
 function demonCode(d){return d.status&&d.status.abilityRemoved?null:(d.greater?(d.ga||d.a):d.a)}
 function demonValue(d){return d.status&&d.status.abilityRemoved?0:(d.greater?(d.gv??d.v):d.v)}
 function demonArt(d){return d.greater?d.gart:d.art}
-function priestTax(){let tax=allDemons().reduce((sum,x)=>sum+(demonCode(x.d)==='priestTax'?demonValue(x.d):0),0);if(roomDesecrated(2))tax+=1;return tax}
+function priestTax(){
+ const tax=allDemons().reduce((sum,x)=>sum+(demonCode(x.d)==='priestTax'?demonValue(x.d):0),0)+(roomDesecrated(2)?1:0);
+ // Balance 1.1: even stacked Greater Possessors and Desecrated Chapel
+ // cannot lock the entire shared hand out of play.
+ return Math.min(tax,(S?.players?.length||1)>=3?3:2);
+}
 function closestDemon(excludeId=null){for(let r=3;r>=0;r--){for(let i=0;i<S.rooms[r].length;i++){let d=S.rooms[r][i];if(d.id!==excludeId)return d}}return null}
 function stopIsBlocked(d){if(demonCode(d)!=='stopWard')return false;let used=d.status.stopWardUsed||0, cap=demonValue(d);if(used<cap){d.status.stopWardUsed=used+1;log(`${demonName(d)} prevents a movement-stopping effect (${d.status.stopWardUsed}/${cap}).`,'bad');return true}return false}
 function applyStop(d){if(!d)return;if(stopIsBlocked(d))return;d.status.stop=true;log(`${demonName(d)} will not move this Demon Phase.`,'good')}
@@ -396,6 +401,21 @@ function restoreAltarLogged(v,source){
  log(`${source} restores ${restored} Altar Protection.`,'good');
  return restored;
 }
+// Shared Balance 1.1 limit: all automatic round-start and Priest-turn
+// renewals restore at most 6 actual Altar Protection in one round.
+// Immediate heals and on-kill blessings are not counted against this limit.
+function healAltarRenewalCapped(amount,source){
+ if(S.altarRenewalHealedRound!==S.round){
+  S.altarRenewalHealedRound=S.round;S.altarRenewalHealedAmount=0;
+ }
+ const cap=Math.max(0,6-(Number(S.altarRenewalHealedAmount)||0));
+ const requested=Math.max(0,Number(amount)||0);
+ const bonus=requested>0&&roomConsecrated(2)?1:0;
+ const restored=Math.min(cap,Math.max(0,30-S.altar),requested+bonus);
+ if(restored>0){S.altar+=restored;S.altarRenewalHealedAmount+=restored;}
+ log(`${source} restores ${restored} Altar Protection${cap<=restored?' (renewal cap reached)':''}.`,'good');
+ render();return restored;
+}
 function addAltarTurnRenewal(amount,turns,source){
  S.altarTurnRenewals=S.altarTurnRenewals||[];
  S.altarTurnRenewals.push({amount,remaining:turns,source});
@@ -404,7 +424,7 @@ function addAltarTurnRenewal(amount,turns,source){
 function resolveAltarTurnRenewals(){
  if(!S.altarTurnRenewals||!S.altarTurnRenewals.length)return;
  for(let fx of S.altarTurnRenewals){
-  if(fx.remaining>0){restoreAltarLogged(fx.amount,`${fx.source} lingering renewal`);fx.remaining--}
+  if(fx.remaining>0){healAltarRenewalCapped(fx.amount,`${fx.source} lingering renewal`);fx.remaining--}
  }
  S.altarTurnRenewals=S.altarTurnRenewals.filter(fx=>fx.remaining>0);
 }
@@ -429,7 +449,7 @@ function resolveAltarRoundRenewals(){
  if(!S.altarRoundRenewals||!S.altarRoundRenewals.length)return;
  for(let fx of S.altarRoundRenewals){
   if(fx.remaining>0&&S.round>=fx.nextRound){
-   restoreAltarLogged(fx.amount,`${fx.source} round renewal`);
+   healAltarRenewalCapped(fx.amount,`${fx.source} round renewal`);
    fx.remaining--;
    fx.nextRound=S.round+1;
   }
@@ -1313,6 +1333,20 @@ async function processOverflowDamageQueue(){
 }
 function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(opts.basicAttack&&code==='basicArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Basic Attack damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(code==='hurtAltar'&&dealt>0&&S.phase==='Priest'&&d.status.hurtAltarLastRound!==S.round){d.status.hurtAltarLastRound=S.round;damageAltar(v,`${demonName(d)}'s retaliation`)}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
 function findDemonLocation(d){for(let r=0;r<4;r++){let i=S.rooms[r].findIndex(x=>x.id===d.id);if(i>=0)return {r,i}}return null}
+// Excess Blood remains a meaningful bonus but can restore at most 4
+// Altar Protection each round across all Priests and defeat sources.
+function healBloodOverflowCapped(excess){
+ if(S.bloodOverflowHealedRound!==S.round){
+  S.bloodOverflowHealedRound=S.round;S.bloodOverflowHealedAmount=0;
+ }
+ const cap=Math.max(0,4-(Number(S.bloodOverflowHealedAmount)||0));
+ const possible=Math.min(Math.max(0,Number(excess)||0),cap);
+ const bonus=possible>0&&roomConsecrated(2)?1:0;
+ const gain=Math.min(cap,Math.max(0,30-S.altar),possible+bonus);
+ if(gain>0){S.altar+=gain;S.bloodOverflowHealedAmount+=gain;render();}
+ if(excess>0)log(`${excess} excess Blood restores ${gain} Altar Protection${gain<excess?' (round cap or Altar limit)':''}.`,'good');
+ return gain;
+}
 function distributeKillBlood(n,killerIndex=null){
  n=Math.max(0,Number(n)||0);
  if(!n||!Array.isArray(S.players)||!S.players.length)return;
@@ -1326,11 +1360,7 @@ function distributeKillBlood(n,killerIndex=null){
   p.blood=after;
   excess+=Math.max(0,(before+gain)-10);
  });
- if(excess>0){
-  let before=S.altar;
-  healAltar(excess);
-  log(`${excess} excess Blood restores ${S.altar-before} Altar Protection.`,'good');
- }
+ if(excess>0)healBloodOverflowCapped(excess);
  if(hasKiller){
   const killer=S.players[killerIndex];
   log(`${killer?.name||('Player '+(killerIndex+1))} receives ${n} Demon Blood for the killing blow; every other Priest receives ${half}.`,'good');
@@ -1339,8 +1369,8 @@ function distributeKillBlood(n,killerIndex=null){
  }
 }
 function defeatDemon(d,opts={}){let loc=findDemonLocation(d);if(!loc)return;let attachedCrucifix=takeDemonCrucifixAttachment(d);S.rooms[loc.r].splice(loc.i,1);reduceRoomCorruptionOnDemonDefeat(loc.r);S.runStats=S.runStats||{};if(d.greater)S.runStats.greaterDemonsDefeated=(S.runStats.greaterDemonsDefeated||0)+1;let baseBlood=demonBlood(d),extraBlood=demonCode(d)==='defeatBlood'?demonValue(d):0,skipBlood=false,reward=baseBlood;if(bossIs("soulTyrant")&&!d.greater){reward=Math.max(0,baseBlood+extraBlood-1);skipBlood=extraBlood>0;log(`${S.boss.n} — Tyrant's Claim reduces this Lesser Demon's total Blood reward by 1.`,"bad")}distributeKillBlood(reward,S.phase==='Priest'?Number(S.current):null);S.defeats++;S.defeated.push({...d,status:{...d.status}});log(`${demonName(d)} is defeated. Demon Blood is awarded by the multiplayer kill rule. Defeat ${S.defeats}/13.`,'good');resolveAltarDefeatBlessings();if(bossIs("plagueFather")){let f=ensureBossFlags();f.spores[loc.r]=(f.spores[loc.r]||0)+1;log(`${S.boss.n} — Corruption Spores marks ${["Gateway","Hall","Chapel","Crypt"][loc.r]}; the next Demon to enter gains 1 HP.`,"bad")}if(bossIs("devourer")&&!d.greater&&S.boss.cur>0){let before=S.boss.cur;S.boss.cur=Math.min(S.boss.hp,S.boss.cur+1);if(S.boss.cur>before)log(`${S.boss.n} — Feast of Ruin heals the Boss for 1 HP.`,"bad")}triggerDefeatAbility(d,{skipBlood,suppressNegative:!!opts.suppressNegative});if(attachedCrucifix)revealAttachedCrucifix(d,'was defeated and reveals its hidden Crucifix');if(!S?.rogue?.enabled){if(d.greater)rollGreaterDemonRelic();if(S.defeats>=5&&!S.relicFiveDefeatClaimed){S.relicFiveDefeatClaimed=true;pullRelic('Five Demons have been defeated. The Sanctum reveals a hidden Relic.')}}if(S.defeats>=13&&!S.bossRevealed)revealBoss();render()}
-function distributeBlood(n){let left=n;let idx=S.current;let safety=0;while(left>0&&safety<100){let p=S.players[idx%S.players.length];if(p.blood<10){p.blood++;left--}idx++;safety++;if(S.players.every(p=>p.blood>=10))break}if(left>0){let before=S.altar;healAltar(left);log(`${left} excess Blood restores ${S.altar-before} Altar Protection.`,'good')}}
-function bossHpFactor(){return S.players.length<=2?.70:S.players.length===3?.90:1.10}
+function distributeBlood(n){let left=n;let idx=S.current;let safety=0;while(left>0&&safety<100){let p=S.players[idx%S.players.length];if(p.blood<10){p.blood++;left--}idx++;safety++;if(S.players.every(p=>p.blood>=10))break}if(left>0)healBloodOverflowCapped(left)}
+function bossHpFactor(){let count=S.players?.length||1;return count>=4?1.25:count===3?1.05:count===2?.85:.70}
 function scaleBossForPlayers(preserveDamage=false){
  if(!S.boss)return;
  let base=S.boss.baseHp||S.boss.hp;
@@ -1949,9 +1979,12 @@ let c=await choosePriestCard(`${r.n} — choose card ${n+1} of ${picks}, or Done
   case'sacredMark':{let x=await chooseDamageTarget(`${r.n} — choose marked target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;let bonus=ritualBoost(3),charges=effFull?ritualScale(2):ritualScale(1);if(x.kind==='boss'){let f=ensureBossFlags();if(bossIs("fallenSeraph")&&!f.seraphHaloUsed){f.seraphHaloUsed=true;if(charges>1)charges=1;else bonus=Math.max(1,Math.floor(bonus/2));log(`${S.boss.n} — Profane Halo halves ${r.n}.`,"bad")}f.bossMark=bonus;f.bossMarkCharges=charges}else{x.d.status.mark=bonus;x.d.status.markCharges=charges}log(`${x.kind==='boss'?S.boss.n:demonName(x.d)} receives Sacred Mark: +${bonus} damage for the next ${charges} damage source${charges===1?'':'s'}.`,'good')}break}
   case'divineIntervention':{let before=S.altar;healAltar(ritualBoost(full?6:4),r.n);log(`${r.n} restores ${S.altar-before} Altar Protection.`,'good');if(full)addMana(ritualBoost(2));break}
   case'chainsFaith':{let moved=new Set(),max=full?ritualScale(2):ritualScale(1);for(let i=0;i<max;i++){let opts=allDemons().filter(x=>x.r>0&&S.rooms[x.r-1].length<4&&!moved.has(x.d.id));if(!opts.length){if(i===0){log('No Demon can be moved back from its current room.');alert(`${r.n} cannot be used on any current Demon because none can be moved backward.`)}break}if(i>0)opts.push({done:true});let x=await chooseVisualDemonTargets(`${r.n} — choose Demon ${i+1} of ${max}${i>0?' or Done':''}`,opts.map(z=>z.done?{kind:'done',done:true,label:'DONE — keep the movement already resolved'}:z));if(!x)return;if(x.done)break;let halved=ritualIsHalved(x.d);if(halved&&full)max=ritualScale(1);moved.add(x.d.id);await moveDemonBackOne(x.d,r.n)}break}
-  case'palmJudgment':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;let amount=Math.max(0,ritualBoost(effFull?6:3)-2);dealDamageTarget(x,amount,r.n,{ritual:true,allowOverflow:true});if(x.kind==='demon'){let d=x.d,moveSpaces=effFull?2:1;for(let step=0;step<moveSpaces&&findDemonLocation(d);step++){let loc=findDemonLocation(d);if(!loc||loc.r<=0)break;if(!await moveDemonBackOne(d,r.n))break}}}break}
+  case'palmJudgment':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;let amount=x.kind==='boss'
+   ?(effFull?8:4)+Math.max(0,Number(S.relicMods?.ritual)||0)
+   :Math.max(0,ritualBoost(effFull?6:3)-2);
+  dealDamageTarget(x,amount,r.n,{ritual:true,allowOverflow:true});if(x.kind==='demon'){let d=x.d,moveSpaces=effFull?2:1;for(let step=0;step<moveSpaces&&findDemonLocation(d);step++){let loc=findDemonLocation(d);if(!loc||loc.r<=0)break;if(!await moveDemonBackOne(d,r.n))break}}}break}
   case'stillWicked':if(full){await chooseAndStopRooms(r.n,ritualScale(1))}else{await chooseAndStopDemons(r.n,ritualScale(1))}break;
-  case'innerPeace':{let p=currentPlayer(),gain=ritualBoost(full?3:2),old=p.blood;p.blood=Math.min(10,p.blood+gain);log(`${p.name} gains ${p.blood-old} Demon Blood from ${r.n}.`,'good');if(full)drawPriest(p,ritualScale(1));break}
+  case'innerPeace':{let p=currentPlayer(),gain=(full?3:2)+Math.max(0,Number(S.relicMods?.ritual)||0),old=p.blood;p.blood=Math.min(10,p.blood+gain);log(`${p.name} gains ${p.blood-old} Demon Blood from ${r.n}.`,'good');if(full)drawPriest(p,ritualScale(1));break}
   case'echoedGrace':{let p=currentPlayer();let others=S.players.length===1?[p]:S.players.filter((x,i)=>i!==S.current&&x.hand.length);if(!others.length){log('No eligible Priest card is available to echo.');alert(`${r.n} cannot be used because there is no eligible Priest card to copy.`);break}let op=S.players.length===1?p:await choose('Choose another player',others,x=>`${x.name} — ${x.char}`);if(!op)break;let used=new Set(),copies=0,maxCopies=ritualScale(1);for(let i=0;i<maxCopies;i++){if(p.hand.length>=handLimit()){log(`${p.name} is at the ${handLimit()}-card hand limit.`);break}let pool=op.hand.filter(c=>!used.has(c.id));if(!pool.length)break;if(i>0)pool=[...pool,{done:true,n:'Done',m:0,e:'Keep the copied card already gained.',x:'',id:'echo-done'}];let c=await choosePriestCard(`${r.n} — choose card ${i+1} of up to ${maxCopies}${i>0?' or Done':''}`,pool,S.players.length===1?`${p.name} — ${p.char}`:`${op.name} — ${op.char}`);if(!c)return;if(c.done)break;used.add(c.id);let clone={...c,id:'echo-'+uid(),temp:true};if(full){clone.empowered=true;clone.empowerPaid=false;clone.empManaDiscount=0;clone.empBloodDiscount=0}else{clone.empowered=false;delete clone.empowerPaid;delete clone.empManaDiscount;delete clone.empBloodDiscount}if(addPriestToHand(p,clone)){copies++;log(`${p.name} receives ${full?'an EMPOWERED • READY':'a normal'} copy of ${c.n}.`,'good')}}if(!copies)log(`${r.n} copies no card.`);break}
   case'abbessRebuke':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;dealDamageTarget(x,ritualBoost(effFull?7:4),r.n,{ritual:true,allowOverflow:true})}break}
   case'miracleUnity':{let t;if(S.players.length===1)t=currentPlayer();else{let opts=S.players.filter((p,i)=>i!==S.current);t=await choose(`${r.n} — choose another player`,opts,p=>`${p.name} — ${p.char} — Blood ${p.blood}/10`)}if(t){let old=t.blood;t.blood=Math.min(10,t.blood+ritualBoost(2));log(`${t.name} gains ${t.blood-old} Demon Blood from ${r.n}.`,'good');if(full){let before=S.altar;healAltar(ritualBoost(3),r.n);log(`${r.n} restores ${S.altar-before} Altar Protection.`,'good')}}break}
