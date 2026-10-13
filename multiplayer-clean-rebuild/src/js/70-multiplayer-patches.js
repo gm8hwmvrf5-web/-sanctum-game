@@ -862,8 +862,7 @@ if(typeof triggerEnterRoom==='function'){
     if(code==='enterCorruption'){
       for(let n=0;n<v;n++)addCorruption(loc.r,demonName(d)+' adds Corruption');
     }else if(code==='roomManaLoss'){
-      addMana(-v);
-      log(demonName(d)+' drains '+v+' shared Mana upon entering '+ROOM_NAMES[loc.r]+'.','bad');
+      drainSharedManaByDemon(v,demonName(d)+' enters '+ROOM_NAMES[loc.r]);
     }
 
     applyRoomEntryEffects(d);
@@ -904,8 +903,7 @@ if(typeof resolveStartDemonPhaseAbilities==='function'){
       if(code==='spawnImp'){
         spawnSpecificImp(v);
       }else if(code==='phaseManaDrain'){
-        addMana(-v);
-        log(demonName(d)+' drains '+v+' shared Mana at the start of the Demon Phase.','bad');
+        drainSharedManaByDemon(v,demonName(d)+' starts the Demon Phase');
       }else if(code==='phasePush'){
         let movedTargets=new Set();
         for(let k=0;k<v;k++){
