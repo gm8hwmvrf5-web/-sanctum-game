@@ -23,7 +23,7 @@ const ROGUE_UPGRADES={
 };
 let rogueModalActions=[];
 
-function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryCandleReduction:0,history:[],lastReward:'',runStartedAt:Date.now()}}
+function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryPendingBossFloor:0,repositoryResume:null,repositoryVisitedBossFloor:0,repositoryCandleReduction:0,history:[],lastReward:'',runStartedAt:Date.now()}}
 function rogueState(){if(!S.rogue||typeof S.rogue!=='object')S.rogue=rogueDefaultState();return S.rogue}
 function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,basicAttack:0,relicXpGain:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
 function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify(m));return true}catch(e){console.warn('Legacy storage unavailable',e);return false}}
@@ -53,10 +53,6 @@ function rogueAddCinders(n,why=''){let r=rogueState();r.cindersRun=Math.max(0,(r
 function rogueRepositoryVisitCount(cycle=rogueCycle()){
  let r=rogueState();r.repositoryVisits=(r.repositoryVisits&&typeof r.repositoryVisits==='object')?r.repositoryVisits:{};
  return Math.max(0,Math.floor(Number(r.repositoryVisits[String(cycle)])||0));
-}
-function rogueRepositoryCanAppear(cycle=rogueCycle()){
- let r=rogueState();
- return rogueRepositoryVisitCount(cycle)<2 && Math.max(0,Math.floor(Number(r.cindersRun)||0))>=8;
 }
 function rogueRepositoryMarkVisit(){
  let r=rogueState(),cycle=rogueCycle();r.repositoryVisits=(r.repositoryVisits&&typeof r.repositoryVisits==='object')?r.repositoryVisits:{};
@@ -108,7 +104,7 @@ function rogueRepositoryBuyRelic(key,cost){
  rogueRepositoryRemoveRelicFromDeck(key);
  applyRelic(rel);
  S.relicPopupQueue=S.relicPopupQueue||[];
- S.relicPopupQueue.push({key,reason:`Purchased in The Sinking Repository for ${cost} Cinders. This Relic lasts for the current run.`,after:'rogueRoute'});
+ S.relicPopupQueue.push({key,reason:`Purchased in The Sinking Repository for ${cost} Cinders. This Relic lasts for the current run.`,after:'repositoryContinue'});
  rogueState().repositoryOffer=null;
  render();showNextRelicPopup();
  return true;
@@ -133,7 +129,7 @@ function rogueRepositoryPurchaseByActionKey(actionKey){
  if(parts[1]==='leave'){
   rogueState().repositoryOffer=null;
   log('You leave The Sinking Repository with your remaining Cinders unspent.','info');
-  rogueliteOpenRoute();return true;
+  rogueliteFinishRepository();return true;
  }
  if(parts[1]==='relic'){
   const key=decodeURIComponent(parts[2]||''),cost=Number(parts[3]||0);
@@ -145,14 +141,14 @@ function rogueRepositoryPurchaseByActionKey(actionKey){
   r.repositoryCandleReduction=Math.max(before,reduction);
   const pct=rogueRepositoryCandlePercent(r.repositoryCandleReduction);
   log(`VOTIVE CANDLE BUNDLE — Demon HP and Attack scaling are reduced by ${pct}% for the rest of this run. Repeated purchases do not stack beyond the strongest tier.`,'good');
-  r.repositoryOffer=null;render();rogueliteOpenRoute();return true;
+  r.repositoryOffer=null;render();rogueliteFinishRepository();return true;
  }
  if(parts[1]==='folio'){
   const cost=Number(parts[2]||0);if(!rogueRepositorySpend(cost,'Forbidden Folio'))return false;
   S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};
   S.relicMods.hand=(Number(S.relicMods.hand)||0)+1;
   log('FORBIDDEN FOLIO — maximum Priest hand size increases by 1 for the rest of this run.','good');
-  rogueState().repositoryOffer=null;render();rogueliteOpenRoute();return true;
+  rogueState().repositoryOffer=null;render();rogueliteFinishRepository();return true;
  }
  return false;
 }
@@ -160,7 +156,6 @@ window.__sanctumRepositoryPurchaseByActionKey=rogueRepositoryPurchaseByActionKey
 
 function rogueliteOpenRepository(){
  let r=rogueState(),balance=Math.max(0,Math.floor(Number(r.cindersRun)||0));
- if(balance<1){log('The Sinking Repository finds no Cinders to trade.','info');rogueliteOpenRoute();return}
  const prices=rogueRepositoryPrices(balance);
  let relics=rogueShuffle(rogueRepositoryRelicPool()).slice(0,3);
  while(relics.length<3){
@@ -198,9 +193,15 @@ function rogueliteOpenRepository(){
    action:()=>rogueRepositoryPurchaseByActionKey(`repository:folio:${cost}`)
   };
  });
+ // Unaffordable options must never close a synchronized multiplayer choice
+ // without an actual purchase. Always keep the no-cost exit available.
+ const affordableOffers=offers.filter((offer,i)=>prices[i]<=balance);
  r.repositoryOffer={cycle:rogueCycle(),floor:r.floor,balance,prices:[...prices],titles:offers.map(o=>o.title)};
- offers.push({icon:'↩',title:'Leave Empty-Handed',cls:'repository leave',desc:'Spend nothing and keep every remaining Cinder available for the cycle bank.',reward:'No purchase',actionKey:'repository:leave',action:()=>rogueRepositoryPurchaseByActionKey('repository:leave')});
- rogueShowChoice(`Cycle ${rogueCycle()} • Floor ${rogueCycleFloorFor(r.floor)} • ${balance} Cinders`,'The Sinking Repository','Waterlogged shelves descend into black water. Choose at most one purchase. Prices were fixed when you entered; spent Cinders will not be banked at the cycle checkpoint.',offers);
+ affordableOffers.push({icon:'↩',title:'Leave Empty-Handed',cls:'repository leave',desc:'Spend nothing and keep every remaining Cinder available for the cycle bank.',reward:'No purchase',actionKey:'repository:leave',action:()=>rogueRepositoryPurchaseByActionKey('repository:leave')});
+ const intro=balance<1
+  ?'The drowned market opens after the Boss, but you have no unbanked Cinders. Leave freely to continue your descent.'
+  :'A guaranteed market stop after the Boss. Choose at most one affordable purchase using unbanked Cinders; items last for this run only.';
+ rogueShowChoice(`Cycle ${rogueCycle()} • Boss Floor ${rogueCycleFloorFor(r.floor)} • ${balance} Cinders`,'The Sinking Repository',intro,affordableOffers);
 }
 
 function rogueClearRooms(){
@@ -262,6 +263,10 @@ function rogueSilentRelic(reason='Roguelite reward',popupAfter=''){
 window.__sanctumRelicPopupAfter=function(action){
  if(action==='rogueRoute'){
   rogueliteOpenRoute();
+  return true;
+ }
+ if(action==='repositoryContinue'){
+  rogueliteFinishRepository();
   return true;
  }
  return false;
@@ -384,7 +389,7 @@ function rogueliteEnterCurrentFloor(type){
  if(r.nodeType==='repository'){
    S.phase='Repository';clearTurnTimerInterval();
    const visit=rogueRepositoryMarkVisit();
-   log(`THE SINKING REPOSITORY — visit ${visit}/2 for Cycle ${rogueCycle()}. Unbanked Cinders can be spent here for this run only.`,'good');
+   log(`THE SINKING REPOSITORY — visit ${visit} for Cycle ${rogueCycle()}. Unbanked Cinders can be spent here for this run only.`,'good');
    render();setTimeout(rogueliteOpenRepository,120);return;
  }
  // Two visible threats establish the next room; normal original spawning takes over afterwards.
@@ -427,9 +432,32 @@ function rogueliteOpenSanctuary(){
   {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood. Shared Mana is restored to the current player-count baseline.',reward:'Ritual preparation',action:()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()}}
  ]);
 }
-function rogueliteRouteOptions(){let pool=['battle','elite','swarm','sanctuary'],options=rogueShuffle(pool).slice(0,3);if(rogueRepositoryCanAppear()&&Math.random()<0.25){options[Math.floor(Math.random()*options.length)]='repository'}return options}
+function rogueliteRouteOptions(){return rogueShuffle(['battle','elite','swarm','sanctuary']).slice(0,3)}
+function rogueliteFinishRepository(){
+ const r=rogueState(),resume=r.repositoryResume||'route';
+ r.repositoryResume=null;r.repositoryOffer=null;
+ if(resume==='cycleCheckpoint'){rogueliteCycleCheckpoint();return;}
+ rogueliteOpenRoute();
+}
+function rogueliteEnterBossRepository(resume='route'){
+ const r=rogueState(),floor=Math.max(1,Number(r.floor)||1);
+ if(r.repositoryVisitedBossFloor===floor||r.repositoryResume)return;
+ r.repositoryPendingBossFloor=0;r.repositoryVisitedBossFloor=floor;r.repositoryResume=resume;
+ S.phase='Repository';clearTurnTimerInterval();
+ const visit=rogueRepositoryMarkVisit();
+ log(`THE SINKING REPOSITORY — guaranteed visit ${visit} after Boss Floor ${rogueCycleFloorFor(floor)}. Unbanked Cinders can be spent before moving on.`,'good');
+ render();
+ // Keep the next purchase/exit choice inside the same authoritative
+ // transition in multiplayer, preserving the passage-clearing Priest.
+ rogueliteOpenRepository();
+}
 function rogueliteOpenRoute(){
- let r=rogueState();r.pendingClear=false;let next=r.floor+1,nextCycle=rogueCycleForFloor(next),nextFloor=rogueCycleFloorFor(next),nextAct=rogueActForFloor(next),nextMult=Math.pow(2,Math.max(0,nextCycle-1));
+ let r=rogueState();
+ if(r.repositoryPendingBossFloor===r.floor){
+  rogueliteEnterBossRepository('route');
+  return;
+ }
+ r.pendingClear=false;let next=r.floor+1,nextCycle=rogueCycleForFloor(next),nextFloor=rogueCycleFloorFor(next),nextAct=rogueActForFloor(next),nextMult=Math.pow(2,Math.max(0,nextCycle-1));
  if((next%5)===0){
   let n=rogueNode('boss');rogueShowChoice(`Cycle ${nextCycle} • Act ${nextAct} • Floor ${nextFloor}`,'The Boss Gate Opens',`There is no safe route around the next chamber. Ascension pressure is ${nextMult}×.`,[{icon:n.icon,title:`Enter Boss Floor ${nextFloor}`,cls:n.cls,desc:n.desc,reward:n.reward,action:()=>{r.floor=next;rogueliteEnterCurrentFloor('boss')}}]);return;
  }
@@ -438,9 +466,9 @@ function rogueliteOpenRoute(){
 }
 function rogueliteBossDefeated(){
  if(!S.bossRevealed||!S.boss||S.boss.cur>0||S.bossDefeatHandled)return;
- let r=rogueState();S.bossDefeatHandled=true;S.bossesDefeated=(S.bossesDefeated||0)+1;r.bossFloor=true;S.phase='Rogue Reward';clearTurnTimerInterval();
+ let r=rogueState();S.bossDefeatHandled=true;S.bossesDefeated=(S.bossesDefeated||0)+1;r.bossFloor=true;r.repositoryPendingBossFloor=r.floor;S.phase='Rogue Reward';clearTurnTimerInterval();
  let gain=5+rogueAct();rogueAddCinders(gain,`${S.boss.n} defeated`);log(`${S.boss.n} HAS BEEN DEFEATED — Cycle ${rogueCycle()}, Act ${rogueAct()}, Floor ${rogueCycleFloorFor(r.floor)}.`,'good');render();
- if(rogueIsCycleBoss()){rogueWhenClear(rogueliteCycleCheckpoint);return}
+ if(rogueIsCycleBoss()){rogueWhenClear(()=>rogueliteEnterBossRepository('cycleCheckpoint'));return}
  rogueWhenClear(()=>rogueShowChoice(`Boss Defeated • Cycle ${rogueCycle()} • Act ${r.act}`,'Claim an Act Reward','Choose one major reward before entering the next Act.',[
   {icon:'◆',title:'Reliquary',cls:'elite',desc:'Gain a random Relic and restore 4 Altar Protection. This room-clear Relic does not raise your next Relic XP requirement.',reward:'Bonus Relic • +4 Protection',action:()=>{restoreAltarLogged(4,'Boss reward');let rel=rogueSilentRelic('Boss room-clear reward','rogueRoute');if(!rel)rogueliteOpenRoute()}},
   {icon:'✚',title:'Purification',cls:'sanctuary',desc:'Restore 10 Altar Protection and cleanse all room Corruption.',reward:'Large recovery',action:()=>{restoreAltarLogged(10,'Boss purification');rogueCleanseAll();render();rogueliteOpenRoute()}},
