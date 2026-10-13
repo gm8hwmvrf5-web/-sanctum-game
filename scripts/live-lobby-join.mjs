@@ -57,7 +57,23 @@ try{
   await host.locator('#startBtn').click();
   await host.waitForFunction(()=>S?.started&&
     window.SanctumMultiplayerDev?.authoritativeActiveSeat===1,null,{timeout:20000});
-  await host.waitForTimeout(650);
+  // Ward selection is now a real synchronized passage choice. Confirm it
+  // appears on the host, resolves, and reaches the guest before card actions.
+  await host.waitForFunction(()=>
+    S?.multiplayerVote?.open===true&&
+    S.multiplayerVote.options?.length===3&&
+    S.multiplayerVote.options.every(o=>String(o.actionKey||'').startsWith('ward:')),
+    null,{timeout:20000});
+  await host.waitForFunction(()=>
+    document.querySelectorAll('#rogueChoiceGrid .mpGroupVoteOption.wardDraftChoice').length===3,
+    null,{timeout:12000});
+  const pickedWard=await host.evaluate(()=>S.multiplayerVote.options[0].actionKey.slice(5));
+  await host.locator('#rogueChoiceGrid .mpGroupVoteOption.wardDraftChoice').first().click();
+  await host.waitForFunction(key=>S?.wardcraft?.selected===key&&!S?.multiplayerVote?.open,
+    pickedWard,{timeout:16000});
+  await guest.waitForFunction(key=>S?.wardcraft?.selected===key,
+    pickedWard,{timeout:16000});
+  console.log('LIVE MULTIPLAYER WARD CHOICE PASSED:',pickedWard);
 
   // Regression: the shared-state restore path used to replace Priest cards
   // with base definitions, deleting empowered status and merge discounts.
