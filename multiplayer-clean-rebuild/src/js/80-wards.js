@@ -31,6 +31,9 @@ function ensure(){
  const a=S.wardcraft;
  if(!Array.isArray(a.offers))a.offers=[];
  if(a.lastPlacementRound==null)a.lastPlacementRound=-1;
+ // Older saves have no combat counter; keep their current offer, and estimate
+ // previous combat progress from the last floor on which a Ward was offered.
+ if(!Number.isInteger(a.combatPassages)||a.combatPassages<0)a.combatPassages=Math.max(0,Math.floor(Number(a.floor)||0));
  if(a.active&&(!lookup(a.active.key)||!Number.isInteger(a.active.room)||a.active.room<0||a.active.room>3))a.active=null;
  return a;
 }
@@ -200,20 +203,35 @@ function showPendingDraft(){
  }
  draftAttempts=0;
 }
+// Draft one shared Ward on every third combat passage. Sanctuary and
+// Repository routes do not consume a combat passage toward the next draft.
+const WARD_OFFER_INTERVAL=3;
 function offer(force=false){
  const a=ensure(),r=S?.rogue;
  if(!a||!r?.enabled||!S.started||r.nodeType==='repository'||r.nodeType==='sanctuary'||['Defeat','Victory'].includes(S.phase))return;
  const floor=Math.max(1,Number(r.floor)||1);
- if(a.floor===floor&&!force){
+ if(a.floor===floor){
+   if(force&&a.combatPassages%WARD_OFFER_INTERVAL===0&&!a.selected&&!a.active){a.offers=shuffled();publishRender();}
    if(a.offers.length&&!a.selected&&!a.active)queueDraft(120);
    return;
  }
- a.floor=floor;a.active=null;a.selected=null;a.offers=shuffled();a.lastPlacementRound=-1;
- draftAttempts=0;
+ clearDraftRetry();draftAttempts=0;
+ a.floor=floor;a.combatPassages++;
+ a.active=null;a.selected=null;a.offers=[];a.lastPlacementRound=-1;
+ if(a.combatPassages%WARD_OFFER_INTERVAL!==0){publishRender();return;}
+ a.offers=shuffled();
  publishRender();
- // Do not open a different choice inside the game-start state commit.
- // In single player the popup appears immediately; online it waits for host authority.
+ // The first online draft waits until host state has committed to Supabase.
  queueDraft(onlineReadyDelay());
+}
+function closePassage(){
+ expire('passage ended');
+ clearDraftRetry();draftAttempts=0;
+ const a=ensure();if(!a)return;
+ a.offers=[];a.selected=null;a.active=null;a.lastPlacementRound=-1;
+ const modal=document.getElementById('rogueChoiceModal');
+ if(modal)delete modal.dataset.wardDraftFloor;
+ publishRender();
 }
 function onlineReadyDelay(){
  const state=typeof window.__sanctumWardOnlineInfo==='function'?window.__sanctumWardOnlineInfo():null;
@@ -267,7 +285,7 @@ function addInterface(){
  if(!section)return;
  const bar=document.createElement('div');
  bar.className='wardcraft-bar';bar.id='wardcraftBar';
- bar.innerHTML='<span class="wardcraft-label">WARDCRAFT</span><span id="wardcraftStatus">Choose a Ward when a combat passage begins.</span><button type="button" class="btn" id="wardcraftCast" disabled>Place Ward</button>';
+ bar.innerHTML='<span class="wardcraft-label">WARDCRAFT</span><span id="wardcraftStatus">Ward draft every 3 combat passages.</span><button type="button" class="btn" id="wardcraftCast" disabled>Place Ward</button>';
  section.parentNode.insertBefore(bar,section);
  const inlineDraft=document.createElement('div');
  inlineDraft.id='wardcraftInlineDraft';inlineDraft.className='wardcraft-inline-draft';inlineDraft.hidden=true;
@@ -313,7 +331,7 @@ function renderWardUI(){
    if(w){label.textContent=w.name+' · '+ROOM_NAMES[a.room]+' · '+a.charges+' charge(s) · '+a.phasesLeft+' Demon Phase(s)';cast.textContent='Ward Active';cast.disabled=true;}
    else if(offer){label.textContent=offer.name+' · '+fmt(offer)+(state.lastPlacementRound===S.round?' · Placed this round':'');cast.textContent='Place Ward';cast.disabled=!!refuseText(offer,allowed(offer)[0]);}
    else if(state.offers.length){label.textContent='Choose 1 of 3 offered Wards for Floor '+state.floor;cast.textContent='Choose Ward';cast.disabled=!!document.body.classList.contains('mpWaitingTurn');}
-   else {label.textContent=S?.started?'No Ward prepared':'Choose a Ward when a passage begins.';cast.textContent='Place Ward';cast.disabled=true;}
+   else {const count=Math.max(0,Number(state.combatPassages)||0),left=WARD_OFFER_INTERVAL-(count%WARD_OFFER_INTERVAL);label.textContent=S?.started?'Next Ward draft in '+left+' combat passage'+(left===1?'':'s'):'Ward draft every 3 combat passages';cast.textContent='Place Ward';cast.disabled=true;}
    bar.hidden=!S?.started||!S.rogue?.enabled;
    // Old saves and reconnects may contain pending Ward offers without an open dialog.
    if(state.offers.length&&!state.selected&&!state.active&&!draftRetryTimer&&!S.multiplayerVote?.open){
@@ -440,6 +458,6 @@ if(typeof render==='function'){
 const start=document.getElementById('startBtn');
 if(start&&typeof startGame==='function')start.onclick=()=>startGame();
 window.__sanctumWardOpenPassage=offer;
-window.__sanctumWardClosePassage=expire;
-window.__sanctumWards={definitions:WARDS,choose,place,offer,ensure,expire,render:renderWardUI,reopenDraft:()=>queueDraft(0)};
+window.__sanctumWardClosePassage=closePassage;
+window.__sanctumWards={definitions:WARDS,choose,place,offer,ensure,expire,closePassage,interval:WARD_OFFER_INTERVAL,render:renderWardUI,reopenDraft:()=>queueDraft(0)};
 })();
