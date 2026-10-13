@@ -152,8 +152,8 @@ function offer(force=false){
    return {title:w.name,icon:'✧',actionKey:'ward:'+key,cls:'wardDraftChoice',desc:w.desc,reward:fmt(w),html:'<div class="ward-draft-art" style="'+artStyle(w)+'"></div><div class="ward-draft-body"><h3>'+esc(w.name)+'</h3><small>'+esc(w.category)+' · '+esc(fmt(w))+'</small><p>'+esc(w.desc)+'</p><span class="nodeReward">Unlock for this passage</span></div>',action:()=>choose(key)};
  });
  if(floor===1&&!force){publishRender();return;}
- if(typeof rogueShowChoice==='function'){
-   rogueShowChoice('Floor '+floor+' · Wardcraft','Choose a Ward','Select one of three runes. The entire team may use the chosen Ward once this combat passage.',offerings);
+ if(typeof window.__sanctumWardShowChoice==='function'){
+   window.__sanctumWardShowChoice('Floor '+floor+' · Wardcraft','Choose a Ward','Select one of three runes. The entire team may use the chosen Ward once this combat passage.',offerings);
  }
 }
 function refuseText(w,room){
@@ -356,24 +356,6 @@ if(typeof endRound==='function'){
    return base.apply(this,arguments);
  };
 }
-if(typeof rogueliteInitializeRun==='function'){
- const base=rogueliteInitializeRun;
- rogueliteInitializeRun=function(){
-   const out=base.apply(this,arguments);
-   // The initial combat passage has no route-selection modal.
-   if(S?.started)offer();
-   return out;
- };
-}
-if(typeof rogueliteEnterCurrentFloor==='function'){
- const base=rogueliteEnterCurrentFloor;
- rogueliteEnterCurrentFloor=function(type){
-   expire('passage complete');
-   const out=base.apply(this,arguments);
-   offer();
-   return out;
- };
-}
 if(typeof render==='function'){
  const base=render;render=function(){
    const out=base.apply(this,arguments);
@@ -386,5 +368,7 @@ if(typeof render==='function'){
 // Rebind it so the new-run Ward draft is opened through the live function.
 const start=document.getElementById('startBtn');
 if(start&&typeof startGame==='function')start.onclick=()=>startGame();
+window.__sanctumWardOpenPassage=offer;
+window.__sanctumWardClosePassage=expire;
 window.__sanctumWards={definitions:WARDS,choose,place,offer,ensure,expire,render:renderWardUI};
 })();

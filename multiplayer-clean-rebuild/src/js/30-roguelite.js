@@ -288,6 +288,7 @@ function rogueShowChoice(eyebrow,title,text,choices){
  modal.classList.remove('hidden');
  setTimeout(()=>grid.querySelector('button')?.focus(),0);
 }
+window.__sanctumWardShowChoice=(eyebrow,title,message,choices)=>rogueShowChoice(eyebrow,title,message,choices);
 function rogueStartNextRound(){
  if(S.altar<=0)return;
  // A floor transition is a clean tactical break, then the original round-start logic resumes.
@@ -341,6 +342,7 @@ function rogueliteInitializeRun(){
  S.bossRevealed=false;S.bossDefeatHandled=false;S.pendingBossChoice=false;S.pendingVictory=false;
  log(`ROGUELITE RUN — Act 1, Floor 1. Defeat ${r.encounterGoal} Demons to clear the first encounter.`,'good');
  render();
+ if(typeof window.__sanctumWardOpenPassage==='function')window.__sanctumWardOpenPassage();
 }
 function rogueliteMutateDemon(d){
  if(!d||!S?.rogue?.enabled)return;
@@ -361,6 +363,7 @@ window.__rogueliteMutateDemon=rogueliteMutateDemon;
 function rogueliteEnterCurrentFloor(type){
  let r=rogueState();r.cycle=rogueCycle();r.act=rogueAct();r.pendingClear=false;r.encounterDefeats=0;r.bossFloor=rogueIsBossFloor();
  rogueClearRooms();S.pendingBossChoice=false;S.pendingVictory=false;
+ if(typeof window.__sanctumWardClosePassage==='function')window.__sanctumWardClosePassage('passage ended');
  rogueShuffleDemonDeckForPassage(`Passage ${r.floor}`);
  if(r.bossFloor){
    r.nodeType='boss';r.nodeName='Boss Gate';
@@ -370,7 +373,9 @@ function rogueliteEnterCurrentFloor(type){
    // Bosses retain the original ability package, then scale with Ascension and cumulative floor depth.
    let pacing=.55+((rogueAct()-1)*.08),mult=rogueDifficultyMultiplier(),floorHp=rogueFloorHealthMultiplier();S.boss.hp=Math.max(42,Math.round(S.boss.hp*pacing*mult*floorHp));S.boss.cur=S.boss.hp;
    log(`BOSS GATE — Cycle ${rogueCycle()}, Act ${rogueAct()}, Floor ${rogueCycleFloorFor(r.floor)}. ${S.boss.n} seals the descent at ${S.boss.hp} HP (${mult}× Ascension • ${floorHp.toFixed(2)}× floor HP • ${rogueFloorDamageMultiplier().toFixed(2)}× floor damage).`,'bad');
-   rogueStartNextRound();render();return;
+   rogueStartNextRound();render();
+   if(typeof window.__sanctumWardOpenPassage==='function')window.__sanctumWardOpenPassage();
+   return;
  }
  S.bossRevealed=false;S.bossDefeatHandled=false;r.nodeType=type||'battle';r.nodeName=rogueNode(r.nodeType).name;r.encounterGoal=rogueGoalFor(r.nodeType);
  if(r.nodeType==='sanctuary'){
@@ -386,6 +391,7 @@ function rogueliteEnterCurrentFloor(type){
  let opening=S.players.length===1?1:2;for(let i=0;i<opening;i++)spawnOne(false);
  log(`CYCLE ${rogueCycle()} • ACT ${rogueAct()} • FLOOR ${rogueCycleFloorFor(r.floor)} — ${r.nodeName}. Defeat ${r.encounterGoal} Demons to advance at ${rogueDifficultyMultiplier()}× Ascension difficulty, ${rogueFloorHealthMultiplier().toFixed(2)}× floor HP, and ${rogueFloorDamageMultiplier().toFixed(2)}× floor damage.`,'good');
  rogueStartNextRound();render();
+ if(typeof window.__sanctumWardOpenPassage==='function')window.__sanctumWardOpenPassage();
 }
 function rogueliteAfterDemonDefeat(){
  let r=rogueState();if(!r.enabled||r.bossFloor||r.pendingClear||['Victory','Defeat'].includes(S.phase))return;
