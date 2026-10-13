@@ -164,13 +164,21 @@ if(rogueSource.includes("Math.random()<0.25")||rogueSource.includes("rogueReposi
   throw new Error('Sinking Repository still has random access or a two-visit cap.');
 }
 if(!rogueSource.includes("r.cindersRun-=cost")) throw new Error('Sinking Repository purchases must spend unbanked run Cinders.');
-if(!rogueSource.includes("[.50,.625,.75,.875,1]")) throw new Error('Sinking Repository price ladder must run from 50% to 100%.');
+if(!rogueSource.includes("return {relic:10+2*tier,candles:8+2*tier,folio:12+2*tier};")) throw new Error('Fixed shop prices must be 10/8/12, 12/10/14, 14/12/16 for cycles 1, 2, 3+.');
 
-if(!rogueSource.includes('function rogueFloorHealthMultiplier(){return 1+(0.05*Math.max')){
-  throw new Error('Roguelite HP growth must be 5% per floor.');
+if(!rogueSource.includes('function rogueDifficultyMultiplier(){return Math.pow(1.5,')||
+   !rogueSource.includes('function rogueFloorHealthMultiplier(){return 1+(0.03*Math.max(0,rogueCycleFloorFor')||
+   !rogueSource.includes('function rogueFloorDamageMultiplier(){return 1+(0.03*Math.max(0,rogueCycleFloorFor')){
+  throw new Error('Roguelite must scale +3% per floor within each cycle and ×1.5 per new cycle.');
 }
-if(!rogueSource.includes('function rogueFloorDamageMultiplier(){return 1+(0.05*Math.max')){
-  throw new Error('Roguelite damage growth must remain 5% per floor.');
+if(!rogueSource.includes('function rogueRelicXpNeed(){let r=rogueState();return 20+8*')){
+  throw new Error('Relic XP must start at 20 and rise by 8.');
+}
+if(!rogueSource.includes('repositoryFolioPurchases')||!rogueSource.includes(">=2){showGameStatus('The Forbidden Folio limit")){
+  throw new Error('Run-only Forbidden Folio cap of two is missing.');
+}
+if(!rogueSource.includes('base+actBonus+bossDifference+cycleBonus')){
+  throw new Error('Roguelite Boss phase damage must use flat player/Act/Cycle progression.');
 }
 
 for(const token of [
@@ -250,7 +258,7 @@ for(const token of [
   '15+((S&&S.relicMods&&S.relicMods.crit)||0)',
   "S.players.length===3?.90:1.10",
   'if(S.players.length>=4)return 3',
-  'return n>=4?35:n===3?20:n===2?15:10'
+  'return n>=4?32:n===3?23:n===2?15:10'
 ]){
   if(!engine.includes(token)) throw new Error('Player-count / crit balance wiring missing: '+token);
 }
