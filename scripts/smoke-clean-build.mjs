@@ -83,6 +83,43 @@ if(demonCards.types!==35||demonCards.added!==10||demonCards.physical!==140||
 console.log('NEW DEMON CARDS SMOKE:',JSON.stringify(demonCards));
 
 
+// Lightweight targeted check: Thorn Martyr's actual damage hook, not a deck
+// audit. Check Lesser and Greater forms, both ordinary and lethal hits, and
+// ensure blocked/zero-damage hits do not trigger retaliation.
+const thorn=await page.evaluate(()=>{
+  const def=DEMON_TYPES.find(x=>x.key==='new_thorn_martyr');
+  if(!def)throw Error('Thorn Martyr definition missing');
+  const checks=[];
+  for(const greater of [false,true]){
+    for(const hit of ['ordinary','lethal','zero']){
+      S=freshState();
+      S.started=true;
+      S.phase='Priest';
+      S.boss={...BOSSES[0],cur:BOSSES[0].hp};
+      S.players=[{
+        name:'Thorn Check',char:Object.keys(CHARACTERS)[0],
+        blood:0,hand:[],basic:false,ritualUsed:[false,false,false],
+        forceEmpower:false,discardUsed:false,consecrateUsed:false
+      }];
+      S.rogue={enabled:false};
+      S.priestDeck=buildPriestDeck();
+      S.demonDeck=buildDemonDeck();
+      S.relicDeck=RELICS.map(r=>r.key);
+      S.altar=20;
+      const demon={...def,id:'thorn-check',greater,cur:greater?def.ghp:def.hp,status:{}};
+      S.rooms[0].push(demon);
+      const amount=hit==='zero'?0:hit==='lethal'?demon.cur+3:1;
+      damageDemon(demon,amount,'Thorn Martyr targeted smoke check');
+      const expected=20-(hit==='zero'?0:greater?2:1);
+      checks.push({greater,hit,altar:S.altar,expected});
+      if(S.altar!==expected)throw Error('Thorn Martyr did not retaliate: '+JSON.stringify(checks.at(-1)));
+    }
+  }
+  S=freshState();
+  return checks;
+});
+console.log('THORN MARTYR TARGETED SMOKE:',JSON.stringify(thorn));
+
 // Regression: the host's lobby must refresh when a guest joins, even if
 // local gameplay state is stale and the Realtime channel emits no INSERT.
 const lobbyPage=await browser.newPage({viewport:{width:1280,height:720}});
