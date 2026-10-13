@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v28';
+const CACHE_NAME='sanctum-clean-v29';
 const CORE=[
   './',
   './index.html',
@@ -20,7 +20,16 @@ const CORE=[
   './src/js/60-multiplayer.js',
   './src/js/70-multiplayer-patches.js',
   './src/js/80-wards.js',
-  './assets/wards/ward-art-sprite.webp',
+  './assets/wards/ward-cinder.webp',
+  './assets/wards/ward-thorns.webp',
+  './assets/wards/ward-chains.webp',
+  './assets/wards/ward-bell.webp',
+  './assets/wards/ward-silence.webp',
+  './assets/wards/ward-lantern.webp',
+  './assets/wards/ward-vigil.webp',
+  './assets/wards/ward-absolution.webp',
+  './assets/wards/ward-siphon.webp',
+  './assets/wards/ward-chalice.webp',
   './assets/bosses/boss-sprite.webp',
   './assets/embedded/demon-art-pending.svg',
   './assets/embedded/new_hollow_scribe.webp',
