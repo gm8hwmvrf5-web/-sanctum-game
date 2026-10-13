@@ -83,7 +83,7 @@ const RELICS=[
 ];
 function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
 function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
-function basicAttackDamage(){return 2+((S&&S.relicMods&&S.relicMods.basic)||0)}
+function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0);return 2+(raw<=5?raw:5+Math.floor((raw-5)/2))}
 function basicAttackCritChance(){return Math.max(0,Math.min(100,15+((S&&S.relicMods&&S.relicMods.crit)||0)))}
 function ritualScale(n){return Math.ceil(n*1.2)}
 function ritualBoost(n){return ritualScale(n)+((S&&S.relicMods&&S.relicMods.ritual)||0)}
