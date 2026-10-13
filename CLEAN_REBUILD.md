@@ -40,3 +40,7 @@ Ten unique Wards have 3-choice drafts at the start of every third combat passage
 ### Wardcraft high-resolution illustrations
 
 Ten individual optimized 900 × 600 WebP illustrations are stored in `assets/wards/ward-<key>.webp` and selected by their Ward key. The Ward selection modal, inline selector, and translucent under-card room glow all reuse the same image. The old low-resolution sprite is not loaded. Keep Ward colors, layering, and the live mechanic state unchanged when adjusting artwork. Each optimized image is approximately 130–170 KB, compared with the previous 3.7 KB sprite for all ten images.
+
+### Sinking Repository after Bosses
+
+The Sinking Repository now appears as a **guaranteed, separate stop after every Boss** (cycle floors 5, 10, and 15). Bosses on floors 5 and 10 still give their normal act rewards before the shop; the floor-15 shop opens before unspent Cinders bank at the Legacy checkpoint. The random route appearance, eight-Cinder requirement, and two-visits-per-cycle limit are removed. Purchases remain run-only; the shop can be left without buying. Its offers are limited to what the party can afford, with a free exit even at zero Cinders. The shop does not consume another floor or change Ward drafting cadence.
