@@ -1039,15 +1039,23 @@ function bossDrainAmount(){
  return S.boss.b;
 }
 async function runBossPhase(){S.phase='Boss';ensureBossFlags();log(`${S.boss.n} begins its Boss Phase.`,"bad");render();if(bossIs("crimsonOracle"))await crimsonProphecy();let drain=bossDrainAmount();damageAltar(drain,`${S.boss.n} Boss Rule (${drain} scaled from ${S.boss.b})`);if(S.altar<=0)return;switch(S.boss.key){case"blackSovereign":spawnBossSummonedLesser(1);break;case"boneKing":recallOldestDefeated();break;case"gatebreaker":spawnBossSummonedLesser(2);break;case"lordOfAsh":spawnBossSummonedLesser(1,true);break;case"dreadReaper":recallOldestDefeated();break;case"devourer":spawnBossSummonedLesser(1);break}if(bossIs("plagueFather"))plagueBloom();endRound()}
-function sharedManaRoundValue(){let n=Number(S?.players?.length||1);return n>=4?35:n===3?20:n===2?15:10}
-// Demon-Phase Mana losses must survive the automatic refill before the next Priest turn.
+function sharedManaRoundValue(){let n=Number(S?.players?.length||1);return n>=4?32:n===3?23:n===2?15:10}
+// The combined Demon/Boss-phase Mana penalty survives the refill, but is
+// capped by party size. Priest-phase drains and card taxes remain uncapped.
+function demonPhaseManaPenaltyCap(){
+ const count=Number(S?.players?.length||1);
+ return count>=4?8:count===3?6:count===2?4:3;
+}
 function drainSharedManaByDemon(amount,source='Demon ability'){
- const drain=Math.max(0,Math.floor(Number(amount)||0));
- if(!drain)return;
+ const requested=Math.max(0,Math.floor(Number(amount)||0));
+ if(!requested)return;
  const pending=S.phase==='Demon'||S.phase==='Boss';
- if(pending)S.pendingDemonManaDrain=Math.max(0,Number(S.pendingDemonManaDrain)||0)+drain;
- addMana(-drain);
- log(`${source} drains ${drain} shared Mana${pending?' from the next Priest round':''}.`,'bad');
+ const already=Math.max(0,Number(S.pendingDemonManaDrain)||0);
+ const drain=pending?Math.min(requested,Math.max(0,demonPhaseManaPenaltyCap()-already)):requested;
+ if(pending)S.pendingDemonManaDrain=already+drain;
+ if(drain)addMana(-drain);
+ if(drain)log(`${source} drains ${drain} shared Mana${pending?' from the next Priest round':''}.`,'bad');
+ if(drain<requested)log(`Shared Mana drain limit reached: ${demonPhaseManaPenaltyCap()} per Demon Phase.`,'info');
 }
 /* Multiplayer Mana gains/losses use the same player-count pool cap as round resets.
    This fixes Mana Blessing and every other addMana() effect still inheriting the old 10-Mana ceiling. */
@@ -1303,7 +1311,7 @@ async function processOverflowDamageQueue(){
  damageDemon(pick.d,item.amount,item.source,{...item.opts,allowOverflow:true});
  if(document.getElementById('crucifixModal').classList.contains('hidden')&&overflowDamageQueue.length)setTimeout(processOverflowDamageQueue,0);
 }
-function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(opts.basicAttack&&code==='basicArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Basic Attack damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(code==='hurtAltar'&&dealt>0){damageAltar(v,`${demonName(d)}'s retaliation`)}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
+function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(opts.basicAttack&&code==='basicArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Basic Attack damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(code==='hurtAltar'&&dealt>0&&S.phase==='Priest'&&d.status.hurtAltarLastRound!==S.round){d.status.hurtAltarLastRound=S.round;damageAltar(v,`${demonName(d)}'s retaliation`)}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
 function findDemonLocation(d){for(let r=0;r<4;r++){let i=S.rooms[r].findIndex(x=>x.id===d.id);if(i>=0)return {r,i}}return null}
 function distributeKillBlood(n,killerIndex=null){
  n=Math.max(0,Number(n)||0);
