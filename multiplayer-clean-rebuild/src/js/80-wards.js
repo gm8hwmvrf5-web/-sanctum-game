@@ -20,7 +20,7 @@ const WARDS=Object.freeze([
 const lookup=key=>WARDS.find(w=>w.key===key)||null;
 const fmt=w=>w.mana+' Mana'+(w.blood?' + '+w.blood+' Blood':'');
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const artStyle=w=>'--ward-slot:'+w.art+';--ward-color:'+w.color+';';
+const artStyle=w=>'--ward-slot:'+w.art+';--ward-position:'+(w.art*100/9).toFixed(4)+'%;--ward-color:'+w.color+';';
 const activeWard=()=>S?.wardcraft?.active||null;
 const stage=()=>S&&S.started&&S.phase==='Priest'&&S.rogue?.enabled&&S.rogue.nodeType!=='repository'&&S.rogue.nodeType!=='sanctuary'&&!S.rogue.pendingClear;
 const allowed=w=>Array.isArray(w.rooms)?w.rooms:[0,1,2,3];
@@ -58,7 +58,7 @@ function applyEntrance(d,room){
  if(!w||!d||typeof findDemonLocation!=='function'||!findDemonLocation(d))return;
  // A Cinder Sigil can strike only once per Demon Phase even if many Demons enter.
  const a=activeWard();
- if(w.key==='cinder'&&a.lastEnterRound===S.round)return;
+ if(w.key==='cinder'&&(S.phase!=='Demon'||a.lastEnterRound===S.round))return;
  if(w.key==='cinder')a.lastEnterRound=S.round;
  consume(w);
  if(w.key==='cinder'){
@@ -151,6 +151,7 @@ function offer(force=false){
    const w=lookup(key);
    return {title:w.name,icon:'✧',actionKey:'ward:'+key,cls:'wardDraftChoice',desc:w.desc,reward:fmt(w),html:'<div class="ward-draft-art" style="'+artStyle(w)+'"></div><div class="ward-draft-body"><h3>'+esc(w.name)+'</h3><small>'+esc(w.category)+' · '+esc(fmt(w))+'</small><p>'+esc(w.desc)+'</p><span class="nodeReward">Unlock for this passage</span></div>',action:()=>choose(key)};
  });
+ if(floor===1&&!force){publishRender();return;}
  if(typeof rogueShowChoice==='function'){
    rogueShowChoice('Floor '+floor+' · Wardcraft','Choose a Ward','Select one of three runes. The entire team may use the chosen Ward once this combat passage.',offerings);
  }
@@ -205,6 +206,9 @@ function addInterface(){
  bar.className='wardcraft-bar';bar.id='wardcraftBar';
  bar.innerHTML='<span class="wardcraft-label">WARDCRAFT</span><span id="wardcraftStatus">Choose a Ward when a combat passage begins.</span><button type="button" class="btn" id="wardcraftCast" disabled>Place Ward</button>';
  section.parentNode.insertBefore(bar,section);
+ const inlineDraft=document.createElement('div');
+ inlineDraft.id='wardcraftInlineDraft';inlineDraft.className='wardcraft-inline-draft';inlineDraft.hidden=true;
+ bar.insertAdjacentElement('afterend',inlineDraft);
  bar.querySelector('#wardcraftCast').addEventListener('click',castPopup);
  const modal=document.createElement('div');
  modal.id='wardCastModal';modal.className='modal hidden ward-cast-modal';
@@ -217,6 +221,26 @@ function addInterface(){
 function renderWardUI(){
  const state=ensure();if(!state)return;
  const a=state.active,w=a&&lookup(a.key),offer=lookup(state.selected),bar=document.getElementById('wardcraftBar');
+ const inline=document.getElementById('wardcraftInlineDraft');
+ if(inline){
+   const show=!!(S?.started&&state.floor===1&&state.offers.length&&!state.selected&&!state.active);
+   inline.hidden=!show;
+   if(show){
+     const signature=state.offers.join('|');
+     if(inline.dataset.offers!==signature){
+       inline.dataset.offers=signature;
+       inline.innerHTML='<div class="wardcraft-inline-title">Choose one Ward for the opening passage</div>'+state.offers.map(key=>{
+         const def=lookup(key);
+         return '<button type="button" class="wardcraft-inline-option" data-ward-inline="'+esc(key)+'" style="'+artStyle(def)+'"><span class="wardcraft-inline-art"></span><b>'+esc(def.name)+'</b><small>'+esc(fmt(def))+'</small></button>';
+       }).join('');
+       inline.querySelectorAll('[data-ward-inline]').forEach(b=>b.onclick=()=>{
+         if(document.body.classList.contains('mpWaitingTurn'))return;
+         if(!stage())return;
+         choose(b.dataset.wardInline);
+       });
+     }
+   }else inline.dataset.offers='';
+ }
  if(bar){
    const label=bar.querySelector('#wardcraftStatus'),cast=bar.querySelector('#wardcraftCast');
    if(w){label.textContent=w.name+' · '+ROOM_NAMES[a.room]+' · '+a.charges+' charge(s) · '+a.phasesLeft+' Demon Phase(s)';cast.disabled=true;}
@@ -236,6 +260,7 @@ function renderWardUI(){
    let veil=existing;
    if(!veil){veil=document.createElement('div');veil.className='wardcraft-veil';veil.setAttribute('aria-hidden','true');veil.innerHTML='<div class="wardcraft-illustration"></div><div class="wardcraft-ring"></div>';room.insertBefore(veil,room.firstChild);}
    veil.style.setProperty('--ward-slot',w.art);
+   veil.style.setProperty('--ward-position',(w.art*100/9).toFixed(4)+'%');
    if(!badge){const b=document.createElement('button');b.type='button';b.className='wardcraft-badge';b.onclick=()=>{const now=activeWard(),def=now&&lookup(now.key);if(def)alert(def.name+'\n'+def.desc+'\n'+now.charges+' charge(s), '+now.phasesLeft+' Demon Phase(s) remaining.');};room.appendChild(b);}
    const b=room.querySelector('.wardcraft-badge');
    b.textContent='✧ '+w.name+' · '+a.charges;

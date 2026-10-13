@@ -6,14 +6,14 @@
 #wardcraftCast{white-space:nowrap}
 .wardcraft-active{position:relative!important;outline:2px solid var(--ward-glow,#ffd293)!important;outline-offset:-2px!important;animation:wardBorderPulse 3.2s ease-in-out infinite}
 .wardcraft-veil{position:absolute!important;inset:0;overflow:hidden;pointer-events:none;z-index:2!important;border-radius:inherit;display:block}
-.wardcraft-illustration{position:absolute;left:22%;top:0;bottom:0;width:56%;background-image:url('../../assets/wards/ward-art-sprite.webp');background-repeat:no-repeat;background-size:1000% 100%;background-position:calc(var(--ward-slot)*100%/9) 50%;opacity:.20;filter:saturate(1.2) contrast(1.12);mask-image:radial-gradient(ellipse,#000 15%,transparent 85%)}
+.wardcraft-illustration{position:absolute;left:22%;top:0;bottom:0;width:56%;background-image:url('../../assets/wards/ward-art-sprite.webp');background-repeat:no-repeat;background-size:1000% 100%;background-position:var(--ward-position,0%) 50%;opacity:.20;filter:saturate(1.2) contrast(1.12);mask-image:radial-gradient(ellipse,#000 15%,transparent 85%)}
 .wardcraft-ring{position:absolute;inset:1px;border:2px solid var(--ward-glow);border-radius:inherit;box-shadow:inset 0 0 21px var(--ward-glow),inset 0 0 7px var(--ward-glow);opacity:.43;animation:wardInnerPulse 3.2s ease-in-out infinite}
 .wardcraft-active .demons,.wardcraft-active .roomMeta,.wardcraft-active h3{z-index:3!important;position:relative}
 .wardcraft-badge{position:absolute!important;right:4px;bottom:3px;z-index:5;border:1px solid var(--ward-glow);background:rgba(10,7,16,.95);color:#fff1d6;font:600 9px Georgia,serif;padding:3px 5px;border-radius:3px;max-width:92%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;text-shadow:0 1px #000}
 .ward-cast-modal{z-index:10030!important}.ward-cast-box{max-width:520px!important;text-align:center}
 .ward-cast-description{line-height:1.4;color:#d2bd9e}
 .ward-cast-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
-.ward-draft-art{width:100%;height:145px;background-image:url('../../assets/wards/ward-art-sprite.webp');background-size:1000% 100%;background-position:calc(var(--ward-slot)*100%/9) center;background-repeat:no-repeat;border-bottom:1px solid var(--ward-color,#b58b5e);border-radius:5px 5px 0 0}
+.ward-draft-art{width:100%;height:145px;background-image:url('../../assets/wards/ward-art-sprite.webp');background-size:1000% 100%;background-position:var(--ward-position,0%) center;background-repeat:no-repeat;border-bottom:1px solid var(--ward-color,#b58b5e);border-radius:5px 5px 0 0}
 .ward-draft-body{padding:8px}
 .ward-draft-body h3{margin:0 0 5px!important;color:#f4ddae;font:700 15px Georgia,serif!important}
 .ward-draft-body small{font-size:10px;color:#ecd5a4}
@@ -25,3 +25,13 @@
 @media(max-width:760px){.wardcraft-bar{gap:4px;margin:0 0 4px;padding:3px 5px;min-height:31px}.wardcraft-label{font-size:10px}#wardcraftStatus{font-size:9px;min-width:105px}#wardcraftCast{font-size:10px;padding:5px 7px}.wardcraft-badge{font-size:8px}.ward-draft-art{height:110px}.ward-draft-body{padding:5px}.ward-draft-body h3{font-size:12px!important}.ward-draft-body p{font-size:10px}}
 @media (orientation:landscape) and (max-height:520px) and (max-width:1000px){.wardcraft-bar{min-height:25px;padding:2px 5px}.wardcraft-label{font-size:9px}.ward-draft-art{height:65px}.ward-draft-body p{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.wardcraft-active,.wardcraft-ring{animation:none!important}}
+
+.wardcraft-inline-draft[hidden]{display:none!important}
+.wardcraft-inline-draft{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:6px;margin:-4px 0 8px;border:1px solid #765735;border-radius:6px;background:#130f16}
+.wardcraft-inline-title{grid-column:1/-1;font:700 12px Georgia,serif;color:#f2d5a6}
+.wardcraft-inline-option{min-width:0;cursor:pointer;border:1px solid var(--ward-color,#ac8050);border-radius:6px;background:#211923;color:#e5d7c6;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.wardcraft-inline-art{background-image:url('../../assets/wards/ward-art-sprite.webp');background-size:1000% 100%;background-repeat:no-repeat;background-position:var(--ward-position,0%) center;width:100%;height:85px;border-radius:4px}
+.wardcraft-inline-option b{font:700 12px Georgia,serif}.wardcraft-inline-option small{font-size:10px;color:#e4c391}
+.wardcraft-inline-option:focus-visible{outline:2px solid #ffdfaa;outline-offset:2px}
+@media(max-width:760px){.wardcraft-inline-art{height:70px}.wardcraft-inline-draft{gap:3px;padding:3px}.wardcraft-inline-option b{font-size:9px}.wardcraft-inline-option small{font-size:8px}.wardcraft-inline-title{font-size:10px}}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){.wardcraft-inline-art{height:45px}}
