@@ -65,6 +65,18 @@ try {
    check(choiceTitle()==='Choose Your Route','Purchased store item did not resume route');
    output.push({bossFloor:10,store:true,purchasedCandle:true,routeAfterStore:true});
 
+   // Buying a random Relic must wait for its close popup and then advance.
+   reset(10,30);
+   defeatBossIfNeeded();
+   clickChoice('Purification');
+   checkStore(10,'route');
+   clickChoice('Relic for this run');
+   check(!document.getElementById('relicModal').classList.contains('hidden'),'Purchased Relic popup missing');
+   check(S.relicPopupQueue?.[0]?.after==='repositoryContinue','Purchased Relic lost shop continuation');
+   document.getElementById('relicClose').click();
+   check(choiceTitle()==='Choose Your Route','Relic popup close did not resume the next route');
+   output.push({bossFloor:10,store:true,purchasedRelic:true,relicPopupContinuation:true});
+
    reset(15,7);
    defeatBossIfNeeded();
    checkStore(15,'cycleCheckpoint');
