@@ -23,7 +23,7 @@ const ROGUE_UPGRADES={
 };
 let rogueModalActions=[];
 
-function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryPendingBossFloor:0,repositoryResume:null,repositoryVisitedBossFloor:0,repositoryFolioPurchases:0,repositoryCandleReduction:0,history:[],lastReward:'',runStartedAt:Date.now()}}
+function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryPendingBossFloor:0,repositoryResume:null,repositoryVisitedBossFloor:0,repositoryFolioPurchases:0,repositoryCandleReduction:0,sanctuaryVisits:{},history:[],lastReward:'',runStartedAt:Date.now()}}
 function rogueState(){if(!S.rogue||typeof S.rogue!=='object')S.rogue=rogueDefaultState();return S.rogue}
 function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,basicAttack:0,relicXpGain:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
 function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify(m));return true}catch(e){console.warn('Legacy storage unavailable',e);return false}}
@@ -31,7 +31,9 @@ function rogueLegacyBasicAttackBonus(){return Math.max(0,Number(S?.rogue?.legacy
 function rogueLegacyRelicXpBonus(){return Math.max(0,Number(S?.rogue?.legacyRelicXpBonus)||0)}
 window.basicAttackDamage=function(){
  let relicBonus=Math.max(0,Number(S?.relicMods?.basic)||0);
- return 2+relicBonus+rogueLegacyBasicAttackBonus();
+ // After +5 raw Relic attack, every two extra raw points provide +1.
+ let effectiveRelicBonus=relicBonus<=5?relicBonus:5+Math.floor((relicBonus-5)/2);
+ return 2+effectiveRelicBonus+rogueLegacyBasicAttackBonus();
 };
 function rogueCycleForFloor(f){return Math.floor((Math.max(1,Number(f)||1)-1)/15)+1}
 function rogueCycleFloorFor(f){return ((Math.max(1,Number(f)||1)-1)%15)+1}
@@ -393,6 +395,8 @@ function rogueliteEnterCurrentFloor(type){
  }
  S.bossRevealed=false;S.bossDefeatHandled=false;r.nodeType=type||'battle';r.nodeName=rogueNode(r.nodeType).name;r.encounterGoal=rogueGoalFor(r.nodeType);
  if(r.nodeType==='sanctuary'){
+   r.sanctuaryVisits=(r.sanctuaryVisits&&typeof r.sanctuaryVisits==='object')?r.sanctuaryVisits:{};
+   r.sanctuaryVisits[rogueCycle()+':'+rogueAct()]=true;
    S.phase='Sanctuary';clearTurnTimerInterval();rogueAddCinders(1,'the Sanctuary is reached');render();setTimeout(rogueliteOpenSanctuary,120);return;
  }
  if(r.nodeType==='repository'){
@@ -441,7 +445,16 @@ function rogueliteOpenSanctuary(){
   {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood. Shared Mana is restored to the current player-count baseline.',reward:'Ritual preparation',action:()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()}}
  ]);
 }
-function rogueliteRouteOptions(){return rogueShuffle(['battle','elite','swarm','sanctuary']).slice(0,3)}
+function rogueliteRouteOptions(){
+ const r=rogueState(),next=Math.max(1,Number(r.floor)||1)+1;
+ const cycle=rogueCycleForFloor(next),act=rogueActForFloor(next);
+ const seen=r.sanctuaryVisits&&r.sanctuaryVisits[cycle+':'+act];
+ // Three choices per route; a Sanctuary substitutes for one combat route
+ // on 1/3 of eligible offers and can only be visited once in that Act.
+ const sanctuaryEligible=!seen&&Math.random()<1/3;
+ const battles=rogueShuffle(['battle','elite','swarm']);
+ return sanctuaryEligible?rogueShuffle([...battles.slice(0,2),'sanctuary']):battles;
+}
 function rogueliteFinishRepository(){
  const r=rogueState(),resume=r.repositoryResume||'route';
  r.repositoryResume=null;r.repositoryOffer=null;
