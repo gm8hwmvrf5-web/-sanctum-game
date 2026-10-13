@@ -83,7 +83,7 @@ if(!dataSource.includes('{n:"Quick Prayer",m:4')||
   throw new Error('Quick Prayer must cost 4 Mana and use the targeted 2-card draw effect.');
 }
 
-if(!dataSource.includes('Palm of Judgment')||!dataSource.includes('Deal 2 damage to a Demon or Boss')||!dataSource.includes('Deal 6 damage to a Demon or Boss')){
+if(!dataSource.includes('Palm of Judgment')||!dataSource.includes('Deal 2 damage to a Demon (or 4 to a Boss)')||!dataSource.includes('Deal 6 damage to a Demon (or 8 to a Boss)')){
   throw new Error('Monk Palm of Judgment must display 2 lesser / 6 greater damage.');
 }
 const fontSettings=fs.readFileSync(path.join(root,'src/js/25-font-settings.js'),'utf8');
@@ -256,7 +256,7 @@ if(engine.includes("if(!S?.rogue?.enabled){drawCrucifix();")){
 
 for(const token of [
   '15+((S&&S.relicMods&&S.relicMods.crit)||0)',
-  "S.players.length===3?.90:1.10",
+  "count>=4?1.25:count===3?1.05:count===2?.85:.70",
   'if(S.players.length>=4)return 3',
   'return n>=4?32:n===3?23:n===2?15:10'
 ]){
