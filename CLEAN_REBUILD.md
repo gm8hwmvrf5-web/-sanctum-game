@@ -56,3 +56,15 @@ The Sinking Repository now appears as a **guaranteed, separate stop after every 
 - **Wardcraft costs:** Cinder 3 Mana+1 Blood; Thorns 3+1; Chains 2+1; Bell 3+1; Silence 3+1; Lantern 2+1; Vigil 2+1; Absolution 2+0; Siphon 2+0; Chalice 2+0. Ward effects, charges, 2-phase lifespan, artwork, and every-third-combat-passage offers are unchanged.
 
 Balance changes are checked by `scripts/balance-1-0-smoke.mjs` alongside the gameplay and multiplayer browser smoke suite. The proposed first-cycle 65–75% completion target is a tuning goal, not an established measured win rate.
+
+### Balance Update 1.1 — Moderately challenging follow-up
+
+- **Sanctuary route choice:** A Ruined Sanctuary substitutes for one of three combat choices with a 1-in-3 probability on eligible route offers; at most **one Sanctuary may be visited per Act per cycle**. This count is serialized with the run and resets for the next Act or cycle.
+- **Excess Blood healing:** The party may recover a maximum of **4 actual Altar Protection per round** from all excess Blood sources combined, including the Consecrated Chapel healing bonus. Blood itself still distributes to each Priest according to the unchanged multiplayer kill rule.
+- **Possessor penalties:** The total extra Priest card Mana cost from Possessors and Desecrated Chapel is limited to **+2** with one or two Priests and **+3** with three or four Priests. The printed Demon abilities still apply up to this cap.
+- **Relic Basic Attack growth:** Relic damage bonuses of 0–5 apply at full strength; after +5, each two additional raw Relic attack points yield +1 effective attack. Legacy Basic Attack upgrades retain their full additive value, and critical chance, Fire, and Poison keep their existing rules.
+- **Boss HP party multipliers:** 70% for 1P, 85% for 2P, 105% for 3P, and 125% for 4P, before Roguelite Act/Cycle scaling. Boss Altar drains follow Balance 1.0 unchanged.
+- **Automatic Altar renewal:** Combined beginning-of-Priest-turn and beginning-of-round renewal healing is capped at **6 actual Altar Protection per round**. Immediate Altar healing, Demon-defeat healing blessings, and other sources are separate and unaffected. Renewal charges still tick when they activate.
+- **Monk:** Palm of Judgment deals **4/8 base damage to bosses** for Lesser/Greater, while preserving **2/6 damage and 1/2-space knockback** against ordinary Demons. Inner Peace gives **2/3 Blood** for Lesser/Greater, and Greater still draws two Priest cards. Ritual Power Relics still add their printed bonuses.
+
+Validated by `scripts/balance-1-1-smoke.mjs` alongside the Balance 1.0 and multiplayer browser suite. These are targeted balance assertions rather than measured real-world completion-rate statistics.
