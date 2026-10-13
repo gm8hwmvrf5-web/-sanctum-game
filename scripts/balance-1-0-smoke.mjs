@@ -41,9 +41,10 @@ try{
   const expected=[1,1.12,1.27,1.42,1.5,1.68,2.13,2.25,3.195];
   floors.forEach((f,i)=>{
    reset(1,f);
-   const got=rogueDifficultyMultiplier()*rogueFloorHealthMultiplier();
+   const readouts=window.__sanctumBalanceReadouts();
+   const got=readouts.cycleMultiplier*readouts.floorHpMultiplier;
    assert(closeEnough(got,expected[i]),'Cycle-local HP scale floor '+f+': '+got+' vs '+expected[i]);
-   assert(closeEnough(got,rogueDifficultyMultiplier()*rogueFloorDamageMultiplier()),'Demon Attack multiplier diverges from HP');
+   assert(closeEnough(got,readouts.cycleMultiplier*readouts.floorDamageMultiplier),'Demon Attack multiplier diverges from HP');
   });
   const matrix=[];
   for(const cls of characters){
@@ -52,7 +53,7 @@ try{
      reset(n,floor,cls);
      assert(sharedManaRoundValue()===pools[n],'Mana baseline mismatch for '+cls+' '+n+' players');
      assert(S.players[0].char===cls,'Selected Priest class did not survive setup');
-     assert(rogueRelicXpNeed()===20,'First XP Relic must require 20');
+     assert(window.__sanctumBalanceReadouts().relicXpRequired===20,'First XP Relic must require 20');
      const act=Math.ceil((((floor-1)%15)+1)/5);
      const cycle=Math.floor((floor-1)/15)+1;
      const expectedDrain=Math.min(8,[0,1,2,3,4][n]+act-1+cycle-1);
@@ -81,11 +82,11 @@ try{
   for(const [i,cost] of [20,28,36,44,52].entries()){
    reset();
    S.rogue.xpRelics=i;
-   assert(rogueRelicXpNeed()===cost,'Relic XP progression failed index '+i);
+   assert(window.__sanctumBalanceReadouts().relicXpRequired===cost,'Relic XP progression failed index '+i);
   }
   for(const [cycle,prices] of [[1,{relic:10,candles:8,folio:12}],[2,{relic:12,candles:10,folio:14}],[3,{relic:14,candles:12,folio:16}],[9,{relic:14,candles:12,folio:16}]]){
    reset(1,1+15*(cycle-1));
-   assert(JSON.stringify(rogueRepositoryPrices(cycle))===JSON.stringify(prices),'Store fixed-price tiers failed cycle '+cycle);
+   assert(JSON.stringify(window.__sanctumBalanceReadouts().shopPrices)===JSON.stringify(prices),'Store fixed-price tiers failed cycle '+cycle);
   }
   for(const greater of [false,true]){
    reset();
@@ -117,28 +118,34 @@ try{
    assert(expectedCost&&w.mana===expectedCost[0]&&w.blood===expectedCost[1]&&w.charges===expectedCost[2],
     'Ward Balance 1.0 cost or charge mismatch: '+w.key);
   }
-  reset(1,5);S.rogue.cindersRun=80;S.rogue.repositoryResume='route';
-  const clickFolio=()=>{
-   const buttons=[...document.querySelectorAll('#rogueChoiceGrid button')];
-   const folio=buttons.find(b=>b.textContent.includes('Forbidden Folio'));
-   if(folio)folio.click();
-   return !!folio;
-  };
-  for(const [floor,balance,price] of [[5,80,12],[20,68,14]]){
-   S.rogue.floor=floor;S.phase='Repository';
-   rogueliteOpenRepository();
+  reset(1,5);S.rogue.cindersRun=80;
+  function enterBossStore(floor){
+   S.rogue.floor=floor;S.rogue.nodeType='boss';S.rogue.repositoryPendingBossFloor=0;
+   S.bossRevealed=true;S.bossDefeatHandled=false;S.boss.cur=0;S.phase='Boss';
+   closeChoices();
+   defeatBossIfNeeded();
+   if(floor%15!==0){
+    const reward=[...document.querySelectorAll('#rogueChoiceGrid button')].find(b=>b.textContent.includes('Purification'));
+    assert(reward,'Boss reward missing before Folio purchase');
+    reward.click();
+   }
+   assert(document.getElementById('rogueChoiceTitle')?.textContent==='The Sinking Repository','Post-boss store missing at floor '+floor);
+  }
+  for(const [floor,price] of [[5,12],[20,14]]){
+   enterBossStore(floor);
    const costButton=[...document.querySelectorAll('#rogueChoiceGrid button')].find(b=>b.textContent.includes('Forbidden Folio'));
    assert(costButton&&costButton.textContent.includes(price+' Cinders'),'Folio tier price incorrect on floor '+floor);
-   assert(clickFolio(),'Could not purchase Folio');
-   assert(S.rogue.cindersRun===balance-price,'Folio purchase spending incorrect');
+   const before=S.rogue.cindersRun;
+   costButton.click();
+   assert(S.rogue.cindersRun===before-price,'Folio purchase spending incorrect');
   }
   assert(S.rogue.repositoryFolioPurchases===2&&S.relicMods.hand>=2,'Two Folio purchases should increase hand limit by 2');
-  S.rogue.floor=35;S.rogue.cindersRun=80;S.phase='Repository';S.rogue.repositoryResume='route';
-  rogueliteOpenRepository();
+  enterBossStore(35);
   assert(![...document.querySelectorAll('#rogueChoiceGrid button')].some(b=>b.textContent.includes('Forbidden Folio')),
    'Third Forbidden Folio must not be offered');
   const before=S.rogue.cindersRun;
-  assert(rogueRepositoryPurchaseByActionKey('repository:folio:16')===false,'Third Folio purchase was incorrectly allowed');
+  assert(window.__sanctumRepositoryPurchaseByActionKey('repository:folio:16')===false,
+   'Third Folio purchase was incorrectly allowed');
   assert(S.rogue.cindersRun===before,'Rejected Folio purchase spent Cinders');
   return {build:'Balance 1.0',priestClasses:characters,partySizes:Object.keys(pools).length,bossCases:matrix.length,
    scaleFloors:floors,firstFiveRelicXp:[20,28,36,44,52],wardCostsVerified:wardDefs.length,
