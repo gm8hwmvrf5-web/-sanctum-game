@@ -43,8 +43,8 @@
         if(!ch||!Array.isArray(ch.rituals)||!ch.rituals.length)return;
         const r=ch.rituals[0];
         if(!r||r.kind!=='palmJudgment')return;
-        r.h='Deal 2 damage to a Demon or Boss. If it is a Demon, move it back exactly 1 room.';
-        r.f='Deal 6 damage to a Demon or Boss. If it is a Demon, move it back exactly 2 rooms.';
+        r.h='Deal 2 damage to a Demon (or 4 to a Boss). If it is a Demon, move it back exactly 1 room.';
+        r.f='Deal 6 damage to a Demon (or 8 to a Boss). If it is a Demon, move it back exactly 2 rooms.';
       });
     }catch(err){
       console.warn('Could not update Monk Ritual text',err);
