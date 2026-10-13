@@ -43,4 +43,5 @@ jobs:
           node scripts/smoke-clean-build.mjs
           node scripts/wards-smoke.mjs
           node scripts/wards-mechanics.mjs
+          node scripts/altar-protection-audit.mjs
           node scripts/live-lobby-join.mjs

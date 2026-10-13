@@ -437,17 +437,39 @@ function resolveAltarRoundRenewals(){
  S.altarRoundRenewals=S.altarRoundRenewals.filter(fx=>fx.remaining>0);
 }
 function addAltarBarrier(amount,source){
+ amount=Math.max(0,Number(amount)||0);
+ if(amount<=0)return;
  if(S.altarBarrierRound!==S.round){S.altarBarrier=0;S.altarBarrierRound=S.round}
- S.altarBarrier=(S.altarBarrier||0)+amount;
- log(`${source} wards the Altar against the next ${amount} Protection loss this round.`,'good');
+ S.altarBarrier=Math.max(0,Number(S.altarBarrier)||0)+amount;
+ log(`${source} activates ${amount} Altar Guard for round ${S.round} (${S.altarBarrier} total). It prevents that much incoming damage, not a whole attack.`,'good');
+ render();
 }
 function damageAltar(v,source="Demon"){
-  v += S.nextAltarBonus; S.nextAltarBonus=0;
-  if(S.altarBarrierRound!==S.round)S.altarBarrier=0;
-  if(S.altarBarrier>0){let blocked=Math.min(v,S.altarBarrier);v-=blocked;S.altarBarrier-=blocked;log(`Holy Barrier prevents ${blocked} Altar Protection loss. ${S.altarBarrier} ward remains this round.`,"good")}
-  if(source==="Demon" && S.altarShield>0){let blocked=Math.min(v,S.altarShield);v-=blocked;S.altarShield-=blocked;log(`Sanctum protection blocks ${blocked} Altar loss.`,"good")}
-  if(v>0){S.altar=Math.max(0,S.altar-v);log(`${source} causes ${v} Altar loss.`,"bad")}
-  if(S.altar<=0) gameOver(false); render();
+ // Every source of Altar loss, including boss drains, Demon retaliation and
+ // Crucifix effects, must pass through the same Priest-card guard.
+ const curse=Math.max(0,Number(S.nextAltarBonus)||0);
+ let remaining=Math.max(0,(Number(v)||0)+curse);
+ S.nextAltarBonus=0;
+ const incoming=remaining;
+ if(S.altarBarrierRound!==S.round){S.altarBarrier=0;S.altarBarrierRound=S.round;}
+ const ward=Math.max(0,Number(S.altarBarrier)||0);
+ if(ward>0&&remaining>0){
+  const blocked=Math.min(remaining,ward);
+  remaining-=blocked;S.altarBarrier=ward-blocked;
+  log(`Altar Guard absorbs ${blocked} of ${incoming} damage from ${source}; ${S.altarBarrier} guard remains in round ${S.round}.`,'good');
+ }
+ if(remaining>0&&source==="Demon"&&S.altarShield>0){
+  const blocked=Math.min(remaining,S.altarShield);
+  remaining-=blocked;S.altarShield-=blocked;
+  log(`Sanctum protection absorbs ${blocked} Altar damage.`,'good');
+ }
+ if(remaining>0){
+  const lost=Math.min(Math.max(0,Number(S.altar)||0),remaining);
+  S.altar=Math.max(0,S.altar-remaining);
+  log(`${source} deals ${remaining} unblocked Altar damage (${lost} Protection lost; ${S.altar} remaining).`,'bad');
+ }
+ if(incoming>0&&S.altar<=0)gameOver(false);
+ render();
 }
 function buildPriestDeck(){
  // Roguelite starting deck: exactly one copy of each of the 32 Priest cards.
@@ -1605,9 +1627,9 @@ async function resolvePriest(c,emp){
   case'shield':{let before=S.altar;healAltar(v,c.n);log(`${c.n} restores ${S.altar-before} Altar Protection.`,'good');return true}
   case'altarTurnRenewal':{restoreAltarLogged(v,c.n);addAltarTurnRenewal(emp?c.xregen:c.regen,emp?c.xticks:c.ticks,c.n);return true}
   case'altarBarrier':{restoreAltarLogged(v,c.n);addAltarBarrier(emp?c.xguard:c.guard,c.n);return true}
-  case'altarBarrierDamage':{let x=await chooseDamageTarget(`${c.n} — choose damage target`);if(!x)return false;dealDamageTarget(x,v,c.n);addAltarBarrier(emp?c.xguard:c.guard,c.n);return true}
+  case'altarBarrierDamage':{let x=await chooseDamageTarget(`${c.n} — choose damage target`);if(!x)return false;addAltarBarrier(emp?c.xguard:c.guard,c.n);dealDamageTarget(x,v,c.n);return true}
   case'altarDefeatBlessing':{restoreAltarLogged(v,c.n);addAltarDefeatBlessing(emp?c.xdefeatHeal:c.defeatHeal,emp?c.xcharges:c.charges,c.n);return true}
-  case'altarDefeatBlessingDamage':{let x=await chooseDamageTarget(`${c.n} — choose damage target`);if(!x)return false;dealDamageTarget(x,v,c.n);addAltarDefeatBlessing(emp?c.xdefeatHeal:c.defeatHeal,emp?c.xcharges:c.charges,c.n);return true}
+  case'altarDefeatBlessingDamage':{let x=await chooseDamageTarget(`${c.n} — choose damage target`);if(!x)return false;addAltarDefeatBlessing(emp?c.xdefeatHeal:c.defeatHeal,emp?c.xcharges:c.charges,c.n);dealDamageTarget(x,v,c.n);return true}
   case'altarRoundRenewal':{restoreAltarLogged(v,c.n);addAltarRoundRenewal(emp?c.xroundHeal:c.roundHeal,emp?c.xrounds:c.rounds,c.n);return true}
   case'stop':{
    let stopped=0,used=new Set();
@@ -2240,6 +2262,12 @@ function render(){normalizeSanctumState();document.getElementById('roundStat').t
  document.querySelectorAll('[data-demon-open]').forEach(btn=>{let lastOpen=0;const open=e=>{if(e){e.preventDefault();e.stopPropagation()}let now=Date.now();if(now-lastOpen<350)return;lastOpen=now;selectedDemonId=btn.dataset.demonOpen;if(typeof window.__sanctumOpenDemonReader==='function')window.__sanctumOpenDemonReader(btn.dataset.demonOpen)};btn.onclick=open;btn.ontouchend=open;btn.onpointerup=open;});
  document.querySelectorAll('[data-cons]').forEach(el=>el.onclick=()=>openConsecrateModal(+el.dataset.cons));
  document.querySelectorAll('[data-desecrate-info]').forEach(el=>el.onclick=e=>{e.stopPropagation();openDesecrationInfo(+el.dataset.desecrateInfo)});
+ const guardStatus=document.getElementById('altarGuardStatus');
+ if(guardStatus){
+   const activeGuard=S.altarBarrierRound===S.round?Math.max(0,Number(S.altarBarrier)||0):0;
+   guardStatus.hidden=!S.started||activeGuard<=0;
+   if(activeGuard>0)guardStatus.textContent=`✧ ALTAR GUARD — ${activeGuard} damage prevented this round · Damage above ${activeGuard} still reaches the Altar`;
+ }
  renderBoss();renderPlayer();renderLog()
 }
 function renderBoss(){let a=document.getElementById('bossArea');if(!S.bossRevealed){a.innerHTML='<div class="cap">The Boss awakens after the 13th base Demon is defeated.</div>';return}let rules=(S.boss.rules||[]).filter(x=>x[0]!=="Boss Rule").map(x=>`<div><b>${x[0]}:</b> ${x[1]}</div>`).join("");a.innerHTML=`<div class="bossCard"><img class="bossArt" src="${S.boss.art}" alt="${S.boss.n}"><div class="bossName">${S.boss.n}</div><div class="bossSubtitle">${S.boss.subtitle||""}</div><div class="bossAbilityMini"><b>Descent:</b> Boss ${(S.bossesDefeated||0)+1} • ${S.bossesDefeated||0} defeated this run</div><div class="bossStatLine" aria-label="Boss stats"><span class="hp">HP ${S.boss.cur}/${S.boss.hp}</span><span class="bossStatSep" aria-hidden="true">•</span><span class="blood">Blood Power ${S.boss.b}</span></div><div class="bossAbilityMini">${rules}</div><div class="bossAbilityMini">${S.boss.baseHp&&S.boss.baseHp!==S.boss.hp?`Player-scaled HP: ${S.boss.hp} from ${S.boss.baseHp} printed HP.`:""}</div><div class="bossAbilityMini"><b>Boss Phase Altar Drain:</b> ${bossDrainAmount()}${bossDrainAmount()!==S.boss.b?` (scaled from printed ${S.boss.b})`:''}</div></div>`}
