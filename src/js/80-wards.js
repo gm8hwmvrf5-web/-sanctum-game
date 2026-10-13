@@ -20,7 +20,8 @@ const WARDS=Object.freeze([
 const lookup=key=>WARDS.find(w=>w.key===key)||null;
 const fmt=w=>w.mana+' Mana'+(w.blood?' + '+w.blood+' Blood':'');
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const artStyle=w=>'--ward-image:url(./assets/wards/ward-'+w.key+'.webp);--ward-color:'+w.color+';';
+const wardArtUrl=key=>new URL('./assets/wards/ward-'+key+'.webp',document.baseURI).href;
+const artStyle=w=>'--ward-image:url('+wardArtUrl(w.key)+');--ward-color:'+w.color+';';
 const activeWard=()=>S?.wardcraft?.active||null;
 const stage=()=>S&&S.started&&S.phase==='Priest'&&S.rogue?.enabled&&S.rogue.nodeType!=='repository'&&S.rogue.nodeType!=='sanctuary'&&!S.rogue.pendingClear;
 const allowed=w=>Array.isArray(w.rooms)?w.rooms:[0,1,2,3];
@@ -330,7 +331,7 @@ function renderWardUI(){
    room.style.setProperty('--ward-glow',w.color);
    let veil=existing;
    if(!veil){veil=document.createElement('div');veil.className='wardcraft-veil';veil.setAttribute('aria-hidden','true');veil.innerHTML='<div class="wardcraft-illustration"></div><div class="wardcraft-ring"></div>';room.insertBefore(veil,room.firstChild);}
-   veil.style.setProperty('--ward-image','url("./assets/wards/ward-'+w.key+'.webp")');
+   veil.style.setProperty('--ward-image','url('+wardArtUrl(w.key)+')');
    if(!badge){const b=document.createElement('button');b.type='button';b.className='wardcraft-badge';b.onclick=()=>{const now=activeWard(),def=now&&lookup(now.key);if(def)alert(def.name+'\n'+def.desc+'\n'+now.charges+' charge(s), '+now.phasesLeft+' Demon Phase(s) remaining.');};room.appendChild(b);}
    const b=room.querySelector('.wardcraft-badge');
    b.textContent='✧ '+w.name+' · '+a.charges;

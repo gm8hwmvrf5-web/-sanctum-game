@@ -35,7 +35,7 @@ const result=await page.evaluate(async()=>{
  if(!chosenButton)throw new Error('Opening Ward not visible as a draft option');
  const artPreview=chosenButton.querySelector('.ward-draft-art');
  if(!artPreview||!getComputedStyle(artPreview).backgroundImage.includes('ward-'+selected+'.webp'))
-   throw new Error('Selected Ward popup is not using its dedicated artwork');
+   throw new Error('Selected Ward popup is not using its dedicated artwork: '+selected+' '+(artPreview?.getAttribute('style')||'no style')+' computed '+(artPreview?getComputedStyle(artPreview).backgroundImage:'no preview'));
  chosenButton.click();
  if(S.wardcraft.selected!==selected)throw new Error('Selecting a Ward failed');
  S.mana=30;S.players[S.current].blood=8;render();
