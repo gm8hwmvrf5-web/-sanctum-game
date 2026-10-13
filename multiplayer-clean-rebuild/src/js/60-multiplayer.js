@@ -403,6 +403,14 @@
               (opt.empowered?'<small><b>Empowered:</b> '+escapeHtml(opt.empowered)+'</small>':'')+
               '<span class="nodeReward">Shuffle an extra copy into this run</span>'+
             '</div>';
+        }else if(String(opt.actionKey||'').startsWith('ward:')){
+          const key=String(opt.actionKey).slice(5);
+          const ward=window.__sanctumWards?.definitions?.find(w=>w.key===key);
+          const pos=ward?(ward.art*100/9).toFixed(4)+'%':'0%';
+          btn.innerHTML='<div class="ward-draft-art" style="--ward-position:'+pos+';--ward-color:'+(ward?.color||'#a78c5a')+'"></div>'+
+            '<div class="ward-draft-body"><h3>'+escapeHtml(opt.title)+'</h3>'+
+            '<small>'+escapeHtml(ward?.category||'Wardcraft')+' · '+escapeHtml(opt.reward||'')+'</small>'+
+            '<p>'+escapeHtml(opt.desc)+'</p><span class="nodeReward">Unlock for this passage</span></div>';
         }else{
           btn.innerHTML=
             '<div class="nodeIcon">'+escapeHtml(opt.icon||'✦')+'</div>'+
@@ -1037,6 +1045,14 @@
   function stableStateHash(state){
     try{return JSON.stringify(state)}catch(_){return String(Date.now())}
   }
+
+  // Wardcraft must not create the first shared draft until game_start is
+  // committed. Expose only authority status, never session credentials.
+  window.__sanctumWardOnlineInfo=()=>({
+    online:!!session,
+    starting:!!startingOnline,
+    canChoose:canWriteAuthoritativeTurn()&&!applyingRemote&&!startingOnline
+  });
 
   function isMyTurn(){
     return !!(session&&S&&S.started&&Number(session.seat)===Number(S.current)+1);
