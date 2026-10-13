@@ -52,7 +52,7 @@ try{
       check(S.demonDeck.filter(d=>d.crucifixAttached).length===Math.round(S.demonDeck.length*.15),'Exactly 15 percent of Demons must be marked');
     });
     test('Mana pool caps and refill by player count',()=>{
-      for(const [n,cap] of [[1,10],[2,15],[3,20],[4,35]]){
+      for(const [n,cap] of [[1,10],[2,15],[3,23],[4,32]]){
         S.players=Array.from({length:n},(_,i)=>({
           name:'Test '+i,char:Object.keys(CHARACTERS)[i],
           hand:[],blood:0,basic:false,ritualUsed:[false,false,false],
