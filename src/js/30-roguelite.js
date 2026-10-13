@@ -23,7 +23,7 @@ const ROGUE_UPGRADES={
 };
 let rogueModalActions=[];
 
-function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryPendingBossFloor:0,repositoryResume:null,repositoryVisitedBossFloor:0,repositoryCandleReduction:0,history:[],lastReward:'',runStartedAt:Date.now()}}
+function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryPendingBossFloor:0,repositoryResume:null,repositoryVisitedBossFloor:0,repositoryFolioPurchases:0,repositoryCandleReduction:0,history:[],lastReward:'',runStartedAt:Date.now()}}
 function rogueState(){if(!S.rogue||typeof S.rogue!=='object')S.rogue=rogueDefaultState();return S.rogue}
 function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,basicAttack:0,relicXpGain:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
 function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify(m));return true}catch(e){console.warn('Legacy storage unavailable',e);return false}}
@@ -37,9 +37,9 @@ function rogueCycleForFloor(f){return Math.floor((Math.max(1,Number(f)||1)-1)/15
 function rogueCycleFloorFor(f){return ((Math.max(1,Number(f)||1)-1)%15)+1}
 function rogueActForFloor(f){return Math.ceil(rogueCycleFloorFor(f)/5)}
 function rogueCycle(){let r=rogueState();r.cycle=rogueCycleForFloor(r.floor||1);return r.cycle}
-function rogueDifficultyMultiplier(){return Math.pow(2,Math.max(0,rogueCycle()-1))}
-function rogueFloorHealthMultiplier(){return 1+(0.05*Math.max(0,(Math.max(1,Number(rogueState().floor)||1)-1)))}
-function rogueFloorDamageMultiplier(){return 1+(0.05*Math.max(0,(Math.max(1,Number(rogueState().floor)||1)-1)))}
+function rogueDifficultyMultiplier(){return Math.pow(1.5,Math.max(0,rogueCycle()-1))}
+function rogueFloorHealthMultiplier(){return 1+(0.03*Math.max(0,rogueCycleFloorFor(rogueState().floor)-1))}
+function rogueFloorDamageMultiplier(){return 1+(0.03*Math.max(0,rogueCycleFloorFor(rogueState().floor)-1))}
 function rogueAct(){let r=rogueState();r.act=Math.min(3,Math.max(1,rogueActForFloor(r.floor||1)));return r.act}
 function rogueStep(){return ((rogueState().floor-1)%5)+1}
 function rogueIsBossFloor(){return ((Math.max(1,rogueState().floor||1))%5)===0}
@@ -59,9 +59,10 @@ function rogueRepositoryMarkVisit(){
  r.repositoryVisits[String(cycle)]=rogueRepositoryVisitCount(cycle)+1;
  return r.repositoryVisits[String(cycle)];
 }
-function rogueRepositoryPrices(balance){
- balance=Math.max(8,Math.floor(Number(balance)||0));
- return [.50,.625,.75,.875,1].map(p=>Math.min(balance,Math.max(1,Math.ceil(balance*p))));
+function rogueRepositoryPrices(cycle=rogueCycle()){
+ // Base prices are independent of the buyer's Cinder balance.
+ const tier=Math.min(2,Math.max(0,Math.floor(Number(cycle)||1)-1));
+ return {relic:10+2*tier,candles:8+2*tier,folio:12+2*tier};
 }
 function rogueRepositoryAllRelics(){
  const core=typeof RELICS!=='undefined'&&Array.isArray(RELICS)?RELICS:[];
@@ -144,11 +145,14 @@ function rogueRepositoryPurchaseByActionKey(actionKey){
   r.repositoryOffer=null;render();rogueliteFinishRepository();return true;
  }
  if(parts[1]==='folio'){
+  const r=rogueState();
+  if((Number(r.repositoryFolioPurchases)||0)>=2){showGameStatus('The Forbidden Folio limit is 2 purchases per run.','bad');return false;}
   const cost=Number(parts[2]||0);if(!rogueRepositorySpend(cost,'Forbidden Folio'))return false;
+  r.repositoryFolioPurchases=(Number(r.repositoryFolioPurchases)||0)+1;
   S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};
   S.relicMods.hand=(Number(S.relicMods.hand)||0)+1;
-  log('FORBIDDEN FOLIO — maximum Priest hand size increases by 1 for the rest of this run.','good');
-  rogueState().repositoryOffer=null;render();rogueliteFinishRepository();return true;
+  log('FORBIDDEN FOLIO — maximum Priest hand size increases by 1 for the rest of this run ('+r.repositoryFolioPurchases+'/2 purchases).','good');
+  r.repositoryOffer=null;render();rogueliteFinishRepository();return true;
  }
  return false;
 }
@@ -156,7 +160,7 @@ window.__sanctumRepositoryPurchaseByActionKey=rogueRepositoryPurchaseByActionKey
 
 function rogueliteOpenRepository(){
  let r=rogueState(),balance=Math.max(0,Math.floor(Number(r.cindersRun)||0));
- const prices=rogueRepositoryPrices(balance);
+ const prices=rogueRepositoryPrices(rogueCycle());
  let relics=rogueShuffle(rogueRepositoryRelicPool()).slice(0,3);
  while(relics.length<3){
   relics.push({key:'repositoryFallback'+relics.length,n:'Sealed Empty Reliquary',cat:'Unavailable',effect:'No unowned Relic remains in this slot.'});
@@ -168,7 +172,7 @@ function rogueliteOpenRepository(){
  ];
  goods=rogueShuffle(goods);
  const offers=goods.map((good,i)=>{
-  const cost=prices[i];
+  const cost=prices[good.kind];
   if(good.kind==='relic'){
    const rel=good.rel,key=String(rel.key||rel.k||rel.id||'');
    const unavailable=key.startsWith('repositoryFallback');
@@ -188,15 +192,20 @@ function rogueliteOpenRepository(){
    };
   }
   return {
-   icon:'✠',title:'Forbidden Folio',cls:'repository',desc:'Increase maximum Priest hand size by 1 for the rest of this run.',
-   reward:`${cost} Cinders • run-only upgrade`,actionKey:`repository:folio:${cost}`,
+   icon:'✠',title:'Forbidden Folio',cls:'repository',desc:'Increase maximum Priest hand size by 1 for the rest of this run. Limit: 2 purchases per run.',
+   reward:`${cost} Cinders • ${Math.max(0,2-(r.repositoryFolioPurchases||0))}/2 purchases remaining`,actionKey:`repository:folio:${cost}`,
    action:()=>rogueRepositoryPurchaseByActionKey(`repository:folio:${cost}`)
   };
  });
  // Unaffordable options must never close a synchronized multiplayer choice
  // without an actual purchase. Always keep the no-cost exit available.
- const affordableOffers=offers.filter((offer,i)=>prices[i]<=balance);
- r.repositoryOffer={cycle:rogueCycle(),floor:r.floor,balance,prices:[...prices],titles:offers.map(o=>o.title)};
+ const affordableOffers=offers.filter(offer=>{
+  if(offer.actionKey==='repository:leave')return false; // No sold-out relic should be purchasable.
+  if(offer.actionKey.startsWith('repository:folio:')&&(Number(r.repositoryFolioPurchases)||0)>=2)return false;
+  const cost=Number(offer.actionKey.split(':').at(-1))||0;
+  return cost>0&&cost<=balance;
+ });
+ r.repositoryOffer={cycle:rogueCycle(),floor:r.floor,balance,prices:{...prices},titles:offers.map(o=>o.title)};
  affordableOffers.push({icon:'↩',title:'Leave Empty-Handed',cls:'repository leave',desc:'Spend nothing and keep every remaining Cinder available for the cycle bank.',reward:'No purchase',actionKey:'repository:leave',action:()=>rogueRepositoryPurchaseByActionKey('repository:leave')});
  const intro=balance<1
   ?'The drowned market opens after the Boss, but you have no unbanked Cinders. Leave freely to continue your descent.'
@@ -216,7 +225,7 @@ function rogueClearRooms(){
 }
 function rogueCleanseAll(){for(let i=0;i<4;i++){S.corruption[i]=0;S.desecratedRooms[i]=false}}
 function rogueGiveBlood(n){S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+n));log(`Each Priest gains ${n} Demon Blood.`,'good')}
-function rogueRelicXpNeed(){let r=rogueState();return 15+5*Math.max(0,r.xpRelics||0)}
+function rogueRelicXpNeed(){let r=rogueState();return 20+8*Math.max(0,r.xpRelics||0)}
 function rogueKillXpValue(d){
  if(!d)return 0;
  let base=demonBlood(d),extra=demonCode(d)==='defeatBlood'?demonValue(d):0;
@@ -533,7 +542,18 @@ const _normalSpawnCount=normalSpawnCount;normalSpawnCount=function(){let n=_norm
 const _triggerEnterPlay=triggerEnterPlay;triggerEnterPlay=function(d){if(S?.rogue?.enabled)rogueliteMutateDemon(d);return _triggerEnterPlay(d)};
 const _spawnOne=spawnOne;spawnOne=function(doLog=true){let before=new Set((S.rooms||[]).flat().map(d=>d.id));let out=_spawnOne(doLog);if(S?.rogue?.enabled){let d=(S.rooms||[]).flat().find(x=>!before.has(x.id));if(d){rogueliteMutateDemon(d);render()}}return out};
 const _demonAttack=demonAttack;demonAttack=function(d){let n=_demonAttack(d);if(S?.rogue?.enabled){let scaled=n*rogueDifficultyMultiplier()*rogueFloorDamageMultiplier()*rogueRepositoryEnemyScaleFactor();return Math.max(n,Math.round(scaled))}return n};
-const _bossDrainAmount=bossDrainAmount;bossDrainAmount=function(){let n=_bossDrainAmount();if(S?.rogue?.enabled&&S.bossRevealed){let reduction=Math.max(0,4-rogueAct()),base=Math.max(2,n-reduction);return Math.max(2,Math.round(base*rogueDifficultyMultiplier()*rogueFloorDamageMultiplier()))}return n};
+const _bossDrainAmount=bossDrainAmount;bossDrainAmount=function(){
+ const original=_bossDrainAmount();
+ if(!S?.rogue?.enabled||!S.bossRevealed)return original;
+ const players=Math.max(1,Math.min(4,Number(S.players?.length)||1));
+ const base=[0,1,2,3,4][players];
+ const actBonus=rogueAct()-1;
+ const bossDifference=(Number(S.boss?.b)||6)-6;
+ const cycleBonus=rogueCycle()-1;
+ // Boss rules use fixed party/Act pacing; enemy stat multipliers do not
+ // multiply direct Altar damage. Bosses with 5/7 printed damage retain ±1.
+ return Math.max(1,Math.min(8,base+actBonus+bossDifference+cycleBonus));
+};
 const _gameOver=gameOver;gameOver=function(win){if(S?.rogue?.enabled)rogueliteBankRun(!!win);return _gameOver(win)};
 const _render=render;render=function(){let out=_render();rogueliteRenderHud();if(S?.rogue?.enabled&&!S.bossRevealed){let a=document.getElementById('bossArea');if(a){let r=rogueState(),c=rogueCycle(),cf=rogueCycleFloorFor(r.floor),mult=rogueDifficultyMultiplier();a.innerHTML=rogueIsBossFloor()?'<div class="cap">The Boss Gate is opening…</div>':`<div class="cap">Boss Floors each cycle: 5 • 10 • 15<br><span class="muted">Cycle ${c} • Act ${r.act} • Floor ${cf} • ${mult}× difficulty</span></div>`}}return out};
 const _showEndRunStatistics=showEndRunStatistics;showEndRunStatistics=function(outcome){let x=_showEndRunStatistics(outcome);if(S?.rogue?.enabled){let r=rogueState();let grid=document.querySelector('#endRunStatsModal .endRunStatsGrid')||document.querySelector('#endRunStatsModal .endRunGrid');if(!document.getElementById('endRunRogueFloor')){let anchor=document.getElementById('endRunNatural20s')?.parentElement;if(anchor){anchor.insertAdjacentHTML('afterend',`<div class="endRunStat"><b id="endRunRogueFloor">0</b><span>Floor Reached</span></div><div class="endRunStat"><b id="endRunRogueCinders">0</b><span>Cinders Banked</span></div>`)}}let f=document.getElementById('endRunRogueFloor'),c=document.getElementById('endRunRogueCinders');if(f)f.textContent=`C${rogueCycleForFloor(r.floor)} • F${rogueCycleFloorFor(r.floor)}/15`;if(c)c.textContent=r.bankedAmount||0}return x};
