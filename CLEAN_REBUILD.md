@@ -32,3 +32,12 @@ Make changes in the smallest relevant source module. Do not recreate giant embed
 ## Current goal
 
 Match the working multiplayer build behavior first, then simplify active wrapper chains only when each replacement can be verified against the working baseline.
+
+## 3D Cathedral battlefield preview
+
+- A **3D Cathedral** toggle adds an optional real WebGL (Three.js) battlefield alongside the fully functional 2D board. Default remains 2D.
+- The existing canonical game state, game rules, multiplayer authority, Priest hand, turn UI, saves, and target-selection readers are unchanged. Visual representations follow the live game state, including Demons, Greater Demons, Boss reveal, corruption, and consecration.
+- Drag to orbit, scroll/pinch to zoom, select rooms to focus, and tap a Demon or Boss to inspect it. Room chips only move the camera; cards and Rituals still use the existing lower-screen UI.
+- Current monsters are stylized **3D stone miniatures with the existing optimized card artwork** on framed plaques. Fully modeled and rigged individual characters are future work.
+- Three.js is lazily imported from a pinned jsDelivr CDN only when entering 3D. An internet connection is required for the initial 3D library load; if it fails, the 2D game remains usable. Performance uses capped pixel ratio and an approximately 30fps render loop.
+- Files: `src/js/80-3d-board.js` and `src/styles/3d-board.css`.
