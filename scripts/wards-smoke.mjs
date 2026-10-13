@@ -65,9 +65,12 @@ const result=await page.evaluate(async()=>{
  render();
  if(room.classList.contains('wardcraft-active'))throw new Error('Room overlay remained after Ward expiry');
  // Verify first-frame Cinder damage, once-per-round gating and clean phase expiry.
- const d=S.rooms[0]?.[0];
- if(!d)throw new Error('No opening Demon to exercise a Ward');
- d.cur=Math.max(d.cur,25);
+ // Use a fixed non-reactive Demon; a randomly drawn opening Demon may
+ // trigger independent ability effects that make this Ward smoke flaky.
+ const proto=DEMON_TYPES.find(x=>x.key==='imp_lesser');
+ if(!proto)throw new Error('Ward smoke Imp fixture missing');
+ const d={...proto,id:'ward-cinder-fixture',greater:false,cur:40,status:{}};
+ S.rooms=[[d],[],[],[]];
  S.wardcraft.active={key:'cinder',room:0,charges:2,phasesLeft:2,lastEnterRound:-1};
  S.phase='Demon';
  const health=d.cur,initialRound=S.round;
