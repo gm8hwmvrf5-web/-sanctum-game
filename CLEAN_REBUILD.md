@@ -32,3 +32,7 @@ Make changes in the smallest relevant source module. Do not recreate giant embed
 ## Current goal
 
 Match the working multiplayer build behavior first, then simplify active wrapper chains only when each replacement can be verified against the working baseline.
+
+## Wardcraft (optional tactical Wards, 2026-10)
+
+Ten unique Wards have 3-choice drafts at the start of each combat passage, including the first encounter and bosses. The passage chooser picks one shared Ward. Priests can place it during their own Priest phase by spending shared Mana and personal Blood. Only one Ward may be placed per round and one active across the board. Wards have two Demon Phases of duration and a limited number of activations. Room overlays glow with each Ward's own color, without covering Demon cards. The ten generated paintings are packed into a small optimized WebP sprite sheet and used both as choice card art and as faint overlays. Support for multiplayer state, vote choice reconstruction, and save/load is included. Source: `src/js/80-wards.js`, `src/styles/wards.css`, `assets/wards/ward-art-sprite.webp`.

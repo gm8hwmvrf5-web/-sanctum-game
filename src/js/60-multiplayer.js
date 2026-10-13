@@ -149,6 +149,14 @@
       eyebrow:vote?.eyebrow||''
     },opt,index)||'');
 
+    if(key.startsWith('ward:')){
+      return ()=>{
+        const fn=window.__sanctumWardChoose;
+        if(typeof fn!=='function')throw new Error('Wardcraft selection handler unavailable.');
+        return fn(key.slice(5));
+      };
+    }
+
     if(key.startsWith('repository:')){
       return ()=>{
         const fn=window.__sanctumRepositoryPurchaseByActionKey;
