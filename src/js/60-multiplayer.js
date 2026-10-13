@@ -406,8 +406,8 @@
         }else if(String(opt.actionKey||'').startsWith('ward:')){
           const key=String(opt.actionKey).slice(5);
           const ward=window.__sanctumWards?.definitions?.find(w=>w.key===key);
-          const pos=ward?(ward.art*100/9).toFixed(4)+'%':'0%';
-          btn.innerHTML='<div class="ward-draft-art" style="--ward-position:'+pos+';--ward-color:'+(ward?.color||'#a78c5a')+'"></div>'+
+          const art=ward?'--ward-image:url("./assets/wards/ward-'+ward.key+'.webp");':'';
+          btn.innerHTML='<div class="ward-draft-art" style="'+art+'--ward-color:'+(ward?.color||'#a78c5a')+'"></div>'+
             '<div class="ward-draft-body"><h3>'+escapeHtml(opt.title)+'</h3>'+
             '<small>'+escapeHtml(ward?.category||'Wardcraft')+' · '+escapeHtml(opt.reward||'')+'</small>'+
             '<p>'+escapeHtml(opt.desc)+'</p><span class="nodeReward">Unlock for this passage</span></div>';

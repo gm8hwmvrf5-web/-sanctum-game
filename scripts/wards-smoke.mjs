@@ -11,8 +11,18 @@ const result=await page.evaluate(async()=>{
  const ws=window.__sanctumWards;
  if(!ws||ws.definitions.length!==10)throw new Error('Missing the 10 Ward definitions');
  if(!ws.definitions.every(w=>w.mana>=0&&w.charges>=1&&w.color&&w.name&&w.desc))throw new Error('Invalid Ward data');
- const response=await fetch('./assets/wards/ward-art-sprite.webp',{cache:'no-store'});
- if(!response.ok||(await response.arrayBuffer()).byteLength<3000)throw new Error('Missing optimized Ward artwork');
+ const artworks=await Promise.all(ws.definitions.map(async ward=>{
+   const response=await fetch('./assets/wards/ward-'+ward.key+'.webp',{cache:'no-store'});
+   if(!response.ok)throw new Error('Missing high-resolution artwork for '+ward.name);
+   const bytes=await response.arrayBuffer();
+   if(bytes.byteLength<50000)throw new Error('Artwork seems undersized/blurry: '+ward.name);
+   const img=await createImageBitmap(new Blob([bytes],{type:'image/webp'}));
+   const good=img.width>=800&&img.height>=500;
+   img.close();
+   if(!good)throw new Error('Ward artwork dimensions too small: '+ward.name);
+   return ward.key;
+ }));
+ if(artworks.length!==10)throw new Error('All ten Ward illustrations are required');
  document.querySelector('#playerCount').value='1';
  document.getElementById('startBtn').click();
  if(!S?.started)throw new Error('Game did not start');
@@ -23,6 +33,9 @@ const result=await page.evaluate(async()=>{
  if(draft.classList.contains('hidden')||!document.querySelector('#rogueChoiceGrid .wardDraftChoice'))throw new Error('Opening Ward selection popup is missing');
  const chosenButton=[...document.querySelectorAll('#rogueChoiceGrid .wardDraftChoice')].find(b=>b.textContent.includes(ws.definitions.find(w=>w.key===selected).name));
  if(!chosenButton)throw new Error('Opening Ward not visible as a draft option');
+ const artPreview=chosenButton.querySelector('.ward-draft-art');
+ if(!artPreview||!getComputedStyle(artPreview).backgroundImage.includes('ward-'+selected+'.webp'))
+   throw new Error('Selected Ward popup is not using its dedicated artwork');
  chosenButton.click();
  if(S.wardcraft.selected!==selected)throw new Error('Selecting a Ward failed');
  S.mana=30;S.players[S.current].blood=8;render();
@@ -31,6 +44,8 @@ const result=await page.evaluate(async()=>{
  if(!ws.place(placementRoom))throw new Error('Ward placement rejected');
  const room=document.getElementById('room'+placementRoom).closest('.room');
  if(!room.classList.contains('wardcraft-active')||!room.querySelector('.wardcraft-badge')||!room.querySelector('.wardcraft-illustration'))throw new Error('Room glow/illustration/badge not applied');
+ if(!getComputedStyle(room.querySelector('.wardcraft-illustration')).backgroundImage.includes('ward-'+selected+'.webp'))
+  throw new Error('Warded room is not using the selected Ward artwork');
  if(S.wardcraft.active.charges!==selectedWard.charges)throw new Error('Wrong Ward charges');
  const manaNow=S.mana,bloodNow=S.players[S.current].blood;
  if(manaNow!==30-selectedWard.mana||bloodNow!==8-selectedWard.blood)throw new Error('Ward cost incorrect');
@@ -54,7 +69,7 @@ const result=await page.evaluate(async()=>{
  // All other ten Ward definitions remain serializable in save and multiplayer state.
  const cloned=JSON.parse(JSON.stringify(S.wardcraft));
  if(cloned.active?.key!=='cinder')throw new Error('Ward state not serializable');
- return {wardDefinitions:ws.definitions.length,offered:3,selected,placed:true,overlay:true,costs:true,cinderDamage:true,oncePerPhase:true,room:ROOM_NAMES[placementRoom],initialRound};
+ return {wardDefinitions:ws.definitions.length,artworksHD:artworks.length,offered:3,selected,placed:true,overlay:true,costs:true,cinderDamage:true,oncePerPhase:true,room:ROOM_NAMES[placementRoom],initialRound};
 });
 await browser.close();
 if(errors.length)throw new Error('Wardcraft console errors: '+errors.join('; '));
