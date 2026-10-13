@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v24';
+const CACHE_NAME='sanctum-clean-v23';
 const CORE=[
   './',
   './index.html',
@@ -8,7 +8,6 @@ const CORE=[
   './src/styles/mobile.css',
   './src/styles/multiplayer.css',
   './src/styles/accessibility.css',
-  './src/styles/3d-board.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
@@ -19,7 +18,6 @@ const CORE=[
   './src/js/50-mobile.js',
   './src/js/60-multiplayer.js',
   './src/js/70-multiplayer-patches.js',
-  './src/js/80-3d-board.js',
   './assets/bosses/boss-sprite.webp',
   './assets/embedded/demon-art-pending.svg',
   './assets/embedded/new_hollow_scribe.webp',
