@@ -20,7 +20,7 @@ const WARDS=Object.freeze([
 const lookup=key=>WARDS.find(w=>w.key===key)||null;
 const fmt=w=>w.mana+' Mana'+(w.blood?' + '+w.blood+' Blood':'');
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const artStyle=w=>'--ward-image:url("./assets/wards/ward-'+w.key+'.webp");--ward-color:'+w.color+';';
+const artStyle=w=>'--ward-image:url(./assets/wards/ward-'+w.key+'.webp);--ward-color:'+w.color+';';
 const activeWard=()=>S?.wardcraft?.active||null;
 const stage=()=>S&&S.started&&S.phase==='Priest'&&S.rogue?.enabled&&S.rogue.nodeType!=='repository'&&S.rogue.nodeType!=='sanctuary'&&!S.rogue.pendingClear;
 const allowed=w=>Array.isArray(w.rooms)?w.rooms:[0,1,2,3];
