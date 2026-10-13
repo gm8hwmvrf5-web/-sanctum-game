@@ -589,7 +589,8 @@ window.__sanctumBalanceReadouts=()=>({
  floorHpMultiplier:rogueFloorHealthMultiplier(),
  floorDamageMultiplier:rogueFloorDamageMultiplier(),
  relicXpRequired:rogueRelicXpNeed(),
- shopPrices:rogueRepositoryPrices(rogueCycle())
+ shopPrices:rogueRepositoryPrices(rogueCycle()),
+ routeOptions:rogueliteRouteOptions()
 });
 
 // Setup/rules copy: clarify the new run structure without disturbing the original controls.
