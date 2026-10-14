@@ -29,6 +29,8 @@
   let lobbyRosterPollTimer=0;
   let lobbyRosterRefreshBusy=false;
   let sessionEnded=false;
+  let savedInviteSnapshot=null;
+  const SAVED_INVITE_KEY='sanctum_saved_run_invite_v1';
   const voteActionRegistry=new Map();
   const resolvingVoteIds=new Set();
   const voteOpeningIds=new Set();
@@ -79,8 +81,41 @@
     }catch(_){}
   }
   function playerName(){
+    if(savedInviteSnapshot?.players?.[0])return String(savedInviteSnapshot.players[0].name||'Priest').slice(0,32);
     const first=document.getElementById('pname0');
     return (first&&first.value&&first.value.trim())||'Priest';
+  }
+  function setSavedInviteVisibility(){
+    const active=!!(session&&session.isHost&&session.savedRunLobby&&lastRosterSnapshot?.game.status==='lobby');
+    const resume=panel?.querySelector('#mpResumeSavedBtn');
+    const message=panel?.querySelector('#mpSavedRunNotice');
+    if(resume){resume.hidden=!active;resume.disabled=!active||!(savedInviteSnapshot||restoreSavedInvite());}
+    if(message){
+      const lobby=lastRosterSnapshot?.game?.state;
+      const saved=active||!!(session&&lobby?.resumePending&&lastRosterSnapshot?.game.status==='lobby');
+      message.hidden=!saved;
+      if(saved)message.textContent=active?
+        'Saved run lobby • invite friends with this code, then Resume Saved Run. The original save stays unchanged.':
+        'Joining a saved run • choose your Priest class below. The host will resume from their saved floor.';
+    }
+    const start=document.getElementById('startBtn');
+    if(start&&active){start.disabled=true;start.title='Use Resume Saved Run to preserve your loaded game.';}
+  }
+  function restoreSavedInvite(){
+    if(savedInviteSnapshot)return savedInviteSnapshot;
+    if(!session?.savedRunLobby)return null;
+    try{
+      const parsed=JSON.parse(sessionStorage.getItem(SAVED_INVITE_KEY)||'null');
+      if(parsed?.roomCode===session.roomCode&&parsed.state?.started&&parsed.state.players?.length===1){
+        savedInviteSnapshot=parsed.state;
+      }
+    }catch(_){}
+    return savedInviteSnapshot;
+  }
+  function clearSavedInvite(){
+    savedInviteSnapshot=null;
+    try{sessionStorage.removeItem(SAVED_INVITE_KEY)}catch(_){}
+    setSavedInviteVisibility();
   }
   function status(text,bad=false){
     if(!panel)return;
@@ -1160,6 +1195,7 @@
       try{setupPlayersUI()}catch(_){}
     }
 
+    const savedLobby=!!snapshot.game.state?.resumePending;
     snapshot.players.forEach((p,i)=>{
       const name=document.getElementById('pname'+i);
       const char=document.getElementById('pchar'+i);
@@ -1167,14 +1203,23 @@
         name.value=p.display_name||('Player '+(i+1));
         name.readOnly=true;
       }
-      if(char&&existingChars[i]&&[...char.options].some(o=>o.value===existingChars[i])){
-        char.value=existingChars[i];
+      if(char){
+        const desired=savedLobby&&i===0&&session?.isHost&&savedInviteSnapshot
+          ? savedInviteSnapshot.players[0].char
+          : (p.character_key||existingChars[i]);
+        if(desired&&[...char.options].some(o=>o.value===desired))char.value=desired;
+        // Guests choose their own class; spectators and the host cannot silently
+        // replace another guest's confirmed selection in saved-run lobbies.
+        char.disabled=!!(savedLobby&&(!session||Number(session.seat)!==i+1||i===0));
       }
     });
 
     const start=document.getElementById('startBtn');
     if(start&&session){
-      if(!session.isHost){
+      if(savedLobby&&session.isHost&&session.savedRunLobby){
+        start.disabled=true;
+        start.title='Use Resume Saved Run to preserve the loaded game.';
+      }else if(!session.isHost){
         start.dataset.mpGuestLocked='1';
         start.disabled=true;
         start.title='Only the room host can start the online game.';
@@ -1610,6 +1655,7 @@
       if(code)code.textContent=snap.game.room_code;
       renderRoster(snap);
       syncSetupFromRoster(snap);
+      setSavedInviteVisibility();
       panel?.classList.add('connected');
       if(snap.game.status==='lobby'){
         startRosterSubscription().catch(err=>console.warn('Roster subscription failed',err));
@@ -1680,7 +1726,9 @@
     if(!document.hidden)refreshLobbyWhenActive();
   });
 
-  async function host(){
+  async function host(mode='new'){
+    // DOM click sends an event; only our explicit invocation selects saved mode.
+    const saved=mode==='saved'&&!!savedInviteSnapshot;
     const btn=panel.querySelector('#mpHostBtn');
     btn.disabled=true;
     status('Creating online room…');
@@ -1688,7 +1736,9 @@
       const sb=await ensureClient();
       const {data,error}=await sb.rpc('create_sanctum_game',{
         p_display_name:playerName(),
-        p_initial_state:{multiplayer:true,stage:'lobby'}
+        p_initial_state:saved
+          ?{multiplayer:true,stage:'lobby',resumePending:true,resumeFloor:savedInviteSnapshot.rogue?.floor||1}
+          :{multiplayer:true,stage:'lobby'}
       });
       if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;
@@ -1701,17 +1751,23 @@
         playerToken:row.player_token,
         seat:Number(row.seat),
         stateVersion:Number(row.state_version||0),
-        isHost:true
+        isHost:true,
+        savedRunLobby:saved
       };
+      if(saved){
+        try{sessionStorage.setItem(SAVED_INVITE_KEY,JSON.stringify({roomCode:session.roomCode,state:savedInviteSnapshot}))}catch(err){console.warn('Invite checkpoint storage unavailable',err)}
+      }
       lastAppliedVersion=-1;
       lastPublishedHash='';
       saveSession();
       await subscribe();
       await refreshRoom(true);
       startHeartbeat();
+      return true;
     }catch(err){
       console.error(err);
       status(err.message||'Could not create room.',true);
+      return false;
     }finally{btn.disabled=false}
   }
 
@@ -1747,10 +1803,157 @@
       await subscribe();
       await refreshRoom(true);
       startHeartbeat();
+      if(lastRosterSnapshot?.game?.state?.resumePending){
+        const ownChar=document.getElementById('pchar'+(Number(session.seat)-1));
+        if(ownChar)await chooseSavedPriestClass(ownChar.value);
+      }
     }catch(err){
       console.error(err);
       status(err.message||'Could not join room.',true);
     }finally{btn.disabled=false}
+  }
+
+
+  async function chooseSavedPriestClass(character){
+    if(!session||!lastRosterSnapshot?.game?.state?.resumePending
+        ||lastRosterSnapshot?.game?.status!=='lobby'||!CHARACTERS[character])return false;
+    try{
+      const sb=await ensureClient();
+      const {error}=await sb.rpc('set_sanctum_player_character',{
+        p_room_code:session.roomCode,
+        p_player_token:session.playerToken,
+        p_character_key:character
+      });
+      if(error)throw error;
+      status('Priest selected: '+character+'. Waiting for the host to resume the saved run.');
+      await refreshRoom(false);
+      return true;
+    }catch(err){status('Could not set Priest class: '+(err.message||err),true);return false}
+  }
+
+  async function hostSavedRun(){
+    if(session){status('Leave the current online room before inviting friends to a saved run.',true);return false;}
+    if(!S?.started||S.players?.length!==1){
+      showGameStatus('Load a single-player saved run before inviting friends.','bad');return false;
+    }
+    if(S.phase!=='Priest'||Number(S.current)!==0||S.multiplayerVote?.open){
+      showGameStatus('Invite friends during your Priest turn, with no reward or passage choice active.','bad');return false;
+    }
+    if(blockingGameplayModalOpen()){
+      showGameStatus('Finish your pending card or reward choice before inviting friends.','bad');return false;
+    }
+    savedInviteSnapshot=cleanStateForWire();
+    const setup=document.getElementById('setupModal');
+    if(typeof window.hidePauseOverlay==='function')window.hidePauseOverlay(false);
+    try{clearTurnTimerInterval()}catch(_){}
+    S.manualPaused=true;
+    window.__sanctumManualPaused=true;
+    setup?.classList.remove('hidden');
+    const btn=panel?.querySelector('#mpHostBtn');
+    if(btn)btn.disabled=true;
+    const ok=await host('saved');
+    if(btn)btn.disabled=false;
+    if(!ok){
+      setup?.classList.add('hidden');
+      clearSavedInvite();
+      if(typeof window.openGameMenu==='function')window.openGameMenu();
+      return false;
+    }
+    const copy=panel?.querySelector('.mpRoomCode')?.textContent||session.roomCode;
+    showGameStatus('Saved game lobby ready • share code '+copy+' with your friends.','good');
+    setSavedInviteVisibility();
+    return true;
+  }
+
+  function createResumeParty(source,roster){
+    if(!source?.started||source.players?.length!==1||!Array.isArray(source.rooms))
+      throw Error('Only a loaded single-player run can start a saved-run lobby.');
+    if(roster.length<2||roster.length>4)throw Error('Invite 1–3 friends before resuming.');
+    const players=[...roster].sort((a,b)=>Number(a.seat)-Number(b.seat));
+    if(players[0].seat!==1||players.some((p,i)=>Number(p.seat)!==i+1))
+      throw Error('Wait for a contiguous party roster before resuming.');
+    const known=Object.keys(CHARACTERS);
+    const choices=[source.players[0].char,...players.slice(1).map(p=>p.character_key)];
+    if(choices.some(x=>!known.includes(x)))
+      throw Error('Every joining friend must choose a Priest class before resuming.');
+    if(new Set(choices).size!==choices.length)
+      throw Error('Each player must choose a different Priest class before resuming.');
+    const state=JSON.parse(JSON.stringify(source));
+    const oldCount=state.players.length,oldMana=[0,10,15,23,32][oldCount];
+    const newCount=players.length,newMana=[0,10,15,23,32][newCount];
+    // Preserve spent mana within the existing Priest round, rather than granting
+    // a full extra pool every time a friend joins.
+    state.mana=Math.max(0,Number(state.mana||0)+(newMana-oldMana));
+    state.players[0].name=String(source.players[0].name||players[0].display_name||'Priest');
+    const makeCard=(def,label)=>({...def,id:'invite-'+label+'-'+uid(),empowered:false,empowerPaid:false});
+    const additions=[];
+    for(let i=1;i<newCount;i++){
+      PRIEST.forEach((def,j)=>additions.push(makeCard(def,'set-'+i+'-'+j)));
+      for(let j=0;j<15;j++)additions.push(makeCard(PRIEST[Math.floor(Math.random()*PRIEST.length)],'copy-'+i+'-'+j));
+    }
+    state.priestDeck=shuffle([...(state.priestDeck||[]),...additions]);
+    for(let i=1;i<newCount;i++){
+      const player={name:players[i].display_name||'Player '+(i+1),char:choices[i],
+        blood:0,hand:[],basic:false,ritualUsed:[false,false,false],
+        forceEmpower:false,discardUsed:false,consecrateUsed:false};
+      for(let n=0;n<4&&state.priestDeck.length;n++)player.hand.push(state.priestDeck.pop());
+      state.players.push(player);
+    }
+    // A revealed Boss must scale to its new party without healing away
+    // previous damage or dropping deep-cycle HP scaling.
+    if(state.bossRevealed&&state.boss&&Number(state.boss.hp)>0){
+      const factors=[0,.70,.85,1.05,1.25];
+      const oldHp=Number(state.boss.hp);
+      const proportion=Math.max(0,Math.min(1,Number(state.boss.cur??oldHp)/oldHp));
+      const newHp=Math.max(1,Math.round(oldHp*factors[newCount]/factors[oldCount]));
+      state.boss.hp=newHp;
+      state.boss.cur=Math.max(0,Math.round(newHp*proportion));
+      state.boss.baseHp=Math.round(newHp/factors[newCount]);
+      state.boss.scaledForPlayers=newCount;
+    }
+    state.multiplayerPriestDeckExpanded=true;
+    state.multiplayerPriestCardsPerPlayer=PRIEST.length+15;
+    state.savedRunPartySize=newCount;
+    state.manualPaused=false;
+    state.current=0;
+    if(!Number.isFinite(state.turnTimerRemaining)||state.turnTimerRemaining<=0)
+      state.turnTimerRemaining=Number(state.turnTimerSeconds)||60;
+    return state;
+  }
+
+  async function resumeSavedRun(){
+    const btn=panel?.querySelector('#mpResumeSavedBtn');
+    if(!session?.isHost||!session?.savedRunLobby||lastRosterSnapshot?.game?.status!=='lobby'){
+      status('Only the saved-run host can resume this lobby.',true);return false;
+    }
+    const snapshot=restoreSavedInvite();
+    if(!snapshot){status('The local invite checkpoint is missing. Leave the lobby and load your save again.',true);return false}
+    if(btn)btn.disabled=true;
+    const previous=S;
+    try{
+      // Refresh roster before publishing to avoid creating a party from stale
+      // joins or accepting duplicate Priest class choices.
+      const roster=await fetchRoom();
+      if(!roster||roster.game.status!=='lobby')throw Error('Room is no longer waiting in the lobby.');
+      const state=createResumeParty(snapshot,roster.players);
+      S=state;
+      lastPublishedHash='';
+      const accepted=await pushSharedState('game_start',{players:state.players.length,resumeSavedRun:true});
+      if(!accepted)throw Error('The saved run was not accepted by the multiplayer server.');
+      session.savedRunLobby=false;saveSession();
+      clearSavedInvite();
+      document.getElementById('setupModal')?.classList.add('hidden');
+      S.manualPaused=false;window.__sanctumManualPaused=false;
+      try{syncTurnTimerAfterLoad()}catch(_){}
+      render();setGameBanner();
+      showGameStatus('Saved run resumed online with '+S.players.length+' players.','good');
+      return true;
+    }catch(err){
+      S=previous;
+      try{clearTurnTimerInterval()}catch(_){}
+      status('Could not resume saved run: '+(err.message||err),true);
+      return false;
+    }finally{if(btn)btn.disabled=false}
   }
 
   async function leave(){
@@ -1762,6 +1965,7 @@
     resolvingVoteTransition=false;
     choiceAuthorityRepairBusy=false;
     channel=null;rosterSubscribedGameId=null;session=null;lastRosterSnapshot=null;lastAppliedVersion=-1;authoritativeActiveSeat=null;lastPublishedHash='';sessionEnded=false;saveSession();
+    clearSavedInvite();
     try{clearTurnTimerInterval()}catch(_){}
     document.body.classList.remove('mpWaitingTurn');
     const handPanel=document.getElementById('handPanel');
@@ -1815,7 +2019,9 @@
         <button class="btn green" id="mpHostBtn" type="button">Host Online Game</button>
         <button class="btn blue" id="mpJoinBtn" type="button">Join Online Game</button>
         <button class="btn" id="mpLeaveBtn" type="button">Leave Online Room</button>
+        <button class="btn green" id="mpResumeSavedBtn" type="button" hidden>Resume Saved Run</button>
       </div>
+      <div id="mpSavedRunNotice" class="mpDevNote" hidden></div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
       <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, the passage-clearing Priest controls synchronized rewards and passage choices, Demon and Boss cards open into a large mobile-friendly reading view, and the room automatically ends when the host disconnects.</div>
@@ -1828,6 +2034,13 @@
     panel.querySelector('#mpHostBtn').addEventListener('click',host);
     panel.querySelector('#mpJoinBtn').addEventListener('click',join);
     panel.querySelector('#mpLeaveBtn').addEventListener('click',leave);
+    panel.querySelector('#mpResumeSavedBtn').addEventListener('click',resumeSavedRun);
+    box.addEventListener('change',event=>{
+      const match=String(event.target?.id||'').match(/^pchar([0-3])$/);
+      if(match&&session&&Number(match[1])+1===Number(session.seat)){
+        chooseSavedPriestClass(event.target.value);
+      }
+    });
     panel.querySelector('#mpRoomInput').addEventListener('input',e=>{
       e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'').slice(0,6);
     });
@@ -1837,6 +2050,7 @@
 
     loadSession();
     if(session){
+      restoreSavedInvite();
       const code=panel.querySelector('.mpRoomCode');
       if(code)code.textContent=session.roomCode||'------';
       status('Reconnecting to '+(session.roomCode||'online room')+'…');
@@ -1863,6 +2077,10 @@
     get isMyTurn(){return isMyTurn()},
     get authoritativeActiveSeat(){return authoritativeActiveSeat},
     refresh:()=>refreshRoom(true),
-    push:()=>pushSharedState('state_sync',{manual:true})
+    push:()=>pushSharedState('state_sync',{manual:true}),
+    hostSavedRun,
+    resumeSavedRun,
+    get savedInvitePending(){return !!session?.savedRunLobby},
+    get savedInviteFloor(){return savedInviteSnapshot?.rogue?.floor||null}
   };
 })();
