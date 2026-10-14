@@ -1,0 +1,75 @@
+/* Compact, readable elemental indicators pinned to the artwork only. */
+#boardSection .demonArtWrap,
+#bossArea .sanctum-elemental-boss-art{
+ position:relative;
+}
+#boardSection .sanctum-elemental-marks,
+#bossArea .sanctum-elemental-marks{
+ position:absolute;
+ top:3px;right:3px;z-index:9;
+ display:flex;gap:3px;align-items:center;
+ pointer-events:none;
+}
+#boardSection .sanctum-elemental-mark,
+#bossArea .sanctum-elemental-mark{
+ display:grid;place-items:center;
+ width:19px;height:19px;min-width:19px;
+ padding:0;
+ font:700 15px/1 Georgia,serif;
+ border-radius:50%;border:1px solid;
+ box-shadow:0 1px 6px #000e, inset 0 0 5px #000b;
+ text-shadow:0 0 6px currentColor;
+}
+#boardSection .sanctum-elemental-mark.sanctum-elemental-fire,
+#bossArea .sanctum-elemental-mark.sanctum-elemental-fire{
+ color:#ffa449;background:rgba(83,27,6,.88);
+ border-color:#ed7d35;
+}
+#boardSection .sanctum-elemental-mark.sanctum-elemental-poison,
+#bossArea .sanctum-elemental-mark.sanctum-elemental-poison{
+ color:#a1ef81;background:rgba(14,51,24,.91);
+ border-color:#65bf69;
+}
+#sanctumElementalDamageLayer{
+ position:fixed;inset:0;z-index:178;
+ pointer-events:none;user-select:none;
+ overflow:hidden;
+}
+.sanctum-elemental-damage{
+ position:absolute;
+ display:block;white-space:nowrap;
+ transform:translate(-50%,-50%);
+ font:900 16px/1.1 Georgia,serif;
+ letter-spacing:.4px;
+ -webkit-text-stroke:.5px #180c0b;
+ animation:sanctumElementalDamageRise 1s ease-out both;
+}
+.sanctum-elemental-damage-fire{
+ color:#ff9d32;
+ text-shadow:0 1px 2px #130403,0 0 7px #e86a17;
+}
+.sanctum-elemental-damage-poison{
+ color:#97f27b;
+ text-shadow:0 1px 2px #081309,0 0 7px #44b855;
+}
+@keyframes sanctumElementalDamageRise{
+ 0%{opacity:0;transform:translate(-50%,-35%) scale(.8)}
+ 16%{opacity:1;transform:translate(-50%,-65%) scale(1.04)}
+ 60%{opacity:1;transform:translate(-50%,-120%)}
+ 100%{opacity:0;transform:translate(-50%,-190%) scale(.95)}
+}
+@media(max-width:700px){
+ #boardSection .sanctum-elemental-mark,#bossArea .sanctum-elemental-mark{
+  width:17px;height:17px;min-width:17px;font-size:13px
+ }
+ .sanctum-elemental-damage{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ .sanctum-elemental-damage{
+  animation:sanctumElementalDamageAccessible .42s ease-out both
+ }
+ @keyframes sanctumElementalDamageAccessible{
+  from{opacity:0;transform:translate(-50%,-50%)}
+  30%{opacity:1}to{opacity:0;transform:translate(-50%,-75%)}
+ }
+}
