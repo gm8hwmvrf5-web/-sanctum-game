@@ -105,7 +105,7 @@ function showNumber(evt){
  label.style.left=pos.x+'px';
  label.style.top=pos.y+'px';
  damageLayer().appendChild(label);
- setTimeout(()=>label.remove(),reduced()?500:1080);
+ setTimeout(()=>label.remove(),reduced()?750:1620);
 }
 function drawDamage(){
  const list=typeof S!=='undefined'&&Array.isArray(S?.elementalDamageVisuals)
