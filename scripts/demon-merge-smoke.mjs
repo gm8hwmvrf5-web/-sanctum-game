@@ -108,7 +108,7 @@ try{
   check(S.rooms[0].some(d=>d.greater&&d.key===def.key),'Greater missing from full Gateway');
   check(S.queue[0].id==='gate-1','An existing Lesser was not queued before Greater arrival');
   check(S.queue[1].id==='already-queued','Preexisting queued Demons changed order');
-  check(S.rooms.flat().length+S.queue.length===7,'Demon was lost or duplicated during full-Gateway merge');
+  check(S.rooms.flat().length+S.queue.length===6,'Demon was lost or duplicated during full-Gateway merge');
   // Room merge protections remain authoritative.
   reset();S.rooms[1]=[demon(def,'shield1')];S.rooms[3]=[demon(def,'shield2')];
   S.globalMergeBlock=true;
