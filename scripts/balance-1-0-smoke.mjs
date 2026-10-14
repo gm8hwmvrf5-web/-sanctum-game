@@ -53,7 +53,7 @@ try{
      reset(n,floor,cls);
      assert(sharedManaRoundValue()===pools[n],'Mana baseline mismatch for '+cls+' '+n+' players');
      assert(S.players[0].char===cls,'Selected Priest class did not survive setup');
-     assert(window.__sanctumBalanceReadouts().relicXpRequired===20,'First XP Relic must require 20');
+     assert(window.__sanctumBalanceReadouts().relicXpRequired===25,'First XP Relic must require 25');
      const act=Math.ceil((((floor-1)%15)+1)/5);
      const cycle=Math.floor((floor-1)/15)+1;
      const expectedDrain=Math.min(8,[0,1,2,3,4][n]+act-1+cycle-1);
@@ -79,7 +79,7 @@ try{
     assert(S.pendingDemonManaDrain===0,'Priest-phase drain should not queue for next round');
    }
   }
-  for(const [i,cost] of [20,28,36,44,52].entries()){
+  for(const [i,cost] of [25,35,45,55,65,75,85,95,105,115].entries()){
    reset();
    S.rogue.xpRelics=i;
    assert(window.__sanctumBalanceReadouts().relicXpRequired===cost,'Relic XP progression failed index '+i);
@@ -148,7 +148,7 @@ try{
    'Third Folio purchase was incorrectly allowed');
   assert(S.rogue.cindersRun===before,'Rejected Folio purchase spent Cinders');
   return {build:'Balance 1.0',priestClasses:characters,partySizes:Object.keys(pools).length,bossCases:matrix.length,
-   scaleFloors:floors,firstFiveRelicXp:[20,28,36,44,52],wardCostsVerified:wardDefs.length,
+   scaleFloors:floors,firstFiveRelicXp:[25,35,45,55,65],wardCostsVerified:wardDefs.length,
    shopTierCycles:[1,2,3,9],folioLimit:2,demonManaCaps:drains,thornForms:2};
  });
  console.log('BALANCE 1.0 BROWSER MATRIX PASSED:',JSON.stringify(report));
