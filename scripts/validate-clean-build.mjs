@@ -7,6 +7,7 @@ const required=[
   'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css','src/styles/accessibility.css','src/styles/accessibility.css',
   'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/25-font-settings.js','src/js/30-roguelite.js',
   'src/js/25-font-settings.js','src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
+  'src/js/80-wards.js','src/js/85-demon-merge-fx.js','src/styles/demon-merge-fx.css',
 ];
 
 for(const file of required){
@@ -23,11 +24,18 @@ for(const token of ['damageFontSize','abilityFontSize','src/styles/accessibility
   if(!index.includes(token)) throw new Error('Font controls wiring missing: '+token);
 }
 const serviceWorker=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
+for(const asset of ['src/js/85-demon-merge-fx.js','src/styles/demon-merge-fx.css']){
+ if(!index.includes('./'+asset)||!serviceWorker.includes('./'+asset)){
+  throw new Error('Demon merge FX must load and precache '+asset);
+ }
+}
+
 if(serviceWorker.includes('\\n')) throw new Error('Service worker contains a literal \\n escape outside a string.');
 
 const ordered=[
  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
  'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
+ 'src/js/80-wards.js','src/js/85-demon-merge-fx.js',
 ];
 let last=-1;
 for(const file of ordered){
@@ -77,6 +85,10 @@ for(const file of ['index.html','src/js/20-ui-foundation.js','src/js/40-priest-u
   }
 }
 
+const mergeEngine=fs.readFileSync(path.join(root,'src/js/10-engine.js'),'utf8');
+for(const token of ['demonMergeVisuals','S.rooms[0].push(host)','mergedThisPhase','__sanctumRenderDemonMergeFx']){
+ if(!mergeEngine.includes(token))throw new Error('Demon fusion Gateway visuals missing: '+token);
+}
 const dataSource=fs.readFileSync(path.join(root,'src/js/00-data.js'),'utf8');
 if(!dataSource.includes('{n:"Quick Prayer",m:4')||
    !dataSource.includes('k:"quickPrayer",v:2,xv:3')){
