@@ -98,11 +98,13 @@ try{
    'Purchased Repository Relic must not count as passage reward');
 
   reset();
-  S.relicDeck=[];
   elite();
+  // Empty the Relic deck after reaching the reward. This isolates the
+  // failed-claim path from the engine's encounter/setup deck handling.
+  S.relicDeck=[];
   choose('Claim a Relic');
   check(need()===25&&S.rogue.passageRelics===0,
-   'Empty deck must not raise next XP target');
+   'Empty deck must not raise next XP target: '+JSON.stringify({need:need(),passage:S.rogue.passageRelics,deck:S.relicDeck?.length}));
   return {first:25,afterElite:35,afterXpAndElite:45,afterBoss:55,
    savedAndLoaded:true,legacySave:true,storeExcluded:true,emptyDeckExcluded:true};
  });
