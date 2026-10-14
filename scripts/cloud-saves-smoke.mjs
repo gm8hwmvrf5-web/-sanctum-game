@@ -118,6 +118,7 @@ try{
  if(JSON.stringify(meta.save_data).includes('data:image/'))fail('Save contained uncompressed art.');
  // Verify browser save migration/upload without touching game state.
  await pc.evaluate(()=>save());
+ await pc.locator('#cloudRefreshBtn').click();
  await pc.locator('.cloud-slot').nth(1).getByRole('button',{name:'Upload Browser Save'}).click();
  await pc.waitForFunction(()=>SanctumCloudSaves.slotCount===2);
  if(!cloud.has('cross-device@example.test:2'))fail('Browser save upload failed.');
