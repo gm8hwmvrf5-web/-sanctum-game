@@ -132,7 +132,7 @@ try{
  await phone.locator('#cloudAccountSignedIn').waitFor({state:'visible'});
  await phone.waitForFunction(()=>SanctumCloudSaves.slotCount===2);
  await phone.locator('.cloud-slot').first().getByRole('button',{name:'Load',exact:true}).click();
- await phone.waitForFunction(()=>window.S?.started&&S.round===7&&S.altar===19);
+ await phone.waitForFunction(()=>S.started&&S.round===7&&S.altar===19);
  const result=await phone.evaluate(()=>({
   round:S.round,altar:S.altar,players:S.players.length,
   savedLocal:!!localStorage.getItem('sanctum-save-v2'),
