@@ -53,6 +53,7 @@ jobs:
           node scripts/smoke-clean-build.mjs
           node scripts/wards-smoke.mjs
           node scripts/wards-mechanics.mjs
+          node scripts/demon-merge-smoke.mjs
           node scripts/repository-after-boss-smoke.mjs
           node scripts/balance-1-0-smoke.mjs
           node scripts/balance-1-1-smoke.mjs
