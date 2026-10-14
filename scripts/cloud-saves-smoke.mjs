@@ -113,7 +113,7 @@ try{
  await pc.locator('.cloud-slot').first().getByRole('button',{name:'Save Current Run'}).click();
  await pc.waitForFunction(()=>SanctumCloudSaves.slotCount===1);
  let meta=cloud.get('cross-device@example.test:1');
- if(meta?.round_number!==7||meta.save_data?.state?.altar!==19)fail('PC cloud slot lost the game state.');
+ if(meta?.round_number!==7||meta.save_data?.state?.altar!==19)fail('PC cloud slot lost the game state. '+JSON.stringify({round:meta?.round_number,altar:meta?.save_data?.state?.altar,slotKeys:[...cloud.keys()],stateType:typeof meta?.save_data,game:await pc.evaluate(()=>({round:S.round,altar:S.altar}))}));
  if(!meta.save_data.state||meta.save_data.state.players.length!==1)fail('Cloud slot did not save full run.');
  if(JSON.stringify(meta.save_data).includes('data:image/'))fail('Save contained uncompressed art.');
  // Verify browser save migration/upload without touching game state.
