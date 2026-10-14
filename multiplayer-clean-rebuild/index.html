@@ -115,6 +115,7 @@
 <link rel="stylesheet" href="./src/styles/wards.css?v=clean29">
 <link rel="stylesheet" href="./src/styles/demon-merge-fx.css?v=clean35">
 <link rel="stylesheet" href="./src/styles/elemental-damage-fx.css?v=clean37">
+<link rel="stylesheet" href="./src/styles/cloud-saves.css?v=clean38">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -404,6 +405,7 @@
       <button class="btn" id="pauseNewGameBtn" type="button">New Game</button>
       <button class="btn" id="pauseSaveBtn" type="button">Save</button>
       <button class="btn" id="pauseLoadBtn" type="button">Load</button>
+      <button class="btn" id="pauseCloudSavesBtn" type="button">Account / Cloud Saves</button>
       <button class="btn green" id="resumeGameBtn" type="button">Resume</button>
     </div>
     <div class="fontSettingsPanel" aria-label="Font size settings">
@@ -424,6 +426,34 @@
     <section id="pauseLogSection" aria-label="Game Log"></section>
     <section id="pauseManualSection" aria-label="Manual Prototype Controls"></section>
     <section id="pauseInfoSection" aria-label="Game Information"></section>
+  </div>
+</div>
+<div class="modal hidden" id="cloudSaveModal" role="dialog" aria-modal="true" aria-labelledby="cloudSaveTitle">
+  <div class="modalbox cloud-save-box">
+    <h2 id="cloudSaveTitle">Sanctum Account &amp; Cloud Saves</h2>
+    <p class="cloud-small">Save your solo run in your account and continue on your other devices. Browser saves and backup files still work.</p>
+    <section id="cloudAccountGuest">
+      <label class="cloud-label" for="cloudEmail">Email address</label>
+      <input class="cloud-input" id="cloudEmail" type="email" inputmode="email" autocomplete="username" placeholder="your@email.com" maxlength="254">
+      <label class="cloud-label" for="cloudPassword">Password</label>
+      <input class="cloud-input" id="cloudPassword" type="password" autocomplete="current-password" placeholder="6 characters or more" minlength="6" maxlength="128">
+      <div class="cloud-actions">
+        <button class="btn green" id="cloudLoginBtn" type="button">Sign In</button>
+        <button class="btn" id="cloudSignupBtn" type="button">Create Account</button>
+      </div>
+      <p class="cloud-small">Creating an account may require confirmation through email. Your password is never stored in the game save.</p>
+    </section>
+    <section id="cloudAccountSignedIn" hidden>
+      <div class="cloud-account-line"><span>Signed in as <strong id="cloudAccountEmail"></strong></span>
+        <button class="btn" id="cloudSignOutBtn" type="button">Sign Out</button></div>
+      <p id="cloudRoomNotice" hidden>Cloud saves cannot be loaded or overwritten while an online multiplayer room is active.</p>
+      <div id="cloudSaveSlots" aria-label="Three private cloud save slots"></div>
+      <div class="cloud-actions">
+        <button class="btn" id="cloudRefreshBtn" type="button">Refresh Cloud Saves</button>
+      </div>
+    </section>
+    <div id="cloudSaveStatus" role="status" aria-live="polite">Sign in to access your cloud saves.</div>
+    <div class="cloud-actions"><button class="btn" id="cloudSaveClose" type="button">Back to Game Menu</button></div>
   </div>
 </div>
 <div class="modal hidden" id="loadChooserModal" role="dialog" aria-modal="true" aria-labelledby="loadChooserTitle">
@@ -641,5 +671,6 @@
 <script src="./src/js/80-wards.js?v=clean33"></script>
 <script src="./src/js/85-demon-merge-fx.js?v=clean35"></script>
 <script src="./src/js/86-elemental-damage-fx.js?v=clean37"></script>
+<script src="./src/js/87-cloud-saves.js?v=clean38"></script>
 </body>
 </html>
