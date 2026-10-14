@@ -42,7 +42,7 @@
  font:900 16px/1.1 Georgia,serif;
  letter-spacing:.4px;
  -webkit-text-stroke:.5px #180c0b;
- animation:sanctumElementalDamageRise 1s ease-out both;
+ animation:sanctumElementalDamageRise 1.5s ease-out both;
 }
 .sanctum-elemental-damage-fire{
  color:#ff9d32;
@@ -66,7 +66,7 @@
 }
 @media(prefers-reduced-motion:reduce){
  .sanctum-elemental-damage{
-  animation:sanctumElementalDamageAccessible .42s ease-out both
+  animation:sanctumElementalDamageAccessible .63s ease-out both
  }
  @keyframes sanctumElementalDamageAccessible{
   from{opacity:0;transform:translate(-50%,-50%)}
