@@ -711,6 +711,25 @@ function burnTarget(item){
  try{const h=allDemons().find(function(v){return String((v.d&&v.d.id)||'')===String(item.id)});return h?Object.assign({kind:'demon'},h):null}catch(_){return null}
 }
 
+// Elemental damage visuals are cosmetic and synchronized through the same
+// authoritative game state as the original Poison/Fire status. Never change
+// damage or hit counts to support an animation.
+function elementalHp(x){return Math.max(0,Number(x?.kind==='boss'?x?.boss?.cur:x?.d?.cur)||0)}
+function elementalVisualAnchor(x){
+ if(x?.kind==='boss')return {targetKind:'boss',targetId:'boss',room:-1,index:0};
+ let loc=null;try{loc=findDemonLocation(x?.d)}catch(_){}
+ return {targetKind:'demon',targetId:String(x?.d?.id||''),
+  room:loc?loc.r:-1,index:loc?loc.i:0};
+}
+function elementalDamageVisual(x,kind,actual,anchor){
+ const damage=Math.max(0,Math.floor(Number(actual)||0));
+ if(!damage||!S)return;
+ S.elementalDamageVisuals=Array.isArray(S.elementalDamageVisuals)?S.elementalDamageVisuals:[];
+ S.elementalDamageVisuals.push({
+  id:uid(),kind,damage,createdAt:Date.now(),...anchor
+ });
+ if(S.elementalDamageVisuals.length>24)S.elementalDamageVisuals.splice(0,S.elementalDamageVisuals.length-24);
+}
 const rawDeal=typeof dealDamageTarget==='function'?dealDamageTarget:null;
 if(rawDeal){
  dealDamageTarget=function(x,amt,source,opts){
@@ -728,7 +747,9 @@ if(rawDeal){
     st.elementalPoisonHits=0;
     const burst=Math.max(1,Math.floor(Number(typeof basicAttackDamage==='function'?basicAttackDamage():base)||base||1));
     try{log("Serpent's Fang erupts on "+nameOf(x)+' for '+burst+' Poison damage.','good')}catch(_){}
+    const anchor=elementalVisualAnchor(x),hp=elementalHp(x);
     rawDeal(x,burst,"Serpent's Fang Poison",{});
+    elementalDamageVisual(x,'poison',hp-elementalHp(x),anchor);
    }else try{log("Serpent's Fang poisons "+nameOf(x)+' (1/2).','good')}catch(_){}
   }
   if(enabled('fire')&&alive(x)){
@@ -737,6 +758,9 @@ if(rawDeal){
    addBurn(x,burn,owner);
    try{log('Cinderbrand ignites '+nameOf(x)+' for '+burn+' Fire damage at the end of this turn.','good')}catch(_){}
   }
+  // Basic Attack's initial render preceded the status additions above.
+  // Refresh badges immediately; the new visual module reads state only.
+  try{render()}catch(_){}
   return out;
  };
  try{window.dealDamageTarget=dealDamageTarget}catch(_){}
@@ -755,7 +779,9 @@ function resolveBurns(owner){
  mine.forEach(function(item){
   const x=burnTarget(item);if(!x||!alive(x))return;hit=true;
   try{log('Cinderbrand burns '+nameOf(x)+' for '+item.damage+' Fire damage.','good')}catch(_){}
+  const anchor=elementalVisualAnchor(x),hp=elementalHp(x);
   rawDeal(x,item.damage,'Cinderbrand Fire',{});
+  elementalDamageVisual(x,'fire',hp-elementalHp(x),anchor);
  });
  return hit;
 }
