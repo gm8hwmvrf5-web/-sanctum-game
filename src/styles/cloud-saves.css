@@ -1,0 +1,54 @@
+/* Account-based cloud saves: gothic UI, phone-friendly, and above pause menu. */
+#cloudSaveModal{z-index:280;background:rgba(4,3,6,.94)}
+#cloudSaveModal .cloud-save-box{
+ width:min(680px,95vw);max-height:92dvh;overflow-y:auto;
+ text-align:left;border:1px solid #a07942;
+ background:linear-gradient(160deg,#241719,#100d13);
+ box-shadow:0 18px 55px #000e;
+}
+#cloudSaveModal h2{margin:0 0 8px;color:#f0d6a0;text-align:center;letter-spacing:.7px}
+#cloudSaveModal p{font-size:13px;line-height:1.5;color:#cfc0a7}
+#cloudSaveModal .cloud-small{font-size:11px;color:#a9a18f;text-align:center;margin:10px 0}
+#cloudSaveModal .cloud-label{display:block;font-size:12px;color:#ecd19e;font-weight:700;margin:11px 0 4px}
+#cloudSaveModal .cloud-input{
+ display:block;width:100%;min-height:42px;box-sizing:border-box;
+ color:#f3e5cc;background:#0e0c0f;border:1px solid #89683c;
+ border-radius:6px;padding:9px 11px;font-size:15px;
+}
+#cloudSaveModal .cloud-input:focus-visible,
+#cloudSaveModal button:focus-visible{outline:2px solid #f1ca75;outline-offset:2px}
+#cloudSaveModal .cloud-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+#cloudSaveModal .cloud-actions button{min-height:40px;flex:1;min-width:110px}
+#cloudSaveStatus{
+ min-height:34px;padding:8px 10px;margin-top:12px;
+ border:1px solid #755d38;border-radius:7px;background:#141113;
+ color:#e9d9b9;font-size:12px;line-height:1.35;
+}
+#cloudSaveStatus.cloud-error{border-color:#b65450;color:#ffbbb2}
+#cloudSaveModal .cloud-account-line{
+ display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;
+ margin:10px 0;font-size:13px;color:#e9cf9c;overflow-wrap:anywhere;
+}
+#cloudSaveModal #cloudSaveSlots{display:grid;gap:10px;margin-top:14px}
+#cloudSaveModal .cloud-slot{
+ background:#110e11;border:1px solid #6e5637;border-radius:9px;padding:12px;
+}
+#cloudSaveModal .cloud-slot-head{display:flex;justify-content:space-between;align-items:center}
+#cloudSaveModal .cloud-slot-head strong{font-size:15px;color:#e8cf9e}
+#cloudSaveModal .cloud-slot-filled{color:#8fdda4;font-size:11px}
+#cloudSaveModal .cloud-slot-empty{color:#998977;font-size:11px}
+#cloudSaveModal .cloud-slot-detail{color:#c8bba2;font-size:11px;line-height:1.5;margin:6px 0 10px;overflow-wrap:anywhere}
+#cloudSaveModal .cloud-slot-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#cloudSaveModal .cloud-slot-actions .btn{
+ min-width:0;min-height:38px;padding:7px 5px;
+ font-size:11px;white-space:normal;line-height:1.3
+}
+#cloudSaveModal .cloud-slot-actions button:disabled,
+#cloudSaveModal .cloud-actions button:disabled{opacity:.48;cursor:not-allowed}
+#cloudSaveModal [hidden]{display:none!important}
+#cloudSaveModal #cloudRoomNotice{color:#e6ac78;border-left:3px solid #a8623e;padding-left:8px}
+@media(max-width:460px){
+ #cloudSaveModal .cloud-save-box{padding:12px}
+ #cloudSaveModal .cloud-slot{padding:9px}
+ #cloudSaveModal .cloud-slot-actions .btn{font-size:10px;min-height:43px}
+}
