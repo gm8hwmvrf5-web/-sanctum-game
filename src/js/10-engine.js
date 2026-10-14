@@ -369,7 +369,7 @@ function moveOneForward(d,reason='Demon movement'){let loc=findDemonLocation(d);
 function resolveStartDemonPhaseAbilities(){let snapshot=allDemons().map(x=>x.d);for(let d of snapshot){let code=demonCode(d),v=demonValue(d);if(code==='spawnImp')spawnSpecificImp(v);else if(code==='phasePush'){let moved=new Set();for(let k=0;k<v;k++){let t=null;for(let r=3;r>=0&&!t;r--){t=S.rooms[r].find(x=>!moved.has(x.id))||null}if(!t)break;moved.add(t.id);log(`${demonName(d)} moves ${demonName(t)} forward 1 room (automatic closest distinct target).`,'bad');moveOneForward(t,`${demonName(d)} ability`)}}}}
 function resolveEndDemonPhaseAbilities(){for(let x of allDemons()){let d=x.d;if(demonCode(d)==='endHeal'){let v=demonValue(d),before=d.cur;d.cur=Math.min(demonMaxHP(d),d.cur+v);if(d.cur>before)log(`${demonName(d)} heals ${d.cur-before} HP at the end of the Demon Phase.`,'bad')}}}
 function triggerDefeatAbility(d,opts={}){let code=demonCode(d),v=demonValue(d);if(opts.suppressNegative&&['defeatMana','defeatPush','defeatRuin','defeatAttack','defeatSpawnImp','defeatAltarCurse'].includes(code)){log(`${demonName(d)}'s negative defeat ability is suppressed by the Ritual.`,'good');return}if(code==='defeatBlood'&&!opts.skipBlood){distributeBlood(v);log(`${demonName(d)} ability grants ${v} additional Blood.`,'good')}else if(code==='defeatMana'){addMana(-v);log(`${demonName(d)} ability removes ${v} shared Mana.`,'bad')}else if(code==='defeatPush'){let t=closestDemon(d.id);if(t){log(`${demonName(d)} pushes ${demonName(t)} forward ${v} space${v===1?'':'s'} (automatic next-target choice).`,'bad');for(let i=0;i<v;i++)if(!moveOneForward(t,`${demonName(d)} defeat ability`))break}}else if(code==='defeatRuin'){let t=closestDemon(d.id);if(t){t.status.ruinBonus=(t.status.ruinBonus||0)+v;t.status.ruinRound=S.round;log(`${demonName(t)} gains +${v} Altar damage if it breaches this round.`,'bad')}}else if(code==='defeatAttack'){let t=closestDemon(d.id);if(t){t.status=t.status||{};t.status.attackBonus=(t.status.attackBonus||0)+v;log(`${demonName(d)} grants ${demonName(t)} +${v} Attack until it reaches the Altar.`,'bad')}}else if(code==='defeatSpawnImp'){spawnSpecificImp(v);log(`${demonName(d)} summons ${v} Lesser Imp${v===1?'':'s'} on defeat.`,'bad')}else if(code==='defeatAltarCurse'){S.nextAltarBonus=Math.max(0,Number(S.nextAltarBonus)||0)+v;log(`${demonName(d)} curses the next Altar loss for +${v} Protection (total +${S.nextAltarBonus}).`,'bad')}}
-function resetRoundDemonStatuses(){allDemons().forEach(x=>{delete x.d.status.damageIgnoreUsed;delete x.d.status.stopWardUsed;delete x.d.status.ritualHalfUsed;delete x.d.status.ruinBonus;delete x.d.status.ruinRound;delete x.d.status.attackRoundBonus;delete x.d.status.attackMoveBonus})}
+function resetRoundDemonStatuses(){allDemons().forEach(x=>{delete x.d.status.damageIgnoreUsed;delete x.d.status.stopWardUsed;delete x.d.status.ritualHalfUsed;delete x.d.status.ruinBonus;delete x.d.status.ruinRound;delete x.d.status.attackRoundBonus;delete x.d.status.attackMoveBonus;delete x.d.status.mergedThisPhase})}
 function randomUnit(){
  try{
   if(globalThis.crypto&&typeof globalThis.crypto.getRandomValues==='function'){
@@ -1021,7 +1021,15 @@ function checkMerge(d){
  if(S.blockNextMerge){S.blockNextMerge=false;log(`A merge of two ${d.n} cards is prevented.`,'good');return false}
  let host=d,donor=other.d;
  if(other.r<here.r){host=other.d;donor=d}
- let donorLoc=findDemonLocation(donor);if(!donorLoc)return false;
+ let hostLoc=findDemonLocation(host),donorLoc=findDemonLocation(donor);
+ if(!hostLoc||!donorLoc)return false;
+ // Capture the two Lesser cards *before* the authoritative merge. This
+ // small event travels with the multiplayer state, so other devices can
+ // play the same cosmetic effect without delaying combat or changing turns.
+ const mergeSources=[
+   {id:host.id,room:hostLoc.r,index:hostLoc.i,name:demonName(host),art:demonArt(host)},
+   {id:donor.id,room:donorLoc.r,index:donorLoc.i,name:demonName(donor),art:demonArt(donor)}
+ ];
  // When two marked Demons merge, preserve both hidden Crucifixes.
  // One stays with the Greater Demon; the other returns to the remaining
  // Demon deck, or waits for the next spawn if there is no unmarked card.
@@ -1036,13 +1044,33 @@ function checkMerge(d){
  }
  let status=mergedDemonStatus(host,donor);
  S.rooms[donorLoc.r].splice(donorLoc.i,1);
+ // The surviving Greater must resurface at the Gateway, not remain in
+ // whichever room held the Lesser host.
+ let survivingLoc=findDemonLocation(host);
+ if(!survivingLoc)return false;
+ S.rooms[survivingLoc.r].splice(survivingLoc.i,1);
+ if(S.rooms[0].length>=4){
+   // Do not silently drop a Demon or exceed the Gateway's four-card cap.
+   // The displaced Lesser retains all statuses and Crucifix attachments.
+   const displaced=S.rooms[0].shift();
+   if(displaced){
+     S.queue.unshift(displaced);
+     log(`The Gateway makes room for ${host.g}; ${demonName(displaced)} waits in the Gate Queue.`,'bad');
+   }
+ }
  if(selectedDemonId===donor.id)selectedDemonId=host.id;
  host.greater=true;host.status=status;
  host.cur=Math.max(1,host.ghp||host.hp||1);
  if(S?.rogue?.enabled&&typeof window.__rogueliteMutateDemon==='function')window.__rogueliteMutateDemon(host);
  host.cur=demonMaxHP(host);
- let loc=findDemonLocation(host),room=loc?ROOM_NAMES[loc.r]:'board';
- log(`Two ${host.n} cards merge in the ${room} and become ${host.g}!`, 'bad');
+ S.rooms[0].push(host);
+ const mergeVisual={
+   id:uid(),createdAt:Date.now(),round:S.round,
+   sources:mergeSources,result:{id:host.id,name:demonName(host),art:demonArt(host)},
+   destination:0
+ };
+ S.demonMergeVisuals=[...(S.demonMergeVisuals||[]),mergeVisual].slice(-12);
+ log(`Two ${host.n} cards shudder together and become ${host.g}! The Greater Demon resurfaces in the Gateway.`,'bad');
  return true;
 }
 function resolveBoardDuplicateMerges(){
@@ -2318,7 +2346,8 @@ function render(){normalizeSanctumState();document.getElementById('roundStat').t
    guardStatus.hidden=!S.started||activeGuard<=0;
    if(activeGuard>0)guardStatus.textContent=`✧ ALTAR GUARD — ${activeGuard} damage prevented this round · Damage above ${activeGuard} still reaches the Altar`;
  }
- renderBoss();renderPlayer();renderLog()
+ renderBoss();renderPlayer();renderLog();
+ if(typeof window.__sanctumRenderDemonMergeFx==='function')window.__sanctumRenderDemonMergeFx();
 }
 function renderBoss(){let a=document.getElementById('bossArea');if(!S.bossRevealed){a.innerHTML='<div class="cap">The Boss awakens after the 13th base Demon is defeated.</div>';return}let rules=(S.boss.rules||[]).filter(x=>x[0]!=="Boss Rule").map(x=>`<div><b>${x[0]}:</b> ${x[1]}</div>`).join("");a.innerHTML=`<div class="bossCard"><img class="bossArt" src="${S.boss.art}" alt="${S.boss.n}"><div class="bossName">${S.boss.n}</div><div class="bossSubtitle">${S.boss.subtitle||""}</div><div class="bossAbilityMini"><b>Descent:</b> Boss ${(S.bossesDefeated||0)+1} • ${S.bossesDefeated||0} defeated this run</div><div class="bossStatLine" aria-label="Boss stats"><span class="hp">HP ${S.boss.cur}/${S.boss.hp}</span><span class="bossStatSep" aria-hidden="true">•</span><span class="blood">Blood Power ${S.boss.b}</span></div><div class="bossAbilityMini">${rules}</div><div class="bossAbilityMini">${S.boss.baseHp&&S.boss.baseHp!==S.boss.hp?`Player-scaled HP: ${S.boss.hp} from ${S.boss.baseHp} printed HP.`:""}</div><div class="bossAbilityMini"><b>Boss Phase Altar Drain:</b> ${bossDrainAmount()}${bossDrainAmount()!==S.boss.b?` (scaled from printed ${S.boss.b})`:''}</div></div>`}
 function renderPlayer(){
