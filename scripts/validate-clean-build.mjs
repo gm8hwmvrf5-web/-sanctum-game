@@ -23,8 +23,13 @@ if(index.includes('\\n<link')) throw new Error('Index contains a literal \\n bef
 for(const token of ['damageFontSize','abilityFontSize','src/styles/accessibility.css','src/js/25-font-settings.js']){
   if(!index.includes(token)) throw new Error('Font controls wiring missing: '+token);
 }
-for(const element of ['pauseCloudSavesBtn','cloudSaveModal','cloudLoginBtn','cloudSignupBtn','cloudSaveSlots']){
+for(const element of ['pauseInviteFriendsBtn','pauseCloudSavesBtn','cloudSaveModal','cloudLoginBtn','cloudSignupBtn','cloudSaveSlots']){
  if(!index.includes('id="'+element+'"'))throw new Error('Cloud save UI missing: '+element);
+}
+
+const onlineSource=fs.readFileSync(path.join(root,'src/js/60-multiplayer.js'),'utf8');
+for(const token of ['hostSavedRun','resumeSavedRun','createResumeParty','savedRunLobby','resumePending','mpResumeSavedBtn','SAVED_INVITE_KEY','scale','p_character_key','pushSharedState(\'game_start\'']){
+ if(!onlineSource.includes(token))throw new Error('Loaded-run invite missing multiplayer hook: '+token);
 }
 const cloudSource=fs.readFileSync(path.join(root,'src/js/87-cloud-saves.js'),'utf8');
 for(const token of ['signInWithPassword','signUp','sanctum_cloud_saves','upsert','applyLoadedSave','auth.getUser','sanctum_cloud_account_auth_v1']){
