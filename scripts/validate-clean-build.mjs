@@ -7,7 +7,7 @@ const required=[
   'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css','src/styles/accessibility.css','src/styles/accessibility.css',
   'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/25-font-settings.js','src/js/30-roguelite.js',
   'src/js/25-font-settings.js','src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js',
-  'src/js/80-wards.js','src/js/85-demon-merge-fx.js','src/js/86-elemental-damage-fx.js','src/styles/demon-merge-fx.css','src/styles/elemental-damage-fx.css',
+  'src/js/80-wards.js','src/js/85-demon-merge-fx.js','src/js/86-elemental-damage-fx.js','src/js/87-cloud-saves.js','src/styles/demon-merge-fx.css','src/styles/elemental-damage-fx.css','src/styles/cloud-saves.css',
 ];
 
 for(const file of required){
@@ -23,9 +23,17 @@ if(index.includes('\\n<link')) throw new Error('Index contains a literal \\n bef
 for(const token of ['damageFontSize','abilityFontSize','src/styles/accessibility.css','src/js/25-font-settings.js']){
   if(!index.includes(token)) throw new Error('Font controls wiring missing: '+token);
 }
+for(const element of ['pauseCloudSavesBtn','cloudSaveModal','cloudLoginBtn','cloudSignupBtn','cloudSaveSlots']){
+ if(!index.includes('id="'+element+'"'))throw new Error('Cloud save UI missing: '+element);
+}
+const cloudSource=fs.readFileSync(path.join(root,'src/js/87-cloud-saves.js'),'utf8');
+for(const token of ['signInWithPassword','signUp','sanctum_cloud_saves','upsert','applyLoadedSave','auth.getUser','sanctum_cloud_account_auth_v1']){
+ if(!cloudSource.includes(token))throw new Error('Cloud save implementation missing: '+token);
+}
 const serviceWorker=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
 for(const asset of ['src/js/85-demon-merge-fx.js','src/styles/demon-merge-fx.css',
-  'src/js/86-elemental-damage-fx.js','src/styles/elemental-damage-fx.css']){
+  'src/js/86-elemental-damage-fx.js','src/styles/elemental-damage-fx.css',
+  'src/js/87-cloud-saves.js','src/styles/cloud-saves.css']){
  if(!index.includes('./'+asset)||!serviceWorker.includes('./'+asset)){
   throw new Error('Demon merge FX must load and precache '+asset);
  }
@@ -36,7 +44,7 @@ if(serviceWorker.includes('\\n')) throw new Error('Service worker contains a lit
 const ordered=[
  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
  'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js',
- 'src/js/80-wards.js','src/js/85-demon-merge-fx.js','src/js/86-elemental-damage-fx.js',
+ 'src/js/80-wards.js','src/js/85-demon-merge-fx.js','src/js/86-elemental-damage-fx.js','src/js/87-cloud-saves.js',
 ];
 let last=-1;
 for(const file of ordered){
