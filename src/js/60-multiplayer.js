@@ -1818,21 +1818,31 @@
   }
 
 
-  async function chooseSavedPriestClass(character){
+  let classChoiceQueue=Promise.resolve();
+  function chooseSavedPriestClass(character){
     if(!session||!lastRosterSnapshot?.game?.state?.resumePending
-        ||lastRosterSnapshot?.game?.status!=='lobby'||!CHARACTERS[character])return false;
-    try{
-      const sb=await ensureClient();
-      const {error}=await sb.rpc('set_sanctum_player_character',{
-        p_room_code:session.roomCode,
-        p_player_token:session.playerToken,
-        p_character_key:character
-      });
-      if(error)throw error;
-      status('Priest selected: '+character+'. Waiting for the host to resume the saved run.');
-      await refreshRoom(false);
-      return true;
-    }catch(err){status('Could not set Priest class: '+(err.message||err),true);return false}
+        ||lastRosterSnapshot?.game?.status!=='lobby'||!CHARACTERS[character])return Promise.resolve(false);
+    // The join default and a fast manual change must not race: the LAST
+    // selected class wins even when the network responds out of order.
+    const room=session.roomCode,token=session.playerToken;
+    const task=classChoiceQueue.catch(()=>{}).then(async()=>{
+      if(!session||session.roomCode!==room||lastRosterSnapshot?.game.status!=='lobby')return false;
+      try{
+        const sb=await ensureClient();
+        const {error}=await sb.rpc('set_sanctum_player_character',{
+          p_room_code:room,p_player_token:token,p_character_key:character
+        });
+        if(error)throw error;
+        status('Priest selected: '+character+'. Waiting for the host to resume the saved run.');
+        await refreshRoom(false);
+        return true;
+      }catch(err){
+        status('Could not set Priest class: '+(err.message||err),true);
+        return false;
+      }
+    });
+    classChoiceQueue=task;
+    return task;
   }
 
   async function hostSavedRun(){
