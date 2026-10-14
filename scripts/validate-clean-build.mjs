@@ -196,8 +196,8 @@ if(!rogueSource.includes('function rogueDifficultyMultiplier(){return Math.pow(1
    !rogueSource.includes('function rogueFloorDamageMultiplier(){return 1+(0.03*Math.max(0,rogueCycleFloorFor')){
   throw new Error('Roguelite must scale +3% per floor within each cycle and ×1.5 per new cycle.');
 }
-if(!rogueSource.includes('function rogueRelicXpNeed(){let r=rogueState();return 20+8*')){
-  throw new Error('Relic XP must start at 20 and rise by 8.');
+if(!rogueSource.includes('function rogueRelicXpNeed(){let r=rogueState();return Math.ceil((20+8*Math.max(0,r.xpRelics||0))*1.25)')){
+  throw new Error('Relic XP must be 25% above each former requirement, rounded up.');
 }
 if(!rogueSource.includes('repositoryFolioPurchases')||!rogueSource.includes(">=2){showGameStatus('The Forbidden Folio limit")){
   throw new Error('Run-only Forbidden Folio cap of two is missing.');
