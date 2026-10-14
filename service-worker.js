@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v37';
+const CACHE_NAME='sanctum-clean-v38';
 const CORE=[
   './',
   './index.html',
@@ -11,6 +11,7 @@ const CORE=[
   './src/styles/wards.css',
   './src/styles/demon-merge-fx.css',
   './src/styles/elemental-damage-fx.css',
+  './src/styles/cloud-saves.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
@@ -24,6 +25,7 @@ const CORE=[
   './src/js/80-wards.js',
   './src/js/85-demon-merge-fx.js',
   './src/js/86-elemental-damage-fx.js',
+  './src/js/87-cloud-saves.js',
   './assets/wards/ward-cinder.webp',
   './assets/wards/ward-thorns.webp',
   './assets/wards/ward-chains.webp',
