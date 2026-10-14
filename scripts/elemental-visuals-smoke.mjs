@@ -57,6 +57,8 @@ try{
    'Green floating Poison damage number missing');
   check(getComputedStyle(poisonFloat).color==='rgb(151, 242, 123)',
    'Poison floating number must be green');
+  check(getComputedStyle(poisonFloat).animationDuration==='1.5s',
+   'Elemental floating-number animation must last 50% longer (1.5 seconds)');
   const beforeBurn=d.cur;
   endTurn();
   check(S.elementalBurnQueue.length===0,'Fire queue not cleared at end of turn');
@@ -68,6 +70,8 @@ try{
   const fireFloat=document.querySelector('.sanctum-elemental-damage-fire');
   check(fireFloat&&getComputedStyle(fireFloat).color==='rgb(255, 157, 50)',
    'Orange floating Fire damage number missing');
+  check(getComputedStyle(fireFloat).animationDuration==='1.5s',
+   'Fire floating-number animation must last 50% longer');
   clearTurnTimerInterval();
   const snapshot=JSON.stringify(S);
   const eventsBefore=document.querySelectorAll('.sanctum-elemental-damage').length;
@@ -104,7 +108,7 @@ try{
   return {replayed:true,fire:[...floats].filter(x=>x.classList.contains('sanctum-elemental-damage-fire')).length,
    poison:[...floats].filter(x=>x.classList.contains('sanctum-elemental-damage-poison')).length};
  },result.snapshot);
- await host.waitForTimeout(1250);
+ await host.waitForTimeout(1900);
  const cleaned=await host.evaluate(()=>document.querySelectorAll('.sanctum-elemental-damage').length===0);
  if(!cleaned)throw Error('Floating Fire and Poison numbers were not cleaned up');
  if(errors.length)throw Error('Browser errors: '+errors.join('; '));
