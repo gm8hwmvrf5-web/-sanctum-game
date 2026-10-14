@@ -104,3 +104,37 @@ password sign-in. Configure a production SMTP provider for large-scale use
 Schema: Supabase migration `create_sanctum_cloud_save_slots`; table
 `public.sanctum_cloud_saves`. Browser regression:
 `node scripts/cloud-saves-smoke.mjs` (mock backend; creates no real users).
+
+
+## Invite friends into a saved solo run
+
+1. Load a browser or cloud solo save. During the host Priest's turn
+   (with all ability/reward popups resolved), open **Tab → Invite Friends**.
+2. A saved-run lobby opens with the normal six-character multiplayer code.
+   Share it with 1–3 friends. Friends join using **Join Online Game**,
+   then select distinct Priest classes on their devices.
+3. The host clicks **Resume Saved Run**, not the normal New Game Start button.
+   The authoritative Supabase `game_start` RPC accepts the preserved run as
+   the new shared board. Every guest sees their own hand.
+4. The existing host Priest keeps their cards, Relics, blood, floor, statuses,
+   resources, relic XP and progress. New Priests each add one copy of every
+   Priest card plus 15 shuffled duplicates to the current run deck, and each
+   draws a new four-card hand. Mana adjusts for players' count preserving
+   spent mana; existing Demon spawn and boss Altar damage rules follow the
+   new party size. Active Boss HP scales by the new player multiplier while
+   retaining the percent of HP already lost and active status effects.
+
+**Safety:** This feature *starts from a loaded single-Priest run*; it doesn't
+retroactively add seats to an already-running multiplayer room or interrupt
+unresolved Priest targeting and reward popups. The saved source run is not
+overwritten just by inviting. Save/checkpoint transfer to a new room is
+host-controlled. While the online room is active, individual cloud-slot
+save/restore remains disabled as before to protect multiplayer state. Use
+the host's normal local save/backup or save to cloud again once the room
+has ended. The player roster uses the existing Supabase lobby token checks,
+normal join-code validation and server-side game-start host authority.
+
+CI coverage: `node scripts/live-saved-run-invite.mjs` uses four real
+Supabase browser sessions and checks floor/hand/relic/XP conservation,
+party mana, Boss HP damage fraction and Poison status, guest sync, and
+the untouched original browser save.
