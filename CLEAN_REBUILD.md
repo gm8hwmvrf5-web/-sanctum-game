@@ -68,3 +68,39 @@ Balance changes are checked by `scripts/balance-1-0-smoke.mjs` alongside the gam
 - **Monk:** Palm of Judgment deals **4/8 base damage to bosses** for Lesser/Greater, while preserving **2/6 damage and 1/2-space knockback** against ordinary Demons. Inner Peace gives **2/3 Blood** for Lesser/Greater, and Greater still draws two Priest cards. Ritual Power Relics still add their printed bonuses.
 
 Validated by `scripts/balance-1-1-smoke.mjs` alongside the Balance 1.0 and multiplayer browser suite. These are targeted balance assertions rather than measured real-world completion-rate statistics.
+
+## Account-based cloud saves (Clean Rebuild)
+
+**Account / Cloud Saves** is available inside the Tab/Pause game menu. Players can
+create an account using an email address and password, sign in, and manually
+save or load **three private cloud slots** from PC, phone, or tablet. A saved
+run includes the complete versioned gameplay snapshot (Priest hands, relics,
+room positions, bosses, status effects, etc.). "Upload Browser Save" transfers
+a previously saved local run without loading it first; "Save Current Run"
+uploads the currently active run. Cloud loading also stores a new browser save
+on that device, so browser/offline backup workflows remain intact.
+
+This feature uses a **second** Supabase JS client with persistent Auth tokens
+under `sanctum_cloud_account_auth_v1`; the multiplayer room client and its
+existing anonymous session behavior are not modified. Cloud slots have an
+`auth.uid() = user_id` RLS policy for all SELECT/INSERT/UPDATE/DELETE; anon
+accounts have no table access. Cloud data is private to the signed-in account.
+No Supabase service-role secret is present in browser files.
+
+**Scope and safeguards:** Cloud saves are manual; they are not silently
+overwritten between devices. Overwriting and deleting a cloud slot require
+confirmation. Cloud load/save is disabled during live online multiplayer
+rooms, since multiplayer state is governed by the authoritative room, and
+loading a personal snapshot could disrupt other players. Local browser
+saves and JSON import/export continue to work without logging in.
+
+For email confirmation: enable Supabase Auth Email sign-in. New-account
+confirmation emails must be deliverable; for a clean return link set the
+project's Auth Site URL / redirect allowlist to the published Clean Rebuild
+URL. If confirmation is enabled, first confirm the email before using
+password sign-in. Configure a production SMTP provider for large-scale use
+(Supabase built-in email delivery may be rate-limited).
+
+Schema: Supabase migration `create_sanctum_cloud_save_slots`; table
+`public.sanctum_cloud_saves`. Browser regression:
+`node scripts/cloud-saves-smoke.mjs` (mock backend; creates no real users).
