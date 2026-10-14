@@ -99,7 +99,10 @@
         'Joining a saved run • choose your Priest class below. The host will resume from their saved floor.';
     }
     const start=document.getElementById('startBtn');
-    if(start&&active){start.disabled=true;start.title='Use Resume Saved Run to preserve your loaded game.';}
+    if(start&&active){start.disabled=true;start.dataset.mpSavedRunLocked='1';start.title='Use Resume Saved Run to preserve your loaded game.';}
+    else if(start?.dataset.mpSavedRunLocked==='1'){
+      start.disabled=false;delete start.dataset.mpSavedRunLocked;start.removeAttribute('title');
+    }
   }
   function restoreSavedInvite(){
     if(savedInviteSnapshot)return savedInviteSnapshot;
@@ -1218,6 +1221,7 @@
     if(start&&session){
       if(savedLobby&&session.isHost&&session.savedRunLobby){
         start.disabled=true;
+        start.dataset.mpSavedRunLocked='1';
         start.title='Use Resume Saved Run to preserve the loaded game.';
       }else if(!session.isHost){
         start.dataset.mpGuestLocked='1';
@@ -2064,6 +2068,7 @@
   }
 
   installStateSyncHooks();
+  document.getElementById('pauseInviteFriendsBtn')?.addEventListener('click',hostSavedRun);
 
   if(!installPanel()){
     let tries=0;
