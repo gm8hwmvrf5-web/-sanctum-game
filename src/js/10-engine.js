@@ -2227,9 +2227,19 @@ function migratePriestBalance(){
    const norm=n=>String(n||"").toLowerCase().replace(/^the\s+/,"").trim();
    const def=BOSSES.find(b=>norm(b.n)===norm(S.boss.n));
    if(def){
-     const oldMax=S.boss.hp||S.boss.baseHp||def.hp,oldCur=S.boss.cur==null?oldMax:S.boss.cur,ratio=oldMax>0?Math.max(0,oldCur/oldMax):1;
-     S.boss={...def,cur:def.hp,baseHp:def.hp};
-     if(S.bossRevealed){scaleBossForPlayers(false);S.boss.cur=Math.max(0,Math.min(S.boss.hp,Math.round(S.boss.hp*ratio)))}else S.boss.cur=S.boss.hp;
+     // Keep the saved Boss's run-time HP, status effects, and party scaling.
+     // The old migration rebuilt the printed definition on every remote sync,
+     // wiping poison markers and rescaling deep-floor Boss HP to its base.
+     const previous=S.boss,runtime={...previous};
+     for(const key of Object.keys(def)){
+       if(!['hp','baseHp','cur','status','scaledForPlayers'].includes(key))delete runtime[key];
+     }
+     S.boss={...def,...runtime};
+     if(!Number.isFinite(S.boss.baseHp))S.boss.baseHp=def.hp;
+     if(!Number.isFinite(S.boss.hp)||S.boss.hp<1)S.boss.hp=def.hp;
+     if(!Number.isFinite(S.boss.cur))S.boss.cur=S.boss.hp;
+     S.boss.cur=Math.max(0,Math.min(S.boss.hp,S.boss.cur));
+     if(S.bossRevealed&&!S.rogue?.enabled&&S.boss.scaledForPlayers!==S.players.length)scaleBossForPlayers(true);
    }else{
      if(!S.boss.baseHp)S.boss.baseHp=S.boss.hp;
      if(S.bossRevealed&&S.boss.scaledForPlayers!==S.players.length)scaleBossForPlayers(true);
