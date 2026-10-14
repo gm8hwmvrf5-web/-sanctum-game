@@ -58,6 +58,7 @@ jobs:
           node scripts/cloud-saves-smoke.mjs
           node scripts/repository-after-boss-smoke.mjs
           node scripts/balance-1-0-smoke.mjs
+          node scripts/passage-relic-xp-smoke.mjs
           node scripts/balance-1-1-smoke.mjs
           node scripts/altar-protection-audit.mjs
           node scripts/live-lobby-join.mjs
