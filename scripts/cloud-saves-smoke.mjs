@@ -5,7 +5,7 @@ import {chromium} from 'playwright';
 const accounts=new Map(),cloud=new Map();
 function fail(message){throw Error(message)}
 const backend=async(_source,args)=>{
- const op=args.op,email=args.email,slot=Number(args.slot)||0,key=email+':'+slot;
+ const op=args.op,email=args.email,slot=Number(args.slot||args.payload?.slot)||0,key=email+':'+slot;
  if(op==='signup'){
   if(accounts.has(email))return {error:{message:'Account already exists'}};
   const user={id:'user-'+accounts.size,email};
