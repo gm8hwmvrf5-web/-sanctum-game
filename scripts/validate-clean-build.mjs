@@ -6,7 +6,7 @@ const required=[
   'index.html','service-worker.js','manifest.webmanifest',
   'src/styles/base.css','src/styles/roguelite.css','src/styles/mobile.css','src/styles/multiplayer.css','src/styles/accessibility.css','src/styles/accessibility.css',
   'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/25-font-settings.js','src/js/30-roguelite.js',
-  'src/js/25-font-settings.js','src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
+  'src/js/25-font-settings.js','src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js',
   'src/js/80-wards.js','src/js/85-demon-merge-fx.js','src/styles/demon-merge-fx.css',
 ];
 
@@ -34,7 +34,7 @@ if(serviceWorker.includes('\\n')) throw new Error('Service worker contains a lit
 
 const ordered=[
  'src/js/00-data.js','src/js/10-engine.js','src/js/15-asset-loader.js','src/js/20-ui-foundation.js','src/js/30-roguelite.js',
- 'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js'
+ 'src/js/40-priest-ui.js','src/js/50-mobile.js','src/js/60-multiplayer.js','src/js/70-multiplayer-patches.js',
  'src/js/80-wards.js','src/js/85-demon-merge-fx.js',
 ];
 let last=-1;
