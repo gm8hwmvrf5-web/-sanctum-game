@@ -1,0 +1,62 @@
+/* Animated Lesser -> Greater Demon fusion. Cosmetic and non-interactive. */
+#sanctumDemonMergeLayer{
+ position:fixed;inset:0;z-index:165;pointer-events:none;overflow:hidden;
+ contain:layout style;user-select:none;-webkit-user-select:none;
+}
+.sanctum-merge-ghost{
+ box-sizing:border-box;position:fixed;display:flex;flex-direction:column;
+ height:156px;overflow:hidden;border:2px solid #a36a3c;border-radius:9px;
+ background:linear-gradient(180deg,#302020,#140c0d);
+ box-shadow:0 10px 30px #000e,0 0 18px #bb4a31a6;
+ transform-origin:center center;will-change:transform,opacity;
+}
+.sanctum-merge-ghost img{
+ display:block;flex:1;min-height:0;width:100%;object-fit:cover;
+ object-position:center 25%;filter:contrast(1.09) saturate(1.08)
+}
+.sanctum-merge-name{
+ flex:0 0 auto;padding:3px 4px 1px;text-align:center;
+ color:#f4ddb4;font-size:11px;font-family:Georgia,serif;
+ font-weight:700;line-height:1.15;text-shadow:0 1px 2px #000;
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.sanctum-merge-form{
+ flex:0 0 auto;text-align:center;font:700 8px/1.3 system-ui,sans-serif;
+ letter-spacing:1.2px;color:#e3a386;padding:1px 2px 4px;
+}
+.sanctum-merge-greater{
+ border-color:#f8cf73;background:#34200e;
+ box-shadow:0 0 27px #f7bb4bc2,0 12px 32px #000d;
+ opacity:0;transform:scale(.46);
+}
+.sanctum-merge-greater .sanctum-merge-form{color:#ffd67e}
+.sanctum-merge-reveal{transition:opacity .18s ease-out,transform .36s cubic-bezier(.1,1.8,.3,1)}
+.sanctum-merge-visible{opacity:1;transform:scale(1.05)}
+.sanctum-merge-flash{
+ position:fixed;width:20px;height:20px;border-radius:50%;
+ transform:translate(-50%,-50%) scale(.15);opacity:0;
+ background:radial-gradient(circle,#fff1b8 0%,#f8a542a8 34%,#bd301055 65%,transparent 75%);
+ transition:transform .42s ease-out,opacity .35s ease-out;
+}
+.sanctum-merge-flash-active{transform:translate(-50%,-50%) scale(11);opacity:.68}
+#boardSection .demon.sanctum-merge-arrival-hidden{opacity:.08 !important}
+#boardSection .demon.sanctum-merge-arrived{
+ animation:sanctumGreaterArrive .55s ease-out both;
+}
+@keyframes sanctumGreaterArrive{
+ 0%{filter:brightness(2.3);box-shadow:0 0 30px #ffe3a8;transform:scale(.93)}
+ 60%{filter:brightness(1.5);box-shadow:0 0 22px #f2ac5f;transform:scale(1.04)}
+ 100%{filter:brightness(1);transform:scale(1)}
+}
+@media(max-width:650px){
+ .sanctum-merge-ghost{height:135px}
+ .sanctum-merge-name{font-size:10px}
+ .sanctum-merge-form{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){
+ .sanctum-merge-lesser{opacity:.15}
+ .sanctum-merge-motion-reduced{transition:none}
+ .sanctum-merge-greater.sanctum-merge-visible{transition:opacity .12s;transform:none}
+ #boardSection .demon.sanctum-merge-arrived{animation:none}
+ .sanctum-merge-flash{display:none}
+}
