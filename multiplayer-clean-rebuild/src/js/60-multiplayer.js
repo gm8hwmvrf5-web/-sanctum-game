@@ -85,19 +85,72 @@
     const first=document.getElementById('pname0');
     return (first&&first.value&&first.value.trim())||'Priest';
   }
+  function savedRunReadiness(snapshot=lastRosterSnapshot){
+    if(!snapshot?.game?.state?.resumePending||snapshot.game.status!=='lobby')
+      return {ready:false,missing:[],duplicates:[],picked:[],total:0};
+    const party=[...(snapshot.players||[])].sort((a,b)=>Number(a.seat)-Number(b.seat));
+    const hostClass=String(snapshot.game.state.resumePriest||savedInviteSnapshot?.players?.[0]?.char||'');
+    const picked=party.map((p,i)=>({
+      seat:Number(p.seat),name:p.display_name||('Player '+(i+1)),
+      character:String(p.is_host?hostClass:(p.character_key||''))
+    }));
+    const missing=picked.filter(p=>!p.character||!CHARACTERS[p.character]);
+    const seen=new Map(),duplicates=[];
+    for(const p of picked){
+      if(!p.character)continue;
+      if(seen.has(p.character))duplicates.push(p);
+      else seen.set(p.character,p.seat);
+    }
+    return {ready:party.length>=2&&!missing.length&&!duplicates.length,
+      missing,duplicates,picked,total:party.length};
+  }
   function setSavedInviteVisibility(){
-    const active=!!(session&&session.isHost&&session.savedRunLobby&&lastRosterSnapshot?.game.status==='lobby');
+    const lobby=lastRosterSnapshot?.game?.state;
+    const saved=!!(session&&lobby?.resumePending&&lastRosterSnapshot?.game.status==='lobby');
+    const active=!!(saved&&session.isHost&&session.savedRunLobby);
     const resume=panel?.querySelector('#mpResumeSavedBtn');
     const message=panel?.querySelector('#mpSavedRunNotice');
+    const chooser=panel?.querySelector('#mpSavedPriestChooser');
+    const select=panel?.querySelector('#mpSavedPriestSelect');
+    const confirm=panel?.querySelector('#mpSavedPriestConfirmBtn');
+    const hint=panel?.querySelector('#mpSavedPriestConfirmation');
+    const readiness=savedRunReadiness();
     if(resume){resume.hidden=!active;resume.disabled=!active||!(savedInviteSnapshot||restoreSavedInvite());}
     if(message){
-      const lobby=lastRosterSnapshot?.game?.state;
-      const saved=active||!!(session&&lobby?.resumePending&&lastRosterSnapshot?.game.status==='lobby');
       message.hidden=!saved;
-      if(saved)message.textContent=active?
-        'Saved run lobby • invite friends with this code, then Resume Saved Run. The original save stays unchanged.':
-        'Joining a saved run • choose your Priest class below. The host will resume from their saved floor.';
+      if(saved){
+        const missing=readiness.missing.map(p=>'Seat '+p.seat+' ('+p.name+')').join(', ');
+        const duplicates=readiness.duplicates.map(p=>'Seat '+p.seat+' ('+p.character+')').join(', ');
+        const readinessText=readiness.ready?'All players have confirmed unique Priests. Ready to resume.'
+          :readiness.total<2?'Waiting for at least one friend to join.'
+          :duplicates?'Duplicate Priest classes: '+duplicates+'. Ask those players to choose a different Priest.'
+          :missing?'Waiting for Priest confirmation from: '+missing+'.'
+          :'Waiting for everyone to confirm a Priest.';
+        message.textContent=(active
+          ?'Saved run • your original Priest is '+(lobby.resumePriest||savedInviteSnapshot?.players?.[0]?.char||'preserved')+
+            '. Share the code, then click Resume Saved Run.'
+          :'Saved run • choose and CONFIRM your Priest in the box below. The host keeps their saved Priest.')+
+          ' '+readinessText;
+      }
     }
+    const canChoose=!!(saved&&!session.isHost&&Number(session.seat)>1);
+    if(chooser)chooser.hidden=!canChoose;
+    if(canChoose&&select){
+      const yours=(lastRosterSnapshot.players||[]).find(p=>Number(p.seat)===Number(session.seat));
+      const confirmed=String(yours?.character_key||'');
+      if(select.dataset.dirty!=='1'&&select.value!==confirmed)select.value=confirmed;
+      if(confirm)confirm.disabled=!select.value;
+      if(hint)hint.textContent=confirmed?
+        'Confirmed: '+confirmed+'. You can choose a different Priest and confirm again.':
+        'Not confirmed yet. Select a Priest and click Confirm Priest.';
+      if(hint)hint.classList.toggle('mpPriestReady',!!confirmed);
+      for(const option of select.options){
+        if(!option.value)continue;
+        const reserved=readiness.picked.find(p=>p.seat!==Number(session.seat)&&p.character===option.value);
+        option.disabled=!!reserved;
+        option.title=reserved?'Chosen by '+reserved.name:'';
+      }
+    }else if(select)delete select.dataset.dirty;
     const start=document.getElementById('startBtn');
     if(start&&active){start.disabled=true;start.dataset.mpSavedRunLocked='1';start.title='Use Resume Saved Run to preserve your loaded game.';}
     else if(start?.dataset.mpSavedRunLocked==='1'){
@@ -1054,7 +1107,13 @@
       if(p){
         const you=session&&p.id===session.playerId?' • YOU':'';
         const host=p.is_host?' • HOST':'';
-        seats.push(`<div class="mpSeat"><b>Seat ${i}</b>${escapeHtml(p.display_name)}${host}${you}</div>`);
+        const className=snapshot.game.state?.resumePending
+          ?(p.is_host?snapshot.game.state.resumePriest:p.character_key)
+          :null;
+        const classStatus=snapshot.game.state?.resumePending
+          ?`<span class="mpRosterPriest">${className?'✓ '+escapeHtml(className):'• Priest not confirmed'}</span>`
+          :'';
+        seats.push(`<div class="mpSeat"><b>Seat ${i}</b>${escapeHtml(p.display_name)}${host}${you}${classStatus}</div>`);
       }else{
         seats.push(`<div class="mpSeat empty"><b>Seat ${i}</b>Waiting…</div>`);
       }
@@ -1207,8 +1266,8 @@
         name.readOnly=true;
       }
       if(char){
-        const desired=savedLobby&&i===0&&session?.isHost&&savedInviteSnapshot
-          ? savedInviteSnapshot.players[0].char
+        const desired=savedLobby&&i===0
+          ? (snapshot.game.state.resumePriest||savedInviteSnapshot?.players?.[0]?.char||existingChars[i])
           : (p.character_key||existingChars[i]);
         if(desired&&[...char.options].some(o=>o.value===desired))char.value=desired;
         // Guests choose their own class; spectators and the host cannot silently
@@ -1741,7 +1800,9 @@
       const {data,error}=await sb.rpc('create_sanctum_game',{
         p_display_name:playerName(),
         p_initial_state:saved
-          ?{multiplayer:true,stage:'lobby',resumePending:true,resumeFloor:savedInviteSnapshot.rogue?.floor||1}
+          ?{multiplayer:true,stage:'lobby',resumePending:true,
+            resumeFloor:savedInviteSnapshot.rogue?.floor||1,
+            resumePriest:savedInviteSnapshot.players[0].char}
           :{multiplayer:true,stage:'lobby'}
       });
       if(error)throw error;
@@ -1808,8 +1869,9 @@
       await refreshRoom(true);
       startHeartbeat();
       if(lastRosterSnapshot?.game?.state?.resumePending){
-        const ownChar=document.getElementById('pchar'+(Number(session.seat)-1));
-        if(ownChar)await chooseSavedPriestClass(ownChar.value);
+        // Joining a saved run requires an explicit class confirmation.
+        // The ordinary setup dropdown's default is NOT a player choice.
+        setSavedInviteVisibility();
       }
     }catch(err){
       console.error(err);
@@ -1888,10 +1950,13 @@
       throw Error('Wait for a contiguous party roster before resuming.');
     const known=Object.keys(CHARACTERS);
     const choices=[source.players[0].char,...players.slice(1).map(p=>p.character_key)];
-    if(choices.some(x=>!known.includes(x)))
-      throw Error('Every joining friend must choose a Priest class before resuming.');
+    const missing=players.slice(1).filter(p=>!known.includes(p.character_key));
+    if(missing.length)
+      throw Error('Waiting for Priest confirmation from: '+
+        missing.map(p=>p.display_name+' (Seat '+p.seat+')').join(', ')+
+        '. Each friend must click Confirm Priest.');
     if(new Set(choices).size!==choices.length)
-      throw Error('Each player must choose a different Priest class before resuming.');
+      throw Error('Two players selected the same Priest. Ask your friends to confirm different classes.');
     const state=JSON.parse(JSON.stringify(source));
     const oldCount=state.players.length,oldMana=[0,10,15,23,32][oldCount];
     const newCount=players.length,newMana=[0,10,15,23,32][newCount];
@@ -2035,7 +2100,16 @@
         <button class="btn" id="mpLeaveBtn" type="button">Leave Online Room</button>
         <button class="btn green" id="mpResumeSavedBtn" type="button" hidden>Resume Saved Run</button>
       </div>
-      <div id="mpSavedRunNotice" class="mpDevNote" hidden></div>
+      <div id="mpSavedRunNotice" class="mpDevNote" hidden aria-live="polite"></div>
+      <div id="mpSavedPriestChooser" class="mpSavedPriestChooser" hidden>
+        <label for="mpSavedPriestSelect">Choose YOUR Priest for this saved run</label>
+        <select id="mpSavedPriestSelect">
+          <option value="">Select a Priest class…</option>
+          ${Object.keys(CHARACTERS).map(name=>`<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('')}
+        </select>
+        <button class="btn green" id="mpSavedPriestConfirmBtn" type="button">Confirm Priest</button>
+        <div id="mpSavedPriestConfirmation" role="status" aria-live="polite"></div>
+      </div>
       <div class="mpStatus">Not connected. Host a room or enter a room code.</div>
       <div class="mpRoster"></div>
       <div class="mpDevNote">Shared-board milestone: optimized online sync, each device always shows its own Priest hand, only the active Priest can act, the passage-clearing Priest controls synchronized rewards and passage choices, Demon and Boss cards open into a large mobile-friendly reading view, and the room automatically ends when the host disconnects.</div>
@@ -2049,6 +2123,32 @@
     panel.querySelector('#mpJoinBtn').addEventListener('click',join);
     panel.querySelector('#mpLeaveBtn').addEventListener('click',leave);
     panel.querySelector('#mpResumeSavedBtn').addEventListener('click',resumeSavedRun);
+    const priestSelect=panel.querySelector('#mpSavedPriestSelect');
+    const priestConfirm=panel.querySelector('#mpSavedPriestConfirmBtn');
+    priestSelect.addEventListener('change',()=>{
+      priestSelect.dataset.dirty='1';
+      priestConfirm.disabled=!priestSelect.value;
+      const hint=panel.querySelector('#mpSavedPriestConfirmation');
+      if(hint)hint.textContent=priestSelect.value
+        ?'Click Confirm Priest to lock in '+priestSelect.value+'.'
+        :'Select a Priest class above.';
+    });
+    priestConfirm.addEventListener('click',async()=>{
+      const chosen=priestSelect.value;
+      if(!chosen){status('Choose a Priest class first.',true);return}
+      const readiness=savedRunReadiness();
+      const taken=readiness.picked.find(p=>p.seat!==Number(session?.seat)&&p.character===chosen);
+      if(taken){
+        const hint=panel.querySelector('#mpSavedPriestConfirmation');
+        if(hint)hint.textContent=chosen+' is already chosen by '+taken.name+'. Pick a different class.';
+        return;
+      }
+      priestConfirm.disabled=true;
+      const ok=await chooseSavedPriestClass(chosen);
+      if(ok)delete priestSelect.dataset.dirty;
+      priestConfirm.disabled=false;
+      setSavedInviteVisibility();
+    });
     box.addEventListener('change',event=>{
       const match=String(event.target?.id||'').match(/^pchar([0-3])$/);
       if(match&&session&&Number(match[1])+1===Number(session.seat)){
