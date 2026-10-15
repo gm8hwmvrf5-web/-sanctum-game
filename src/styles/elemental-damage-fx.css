@@ -1,34 +1,98 @@
-/* Compact, readable elemental indicators pinned to the artwork only. */
+/* Gothic Fire + Poison atmosphere, constrained to actual Demon/Boss artwork.
+ * Purely cosmetic: the existing elemental gameplay and damage numbers are untouched.
+ * Individual overlays coexist and are independently removed as statuses expire. */
 #boardSection .demonArtWrap,
 #bossArea .sanctum-elemental-boss-art{
  position:relative;
+ isolation:isolate;
+ overflow:hidden;
 }
-#boardSection .sanctum-elemental-marks,
-#bossArea .sanctum-elemental-marks{
+#bossArea .sanctum-elemental-boss-art{
+ width:100%;
+ border-radius:7px;
+ margin-bottom:6px;
+}
+#bossArea .sanctum-elemental-boss-art .bossArt{
+ display:block;
+ margin-bottom:0!important;
+}
+#boardSection .sanctum-elemental-overlays,
+#bossArea .sanctum-elemental-overlays{
  position:absolute;
- top:3px;right:3px;z-index:9;
- display:flex;gap:3px;align-items:center;
+ inset:0;
+ z-index:3;
  pointer-events:none;
+ overflow:hidden;
+ border-radius:inherit;
+ contain:paint;
 }
-#boardSection .sanctum-elemental-mark,
-#bossArea .sanctum-elemental-mark{
- display:grid;place-items:center;
- width:19px;height:19px;min-width:19px;
- padding:0;
- font:700 15px/1 Georgia,serif;
- border-radius:50%;border:1px solid;
- box-shadow:0 1px 6px #000e, inset 0 0 5px #000b;
- text-shadow:0 0 6px currentColor;
+#boardSection .sanctum-elemental-overlay,
+#bossArea .sanctum-elemental-overlay{
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+ overflow:hidden;
 }
-#boardSection .sanctum-elemental-mark.sanctum-elemental-fire,
-#bossArea .sanctum-elemental-mark.sanctum-elemental-fire{
- color:#ffa449;background:rgba(83,27,6,.88);
- border-color:#ed7d35;
+/* Flames rise across the bottom edge with a concentrated ember glow. */
+.sanctum-elemental-fire-overlay{
+ background:
+  radial-gradient(ellipse 48% 21% at 22% 100%,rgba(239,71,11,.52),transparent 100%),
+  radial-gradient(ellipse 62% 30% at 72% 104%,rgba(218,44,9,.42),transparent 100%),
+  linear-gradient(0deg,rgba(87,12,5,.42),transparent 56%);
+ mix-blend-mode:screen;
 }
-#boardSection .sanctum-elemental-mark.sanctum-elemental-poison,
-#bossArea .sanctum-elemental-mark.sanctum-elemental-poison{
- color:#a1ef81;background:rgba(14,51,24,.91);
- border-color:#65bf69;
+.sanctum-elemental-fire-overlay::before{
+ content:'';
+ position:absolute;inset:65% 0 0;
+ background:linear-gradient(0deg,rgba(228,78,12,.27),transparent);
+ opacity:.9;
+}
+.sanctum-flame{
+ position:absolute;bottom:-8%;
+ width:29%;
+ height:63%;
+ transform-origin:50% 100%;
+ clip-path:polygon(7% 100%,0 67%,15% 52%,18% 78%,35% 64%,38% 38%,69% 2%,62% 47%,85% 62%,100% 44%,96% 78%,80% 100%);
+ background:linear-gradient(90deg,rgba(145,22,6,.25),rgba(230,62,7,.82) 33%,rgba(255,157,39,.91) 56%,rgba(169,25,4,.5) 95%);
+ filter:drop-shadow(0 0 3px rgba(246,81,20,.5));
+ opacity:.84;
+ animation:sanctumFlameFlicker 2.4s ease-in-out infinite alternate;
+}
+.sanctum-flame-1{left:0%;height:53%;animation-delay:-.8s}
+.sanctum-flame-2{left:22%;height:71%;width:33%;animation-delay:-1.9s;animation-duration:2.8s}
+.sanctum-flame-3{left:50%;height:59%;animation-delay:-.3s;animation-duration:2.2s}
+.sanctum-flame-4{left:76%;height:43%;width:25%;animation-delay:-1.2s;animation-duration:2.9s}
+@keyframes sanctumFlameFlicker{
+ from{transform:translateY(3%) skewX(-5deg) scaleX(.92);opacity:.64}
+ to{transform:translateY(-6%) skewX(5deg) scaleX(1.06);opacity:.9}
+}
+/* Poison: separate drifting dark-emerald miasma. Keep the center readable. */
+.sanctum-elemental-poison-overlay{
+ background:
+  radial-gradient(ellipse 62% 58% at 95% 26%,rgba(26,86,35,.43),transparent 100%),
+  radial-gradient(ellipse 56% 45% at 80% 85%,rgba(30,76,27,.32),transparent 100%),
+  linear-gradient(90deg,transparent 23%,rgba(18,52,26,.16) 100%);
+ mix-blend-mode:screen;
+}
+.sanctum-miasma{
+ position:absolute;
+ display:block;
+ border-radius:49% 51% 59% 41% / 45% 57% 43% 55%;
+ background:radial-gradient(ellipse at 43% 52%,rgba(112,166,63,.45),rgba(42,92,41,.36) 38%,rgba(24,67,38,.16) 66%,transparent 78%);
+ filter:blur(4px);
+ opacity:.65;
+ animation:sanctumMiasmaDrift 5.4s ease-in-out infinite alternate;
+}
+.sanctum-miasma-1{width:53%;height:57%;right:-10%;top:5%;animation-delay:-1.4s}
+.sanctum-miasma-2{width:53%;height:69%;right:11%;top:42%;animation-duration:6.8s;animation-delay:-3s}
+.sanctum-miasma-3{width:34%;height:47%;right:-2%;bottom:0;animation-duration:4.7s;animation-delay:-2.3s}
+.sanctum-miasma-4{width:36%;height:43%;left:30%;top:-12%;animation-duration:6.1s;animation-delay:-.6s;opacity:.38}
+@keyframes sanctumMiasmaDrift{
+ from{transform:translate(-5%,8%) scale(.94);opacity:.4}
+ to{transform:translate(8%,-11%) scale(1.15);opacity:.8}
+}
+@media(prefers-reduced-motion:reduce){
+ .sanctum-flame,.sanctum-miasma{animation:none!important}
 }
 #sanctumElementalDamageLayer{
  position:fixed;inset:0;z-index:178;
@@ -59,10 +123,8 @@
  100%{opacity:0;transform:translate(-50%,-190%) scale(.95)}
 }
 @media(max-width:700px){
- #boardSection .sanctum-elemental-mark,#bossArea .sanctum-elemental-mark{
-  width:17px;height:17px;min-width:17px;font-size:13px
- }
  .sanctum-elemental-damage{font-size:14px}
+ .sanctum-miasma{filter:blur(2px)}
 }
 @media(prefers-reduced-motion:reduce){
  .sanctum-elemental-damage{
