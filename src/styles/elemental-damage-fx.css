@@ -33,67 +33,66 @@
  pointer-events:none;
  overflow:hidden;
 }
-/* Flames rise across the bottom edge with a concentrated ember glow. */
+/* Static gothic ember haze (no flames, movement, or status icons). */
 .sanctum-elemental-fire-overlay{
  background:
-  radial-gradient(ellipse 48% 21% at 22% 100%,rgba(239,71,11,.52),transparent 100%),
-  radial-gradient(ellipse 62% 30% at 72% 104%,rgba(218,44,9,.42),transparent 100%),
-  linear-gradient(0deg,rgba(87,12,5,.42),transparent 56%);
+  radial-gradient(ellipse 55% 24% at 22% 100%,rgba(255,122,28,.30),transparent),
+  radial-gradient(ellipse 58% 28% at 76% 102%,rgba(219,61,18,.28),transparent),
+  radial-gradient(circle at 18% 82%,rgba(255,182,84,.35) 0 1.4%,transparent 2.1%),
+  radial-gradient(circle at 31% 67%,rgba(255,157,50,.32) 0 1.2%,transparent 1.9%),
+  radial-gradient(circle at 46% 86%,rgba(255,198,109,.38) 0 1%,transparent 1.8%),
+  radial-gradient(circle at 64% 57%,rgba(243,116,42,.3) 0 1.4%,transparent 2.2%),
+  radial-gradient(circle at 83% 79%,rgba(255,175,79,.34) 0 1.2%,transparent 2%),
+  linear-gradient(0deg,rgba(90,18,8,.30),transparent 54%);
  mix-blend-mode:screen;
+ opacity:.92;
 }
 .sanctum-elemental-fire-overlay::before{
  content:'';
- position:absolute;inset:65% 0 0;
- background:linear-gradient(0deg,rgba(228,78,12,.27),transparent);
- opacity:.9;
+ position:absolute;inset:35% 0 0;
+ background:radial-gradient(ellipse 75% 42% at 55% 100%,rgba(137,35,14,.24),transparent);
 }
+/* The existing JS adds four flame spans; render them as still ember motes. */
 .sanctum-flame{
- position:absolute;bottom:-8%;
- width:29%;
- height:63%;
- transform-origin:50% 100%;
- clip-path:polygon(7% 100%,0 67%,15% 52%,18% 78%,35% 64%,38% 38%,69% 2%,62% 47%,85% 62%,100% 44%,96% 78%,80% 100%);
- background:linear-gradient(90deg,rgba(145,22,6,.25),rgba(230,62,7,.82) 33%,rgba(255,157,39,.91) 56%,rgba(169,25,4,.5) 95%);
- filter:drop-shadow(0 0 3px rgba(246,81,20,.5));
- opacity:.84;
- animation:sanctumFlameFlicker 2.4s ease-in-out infinite alternate;
+ position:absolute;
+ bottom:auto;
+ width:4px;height:4px;
+ border-radius:50%;
+ background:#f5a04d;
+ box-shadow:0 0 4px 2px rgba(230,83,22,.38),0 0 11px 3px rgba(156,36,16,.23);
+ opacity:.66;
+ animation:none!important;
+ transform:none!important;
+ filter:none;
+ clip-path:none;
 }
-.sanctum-flame-1{left:0%;height:53%;animation-delay:-.8s}
-.sanctum-flame-2{left:22%;height:71%;width:33%;animation-delay:-1.9s;animation-duration:2.8s}
-.sanctum-flame-3{left:50%;height:59%;animation-delay:-.3s;animation-duration:2.2s}
-.sanctum-flame-4{left:76%;height:43%;width:25%;animation-delay:-1.2s;animation-duration:2.9s}
-@keyframes sanctumFlameFlicker{
- from{transform:translateY(3%) skewX(-5deg) scaleX(.92);opacity:.64}
- to{transform:translateY(-6%) skewX(5deg) scaleX(1.06);opacity:.9}
-}
-/* Poison: separate drifting dark-emerald miasma. Keep the center readable. */
+.sanctum-flame-1{left:13%;top:67%}
+.sanctum-flame-2{left:39%;top:82%;width:3px;height:3px}
+.sanctum-flame-3{left:67%;top:60%;width:3px;height:3px}
+.sanctum-flame-4{left:85%;top:88%;width:2px;height:2px}
+
+/* Still dark-green smoky gas; layers remain independently stackable. */
 .sanctum-elemental-poison-overlay{
  background:
-  radial-gradient(ellipse 62% 58% at 95% 26%,rgba(26,86,35,.43),transparent 100%),
-  radial-gradient(ellipse 56% 45% at 80% 85%,rgba(30,76,27,.32),transparent 100%),
-  linear-gradient(90deg,transparent 23%,rgba(18,52,26,.16) 100%);
+  radial-gradient(ellipse 55% 49% at 95% 25%,rgba(39,100,48,.38),transparent),
+  radial-gradient(ellipse 68% 54% at 78% 83%,rgba(29,82,37,.31),transparent),
+  radial-gradient(ellipse 44% 33% at 60% 9%,rgba(88,141,77,.13),transparent),
+  linear-gradient(90deg,transparent 22%,rgba(17,56,25,.13));
  mix-blend-mode:screen;
 }
 .sanctum-miasma{
- position:absolute;
- display:block;
+ position:absolute;display:block;
  border-radius:49% 51% 59% 41% / 45% 57% 43% 55%;
- background:radial-gradient(ellipse at 43% 52%,rgba(112,166,63,.45),rgba(42,92,41,.36) 38%,rgba(24,67,38,.16) 66%,transparent 78%);
+ background:radial-gradient(ellipse at 43% 52%,rgba(106,157,79,.33),rgba(43,96,48,.28) 40%,rgba(21,65,33,.12) 70%,transparent 82%);
  filter:blur(4px);
- opacity:.65;
- animation:sanctumMiasmaDrift 5.4s ease-in-out infinite alternate;
+ opacity:.62;
+ animation:none!important;
+ transform:none!important;
 }
-.sanctum-miasma-1{width:53%;height:57%;right:-10%;top:5%;animation-delay:-1.4s}
-.sanctum-miasma-2{width:53%;height:69%;right:11%;top:42%;animation-duration:6.8s;animation-delay:-3s}
-.sanctum-miasma-3{width:34%;height:47%;right:-2%;bottom:0;animation-duration:4.7s;animation-delay:-2.3s}
-.sanctum-miasma-4{width:36%;height:43%;left:30%;top:-12%;animation-duration:6.1s;animation-delay:-.6s;opacity:.38}
-@keyframes sanctumMiasmaDrift{
- from{transform:translate(-5%,8%) scale(.94);opacity:.4}
- to{transform:translate(8%,-11%) scale(1.15);opacity:.8}
-}
-@media(prefers-reduced-motion:reduce){
- .sanctum-flame,.sanctum-miasma{animation:none!important}
-}
+.sanctum-miasma-1{width:53%;height:57%;right:-10%;top:5%}
+.sanctum-miasma-2{width:53%;height:69%;right:11%;top:42%}
+.sanctum-miasma-3{width:34%;height:47%;right:-2%;bottom:0}
+.sanctum-miasma-4{width:36%;height:43%;left:30%;top:-12%;opacity:.38}
 #sanctumElementalDamageLayer{
  position:fixed;inset:0;z-index:178;
  pointer-events:none;user-select:none;
