@@ -23,13 +23,38 @@ function syncData(){
  }
  return {state,fireDemons,fireBoss};
 }
-// Read-only status highlighting. No artwork overlays, particles or icons.
+// Read-only, size-aware artwork badges (never alter damage/status values).
+// Dedicated DOM icons avoid mobile pseudo-elements clipping one another.
+const FIRE_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 6 8 8 6 11a8 8 0 0 0 12 10c4-5 1-9-3-13 0 3-1 4-2 5 1-5 1-8-1-11Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 13c-1.5 2-3 3.5-3 5a3 3 0 0 0 6 0c0-2-1.5-3.5-3-5Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
+function makeStatusIcon(kind){
+ const icon=document.createElement('span');
+ icon.className='sanctum-elemental-icon sanctum-elemental-icon-'+kind;
+ icon.setAttribute('aria-hidden','true');
+ if(kind==='fire')icon.innerHTML=FIRE_OUTLINE;
+ else icon.textContent='☠';
+ return icon;
+}
 function decorate(target,fire,poison){
  if(!target)return;
  const burning=fire>0,poisoned=poison>0;
  target.classList.toggle('sanctum-elemental-fire-active',burning);
  target.classList.toggle('sanctum-elemental-poison-active',poisoned);
  target.querySelectorAll('.sanctum-elemental-overlays').forEach(layer=>layer.remove());
+ const host=target.querySelector('.demonArtWrap')||target;
+ let icons=host.querySelector(':scope > .sanctum-elemental-icons');
+ const signature=(burning?'fire':'')+(poisoned?'-poison':'');
+ if(!burning&&!poisoned){
+  if(icons)icons.remove();
+ }else if(!icons||icons.dataset.effects!==signature){
+  if(icons)icons.remove();
+  icons=document.createElement('span');
+  icons.className='sanctum-elemental-icons';
+  icons.dataset.effects=signature;
+  icons.setAttribute('aria-hidden','true');
+  if(burning)icons.appendChild(makeStatusIcon('fire'));
+  if(poisoned)icons.appendChild(makeStatusIcon('poison'));
+  host.appendChild(icons);
+ }
  target.title=[
   burning?'Burning: '+Math.floor(fire)+' Fire damage pending':null,
   poisoned?'Poison: '+Math.floor(poison)+'/2 Basic Attack hits':null
@@ -110,7 +135,7 @@ window.__sanctumRenderElementalFx=function(){
  }
 };
 window.__sanctumElementalFxState=()=>({
- highlights:document.querySelectorAll('.sanctum-elemental-fire-active, .sanctum-elemental-poison-active').length,
+ highlights:document.querySelectorAll('.sanctum-elemental-icon').length,
  floating:document.querySelectorAll('#sanctumElementalDamageLayer .sanctum-elemental-damage').length,
  seen:seen.size
 });
