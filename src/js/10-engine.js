@@ -328,6 +328,10 @@ function normalizeSanctumState(){
  S.players=(S.players||[]).map(p=>({consecrateUsed:false,...p, consecrateUsed:!!p.consecrateUsed}));
  S.rooms=(S.rooms||[[],[],[],[]]);
  while(S.rooms.length<4)S.rooms.push([]);
+ // Older saved runs have no arrival history; an already occupied Crypt
+ // counts as a recent arrival rather than incorrectly triggering pressure.
+ if(!Number.isFinite(Number(S.cryptPressureLastArrivalRound))&&S.rooms[3]?.length)
+  S.cryptPressureLastArrivalRound=Math.max(0,Math.floor(Number(S.round)||1));
  S.cryptPressureLastArrivalRound=Math.max(0,Math.floor(Number(S.cryptPressureLastArrivalRound)||0));
  S.cryptPressureLastCheckRound=Math.max(0,Math.floor(Number(S.cryptPressureLastCheckRound)||0));
  migrateTemporaryEnrageState();
