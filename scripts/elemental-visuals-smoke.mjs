@@ -25,7 +25,7 @@ try{
   const d={...base,id:'fx-imp-1',greater:false,cur:65,status:{}};
   S.rooms[0]=[d];
   render();
-  check(!document.querySelector('[data-elemental]'),'New Demon started with an elemental icon');
+  check(!document.querySelector('[data-elemental]'),'New Demon started with an elemental overlay');
   const target={kind:'demon',d,r:0};
   const before=d.cur;
   dealDamageTarget(target,1,'Basic Attack',{});
@@ -34,10 +34,22 @@ try{
   check(S.elementalBurnQueue.length===1,'Fire did not queue for end of turn');
   const art=document.querySelector('#room0 .demonArtWrap');
   check(!!art,'Artwork element missing');
-  let marks=[...art.querySelectorAll('.sanctum-elemental-mark')];
-  check(marks.length===2&&marks.some(x=>x.dataset.elemental==='fire')&&marks.some(x=>x.dataset.elemental==='poison'),
-   'Fire and Poison symbols did not appear together over Demon artwork');
-  check(marks.every(x=>art.contains(x)),'Elemental symbols are not attached to artwork');
+  const layers=[...art.querySelectorAll('.sanctum-elemental-overlay')];
+  check(layers.length===2&&layers.some(x=>x.dataset.elemental==='fire')&&layers.some(x=>x.dataset.elemental==='poison'),
+   'Fire and Poison artwork overlays did not stack');
+  check(layers.every(x=>art.contains(x)),'Elemental overlays escaped artwork container');
+  check(!document.querySelector('.sanctum-elemental-mark'),'Old status badge still rendered');
+  check(art.querySelectorAll('.sanctum-flame').length===4,
+   'Fire must have four animated flame tongues');
+  check(art.querySelectorAll('.sanctum-miasma').length===4,
+   'Poison must have four drifting gas clouds');
+  check(getComputedStyle(art.querySelector('.sanctum-flame')).animationName==='sanctumFlameFlicker',
+   'Fire flame animation missing');
+  check(getComputedStyle(art.querySelector('.sanctum-miasma')).animationName==='sanctumMiasmaDrift',
+   'Poison mist animation missing');
+  check(getComputedStyle(art.querySelector('.sanctum-elemental-overlays')).pointerEvents==='none',
+   'Visual effects must not block Demon taps');
+  const overlaySnapshot=JSON.stringify(S);
   check(document.querySelectorAll('.sanctum-elemental-damage').length===0,
    'First Poison hit must not show extra elemental damage');
   const afterFirst=d.cur;
@@ -46,10 +58,10 @@ try{
   check(d.cur===afterFirst-1-basicAttackDamage(),'Second Poison burst dealt wrong damage');
   check(S.elementalBurnQueue.length===2,'Both Fire burn ticks should be queued');
   check(!art.isConnected||!art.querySelector('[data-elemental="poison"]'),
-   'Poison marker incorrectly persisted after second hit');
+   'Poison gas incorrectly persisted after second hit');
   const artNow=document.querySelector('#room0 .demonArtWrap');
   check(!!artNow.querySelector('[data-elemental="fire"]')&&!artNow.querySelector('[data-elemental="poison"]'),
-   'After Poison burst only Fire marker should remain');
+   'After Poison burst only Fire flames should remain');
   const poisonEvent=S.elementalDamageVisuals.find(x=>x.kind==='poison');
   check(poisonEvent?.damage===basicAttackDamage(),'Poison event records incorrect actual damage');
   const poisonFloat=document.querySelector('.sanctum-elemental-damage-poison');
@@ -64,7 +76,7 @@ try{
   check(S.elementalBurnQueue.length===0,'Fire queue not cleared at end of turn');
   check(d.cur===beforeBurn-2,'Two queued Fire ticks changed their original damage');
   check(!document.querySelector('#room0 [data-elemental="fire"]'),
-   'Fire symbol did not disappear when Fire ended');
+   'Fire overlay did not disappear when Fire ended');
   const fireEvents=S.elementalDamageVisuals.filter(x=>x.kind==='fire');
   check(fireEvents.length===2&&fireEvents.every(x=>x.damage===1),'Actual Fire damage events wrong');
   const fireFloat=document.querySelector('.sanctum-elemental-damage-fire');
@@ -85,21 +97,42 @@ try{
   dealDamageTarget(target,1,'Basic Attack',{});
   check(!document.querySelector('#room0 [data-elemental="fire"]')&&
    !!document.querySelector('#room0 [data-elemental="poison"]'),
-   'Poison-only symbol does not work independently of Fire');
+   'Poison-only gas does not work independently of Fire');
   // Confirm no marker after a status-bearing Demon leaves the board.
   S.rooms[0]=[];render();
   check(!document.querySelector('#boardSection [data-elemental]'),
-   'Elemental marker remained after the Demon was removed');
-  return {snapshot,iconsBoth:true,firstPoisonHit:1,poisonBurst:poisonEvent.damage,
+   'Elemental overlay remained after the Demon was removed');
+  // Boss artwork must receive the same independent layers, without covering
+  // the stat text or changing active Boss Poison/Fire status.
+  S.bossRevealed=true;
+  S.boss={...BOSSES[0],cur:50,status:{elementalPoisonHits:1}};
+  S.elementalBurnQueue=[{kind:'boss',id:String(S.boss.key||S.boss.n),damage:2}];
+  render();
+  const bossArt=document.querySelector('#bossArea .sanctum-elemental-boss-art');
+  check(!!bossArt&&!!bossArt.querySelector('.bossArt'),
+   'Boss art wrapper missing');
+  check(bossArt.querySelectorAll('.sanctum-elemental-overlay').length===2,
+   'Boss must display simultaneous flames and poison gas');
+  check(!bossArt.querySelector('.bossName')&&!!document.querySelector('#bossArea .bossName'),
+   'Boss overlay must not cover printed stats or ability text');
+  S.boss.status.elementalPoisonHits=0;S.elementalBurnQueue=[];render();
+  check(!document.querySelector('#bossArea [data-elemental]'),
+   'Boss artwork overlays did not expire independently');
+  return {snapshot,overlaySnapshot,overlaysBoth:true,bossStacked:true,firstPoisonHit:1,poisonBurst:poisonEvent.damage,
    fireTicks:fireEvents.length,fireRemoved:true,poisonRemoved:true,
    noDuplicateReplay:true,fireColor:'orange',poisonColor:'green'};
  });
  const guest=await browser.newPage({viewport:{width:844,height:390}});
  guest.on('pageerror',e=>errors.push('guest: '+e.message));
  await guest.goto('http://127.0.0.1:4173/index.html',{waitUntil:'networkidle',timeout:60000});
- const replay=await guest.evaluate(snapshot=>{
-  S=JSON.parse(snapshot);S.started=true;clearTurnTimerInterval();
+ const replay=await guest.evaluate(({snapshot,overlaySnapshot})=>{
+  S=JSON.parse(overlaySnapshot);S.started=true;clearTurnTimerInterval();
   document.getElementById('setupModal')?.classList.add('hidden');
+  render();
+  const simultaneous=document.querySelector('#boardSection .demonArtWrap');
+  if(!simultaneous||simultaneous.querySelectorAll('.sanctum-elemental-overlay').length!==2)
+   throw Error('Remote player did not reconstruct stackable Fire/Poison overlays from shared status');
+  S=JSON.parse(snapshot);
   render();
   const floats=document.querySelectorAll('#sanctumElementalDamageLayer .sanctum-elemental-damage');
   if(!floats.length||![...floats].some(x=>x.classList.contains('sanctum-elemental-damage-poison'))||
@@ -107,11 +140,11 @@ try{
    throw Error('Remote player did not replay both elemental damage colors');
   return {replayed:true,fire:[...floats].filter(x=>x.classList.contains('sanctum-elemental-damage-fire')).length,
    poison:[...floats].filter(x=>x.classList.contains('sanctum-elemental-damage-poison')).length};
- },result.snapshot);
+ },{snapshot:result.snapshot,overlaySnapshot:result.overlaySnapshot});
  await host.waitForTimeout(1900);
  const cleaned=await host.evaluate(()=>document.querySelectorAll('.sanctum-elemental-damage').length===0);
  if(!cleaned)throw Error('Floating Fire and Poison numbers were not cleaned up');
  if(errors.length)throw Error('Browser errors: '+errors.join('; '));
- console.log('ELEMENTAL DAMAGE VISUALS SMOKE PASSED:',JSON.stringify({...result,snapshot:undefined,replay,cleaned}));
+ console.log('ELEMENTAL DAMAGE VISUALS SMOKE PASSED:',JSON.stringify({...result,snapshot:undefined,overlaySnapshot:undefined,replay,cleaned}));
  await guest.close();
 }finally{await browser.close();}
