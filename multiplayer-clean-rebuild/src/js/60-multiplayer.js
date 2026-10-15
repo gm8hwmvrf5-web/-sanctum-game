@@ -2016,6 +2016,9 @@
       if(!roster||roster.game.status!=='lobby')throw Error('Room is no longer waiting in the lobby.');
       const state=createResumeParty(snapshot,roster.players);
       S=state;
+      // Adjust this saved passage's defeat target to the newly joined party
+      // before transmitting its authoritative state to all players.
+      if(typeof window.__sanctumSyncPassageDefeatGoal==='function')window.__sanctumSyncPassageDefeatGoal(state);
       // Recalculate the existing demons before publishing the larger party state.
       // Preserve each damaged demon's health percentage when friends join.
       if(typeof window.__sanctumSyncPartyDemonScaling==='function')window.__sanctumSyncPartyDemonScaling(state);
