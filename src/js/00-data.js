@@ -239,15 +239,9 @@ const CHOICE_CRUCIFIX=[
   ]
  },
  {
-  n:"Mercy of the Grave",t:"double",choice:true,
-  txt:"The dead offer to take one enemy with them.",
-  choices:[
-   {label:"Accept the Mercy",desc:"Banish the Demon closest to the Altar without reward. Lose 4 Altar Protection.",
-    can:s=>!!closestDemon(),
-    fx:s=>{let d=closestDemon();let name=d?demonName(d):"the Demon";if(d)crucifixBanishDemon(d);damageAltar(4,"Mercy of the Grave");return `${name} is banished without reward. The Altar loses 4 Protection.`;}},
-   {label:"Refuse the Dead",desc:"Leave all Demons in play. Gain 1 shared Mana.",
-    fx:s=>{addMana(1);return "The dead are refused. The party gains 1 Mana.";}}
-  ]
+  n:"Mercy of the Grave",t:"good",
+  txt:"Banish 1 random Demon on the board without Demon Blood or defeat credit.",
+  fx:s=>crucifixBanishRandomDemon()
  },
  {
   n:"Borrowed Dawn",t:"double",choice:true,
