@@ -58,16 +58,42 @@ try{
   await guest.locator('#mpJoinBtn').click();
   await guest.waitForFunction(seat=>window.SanctumMultiplayerDev?.session?.seat===seat,i+1,
    {timeout:16000});
-  const select=guest.locator('#pchar'+i);
-  await select.waitFor({state:'visible'});
+  await guest.locator('#mpSavedPriestChooser').waitFor({state:'visible',timeout:12000});
+  const picker=guest.locator('#mpSavedPriestSelect');
+  assert(await picker.inputValue()==='', 'Guest default Priest cannot count as confirmed');
+  assert(await guest.locator('#mpSavedPriestConfirmBtn').isDisabled(),
+    'Confirmation must require an explicit Priest choice');
+  if(i===1){
+    assert(await guest.locator('#pchar0').isDisabled(),
+      'Saved host Priest must be locked on guest devices');
+    assert(await guest.locator('#pchar0').inputValue()==='High Priestess',
+      'Guest should see the original host Priest');
+    const reserved=await picker.locator('option[value="High Priestess"]').isDisabled();
+    assert(reserved,'Saved host Priest must be marked unavailable for guests');
+    await host.waitForFunction(()=>document.querySelector('#mpSavedRunNotice')?.textContent
+      .includes('Waiting for Priest confirmation'),null,{timeout:10000});
+    await host.locator('#mpResumeSavedBtn').click();
+    await host.waitForFunction(()=>document.querySelector('.mpStatus')?.textContent
+      .includes('Confirm Priest'),null,{timeout:10000});
+    assert(await host.locator('#mpResumeSavedBtn').isVisible(),
+      'Invalid incomplete party must remain in saved-run lobby');
+  }
   const cls=['','Oracle','Crusader','Monk'][i];
-  await select.selectOption({label:cls});
-  await guest.waitForTimeout(350);
+  await picker.selectOption({label:cls});
+  assert((await guest.locator('#mpSavedPriestConfirmation').innerText()).includes('Click Confirm Priest'),
+    'Class selection must prompt for confirmation');
+  await guest.locator('#mpSavedPriestConfirmBtn').click();
+  await guest.waitForFunction(expected=>document.querySelector('#mpSavedPriestConfirmation')?.textContent
+    .includes('Confirmed: '+expected),cls,{timeout:18000});
+  await host.waitForFunction(({i,cls})=>document.querySelectorAll('.mpRoster .mpSeat')[i]?.textContent
+    .includes('✓ '+cls),{i,cls},{timeout:16000});
  }
  await host.waitForFunction(()=>document.querySelectorAll('.mpRoster .mpSeat:not(.empty)').length===4,
   null,{timeout:20000});
  await host.waitForFunction(()=>['Oracle','Crusader','Monk'].every((klass,i)=>
     document.getElementById('pchar'+(i+1))?.value===klass),null,{timeout:18000});
+ assert((await host.locator('#mpSavedRunNotice').innerText()).includes('Ready to resume'),
+   'Host does not see all Priests confirmed');
  const originalLocal=await host.evaluate(()=>localStorage.getItem('sanctum-save-v2'));
  assert(originalLocal&&JSON.parse(originalLocal).state.players.length===1,
   'Original local solo save was overwritten during invitations');
