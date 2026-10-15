@@ -7,7 +7,7 @@ const ROGUE_META_KEY='sanctumRogueliteLegacyV1';
 const ROGUE_VERSION=6;
 const ROGUE_NODE_INFO={
  battle:{name:'Standard Battle',icon:'✦',cls:'',desc:'A balanced encounter using the normal Sanctum pressure.',reward:'1 Cinder • normal reward choice'},
- elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Demons gain additional HP and Attack. The encounter is longer, but its spoils are richer.',reward:'3 Cinders • bonus Relic choice available'},
+ elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Every Demon arrives in its GREATER form, with extra HP and Attack. A harder procession brings richer rewards.',reward:'3 Cinders • bonus Relic choice available'},
  swarm:{name:'Hellgate Swarm',icon:'♜',cls:'elite',desc:'More Demons spawn each Demon Phase. Individual foes are less enhanced than Elites.',reward:'2 Cinders • normal reward choice'},
  sanctuary:{name:'Ruined Sanctuary',icon:'✚',cls:'sanctuary',desc:'No combat. Choose one recovery or preparation blessing, then continue deeper.',reward:'1 Cinder • recovery choice'},
  repository:{name:'The Sinking Repository',icon:'⌘',cls:'repository',desc:'A drowned archive-market where unbanked Cinders can buy powerful benefits for this run only.',reward:'Cinder store • one purchase'},
@@ -388,9 +388,47 @@ function rogueliteInitializeRun(){
  render();
  if(typeof window.__sanctumWardOpenPassage==='function')window.__sanctumWardOpenPassage();
 }
+/* Elite Procession: every newly entering Demon is immediately Greater,
+ * including opening threats, queue releases and Demon-ability summons.
+ * Existing saved Elite floors convert once; a later Priest conversion of
+ * Greater -> Lesser remains a valid player effect. */
+function rogueliteMakeEliteGreater(d,r=rogueState()){
+ if(!d||!S?.rogue?.enabled||r.nodeType!=='elite'||r.bossFloor||d.greater)return false;
+ d.status=d.status||{};
+ const prevMax=Math.max(1,Number(demonMaxHP(d))||1);
+ const previousCur=Math.max(0,Number(d.cur)||0);
+ const hpFraction=Math.max(0,Math.min(1,previousCur/prevMax));
+ // Older saved Elite encounters may already have Lesser-floor scaling.
+ // Strip that specific scaling before applying the Greater form's scaling.
+ if(d.status.rogueScaledFloor===r.floor){
+  const prevFloor=Math.max(0,Number(d.status.rogueHpBonus)||0);
+  d.status.extraHpBonus=Math.max(0,(Number(d.status.extraHpBonus)||0)-prevFloor);
+  delete d.status.rogueHpBonus;
+  delete d.status.rogueScaledFloor;
+  delete d.status.rogueDifficulty;
+  delete d.status.rogueFloorHealth;
+  d.status.attackBonus=Math.max(0,(Number(d.status.attackBonus)||0)-1);
+ }
+ // Re-evaluate party-scaled health from the Greater HP on the next sync.
+ delete d.status.partyHpBonus;
+ delete d.status.partyHpBaseMax;
+ delete d.status.partyHpPlayerCount;
+ d.greater=true;
+ d.cur=Math.max(1,Math.round((Number(d.ghp)||Number(d.hp)||1)*hpFraction));
+ return true;
+}
+function rogueliteUpgradeSavedElitePassage(){
+ const r=S?.rogue;
+ if(!S?.started||!r?.enabled||r.nodeType!=='elite'||r.bossFloor
+    ||r.eliteGreaterRuleAppliedFloor===r.floor)return;
+ r.eliteGreaterRuleAppliedFloor=r.floor;
+ for(const room of S.rooms||[])for(const d of room||[])
+  if(d&&!d.greater)rogueliteMutateDemon(d);
+}
 function rogueliteMutateDemon(d){
  if(!d||!S?.rogue?.enabled)return;
  let r=rogueState();d.status=d.status||{};
+ rogueliteMakeEliteGreater(d,r);
  if(d.status.rogueScaledFloor===r.floor)return;
  d.status.rogueScaledFloor=r.floor;
  let mult=rogueDifficultyMultiplier(),floorHp=rogueFloorHealthMultiplier();
@@ -555,6 +593,7 @@ function rogueliteBankRun(win){
  r.cindersRun=0;m.bestFloor=Math.max(m.bestFloor||0,r.floor||1);m.runs=(m.runs||0)+1;if(win)m.wins=(m.wins||0)+1;rogueSaveMeta(m);r.banked=true;r.bankedAmount=(r.bankedAmount||0)+gain;return r.bankedAmount||0;
 }
 function rogueliteRenderHud(){
+ rogueliteUpgradeSavedElitePassage();
  if(S?.started)rogueliteSyncEncounterGoal();
  let hud=document.getElementById('rogueHud');if(!hud)return;let r=S&&S.rogue&&S.rogue.enabled?rogueState():rogueDefaultState(),m=rogueMeta();
  r.cycle=rogueCycle();r.act=rogueAct();document.getElementById('roguePassage').textContent=`${rogueStep()} / 5`;document.getElementById('rogueAct').textContent=`${r.act||1} / 3`;document.getElementById('rogueFloor').textContent=`${rogueCycleFloorFor(r.floor||1)} / 15`;let runLabel=document.querySelector('.runProgressStat > span');if(runLabel)runLabel.textContent=`Cycle ${r.cycle} • ${rogueDifficultyMultiplier()}×`;document.getElementById('rogueRoute').textContent=r.nodeName||rogueNode(r.nodeType).name;let xpEl=document.getElementById('rogueRelicXp');if(xpEl)xpEl.textContent=`${Math.max(0,r.relicXp||0)} / ${rogueRelicXpNeed()}`;document.getElementById('rogueCinders').textContent=r.cindersRun||0;document.getElementById('rogueLegacyCinders').textContent=m.cinders||0;
