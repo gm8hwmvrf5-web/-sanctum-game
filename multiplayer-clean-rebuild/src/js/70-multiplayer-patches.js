@@ -994,12 +994,17 @@ if(typeof moveDemons==='function'){
 
  // The original max includes all depth/act/boss bonuses but not party size.
  demonMaxHP=function(d){
-  return oldMaxHp(d)+Math.max(0,Number(d?.status?.partyHpBonus)||0);
+  // Enrage is added after party/floor scaling so each kill grants exactly
+  // +1 maximum HP, independent of party size or Ascension depth.
+  return oldMaxHp(d)+Math.max(0,Number(d?.status?.partyHpBonus)||0)
+   +Math.max(0,Number(d?.status?.enrageHpBonus)||0);
  };
  // The existing Attack calculation already incorporates floor and cycle.
  demonAttack=function(d){
   const base=Math.max(0,Number(oldAttack(d))||0);
-  return Math.max(0,Math.round(base*ATTACK[partyCount(S)]));
+  // Enrage Attack applies *after* all existing multipliers, exactly +1/kill.
+  return Math.max(0,Math.round(base*ATTACK[partyCount(S)])
+   +Math.max(0,Number(d?.status?.enrageAttackBonus)||0));
  };
 
  function syncPartyHp(state=S){
