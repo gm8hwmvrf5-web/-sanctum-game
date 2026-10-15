@@ -971,3 +971,85 @@ if(typeof moveDemons==='function'){
   try{window.moveDemons=moveDemons}catch(_){}
 }
 })();
+
+
+/* Party-size Demon balancing: additive to existing floor/cycle difficulty.
+ * Health: 1P 100%, 2P 115%, 3P 130%, 4P 145%.
+ * Attack: 1P 100%, 2P 105%, 3P 110%, 4P 115%.
+ * Player-scaled HP is stored separately from ritual, boss and rogue buffs.
+ * Syncing a saved run or changing the roster preserves damage percentage. */
+(()=>{
+ 'use strict';
+ if(window.__sanctumPartyDemonScalingInstalled)return;
+ window.__sanctumPartyDemonScalingInstalled=true;
+
+ const HP=[1,1,1.15,1.30,1.45];
+ const ATTACK=[1,1,1.05,1.10,1.15];
+ const partyCount=state=>Math.max(1,Math.min(4,Number(state?.players?.length)||1));
+ const oldMaxHp=demonMaxHP;
+ const oldAttack=demonAttack;
+ const oldEnterPlay=triggerEnterPlay;
+ const oldRender=render;
+ const oldMergedStatus=mergedDemonStatus;
+
+ // The original max includes all depth/act/boss bonuses but not party size.
+ demonMaxHP=function(d){
+  return oldMaxHp(d)+Math.max(0,Number(d?.status?.partyHpBonus)||0);
+ };
+ // The existing Attack calculation already incorporates floor and cycle.
+ demonAttack=function(d){
+  const base=Math.max(0,Number(oldAttack(d))||0);
+  return Math.max(0,Math.round(base*ATTACK[partyCount(S)]));
+ };
+
+ function syncPartyHp(state=S){
+  if(!state?.started||!Array.isArray(state.rooms))return;
+  const factor=HP[partyCount(state)];
+  for(const room of state.rooms){
+   if(!Array.isArray(room))continue;
+   for(const d of room){
+    if(!d)continue;
+    d.status=d.status||{};
+    const base=Math.max(1,Number(oldMaxHp(d))||1);
+    const wasBonus=Math.max(0,Number(d.status.partyHpBonus)||0);
+    const previousBase=Number.isFinite(Number(d.status.partyHpBaseMax))
+     ?Math.max(1,Number(d.status.partyHpBaseMax)):base;
+    const oldMax=Math.max(1,previousBase+wasBonus);
+    const newBonus=Math.max(0,Math.round(base*factor)-base);
+    const newMax=base+newBonus;
+    if(wasBonus!==newBonus||previousBase!==base){
+     const oldCurrent=Math.max(0,Number(d.cur)||0);
+     d.cur=Math.max(0,Math.min(newMax,Math.round(oldCurrent*newMax/oldMax)));
+    }
+    d.status.partyHpBonus=newBonus;
+    d.status.partyHpBaseMax=base;
+    d.status.partyHpPlayerCount=partyCount(state);
+   }
+  }
+ }
+
+ // Always scale freshly spawned monsters *after* depth/act HP is assigned.
+ triggerEnterPlay=function(d){
+  const result=oldEnterPlay.apply(this,arguments);
+  syncPartyHp();
+  return result;
+ };
+ // Never copy Lesser-form party HP bonuses onto a merged Greater Demon.
+ mergedDemonStatus=function(){
+  const status=oldMergedStatus.apply(this,arguments);
+  delete status.partyHpBonus;
+  delete status.partyHpBaseMax;
+  delete status.partyHpPlayerCount;
+  return status;
+ };
+ // Reconcile after load or multiplayer sync, including joining a saved run.
+ render=function(){
+  syncPartyHp();
+  return oldRender.apply(this,arguments);
+ };
+ window.__sanctumSyncPartyDemonScaling=syncPartyHp;
+ window.__sanctumPartyDemonFactors=count=>{
+  const n=Math.max(1,Math.min(4,Number(count)||1));
+  return {hp:HP[n],attack:ATTACK[n]};
+ };
+})();
