@@ -34,37 +34,59 @@
 }
 #boardSection .sanctum-elemental-icon-fire,
 #bossArea .sanctum-elemental-icon-fire{color:#b87942}
+/* CSS-based skull fallback also masks an older cached white skull emoji. */
 #boardSection .sanctum-elemental-icon-poison,
-#bossArea .sanctum-elemental-icon-poison{color:#95aa76}
+#bossArea .sanctum-elemental-icon-poison{
+ color:transparent!important;
+ font-size:0!important;
+ background-color:rgba(20,12,12,.91)!important;
+ background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%2394ad79%22%20stroke-width%3D%221.65%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%203C7%203%204%206.8%204%2011.5c0%202.9%201.3%205%203.8%206V21h8.4v-3.5c2.5-1%203.8-3.1%203.8-6C20%206.8%2017%203%2012%203Z%22%2F%3E%3Cpath%20d%3D%22M7.7%2011.6%2010%2012m6.3-.4L14%2012m-2%201.2-1%201.6h2l-1-1.6Z%22%2F%3E%3Cpath%20d%3D%22M10%2017.8V21m2-3.2V21m2-3.2V21%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E')!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+ background-size:82% 82%!important;
+}
+#boardSection .sanctum-elemental-icon-poison svg,
+#bossArea .sanctum-elemental-icon-poison svg{display:none!important}
 #boardSection .sanctum-elemental-icon svg,
 #bossArea .sanctum-elemental-icon svg{
  display:block;width:90%;height:90%;flex:none;
  fill:none;overflow:hidden;
 }
-/* Portrait / narrow screens: shrink badges but retain side-by-side display. */
+/* Phone portrait: compact icons stacked vertically along the artwork's left edge. */
 @media(max-width:700px){
  #boardSection .demons .demon > .demonArtWrap > .sanctum-elemental-icons,
  #bossArea .bossCard > .sanctum-elemental-icons{
-  --sanctum-icon-size:12px;
+  --sanctum-icon-size:11px;
   top:2px;left:2px;gap:1px;
+  flex-direction:column!important;
+  flex-wrap:nowrap!important;
  }
  #boardSection .sanctum-elemental-icon,
  #bossArea .sanctum-elemental-icon{
   border-radius:3px;padding:0;
  }
 }
-/* Landscape phones: artwork panels are very compact (sometimes only 36%
-   of a miniature demon card), so use two small icons in a single row. */
+/* Landscape phones: stack two tiny icons within the compact art panel. */
 @media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
  #boardSection .demons .demon > .demonArtWrap > .sanctum-elemental-icons,
  #bossArea .bossCard > .sanctum-elemental-icons{
-  --sanctum-icon-size:8px;
+  --sanctum-icon-size:9px;
   top:1px;left:1px;gap:1px;
+  flex-direction:column!important;
+  flex-wrap:nowrap!important;
   max-width:calc(100% - 2px);
  }
  #boardSection .sanctum-elemental-icon,
  #bossArea .sanctum-elemental-icon{
   border-radius:2px;border-width:1px;padding:0;
+ }
+}
+/* Rotate status layout on touch phones regardless of orientation quirks. */
+@media (pointer:coarse) and (max-width:1100px){
+ #boardSection .demons .demon > .demonArtWrap > .sanctum-elemental-icons,
+ #bossArea .bossCard > .sanctum-elemental-icons{
+  flex-direction:column!important;
+  flex-wrap:nowrap!important;
  }
 }
 #boardSection .sanctum-elemental-overlays,
