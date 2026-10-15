@@ -1,71 +1,74 @@
-/* Restored compact elemental icons. No rune borders or image tint. */
-#boardSection .demons .demon > .demonArtWrap{position:relative}
-#boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after,
-#boardSection .demons .demon.sanctum-elemental-poison-active > .demonArtWrap::before{
- position:absolute;top:4px;z-index:4;width:22px;height:22px;
- display:grid;place-items:center;
- background:rgba(20,12,12,.86);border:1px solid #82664c;
- border-radius:5px;line-height:1;pointer-events:none;
- font:15px/1 Georgia,serif;box-shadow:0 1px 4px rgba(0,0,0,.75);
+/* Compact gothic status badges anchored to the *artwork*, not the whole card.
+   Dedicated spans allow fire + poison to remain visible together on phones. */
+#boardSection .demons .demon > .demonArtWrap,
+#bossArea .bossCard{position:relative}
+#boardSection .demons .demon > .demonArtWrap > .sanctum-elemental-icons,
+#bossArea .bossCard > .sanctum-elemental-icons{
+ --sanctum-icon-size:20px;
+ position:absolute;
+ top:3px;left:3px;right:auto;
+ z-index:8;
+ display:flex;
+ flex-flow:row nowrap;
+ align-items:flex-start;
+ gap:3px;
+ max-width:calc(100% - 6px);
+ pointer-events:none;
 }
-#boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after{content:'';left:4px;right:auto;background:rgba(20,12,12,.86) url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%202C12%206%208%208%206%2011a8%208%200%200%200%2012%2010c4-5%201-9-3-13%200%203-1%204-2%205%201-5%201-8-1-11Z%22%20fill%3D%22none%22%20stroke%3D%22%23b87942%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M12%2013c-1.5%202-3%203.5-3%205a3%203%200%200%200%206%200c0-2-1.5-3.5-3-5Z%22%20fill%3D%22none%22%20stroke%3D%22%23b87942%22%20stroke-width%3D%221.5%22%2F%3E%3C%2Fsvg%3E') center/18px 18px no-repeat}
-#boardSection .demons .demon.sanctum-elemental-poison-active > .demonArtWrap::before{content:'☠';color:#9bb078;left:4px;right:auto}
-#boardSection .demons .demon.sanctum-elemental-fire-active.sanctum-elemental-poison-active > .demonArtWrap::before{left:30px;right:auto}
-#bossArea .bossCard.sanctum-elemental-fire-active,
-#bossArea .bossCard.sanctum-elemental-poison-active{position:relative}
-#bossArea .bossCard.sanctum-elemental-fire-active::after,
-#bossArea .bossCard.sanctum-elemental-poison-active::before{
- position:absolute;top:10px;z-index:4;width:22px;height:22px;
- display:grid;place-items:center;
- background:rgba(20,12,12,.86);border:1px solid #82664c;
- border-radius:5px;line-height:1;pointer-events:none;
- font:15px/1 Georgia,serif;box-shadow:0 1px 4px rgba(0,0,0,.75);
+#boardSection .sanctum-elemental-icon,
+#bossArea .sanctum-elemental-icon{
+ box-sizing:border-box;
+ position:relative;
+ flex:0 0 var(--sanctum-icon-size);
+ width:var(--sanctum-icon-size);height:var(--sanctum-icon-size);
+ display:flex;align-items:center;justify-content:center;
+ padding:1px;
+ border:1px solid #82664c;border-radius:4px;
+ background:rgba(20,12,12,.91);
+ box-shadow:0 1px 3px rgba(0,0,0,.72);
+ line-height:1;
+ overflow:hidden;
 }
-#bossArea .bossCard.sanctum-elemental-fire-active::after{content:'';left:10px;right:auto;background:rgba(20,12,12,.86) url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%202C12%206%208%208%206%2011a8%208%200%200%200%2012%2010c4-5%201-9-3-13%200%203-1%204-2%205%201-5%201-8-1-11Z%22%20fill%3D%22none%22%20stroke%3D%22%23b87942%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M12%2013c-1.5%202-3%203.5-3%205a3%203%200%200%200%206%200c0-2-1.5-3.5-3-5Z%22%20fill%3D%22none%22%20stroke%3D%22%23b87942%22%20stroke-width%3D%221.5%22%2F%3E%3C%2Fsvg%3E') center/18px 18px no-repeat}
-#bossArea .bossCard.sanctum-elemental-poison-active::before{content:'☠';color:#9bb078;left:10px;right:auto}
-#bossArea .bossCard.sanctum-elemental-fire-active.sanctum-elemental-poison-active::before{left:36px;right:auto}
-#boardSection .sanctum-elemental-overlays,#bossArea .sanctum-elemental-overlays{display:none!important}
-
-/* Mobile: keep the status symbols inside the artwork's left edge.
- * Portrait uses a compact horizontal pair; phone landscape uses a vertical
- * stack because the art itself can be only 36% of a 52px-tall demon card. */
+#boardSection .sanctum-elemental-icon-fire,
+#bossArea .sanctum-elemental-icon-fire{color:#b87942}
+#boardSection .sanctum-elemental-icon-poison,
+#bossArea .sanctum-elemental-icon-poison{
+ color:#9bb078;
+ font:calc(var(--sanctum-icon-size) * .72)/1 Georgia,serif;
+}
+#boardSection .sanctum-elemental-icon-fire svg,
+#bossArea .sanctum-elemental-icon-fire svg{
+ display:block;width:90%;height:90%;overflow:visible;
+}
+/* Portrait / narrow screens: shrink badges but retain side-by-side display. */
 @media(max-width:700px){
- #boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after,
- #boardSection .demons .demon.sanctum-elemental-poison-active > .demonArtWrap::before{
-  top:3px;width:19px;height:19px;font-size:14px;
+ #boardSection .demons .demon > .demonArtWrap > .sanctum-elemental-icons,
+ #bossArea .bossCard > .sanctum-elemental-icons{
+  --sanctum-icon-size:15px;
+  top:2px;left:2px;gap:2px;
  }
- #boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after{
-  left:3px;right:auto;background-size:15px 15px;
+ #boardSection .sanctum-elemental-icon,
+ #bossArea .sanctum-elemental-icon{
+  border-radius:3px;padding:0;
  }
- #boardSection .demons .demon.sanctum-elemental-poison-active > .demonArtWrap::before{left:3px;right:auto}
- #boardSection .demons .demon.sanctum-elemental-fire-active.sanctum-elemental-poison-active > .demonArtWrap::before{left:25px;right:auto}
- #bossArea .bossCard.sanctum-elemental-fire-active::after,
- #bossArea .bossCard.sanctum-elemental-poison-active::before{
-  width:19px;height:19px;font-size:14px;
- }
- #bossArea .bossCard.sanctum-elemental-fire-active::after{left:8px;right:auto;background-size:15px 15px}
- #bossArea .bossCard.sanctum-elemental-poison-active::before{left:8px;right:auto}
- #bossArea .bossCard.sanctum-elemental-fire-active.sanctum-elemental-poison-active::before{left:31px;right:auto}
 }
+/* Landscape phones: artwork panels are very compact (sometimes only 36%
+   of a miniature demon card), so use two small icons in a single row. */
 @media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
- #boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after,
- #boardSection .demons .demon.sanctum-elemental-poison-active > .demonArtWrap::before{
-  top:2px;left:2px;right:auto;width:17px;height:17px;
-  font-size:13px;border-radius:3px;
+ #boardSection .demons .demon > .demonArtWrap > .sanctum-elemental-icons,
+ #bossArea .bossCard > .sanctum-elemental-icons{
+  --sanctum-icon-size:11px;
+  top:1px;left:1px;gap:1px;
+  max-width:calc(100% - 2px);
  }
- #boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after{
-  background-size:13px 13px;
+ #boardSection .sanctum-elemental-icon,
+ #bossArea .sanctum-elemental-icon{
+  border-radius:2px;border-width:1px;padding:0;
  }
- /* Stack both on the left: the tiny landscape art is too narrow for two side-by-side. */
- #boardSection .demons .demon.sanctum-elemental-fire-active.sanctum-elemental-poison-active > .demonArtWrap::before{
-  top:24px;left:2px;right:auto;
- }
- #bossArea .bossCard.sanctum-elemental-fire-active::after,
- #bossArea .bossCard.sanctum-elemental-poison-active::before{
-  width:17px;height:17px;font-size:13px;
- }
- #bossArea .bossCard.sanctum-elemental-fire-active::after{background-size:13px 13px}
 }
+#boardSection .sanctum-elemental-overlays,
+#bossArea .sanctum-elemental-overlays{display:none!important}
+
 #sanctumElementalDamageLayer{
  position:fixed;inset:0;z-index:178;
  pointer-events:none;user-select:none;
