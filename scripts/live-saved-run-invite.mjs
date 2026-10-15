@@ -44,6 +44,7 @@ try{
   localStorage.setItem('sanctum-save-v2',saved);
   if(!openGameMenu())throw Error('Could not open saved-run pause menu');
  });
+ const originalHostHandCount=await host.evaluate(()=>S.players[0].hand.length);
  await host.locator('#pauseInviteFriendsBtn').click();
  await host.waitForFunction(()=>/^[A-Z2-9]{6}$/.test(
    document.querySelector('.mpRoomCode')?.textContent||''),null,{timeout:16000});
@@ -110,7 +111,7 @@ try{
   activeRelics:S.activeRelics.length,deckExpanded:S.multiplayerPriestDeckExpanded,
   turn:S.current,phase:S.phase
  }));
- assert(checks.players.length===4&&checks.players.every((p,i)=>p.cards>=4&&
+ assert(checks.players.length===4&&checks.players.every((p,i)=>p.cards===(i===0?originalHostHandCount:4)&&
   p.char===['High Priestess','Oracle','Crusader','Monk'][i]),
   'Saved-run party hands or Priest classes incorrect: '+JSON.stringify(checks.players));
  assert(checks.floor===10&&checks.round===18&&checks.altar===24&&checks.mana===28,
