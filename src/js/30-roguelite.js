@@ -406,9 +406,6 @@ function rogueliteMutateDemon(d){
 window.__rogueliteMutateDemon=rogueliteMutateDemon;
 function rogueliteEnterCurrentFloor(type){
  let r=rogueState();r.cycle=rogueCycle();r.act=rogueAct();r.pendingClear=false;r.encounterDefeats=0;r.bossFloor=rogueIsBossFloor();
- // A new passage starts a fresh turn history for conditional Demon reinforcements.
- S.demonDefeatedThisPriestTurn=false;
- S.demonDefeatedPreviousPriestTurn=false;
  rogueClearRooms();S.pendingBossChoice=false;S.pendingVictory=false;
  if(typeof window.__sanctumWardClosePassage==='function')window.__sanctumWardClosePassage('passage ended');
  rogueShuffleDemonDeckForPassage(`Passage ${r.floor}`);
@@ -586,7 +583,7 @@ const _revealBoss=revealBoss;revealBoss=function(){if(S?.rogue?.enabled&&!rogueI
 const _defeatBossIfNeeded=defeatBossIfNeeded;defeatBossIfNeeded=function(){if(S?.rogue?.enabled)return rogueliteBossDefeated();return _defeatBossIfNeeded()};
 const _normalSpawnCount=normalSpawnCount;normalSpawnCount=function(){let n=_normalSpawnCount();if(S?.rogue?.enabled&&!S.bossRevealed&&rogueState().nodeType==='swarm')n=Math.min(4,n+1);return n};
 const _triggerEnterPlay=triggerEnterPlay;triggerEnterPlay=function(d){if(S?.rogue?.enabled)rogueliteMutateDemon(d);return _triggerEnterPlay(d)};
-const _spawnOne=spawnOne;spawnOne=function(doLog=true,options=null){let before=new Set((S.rooms||[]).flat().map(d=>d.id));let out=_spawnOne(doLog,options);if(S?.rogue?.enabled){let d=(S.rooms||[]).flat().find(x=>!before.has(x.id));if(d){rogueliteMutateDemon(d);render()}}return out};
+const _spawnOne=spawnOne;spawnOne=function(doLog=true){let before=new Set((S.rooms||[]).flat().map(d=>d.id));let out=_spawnOne(doLog);if(S?.rogue?.enabled){let d=(S.rooms||[]).flat().find(x=>!before.has(x.id));if(d){rogueliteMutateDemon(d);render()}}return out};
 const _demonAttack=demonAttack;demonAttack=function(d){let n=_demonAttack(d);if(S?.rogue?.enabled){let scaled=n*rogueDifficultyMultiplier()*rogueFloorDamageMultiplier()*rogueRepositoryEnemyScaleFactor();return Math.max(n,Math.round(scaled))}return n};
 const _bossDrainAmount=bossDrainAmount;bossDrainAmount=function(){
  const original=_bossDrainAmount();
