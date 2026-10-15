@@ -2016,6 +2016,9 @@
       if(!roster||roster.game.status!=='lobby')throw Error('Room is no longer waiting in the lobby.');
       const state=createResumeParty(snapshot,roster.players);
       S=state;
+      // Recalculate the existing demons before publishing the larger party state.
+      // Preserve each damaged demon's health percentage when friends join.
+      if(typeof window.__sanctumSyncPartyDemonScaling==='function')window.__sanctumSyncPartyDemonScaling(state);
       lastPublishedHash='';
       const accepted=await pushSharedState('game_start',{players:state.players.length,resumeSavedRun:true});
       if(!accepted)throw Error('The saved run was not accepted by the multiplayer server.');
