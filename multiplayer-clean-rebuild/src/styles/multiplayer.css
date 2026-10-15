@@ -1237,3 +1237,25 @@ html:not(.sanctumBossArtReady) .damageTargetCard.bossTarget .demonArt{
   .relicDeckReferenceEffect{font-size:9px}
   .relicDeckReferenceCategory{font-size:7px}
 }
+
+/* Saved-run multiplayer: unmistakable per-device Priest confirmation. */
+#mpSavedPriestChooser[hidden],#mpSavedRunNotice[hidden],#mpResumeSavedBtn[hidden]{display:none!important}
+#mpSavedPriestChooser{
+ display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;
+ margin:12px 0;padding:12px;border:1px solid #b9995b;border-radius:9px;
+ background:linear-gradient(135deg,rgba(74,54,36,.9),rgba(23,19,21,.94));
+}
+#mpSavedPriestChooser label{grid-column:1/-1;color:#f2d398;font-size:13px;font-weight:700}
+#mpSavedPriestSelect{min-width:0;width:100%;min-height:44px;box-sizing:border-box;
+ background:#151116;color:#f2e8d3;border:1px solid #ac8952;border-radius:6px;
+ padding:8px;font-size:15px}
+#mpSavedPriestConfirmBtn{min-height:44px;white-space:normal}
+#mpSavedPriestConfirmation{grid-column:1/-1;font-size:12px;color:#efc494;line-height:1.4}
+#mpSavedPriestConfirmation.mpPriestReady{color:#a4dfaa}
+#mpSavedRunNotice{padding:10px;border-left:3px solid #b99e69;color:#e9d3ac;
+ margin:9px 0;line-height:1.5;overflow-wrap:anywhere}
+.mpRosterPriest{display:block;font-size:11px;color:#edce89;padding-top:3px}
+@media(max-width:580px){
+ #mpSavedPriestChooser{grid-template-columns:1fr}
+ #mpSavedPriestConfirmBtn{width:100%}
+}
