@@ -22,7 +22,7 @@ function takeCrucifixCard(){
 let S = freshState();
 let choiceResolve=null, choiceCancelSerial=0, selectedDemonId=null, crucifixDisplayQueue=[];
 let overflowDamageQueue=[], overflowPromptActive=false;
-function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,demonMergeVisuals:[],pendingDemonManaDrain:0,bloodOverflowHealedRound:0,bloodOverflowHealedAmount:0,altarRenewalHealedRound:0,altarRenewalHealedAmount:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
+function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,enrageRuleVersion:1,enrageKillsThisTurn:0,enrageActiveTurnBonus:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,demonMergeVisuals:[],pendingDemonManaDrain:0,bloodOverflowHealedRound:0,bloodOverflowHealedAmount:0,altarRenewalHealedRound:0,altarRenewalHealedAmount:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
 function demonName(d){return d.greater?d.g:d.n}
 function demonMaxHP(d){let max=d.greater?d.ghp:d.hp;max+=(d.status&&d.status.bossHpBonus)||0;max+=(d.status&&d.status.extraHpBonus)||0;if(bossIs("boneKing")){let loc=findDemonLocation(d);if(loc&&loc.r===3)max+=1}return max}
 function demonBlood(d){let printed=d.greater?d.gb:d.b;let drained=(d.status&&d.status.bloodDrained)||0;return Math.max(0,printed-drained)}
@@ -266,6 +266,50 @@ function applyRoomEntryEffects(d){
   if(d.cur>before)log(`${demonName(d)} heals 1 HP in the Desecrated Crypt.`, 'bad');
  }
 }
+/* Upgrade older saves that contain permanent Enrage stacks. A legacy bonus
+ * is removed once without altering other damage, floor or party scaling. */
+function migrateTemporaryEnrageState(state=S){
+ if(!state||state.enrageRuleVersion===1){
+  if(state){
+   state.enrageKillsThisTurn=Math.max(0,Math.floor(Number(state.enrageKillsThisTurn)||0));
+   state.enrageActiveTurnBonus=Math.max(0,Math.floor(Number(state.enrageActiveTurnBonus)||0));
+  }
+  return;
+ }
+ for(const d of [...(state.rooms||[]).flat(),...(state.queue||[])]){
+  if(!d?.status)continue;
+  const oldHp=Math.max(0,Number(d.status.enrageHpBonus)||0);
+  if(oldHp&&Number(d.cur)>0)d.cur=Math.max(1,Number(d.cur)-oldHp);
+  delete d.status.enrageHpBonus;
+  delete d.status.enrageAttackBonus;
+ }
+ state.enrageKillsThisTurn=0;
+ state.enrageActiveTurnBonus=0;
+ state.enrageRuleVersion=1;
+}
+/* A bonus is a single-turn replacement, never an accumulating permanent buff.
+ * Keep current damage when the previous buff falls away. */
+function setDemonEnrage(d,bonus){
+ if(!d)return;
+ d.status=d.status||{};
+ bonus=Math.max(0,Math.floor(Number(bonus)||0));
+ const prior=Math.max(0,Number(d.status.enrageHpBonus)||0);
+ d.status.enrageHpBonus=bonus;
+ d.status.enrageAttackBonus=bonus;
+ if(prior!==bonus&&Number(d.cur)>0){
+  d.cur=Math.max(1,Math.min(demonMaxHP(d),Number(d.cur)+bonus-prior));
+ }
+}
+function beginNextTurnEnrage(){
+ migrateTemporaryEnrageState();
+ const next=Math.max(0,Math.floor(Number(S.enrageKillsThisTurn)||0));
+ const previous=Math.max(0,Number(S.enrageActiveTurnBonus)||0);
+ S.enrageKillsThisTurn=0;
+ S.enrageActiveTurnBonus=next;
+ for(const room of S.rooms||[])for(const d of room||[])setDemonEnrage(d,next);
+ if(next)log(`ENRAGED — ${next} Demon${next===1?'':'s'} defeated last turn. All remaining Demons gain +${next} HP and Attack this turn.`,'bad');
+ else if(previous)log('ENRAGE FADES — no Demons were defeated last turn. Remaining Demons return to normal stats.','good');
+}
 function normalizeSanctumState(){
  ensureCrucifixDeckState();
  if(!S.corruption||!Array.isArray(S.corruption))S.corruption=[0,0,0,0];
@@ -284,6 +328,7 @@ function normalizeSanctumState(){
  S.players=(S.players||[]).map(p=>({consecrateUsed:false,...p, consecrateUsed:!!p.consecrateUsed}));
  S.rooms=(S.rooms||[[],[],[],[]]);
  while(S.rooms.length<4)S.rooms.push([]);
+ migrateTemporaryEnrageState();
  if(!Array.isArray(S.priestCycleUsed))S.priestCycleUsed=[];
  if(!Array.isArray(S.demonDiscard))S.demonDiscard=[];
  if(!Array.isArray(S.demonCycleUsed))S.demonCycleUsed=[];
@@ -949,7 +994,7 @@ function setupPlayersUI(){const n=+document.getElementById('playerCount').value;
 function syncSetupTimerOption(){let el=document.getElementById('turnTimerSelect');if(el){let n=Number(S?.turnTimerSeconds||TURN_TIMER_SECONDS||60);n=Math.max(30,Math.min(120,Math.round(n/15)*15));el.value=String(n)}}
 function startGame(){const n=+document.getElementById('playerCount').value;let chars=[];for(let i=0;i<n;i++)chars.push(document.getElementById(`pchar${i}`).value);if(new Set(chars).size!==chars.length){alert('Choose a different character for each player.');return false}let chosenTimer=Number(document.getElementById('turnTimerSelect')?.value||60);chosenTimer=Math.max(30,Math.min(120,Math.round(chosenTimer/15)*15));S=freshState();S.turnTimerSeconds=chosenTimer;S.turnTimerRemaining=chosenTimer;TURN_TIMER_SECONDS=chosenTimer;S.started=true;S.phase='Priest';S.priestDeck=buildPriestDeck();S.priestCycleUsed=[];S.demonDeck=buildDemonDeck();S.demonCycleUsed=[];resetCrucifixDeck();S.boss=drawHiddenBoss();S.boss.cur=S.boss.hp;S.relicDeck=shuffle(RELICS.map(r=>r.key));for(let i=0;i<n;i++){let p={name:document.getElementById(`pname${i}`).value||`Player ${i+1}`,char:chars[i],blood:0,hand:[],basic:false,ritualUsed:[false,false,false],forceEmpower:false,discardUsed:false,consecrateUsed:false};S.players.push(p);drawPriest(p,4)}S.mana=sharedManaRoundValue();for(let i=0;i<normalSpawnCount();i++)spawnOne(false);document.getElementById('setupModal').classList.add('hidden');beginTurn(true);log('The Sanctum is besieged. The first round begins.');render();return true}
 function currentPlayer(){return S.players[S.current]}
-function beginTurn(skipDraw=false){if(!S.started)return;S.phase='Priest';let p=currentPlayer();p.basic=false;p.ritualUsed=[false,false,false];p.forceEmpower=false;p.discardUsed=false;p.consecrateUsed=false;S.mergeManaDiscount=0;S.mergeBloodDiscount=0;resolveAltarTurnRenewals();if(!skipDraw)drawPriest(p,2);log(`${p.name} (${p.char}) begins a turn.`);render();resetTurnTimerForNewTurn()}
+function beginTurn(skipDraw=false){if(!S.started)return;S.phase='Priest';beginNextTurnEnrage();let p=currentPlayer();p.basic=false;p.ritualUsed=[false,false,false];p.forceEmpower=false;p.discardUsed=false;p.consecrateUsed=false;S.mergeManaDiscount=0;S.mergeBloodDiscount=0;resolveAltarTurnRenewals();if(!skipDraw)drawPriest(p,2);log(`${p.name} (${p.char}) begins a turn.`);render();resetTurnTimerForNewTurn()}
 function endTurn(){let p=currentPlayer();if(p.hand.length>handLimit()){alert(`Hand limit is ${handLimit()}. Discard cards before ending your turn.`);return}clearTurnTimerInterval();if(S.current<S.players.length-1){S.current++;beginTurn(false)}else{runDemonPhase()}}
 function normalSpawnCount(){
  // During the Boss Stage, normal deck spawns happen every other round.
@@ -1398,26 +1443,14 @@ function distributeKillBlood(n,killerIndex=null){
   log(`No Priest landed the killing blow; each Priest receives ${half} Demon Blood.`,'good');
  }
 }
-/* ENRAGE: every defeated Demon empowers all other Demons currently on the
- * board. Add one *final* Attack and one max/current HP per kill.
- * Bonuses live in status for save/load and Supabase synchronization and
- * are separate from floor difficulty, party multipliers and temporary buffs. */
-function enrageSurvivingDemons(defeated){
- let affected=0;
- for(const room of S.rooms||[]){
-  for(const other of room||[]){
-   if(!other||other.id===defeated.id)continue;
-   other.status=other.status||{};
-   other.status.enrageHpBonus=(Number(other.status.enrageHpBonus)||0)+1;
-   other.status.enrageAttackBonus=(Number(other.status.enrageAttackBonus)||0)+1;
-   other.cur=Math.max(0,Number(other.cur)||0)+1;
-   affected++;
-  }
- }
- if(affected)log(`ENRAGED — ${affected} surviving Demon${affected===1?'':'s'} gain +1 HP and +1 Attack after ${demonName(defeated)} falls.`,'bad');
- return affected;
+/* Every kill within one Priest turn adds one point to NEXT turn's Enrage.
+ * No immediate stat changes, and Demon Phase kills do not count as Priest kills. */
+function registerDemonKillForNextEnrage(){
+ if(S.phase!=='Priest')return;
+ migrateTemporaryEnrageState();
+ S.enrageKillsThisTurn=Math.max(0,Math.floor(Number(S.enrageKillsThisTurn)||0))+1;
 }
-function defeatDemon(d,opts={}){let loc=findDemonLocation(d);if(!loc)return;let attachedCrucifix=takeDemonCrucifixAttachment(d);S.rooms[loc.r].splice(loc.i,1);reduceRoomCorruptionOnDemonDefeat(loc.r);S.runStats=S.runStats||{};if(d.greater)S.runStats.greaterDemonsDefeated=(S.runStats.greaterDemonsDefeated||0)+1;let baseBlood=demonBlood(d),extraBlood=demonCode(d)==='defeatBlood'?demonValue(d):0,skipBlood=false,reward=baseBlood;if(bossIs("soulTyrant")&&!d.greater){reward=Math.max(0,baseBlood+extraBlood-1);skipBlood=extraBlood>0;log(`${S.boss.n} — Tyrant's Claim reduces this Lesser Demon's total Blood reward by 1.`,"bad")}distributeKillBlood(reward,S.phase==='Priest'?Number(S.current):null);S.defeats++;enrageSurvivingDemons(d);S.defeated.push({...d,status:{...d.status}});log(`${demonName(d)} is defeated. Demon Blood is awarded by the multiplayer kill rule. Defeat ${S.defeats}/13.`,'good');resolveAltarDefeatBlessings();if(bossIs("plagueFather")){let f=ensureBossFlags();f.spores[loc.r]=(f.spores[loc.r]||0)+1;log(`${S.boss.n} — Corruption Spores marks ${["Gateway","Hall","Chapel","Crypt"][loc.r]}; the next Demon to enter gains 1 HP.`,"bad")}if(bossIs("devourer")&&!d.greater&&S.boss.cur>0){let before=S.boss.cur;S.boss.cur=Math.min(S.boss.hp,S.boss.cur+1);if(S.boss.cur>before)log(`${S.boss.n} — Feast of Ruin heals the Boss for 1 HP.`,"bad")}triggerDefeatAbility(d,{skipBlood,suppressNegative:!!opts.suppressNegative});if(attachedCrucifix)revealAttachedCrucifix(d,'was defeated and reveals its hidden Crucifix');if(!S?.rogue?.enabled){if(d.greater)rollGreaterDemonRelic();if(S.defeats>=5&&!S.relicFiveDefeatClaimed){S.relicFiveDefeatClaimed=true;pullRelic('Five Demons have been defeated. The Sanctum reveals a hidden Relic.')}}if(S.defeats>=13&&!S.bossRevealed)revealBoss();render()}
+function defeatDemon(d,opts={}){let loc=findDemonLocation(d);if(!loc)return;let attachedCrucifix=takeDemonCrucifixAttachment(d);S.rooms[loc.r].splice(loc.i,1);reduceRoomCorruptionOnDemonDefeat(loc.r);S.runStats=S.runStats||{};if(d.greater)S.runStats.greaterDemonsDefeated=(S.runStats.greaterDemonsDefeated||0)+1;let baseBlood=demonBlood(d),extraBlood=demonCode(d)==='defeatBlood'?demonValue(d):0,skipBlood=false,reward=baseBlood;if(bossIs("soulTyrant")&&!d.greater){reward=Math.max(0,baseBlood+extraBlood-1);skipBlood=extraBlood>0;log(`${S.boss.n} — Tyrant's Claim reduces this Lesser Demon's total Blood reward by 1.`,"bad")}distributeKillBlood(reward,S.phase==='Priest'?Number(S.current):null);S.defeats++;registerDemonKillForNextEnrage();S.defeated.push({...d,status:{...d.status}});log(`${demonName(d)} is defeated. Demon Blood is awarded by the multiplayer kill rule. Defeat ${S.defeats}/13.`,'good');resolveAltarDefeatBlessings();if(bossIs("plagueFather")){let f=ensureBossFlags();f.spores[loc.r]=(f.spores[loc.r]||0)+1;log(`${S.boss.n} — Corruption Spores marks ${["Gateway","Hall","Chapel","Crypt"][loc.r]}; the next Demon to enter gains 1 HP.`,"bad")}if(bossIs("devourer")&&!d.greater&&S.boss.cur>0){let before=S.boss.cur;S.boss.cur=Math.min(S.boss.hp,S.boss.cur+1);if(S.boss.cur>before)log(`${S.boss.n} — Feast of Ruin heals the Boss for 1 HP.`,"bad")}triggerDefeatAbility(d,{skipBlood,suppressNegative:!!opts.suppressNegative});if(attachedCrucifix)revealAttachedCrucifix(d,'was defeated and reveals its hidden Crucifix');if(!S?.rogue?.enabled){if(d.greater)rollGreaterDemonRelic();if(S.defeats>=5&&!S.relicFiveDefeatClaimed){S.relicFiveDefeatClaimed=true;pullRelic('Five Demons have been defeated. The Sanctum reveals a hidden Relic.')}}if(S.defeats>=13&&!S.bossRevealed)revealBoss();render()}
 function distributeBlood(n){let left=n;let idx=S.current;let safety=0;while(left>0&&safety<100){let p=S.players[idx%S.players.length];if(p.blood<10){p.blood++;left--}idx++;safety++;if(S.players.every(p=>p.blood>=10))break}if(left>0)healBloodOverflowCapped(left)}
 function bossHpFactor(){let count=S.players?.length||1;return count>=4?1.25:count===3?1.05:count===2?.85:.70}
 function scaleBossForPlayers(preserveDamage=false){
