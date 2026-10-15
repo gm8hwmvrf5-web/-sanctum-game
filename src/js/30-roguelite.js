@@ -46,7 +46,26 @@ function rogueAct(){let r=rogueState();r.act=Math.min(3,Math.max(1,rogueActForFl
 function rogueStep(){return ((rogueState().floor-1)%5)+1}
 function rogueIsBossFloor(){return ((Math.max(1,rogueState().floor||1))%5)===0}
 function rogueIsCycleBoss(){return ((Math.max(1,rogueState().floor||1))%15)===0}
-function rogueGoalFor(type){let a=rogueAct();if(type==='elite')return 5+(a-1);if(type==='swarm')return 5+(a-1);return 4+(a-1)}
+/* Solo passage requirements remain the baseline; each additional Priest
+ * adds exactly one required Demon defeat. Elite and Swarm keep their existing
+ * +1 encounter difficulty, and later Acts retain their existing bonuses. */
+function rogueGoalFor(type,playerCount=S?.players?.length||1,floor=rogueState().floor){
+ const act=rogueActForFloor(floor);
+ const players=Math.max(1,Math.min(4,Math.floor(Number(playerCount)||1)));
+ return (type==='elite'||type==='swarm'?5:4)+(act-1)+(players-1);
+}
+/* Recompute saved/in-progress passage goals from the actual party roster.
+ * No additive increment: repeated renders and multiplayer syncs are safe. */
+function rogueliteSyncEncounterGoal(state=S){
+ const r=state?.rogue;
+ if(!r?.enabled||r.bossFloor||r.pendingClear||
+    !['battle','elite','swarm'].includes(r.nodeType))return false;
+ const goal=rogueGoalFor(r.nodeType,state.players?.length||1,r.floor);
+ if(r.encounterGoal===goal)return false;
+ r.encounterGoal=goal;
+ return true;
+}
+window.__sanctumSyncPassageDefeatGoal=rogueliteSyncEncounterGoal;
 function rogueNode(type){return ROGUE_NODE_INFO[type]||ROGUE_NODE_INFO.battle}
 function rogueCap(v,min,max){return Math.max(min,Math.min(max,v))}
 function rogueShuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -425,6 +444,7 @@ function rogueliteEnterCurrentFloor(type){
 }
 function rogueliteAfterDemonDefeat(){
  let r=rogueState();if(!r.enabled||r.bossFloor||r.pendingClear||['Victory','Defeat'].includes(S.phase))return;
+ rogueliteSyncEncounterGoal();
  r.encounterDefeats=(r.encounterDefeats||0)+1;
  if(r.encounterDefeats<r.encounterGoal){render();return}
  r.pendingClear=true;S.phase='Rogue Reward';clearTurnTimerInterval();
@@ -535,6 +555,7 @@ function rogueliteBankRun(win){
  r.cindersRun=0;m.bestFloor=Math.max(m.bestFloor||0,r.floor||1);m.runs=(m.runs||0)+1;if(win)m.wins=(m.wins||0)+1;rogueSaveMeta(m);r.banked=true;r.bankedAmount=(r.bankedAmount||0)+gain;return r.bankedAmount||0;
 }
 function rogueliteRenderHud(){
+ if(S?.started)rogueliteSyncEncounterGoal();
  let hud=document.getElementById('rogueHud');if(!hud)return;let r=S&&S.rogue&&S.rogue.enabled?rogueState():rogueDefaultState(),m=rogueMeta();
  r.cycle=rogueCycle();r.act=rogueAct();document.getElementById('roguePassage').textContent=`${rogueStep()} / 5`;document.getElementById('rogueAct').textContent=`${r.act||1} / 3`;document.getElementById('rogueFloor').textContent=`${rogueCycleFloorFor(r.floor||1)} / 15`;let runLabel=document.querySelector('.runProgressStat > span');if(runLabel)runLabel.textContent=`Cycle ${r.cycle} • ${rogueDifficultyMultiplier()}×`;document.getElementById('rogueRoute').textContent=r.nodeName||rogueNode(r.nodeType).name;let xpEl=document.getElementById('rogueRelicXp');if(xpEl)xpEl.textContent=`${Math.max(0,r.relicXp||0)} / ${rogueRelicXpNeed()}`;document.getElementById('rogueCinders').textContent=r.cindersRun||0;document.getElementById('rogueLegacyCinders').textContent=m.cinders||0;
  let pct=rogueIsBossFloor()?((S.bossRevealed&&S.boss&&S.boss.hp)?(1-(S.boss.cur/S.boss.hp))*100:0):((r.encounterGoal||1)?((r.encounterDefeats||0)/(r.encounterGoal||1))*100:0);document.getElementById('rogueProgressFill').style.width=`${rogueCap(pct,0,100)}%`;
