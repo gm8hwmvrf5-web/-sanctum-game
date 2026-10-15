@@ -2173,6 +2173,28 @@ function closeCrucifixPopup(){
   resumeTurnTimerIfReady();
  },0);
 }
+/* Mercy of the Grave resolves without a choice modal or a Priest action.
+ * Banishment removes a live Demon, does NOT defeat it, award Blood/XP,
+ * clear corruption, or trigger its defeat ability. */
+function crucifixBanishRandomDemon(){
+ const board=allDemons();
+ if(!board.length)return 'No Demon is on the board. Mercy of the Grave has no target.';
+ const victim=board[secureRandomIndex(board.length)].d;
+ const loc=findDemonLocation(victim);
+ if(!loc)return 'Mercy of the Grave finds no valid Demon to banish.';
+ const name=demonName(victim);
+ S.rooms[loc.r].splice(loc.i,1);
+ if(selectedDemonId===victim.id)selectedDemonId=null;
+ // A hidden Crucifix is retained for a later spawn, not silently lost.
+ if(takeDemonCrucifixAttachment(victim)){
+  S.pendingCrucifixTransfers=Math.max(0,Number(S.pendingCrucifixTransfers)||0)+1;
+ }
+ S.demonDiscard=Array.isArray(S.demonDiscard)?S.demonDiscard:[];
+ S.demonDiscard.push(resetDemon(victim));
+ const result=`${name} is banished from the board without rewards or defeat credit.`;
+ log(`MERCY OF THE GRAVE — ${result}`,'good');
+ return result;
+}
 function drawCrucifix(){
  let e=takeCrucifixCard();
  if(e.choice){
@@ -2189,9 +2211,9 @@ function drawCrucifix(){
   return;
  }
  log(`${e.t==='cursed'?'CURSED CRUCIFIX':'CRUCIFIX'} — ${e.n}: ${e.txt}`,(e.t==='bad'||e.t==='cursed')?'bad':e.t==='good'?'good':'info');
- e.fx(S);
+ const effectResult=e.fx(S);
  render();
- showCrucifixCard(e,'Effect resolved. Review the game log for any resulting changes.');
+ showCrucifixCard(e,typeof effectResult==='string'?effectResult:'Effect resolved. Review the game log for any resulting changes.');
 }
 const SANCTUM_SAVE_KEY='sanctum-save-v2';
 const SANCTUM_LEGACY_SAVE_KEY='sanctum-save';
