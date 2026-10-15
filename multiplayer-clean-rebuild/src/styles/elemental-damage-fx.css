@@ -34,13 +34,13 @@
 }
 #boardSection .sanctum-elemental-icon-fire,
 #bossArea .sanctum-elemental-icon-fire{color:#b87942}
-/* CSS-based skull fallback also masks an older cached white skull emoji. */
+/* Static green outline teardrop; CSS fallback hides legacy cached skull glyphs. */
 #boardSection .sanctum-elemental-icon-poison,
 #bossArea .sanctum-elemental-icon-poison{
  color:transparent!important;
  font-size:0!important;
  background-color:rgba(20,12,12,.91)!important;
- background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%2394ad79%22%20stroke-width%3D%221.65%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%203C7%203%204%206.8%204%2011.5c0%202.9%201.3%205%203.8%206V21h8.4v-3.5c2.5-1%203.8-3.1%203.8-6C20%206.8%2017%203%2012%203Z%22%2F%3E%3Cpath%20d%3D%22M7.7%2011.6%2010%2012m6.3-.4L14%2012m-2%201.2-1%201.6h2l-1-1.6Z%22%2F%3E%3Cpath%20d%3D%22M10%2017.8V21m2-3.2V21m2-3.2V21%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E')!important;
+ background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%202.5C10.1%205.5%205.5%2010.3%205.5%2014.2a6.5%206.5%200%200%200%2013%200C18.5%2010.3%2013.9%205.5%2012%202.5Z%22%20fill%3D%22none%22%20stroke%3D%22%2394ad79%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')!important;
  background-position:center!important;
  background-repeat:no-repeat!important;
  background-size:82% 82%!important;
