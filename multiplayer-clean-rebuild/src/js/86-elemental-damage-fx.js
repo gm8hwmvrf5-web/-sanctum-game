@@ -26,7 +26,7 @@ function syncData(){
 // Read-only, size-aware artwork badges (never alter damage/status values).
 // Dedicated DOM icons avoid mobile pseudo-elements clipping one another.
 const FIRE_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 6 8 8 6 11a8 8 0 0 0 12 10c4-5 1-9-3-13 0 3-1 4-2 5 1-5 1-8-1-11Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 13c-1.5 2-3 3.5-3 5a3 3 0 0 0 6 0c0-2-1.5-3.5-3-5Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
-const POISON_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#94ad79" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C7 3 4 6.8 4 11.5c0 2.9 1.3 5 3.8 6V21h8.4v-3.5c2.5-1 3.8-3.1 3.8-6C20 6.8 17 3 12 3Z"/><path d="M7.7 11.6 10 12m6.3-.4L14 12m-2 1.2-1 1.6h2l-1-1.6Z"/><path d="M10 17.8V21m2-3.2V21m2-3.2V21"/></g></svg>';
+const POISON_OUTLINE="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2.5C10.1 5.5 5.5 10.3 5.5 14.2a6.5 6.5 0 0 0 13 0C18.5 10.3 13.9 5.5 12 2.5Z\" fill=\"none\" stroke=\"#94ad79\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
 function makeStatusIcon(kind){
  const icon=document.createElement('span');
  icon.className='sanctum-elemental-icon sanctum-elemental-icon-'+kind;
