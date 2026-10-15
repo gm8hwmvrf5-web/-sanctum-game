@@ -23,34 +23,74 @@ function syncData(){
  }
  return {state,fireDemons,fireBoss};
 }
-function addMark(container,kind,description){
- if(!container)return;
- const item=document.createElement('span');
- item.className='sanctum-elemental-mark sanctum-elemental-'+kind;
- item.dataset.elemental=kind;
- item.setAttribute('title',description);
- item.setAttribute('aria-label',description);
- item.textContent=kind==='fire'?'♨':'☣';
- container.appendChild(item);
+// Visual layers are confined to the artwork. Status values are read-only:
+ // Fire and Poison can each be active, and their layers never affect combat.
+function artHost(target){
+ const demonArt=target.querySelector('.demonArtWrap');
+ if(demonArt)return demonArt;
+ const image=target.querySelector('.bossArt');
+ if(!image)return null;
+ // Boss artwork is normally an <img> directly inside the Boss card.
+ // Wrap only the image so gas/flames cannot cover Boss stats or abilities.
+ let wrap=image.parentElement;
+ if(!wrap?.classList.contains('sanctum-elemental-boss-art')){
+  wrap=document.createElement('div');
+  wrap.className='sanctum-elemental-boss-art';
+  image.parentElement.insertBefore(wrap,image);
+  wrap.appendChild(image);
+ }
+ return wrap;
+}
+function makeLayer(kind){
+ const layer=document.createElement('div');
+ layer.className='sanctum-elemental-overlay sanctum-elemental-'+kind+'-overlay';
+ layer.dataset.elemental=kind;
+ layer.setAttribute('aria-hidden','true');
+ if(kind==='fire'){
+  for(let i=0;i<4;i++){
+   const tongue=document.createElement('span');
+   tongue.className='sanctum-flame sanctum-flame-'+(i+1);
+   layer.appendChild(tongue);
+  }
+ }else{
+  for(let i=0;i<4;i++){
+   const cloud=document.createElement('span');
+   cloud.className='sanctum-miasma sanctum-miasma-'+(i+1);
+   layer.appendChild(cloud);
+  }
+ }
+ return layer;
 }
 function decorate(target,fire,poison){
  if(!target)return;
- const host=target.querySelector('.demonArtWrap')||
-            target.querySelector('.bossArt')?.parentElement;
+ const host=artHost(target);
  if(!host)return;
- if(target.classList.contains('bossCard'))host.classList.add('sanctum-elemental-boss-art');
- const current=host.querySelector('.sanctum-elemental-marks');
- if(current)current.remove();
- target.classList.toggle('sanctum-elemental-fire-active',fire>0);
- target.classList.toggle('sanctum-elemental-poison-active',poison>0);
- if(!(fire>0||poison>0))return;
- const row=document.createElement('div');
- row.className='sanctum-elemental-marks';
- if(fire>0)addMark(row,'fire','Burning • '+fire+' Fire damage pending');
- if(poison>0)addMark(row,'poison','Poison '+poison+'/2 Basic Attack hits');
- host.appendChild(row);
+ const burning=fire>0,poisoned=poison>0;
+ target.classList.toggle('sanctum-elemental-fire-active',burning);
+ target.classList.toggle('sanctum-elemental-poison-active',poisoned);
+ // The engine rebuilds each card on render. Updating rather than duplicating
+ // layers also supports independent status expiry on an existing card node.
+ const existing=host.querySelector('.sanctum-elemental-overlays');
+ if(!burning&&!poisoned){
+  if(existing)existing.remove();
+  return;
+ }
+ const layers=existing||document.createElement('div');
+ layers.className='sanctum-elemental-overlays';
+ layers.setAttribute('aria-hidden','true');
+ for(const [kind,active] of [['fire',burning],['poison',poisoned]]){
+  const old=layers.querySelector('[data-elemental="'+kind+'"]');
+  if(active&&!old)layers.appendChild(makeLayer(kind));
+  if(!active&&old)old.remove();
+ }
+ if(!existing)host.appendChild(layers);
+ // Keep tooltips informative without reintroducing visual status badges.
+ host.title=[
+  burning?'Burning: '+Math.floor(fire)+' Fire damage pending':null,
+  poisoned?'Poison: '+Math.floor(poison)+'/2 Basic Attack hits':null
+ ].filter(Boolean).join(' • ');
 }
-function drawMarkers(){
+function drawOverlays(){
  const {state,fireDemons,fireBoss}=syncData();
  if(!state)return;
  const byId=new Map();
@@ -120,12 +160,12 @@ function drawDamage(){
  }
 }
 window.__sanctumRenderElementalFx=function(){
- try{drawMarkers();drawDamage()}catch(error){
+ try{drawOverlays();drawDamage()}catch(error){
   console.warn('Elemental visual effect skipped safely',error);
  }
 };
 window.__sanctumElementalFxState=()=>({
- markers:document.querySelectorAll('#boardSection .sanctum-elemental-mark').length,
+ overlays:document.querySelectorAll('#boardSection .sanctum-elemental-overlay, #bossArea .sanctum-elemental-overlay').length,
  floating:document.querySelectorAll('#sanctumElementalDamageLayer .sanctum-elemental-damage').length,
  seen:seen.size
 });
