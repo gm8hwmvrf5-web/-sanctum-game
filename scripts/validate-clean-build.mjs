@@ -106,7 +106,7 @@ for(const token of ['demonMergeVisuals','S.rooms[0].push(host)','mergedThisPhase
 const elementalSource=fs.readFileSync(path.join(root,'src/js/70-multiplayer-patches.js'),'utf8');
 const elementalVisualSource=fs.readFileSync(path.join(root,'src/js/86-elemental-damage-fx.js'),'utf8');
 for(const key of ['elementalDamageVisual','elementalHp','elementalVisualAnchor'])if(!elementalSource.includes(key))throw new Error('Elemental damage event missing: '+key);
-for(const key of ['sanctum-elemental-overlays','sanctum-elemental-fire-overlay','sanctum-elemental-poison-overlay','sanctum-elemental-damage','elementalPoisonHits','elementalBurnQueue'])
+for(const key of ['sanctum-elemental-overlays',"'sanctum-elemental-'+kind+'-overlay'",'sanctum-elemental-damage','elementalPoisonHits','elementalBurnQueue'])
   if(!elementalVisualSource.includes(key))throw new Error('Elemental artwork overlay or floating number missing: '+key);
 if(elementalVisualSource.includes('sanctum-elemental-mark'))throw new Error('Legacy elemental badge icons must not render');
 const elementalOverlayCss=fs.readFileSync(path.join(root,'src/styles/elemental-damage-fx.css'),'utf8');
