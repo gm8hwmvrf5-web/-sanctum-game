@@ -1009,6 +1009,8 @@ if(typeof moveDemons==='function'){
 
  function syncPartyHp(state=S){
   if(!state?.started||!Array.isArray(state.rooms))return;
+  // Also migrate pre-update saves and restored multiplayer states safely.
+  migrateTemporaryEnrageState(state);
   const factor=HP[partyCount(state)];
   for(const room of state.rooms){
    if(!Array.isArray(room))continue;
@@ -1037,6 +1039,9 @@ if(typeof moveDemons==='function'){
  triggerEnterPlay=function(d){
   const result=oldEnterPlay.apply(this,arguments);
   syncPartyHp();
+  // New demons entering during an Enraged Priest turn inherit the same
+  // temporary bonus; nothing is carried into later turns permanently.
+  if(d&&findDemonLocation(d))setDemonEnrage(d,S.enrageActiveTurnBonus);
   return result;
  };
  // Never copy Lesser-form party HP bonuses onto a merged Greater Demon.
