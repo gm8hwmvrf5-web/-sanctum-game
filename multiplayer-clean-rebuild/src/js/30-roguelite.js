@@ -406,6 +406,9 @@ function rogueliteMutateDemon(d){
 window.__rogueliteMutateDemon=rogueliteMutateDemon;
 function rogueliteEnterCurrentFloor(type){
  let r=rogueState();r.cycle=rogueCycle();r.act=rogueAct();r.pendingClear=false;r.encounterDefeats=0;r.bossFloor=rogueIsBossFloor();
+ // Kills and Enrage from the previous passage do not follow the party down.
+ S.enrageKillsThisTurn=0;
+ S.enrageActiveTurnBonus=0;
  rogueClearRooms();S.pendingBossChoice=false;S.pendingVictory=false;
  if(typeof window.__sanctumWardClosePassage==='function')window.__sanctumWardClosePassage('passage ended');
  rogueShuffleDemonDeckForPassage(`Passage ${r.floor}`);
