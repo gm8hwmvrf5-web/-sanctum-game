@@ -8,7 +8,7 @@
  border-radius:5px;line-height:1;pointer-events:none;
  font:15px/1 Georgia,serif;box-shadow:0 1px 4px rgba(0,0,0,.75);
 }
-#boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after{content:'🔥';right:4px}
+#boardSection .demons .demon.sanctum-elemental-fire-active > .demonArtWrap::after{content:'';right:4px;background:rgba(20,12,12,.86) url('data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202c1%204-2%205-4%208-2%202-3%204-3%206a7%207%200%200%200%2014%200c0-4-3-6-5-9%200%203-1%204-2%205%200-4%202-6%200-10Z'%20fill%3D'none'%20stroke%3D'%23b87942'%20stroke-width%3D'1.7'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%2F%3E%3Cpath%20d%3D'M12%2013c-2%202-3%203-3%205a3%203%200%200%200%206%200c0-2-2-3-3-5Z'%20fill%3D'none'%20stroke%3D'%23b87942'%20stroke-width%3D'1.3'%2F%3E%3C%2Fsvg%3E') center/17px 17px no-repeat}
 #boardSection .demons .demon.sanctum-elemental-poison-active > .demonArtWrap::before{content:'☠';color:#9bb078;right:4px}
 #boardSection .demons .demon.sanctum-elemental-fire-active.sanctum-elemental-poison-active > .demonArtWrap::before{right:30px}
 #bossArea .bossCard.sanctum-elemental-fire-active,
@@ -21,7 +21,7 @@
  border-radius:5px;line-height:1;pointer-events:none;
  font:15px/1 Georgia,serif;box-shadow:0 1px 4px rgba(0,0,0,.75);
 }
-#bossArea .bossCard.sanctum-elemental-fire-active::after{content:'🔥';right:10px}
+#bossArea .bossCard.sanctum-elemental-fire-active::after{content:'';right:10px;background:rgba(20,12,12,.86) url('data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202c1%204-2%205-4%208-2%202-3%204-3%206a7%207%200%200%200%2014%200c0-4-3-6-5-9%200%203-1%204-2%205%200-4%202-6%200-10Z'%20fill%3D'none'%20stroke%3D'%23b87942'%20stroke-width%3D'1.7'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%2F%3E%3Cpath%20d%3D'M12%2013c-2%202-3%203-3%205a3%203%200%200%200%206%200c0-2-2-3-3-5Z'%20fill%3D'none'%20stroke%3D'%23b87942'%20stroke-width%3D'1.3'%2F%3E%3C%2Fsvg%3E') center/17px 17px no-repeat}
 #bossArea .bossCard.sanctum-elemental-poison-active::before{content:'☠';color:#9bb078;right:10px}
 #bossArea .bossCard.sanctum-elemental-fire-active.sanctum-elemental-poison-active::before{right:36px}
 #boardSection .sanctum-elemental-overlays,#bossArea .sanctum-elemental-overlays{display:none!important}
