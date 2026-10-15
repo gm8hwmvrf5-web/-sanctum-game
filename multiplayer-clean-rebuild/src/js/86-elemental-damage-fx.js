@@ -26,7 +26,7 @@ function syncData(){
 // Read-only, size-aware artwork badges (never alter damage/status values).
 // Dedicated DOM icons avoid mobile pseudo-elements clipping one another.
 const FIRE_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 6 8 8 6 11a8 8 0 0 0 12 10c4-5 1-9-3-13 0 3-1 4-2 5 1-5 1-8-1-11Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 13c-1.5 2-3 3.5-3 5a3 3 0 0 0 6 0c0-2-1.5-3.5-3-5Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
-const POISON_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8.7a7 7 0 0 1 14 0c0 2.8-1.1 4.9-3.4 6.1V19H8.4v-4.2C6.1 13.6 5 11.5 5 8.7Z"/><path d="M8.5 10.3h2m3 0h2M12 12.8v1.1m-2.4 3.1v2m4.8-2v2"/><path d="m4 20 3-2m10 0 3 2"/></g></svg>';
+const POISON_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#94ad79" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C7 3 4 6.8 4 11.5c0 2.9 1.3 5 3.8 6V21h8.4v-3.5c2.5-1 3.8-3.1 3.8-6C20 6.8 17 3 12 3Z"/><path d="M7.7 11.6 10 12m6.3-.4L14 12m-2 1.2-1 1.6h2l-1-1.6Z"/><path d="M10 17.8V21m2-3.2V21m2-3.2V21"/></g></svg>';
 function makeStatusIcon(kind){
  const icon=document.createElement('span');
  icon.className='sanctum-elemental-icon sanctum-elemental-icon-'+kind;
