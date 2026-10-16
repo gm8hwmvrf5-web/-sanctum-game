@@ -81,6 +81,11 @@ const RELICS=[
  {key:'sanctumHeart',n:'Heart of the Sanctum',cat:'Hybrid Relic',effect:'Maximum Priest hand size permanently increases by 1 and Ritual numerical effects gain +1.',mods:{hand:1,ritual:1}},
  {key:'martyrEye',n:"Martyr's Eye",cat:'Critical Strike',effect:'Basic Attack critical-hit chance permanently increases by 5 percentage points.',mods:{crit:5}}
 ];
+// Attack Relic text must describe the five-damage ceiling and XP conversion.
+for(const relic of RELICS){
+ if(Number(relic.mods?.basic)>0)
+  relic.effect+=' Attack damage is capped at 5; if this Relic would exceed the cap, gain 20 Relic XP instead.';
+}
 function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
 function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
 function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0),legacy=Math.max(0,Number(S?.rogue?.legacyBasicAttackBonus)||0);return Math.min(5,2+raw+legacy)}

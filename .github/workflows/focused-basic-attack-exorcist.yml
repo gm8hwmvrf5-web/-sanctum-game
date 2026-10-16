@@ -1,0 +1,27 @@
+name: Focused Attack and Exorcist Checks
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  focused-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout clean rebuild
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check changed scripts
+        run: |
+          node --check src/js/00-data.js
+          node --check src/js/10-engine.js
+          node --check src/js/30-roguelite.js
+          node --check service-worker.js
+          node --check scripts/basic-attack-exorcist-smoke.mjs
+      - name: Focused attack cap and Exorcist gameplay assertions
+        run: node scripts/basic-attack-exorcist-smoke.mjs
