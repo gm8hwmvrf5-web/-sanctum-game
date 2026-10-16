@@ -2278,6 +2278,14 @@ function drawCrucifix(){
   showGameStatus(result,'good');
   return;
  }
+ // Borrowed Dawn has no player choice or blocking popup; resolving it
+ // immediately avoids holding up the multiplayer turn.
+ if(e.n==='Borrowed Dawn'){
+  const result=e.fx(S);
+  render();
+  showGameStatus(result,'info');
+  return;
+ }
  if(e.choice){
   log(`CRUCIFIX — ${e.n}: ${e.txt}`,'info');
   showChoiceCrucifix(e);

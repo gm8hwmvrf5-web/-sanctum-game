@@ -244,15 +244,16 @@ const CHOICE_CRUCIFIX=[
   fx:s=>crucifixBanishRandomDemon()
  },
  {
-  n:"Borrowed Dawn",t:"double",choice:true,
-  txt:"A false sunrise grants knowledge while feeding the Chapel's corruption.",
-  choices:[
-   {label:"Take the Dawn",desc:"Current player draws 2 Priest cards. Add 2 Corruption to the Chapel.",
-    fx:s=>{drawPriest(s.players[s.current],2);addCorruption(2,"Borrowed Dawn");addCorruption(2,"Borrowed Dawn");return "The current player draws 2 Priest cards, but the Chapel gains 2 Corruption.";}},
-   {label:"Turn Away",desc:"Current player discards 1 random Priest card. Restore 4 Altar Protection.",
-    can:s=>s.players[s.current]&&s.players[s.current].hand.length>0,
-    fx:s=>{discardRandom(s.players[s.current]);healAltar(4,"Borrowed Dawn");return "The current player discards 1 random Priest card and the Altar restores 4 Protection.";}}
-  ]
+  n:"Borrowed Dawn",t:"double",
+  txt:"Current player draws 2 Priest cards. Lose 2 Altar Protection.",
+  fx:s=>{
+   const player=s.players[s.current];
+   const drawn=player?drawPriest(player,2):0;
+   const before=s.altar;
+   damageAltar(2,"Borrowed Dawn");
+   const lost=Math.max(0,before-s.altar);
+   return `Borrowed Dawn: ${player?player.name:"Current player"} draws ${drawn} Priest card${drawn===1?"":"s"}. The Altar loses ${lost} Protection.`;
+  }
  },
  {
   n:"The Unpaid Vow",t:"double",choice:true,
