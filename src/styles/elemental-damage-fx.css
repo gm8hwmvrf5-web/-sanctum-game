@@ -34,6 +34,13 @@
 }
 #boardSection .sanctum-elemental-icon-fire,
 #bossArea .sanctum-elemental-icon-fire{color:#b87942}
+/* Gatewalker: a muted grey stone gate, identical badge dimensions to
+   Fire/Poison and anchored to the same artwork status-icon row. */
+#boardSection .sanctum-elemental-icon-gatewalker{
+ color:#a7adb2;
+ border-color:#777d83;
+ background:rgba(17,19,22,.93);
+}
 /* Static green outline teardrop; CSS fallback hides legacy cached skull glyphs. */
 #boardSection .sanctum-elemental-icon-poison,
 #bossArea .sanctum-elemental-icon-poison{
