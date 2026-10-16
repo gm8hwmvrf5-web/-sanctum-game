@@ -7,7 +7,7 @@ const ROGUE_META_KEY='sanctumRogueliteLegacyV1';
 const ROGUE_VERSION=6;
 const ROGUE_NODE_INFO={
  battle:{name:'Standard Battle',icon:'✦',cls:'',desc:'A balanced encounter using the normal Sanctum pressure.',reward:'1 Cinder • normal reward choice'},
- elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Every Demon arrives in its GREATER form, with extra HP and Attack. A harder procession brings richer rewards.',reward:'3 Cinders • bonus Relic XP choice available'},
+ elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Every Demon arrives in its GREATER form. Two matching Greater Demons merge into an ULTRA form with +15% maximum HP. A harder procession brings richer XP rewards.',reward:'3 Cinders • bonus Relic XP choice available'},
  swarm:{name:'Hellgate Swarm',icon:'♜',cls:'elite',desc:'More Demons spawn each Demon Phase. Individual foes are less enhanced than Elites.',reward:'2 Cinders • normal reward choice'},
  sanctuary:{name:'Ruined Sanctuary',icon:'✚',cls:'sanctuary',desc:'No combat. Choose one recovery or preparation blessing, then continue deeper.',reward:'1 Cinder • recovery choice'},
  repository:{name:'The Sinking Repository',icon:'⌘',cls:'repository',desc:'A drowned archive-market where unbanked Cinders can buy powerful benefits for this run only.',reward:'Cinder store • one purchase'},
