@@ -201,7 +201,8 @@
     const exact={
       'Draft a Priest Card':'reward:draft',
       'Recover the Altar':'reward:recover',
-      'Claim a Relic':'reward:relic',
+      'Claim a Relic':'reward:elite_xp', // compatibility with older saved choices
+      'Claim Relic XP':'reward:elite_xp',
       'Blood Cache':'reward:blood',
       'Confession':'sanctuary:confession',
       'Study the Reliquary':'sanctuary:draft',
@@ -276,7 +277,8 @@
     const actions={
       'reward:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
       'reward:recover':()=>{restoreAltarLogged(6,'Encounter recovery');addMana(2);rogueliteOpenRoute()},
-      'reward:relic':()=>{const rel=rogueSilentRelic('Elite room-clear reward','rogueRoute');showGameStatus(rel?`Relic claimed: ${rel.n}`:'The Relic deck is empty.','good');if(!rel)rogueliteOpenRoute()},
+      'reward:elite_xp':()=>rogueliteClaimEliteXpReward(),
+      'reward:relic':()=>rogueliteClaimEliteXpReward(), // old in-flight choices
       'reward:blood':()=>{rogueGiveBlood(2);rogueAddCinders(1,'Blood Cache');rogueliteOpenRoute()},
       'sanctuary:confession':()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()},
       'sanctuary:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
