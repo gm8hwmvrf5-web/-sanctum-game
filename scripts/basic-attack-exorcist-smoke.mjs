@@ -14,7 +14,7 @@ function extract(source,name){
  let depth=0;
  for(let i=brace;i<source.length;i++){
   if(source[i]==='{')depth++;
-  else if(source[i]==='}'&&!--depth)return source.slice(start,i+1);
+  else if(source[i]==='}'&&!--depth)return (source.slice(Math.max(0,start-6),start)==='async '?'async ':'')+source.slice(start,i+1);
  }
  throw new Error('Unbalanced function '+name);
 }
