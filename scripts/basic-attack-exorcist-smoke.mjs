@@ -119,6 +119,30 @@ for(const full of [false,true]){
 ctx.allDemons=()=>[];
 ctx.dealDamageTarget=(x,n)=>{amount=n};
 ctx.damageDemon=(d,n)=>{amount=n};
+// Elite passages give incoming demons the printed GREATER stat directly,
+// without a Lesser merge. Confirm Final Exorcism uses that exact status.
+ctx.demonMaxHP=d=>d.greater?d.ghp:d.hp;
+ctx.S.rogue.nodeType='elite';
+ctx.S.rogue.bossFloor=false;
+ctx.S.rogue.floor=3;
+vm.runInContext(extract(engine,'demonHasGreaterStat'),ctx,{timeout:5000});
+vm.runInContext(extract(rogue,'rogueliteMakeEliteGreater'),ctx,{timeout:5000});
+const eliteDemon={id:'natural-elite',n:'Lesser Test Demon',g:'Greater Test Demon',hp:6,ghp:14,cur:6,greater:false,status:{}};
+assert.equal(ctx.demonHasGreaterStat(eliteDemon),false);
+assert.equal(ctx.rogueliteMakeEliteGreater(eliteDemon,ctx.S.rogue),true);
+assert.equal(ctx.demonHasGreaterStat(eliteDemon),true,'New Elite spawn must have Greater stat');
+assert.equal(eliteDemon.greater,true,'Elite spawn must not require merging');
+for(const [full,expected] of [[false,6],[true,8]]){
+ target={kind:'demon',d:eliteDemon};
+ amount=null;
+ await ctx.resolveRitual({kind:'finalExorcism',n:'Final Exorcism'},full);
+ assert.equal(amount,expected,'Direct Elite Greater spawn Final Exorcism '+full);
+}
+ctx.S.rogue.nodeType='battle';
+assert.equal(ctx.demonHasGreaterStat({greater:false,status:{}}),false);
+assert.equal(ctx.demonHasGreaterStat({greater:true,status:{}}),true);
+assert.equal(ctx.demonHasGreaterStat({greater:false,status:{ultraForm:true}}),true);
+assert(engine.includes("demonHasGreaterStat(d)?' • GREATER'"),'Board and targeting must use the same Greater check');
 for(const [label,t] of [
  ['normal',{kind:'demon',d:{greater:false,status:{}}}],
  ['greater',{kind:'demon',d:{greater:true,status:{}}}],
@@ -141,6 +165,6 @@ assert.equal(amount,8,'Ritual-power bonus remains applied');
 assert(data.includes('h:"Deal 3 damage to a Demon or Boss.",f:"Deal 6 damage to a Demon or Boss.'));
 assert(data.includes('Turn up to 2 Greater Demons back into their Lesser forms. Deal no damage.'));
 assert(data.includes('h:"Deal 2 damage to a normal Demon; deal +4 damage to Greater Demons, Ultra Demons, and Bosses (6 total).'));
-assert(worker.includes("sanctum-clean-v66"));
+assert(worker.includes("sanctum-clean-v67"));
 assert(engine.includes('Attack damage is capped at 5; if this Relic would exceed the cap, gain 20 Relic XP instead.'));
 console.log('Focused Basic Attack cap, 20-XP conversion, XP tier, hybrid Relic and Exorcist ritual checks passed.');
