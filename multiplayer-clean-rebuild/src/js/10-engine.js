@@ -2049,7 +2049,7 @@ function ritualUnavailableReason(r){
    if(!targets.length)return 'There are no valid Demon or Boss targets.';
    break;
   case'severUnholy':
-   if(!targets.length)return 'There are no valid Demon or Boss targets.';
+   if(!demons.some(x=>x.d?.greater))return 'There are no Greater Demons to return to Lesser form.';
    break;
   case'holdLine':case'stillWicked':
    if(!demons.length)return 'There are no Demons on the path.';
@@ -2157,9 +2157,37 @@ async function useRitual(i){
 }
 async function resolveRitual(r,full){
  switch(r.kind){
-  case'castHell':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){if(x.kind==='boss')damageBoss(Math.max(0,ritualBoost(full?8:5)-2),r.n,true);else{let halved=ritualIsHalved(x.d),effFull=full&&!halved;damageDemon(x.d,Math.max(0,ritualBoost(effFull?8:5)-2),r.n,{ritual:true,suppressNegativeDefeat:effFull,allowOverflow:true})}}break}
-  case'severUnholy':{let greater=allDemons().filter(x=>x.d.greater);if(greater.length){let used=new Set(),max=Math.min(ritualScale(1),greater.length);for(let i=0;i<max;i++){let opts=allDemons().filter(x=>x.d.greater&&!used.has(x.d.id));if(!opts.length)break;if(i>0)opts.push({done:true});let x=await chooseVisualDemonTargets(`${r.n} — choose Greater Demon ${i+1} of up to ${max}${i>0?' or Done':''}`,opts.map(z=>z.done?{kind:'done',done:true,label:'DONE — keep the severing already resolved'}:z));if(!x)return;if(x.done)break;used.add(x.d.id);let halved=ritualIsHalved(x.d),effFull=full&&!halved;x.d.greater=false;x.d.cur=Math.min(x.d.cur,x.d.hp);log(`${x.d.n} is severed back to Lesser form.`,'good');if(effFull)damageDemon(x.d,Math.max(0,ritualBoost(3)-2),r.n,{ritual:true,allowOverflow:true})}}else{let x=await chooseDamageTarget(`${r.n} — no Greater Demon is present; choose a damage target`);if(x)dealDamageTarget(x,Math.max(0,ritualBoost(full?5:3)-2),r.n,{ritual:true,allowOverflow:true})}break}
-  case'finalExorcism':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;let amount=(effFull?8:4)+(x.kind==='demon'&&x.d.greater?3:0);amount=Math.max(0,ritualBoost(amount)-2);dealDamageTarget(x,amount,r.n,{ritual:true,allowOverflow:true})}break}
+  case'castHell':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){const bonus=Math.max(0,Number(S.relicMods?.ritual)||0);if(x.kind==='boss')damageBoss((full?6:3)+bonus,r.n,true);else{let halved=ritualIsHalved(x.d),effFull=full&&!halved;damageDemon(x.d,(effFull?6:3)+bonus,r.n,{ritual:true,suppressNegativeDefeat:effFull,allowOverflow:true})}}break}
+  case'severUnholy':{
+   // Sever is battlefield control only: it never inflicts Ritual damage.
+   const greater=allDemons().filter(x=>x.d.greater);
+   const used=new Set(),max=Math.min(ritualScale(1),greater.length);
+   for(let i=0;i<max;i++){
+    const opts=allDemons().filter(x=>x.d.greater&&!used.has(x.d.id));
+    if(!opts.length)break;
+    if(i>0)opts.push({done:true});
+    const x=await chooseVisualDemonTargets(`${r.n} — choose Greater Demon ${i+1} of up to ${max}${i>0?' or Done':''}`,opts.map(z=>z.done?{kind:'done',done:true,label:'DONE — keep the severing already resolved'}:z));
+    if(!x)return;
+    if(x.done)break;
+    used.add(x.d.id);
+    x.d.greater=false;
+    x.d.cur=Math.min(x.d.cur,x.d.hp);
+    log(`${x.d.n} is severed back to Lesser form without damage.`,'good');
+   }
+   break;
+  }
+  case'finalExorcism':{
+   const x=await chooseDamageTarget(`${r.n} — choose target`);
+   if(x){
+    let effFull=full;
+    if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;
+    const stronger=x.kind==='boss'||(x.kind==='demon'&&(x.d.greater||x.d.status?.ultraForm));
+    // Exactly one +4 against Greater, Ultra, OR Boss; never double the bonus.
+    const amount=(effFull?4:2)+(stronger?4:0)+Math.max(0,Number(S.relicMods?.ritual)||0);
+    dealDamageTarget(x,amount,r.n,{ritual:true,allowOverflow:true});
+   }
+   break;
+  }
   case'visionFate':{let reveal=full?ritualScale(6):ritualScale(4),p=currentPlayer(),picks=full?ritualScale(2):ritualScale(1),revealed=S.priestDeck.slice(-reveal);for(let n=0;n<picks;n++){if(p.hand.length>=handLimit()){log(`${p.name} reaches the ${handLimit()}-card hand limit.`);break}let top=revealed.filter(c=>S.priestDeck.some(d=>d.id===c.id));if(!top.length)break;if(n>0){let choice=[...top,{done:true,n:'Done',m:0,e:'Keep the card already chosen and finish Vision of Fate.',x:'',id:'vision-done'}];
 
 
