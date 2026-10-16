@@ -7,7 +7,7 @@ const ROGUE_META_KEY='sanctumRogueliteLegacyV1';
 const ROGUE_VERSION=6;
 const ROGUE_NODE_INFO={
  battle:{name:'Standard Battle',icon:'✦',cls:'',desc:'A balanced encounter using the normal Sanctum pressure.',reward:'1 Cinder • normal reward choice'},
- elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Every Demon arrives in its GREATER form, with extra HP and Attack. A harder procession brings richer rewards.',reward:'3 Cinders • bonus Relic choice available'},
+ elite:{name:'Elite Procession',icon:'☠',cls:'elite',desc:'Every Demon arrives in its GREATER form, with extra HP and Attack. A harder procession brings richer rewards.',reward:'3 Cinders • bonus Relic XP choice available'},
  swarm:{name:'Hellgate Swarm',icon:'♜',cls:'elite',desc:'More Demons spawn each Demon Phase. Individual foes are less enhanced than Elites.',reward:'2 Cinders • normal reward choice'},
  sanctuary:{name:'Ruined Sanctuary',icon:'✚',cls:'sanctuary',desc:'No combat. Choose one recovery or preparation blessing, then continue deeper.',reward:'1 Cinder • recovery choice'},
  repository:{name:'The Sinking Repository',icon:'⌘',cls:'repository',desc:'A drowned archive-market where unbanked Cinders can buy powerful benefits for this run only.',reward:'Cinder store • one purchase'},
@@ -23,7 +23,7 @@ const ROGUE_UPGRADES={
 };
 let rogueModalActions=[];
 
-function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,passageRelics:0,repositoryVisits:{},repositoryOffer:null,repositoryPendingBossFloor:0,repositoryResume:null,repositoryVisitedBossFloor:0,repositoryFolioPurchases:0,repositoryCandleReduction:0,sanctuaryVisits:{},history:[],lastReward:'',runStartedAt:Date.now()}}
+function rogueDefaultState(){return {enabled:true,version:ROGUE_VERSION,act:1,floor:1,cycle:1,nodeType:'battle',nodeName:'Standard Battle',encounterDefeats:0,encounterGoal:4,pendingClear:false,bossFloor:false,cindersRun:0,banked:false,bankedAmount:0,lastBankedAmount:0,cyclesCleared:0,legacyCheckpoint:false,bossesSpawned:0,relicXp:0,xpRelics:0,passageRelics:0,passageXpEarned:0,eliteXpRewardClaimedFloor:0,repositoryVisits:{},repositoryOffer:null,repositoryPendingBossFloor:0,repositoryResume:null,repositoryVisitedBossFloor:0,repositoryFolioPurchases:0,repositoryCandleReduction:0,sanctuaryVisits:{},history:[],lastReward:'',runStartedAt:Date.now()}}
 function rogueState(){if(!S.rogue||typeof S.rogue!=='object')S.rogue=rogueDefaultState();return S.rogue}
 function rogueMeta(){let base={cinders:0,blood:0,hand:0,ward:0,relic:0,basicAttack:0,relicXpGain:0,bestFloor:0,wins:0,runs:0,cycles:0};try{let v=JSON.parse(localStorage.getItem(ROGUE_META_KEY)||'{}');return {...base,...v}}catch(e){return base}}
 function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify(m));return true}catch(e){console.warn('Legacy storage unavailable',e);return false}}
@@ -268,31 +268,69 @@ function rogueKillXpValue(d){
  if(bossIs("soulTyrant")&&!d.greater)return Math.max(0,base+extra-1);
  return Math.max(0,base+extra);
 }
-function rogueAwardKillXp(amount,d){
- let r=rogueState(),legacyBonus=rogueLegacyRelicXpBonus();
- amount=Math.max(0,Math.floor(amount||0))+legacyBonus;if(!amount)return;
- r.relicXp=Math.max(0,r.relicXp||0)+amount;
- log(`RELIC XP +${amount} — ${demonName(d)}'s kill grants experience${legacyBonus?` (includes +${legacyBonus} Legacy XP`:''}${legacyBonus?')':''} (${r.relicXp}/${rogueRelicXpNeed()}).`,'good');
- let safety=0;
+/* Apply all Relic XP gains through one threshold handler. The reward XP
+ * is a true XP grant, not a direct Relic draw or a separate XP tier. */
+function rogueGrantRelicXp(amount,source='Reward'){
+ const r=rogueState();
+ amount=Math.max(0,Math.floor(Number(amount)||0));
+ if(!amount)return 0;
+ r.relicXp=Math.max(0,Number(r.relicXp)||0)+amount;
+ log(`RELIC XP +${amount} — ${source} (${r.relicXp}/${rogueRelicXpNeed()}).`,'good');
+ let safety=0,earnedRelics=0;
  while(safety++<20){
-  let need=rogueRelicXpNeed();
+  const need=rogueRelicXpNeed();
   if(r.relicXp<need)break;
   if(!S.relicDeck||!S.relicDeck.length){log(`Relic XP reached ${need}, but the Relic deck is empty.`,'info');break}
   r.relicXp-=need;
-  let before=(S.activeRelics||[]).length;
-  let rel=pullRelic(`Relic XP reached ${need}. Demon Blood earned from kills has revealed a Relic.`);
+  const before=(S.activeRelics||[]).length;
+  const rel=pullRelic(`Relic XP reached ${need}. The party's earned Relic XP reveals a Relic.`);
   if(!rel||(S.activeRelics||[]).length<=before){r.relicXp+=need;break}
   r.xpRelics=(r.xpRelics||0)+1;
+  earnedRelics++;
   log(`XP RELIC ${r.xpRelics} claimed. The next Relic now requires ${rogueRelicXpNeed()} XP.`,'good');
  }
  rogueliteRenderHud();
+ return earnedRelics;
+}
+function rogueAwardKillXp(amount,d){
+ const r=rogueState(),legacyBonus=rogueLegacyRelicXpBonus();
+ amount=Math.max(0,Math.floor(Number(amount)||0))+legacyBonus;
+ if(!amount)return;
+ // Track the *gross* XP earned in this passage, including Legacy bonuses.
+ // Do not use r.relicXp: the meter may have spent XP on a Relic mid-passage.
+ r.passageXpEarned=Math.max(0,Number(r.passageXpEarned)||0)+amount;
+ rogueGrantRelicXp(amount,`${demonName(d)}'s kill grants experience${legacyBonus?` (includes +${legacyBonus} Legacy XP)`:''}`);
+}
+/* Elite reward: passage kill XP + current global floor. It can naturally
+ * cross a Relic threshold, but never draws a Relic directly or adds an
+ * artificial passage-Relic tier. The end-of-queue popup continues the route. */
+function rogueliteClaimEliteXpReward(){
+ const r=rogueState();
+ if(!r.enabled||r.nodeType!=='elite'||r.bossFloor)return false;
+ if(r.eliteXpRewardClaimedFloor===r.floor)return false;
+ const earned=Math.max(0,Math.floor(Number(r.passageXpEarned)||0));
+ const floor=Math.max(1,Math.floor(Number(r.floor)||1));
+ const bonus=earned+floor;
+ r.eliteXpRewardClaimedFloor=r.floor;
+ r.lastReward=`Elite Relic XP +${bonus}`;
+ const queuedBefore=(S.relicPopupQueue||[]).length;
+ rogueGrantRelicXp(bonus,`Elite Passage reward: ${earned} XP earned during passage + Floor ${floor}`);
+ showGameStatus(`Elite reward: +${bonus} Relic XP (${earned} passage + ${floor} floor).`,'good');
+ const queue=S.relicPopupQueue||[];
+ if(queue.length>queuedBefore){
+  // Close any XP-unlocked Relic popups before moving to the next passage.
+  queue[queue.length-1].after='rogueRoute';
+ }else{
+  rogueliteOpenRoute();
+ }
+ return true;
 }
 function rogueSilentRelic(reason='Roguelite reward',popupAfter=''){
  S.relicDeck=S.relicDeck||[];
  if(!S.relicDeck.length)return null;
  let key=S.relicDeck.pop(),rel=relicByKey(key);if(!rel)return null;
  applyRelic(rel);
- const passageReward=reason==='Elite room-clear reward'||reason==='Boss room-clear reward';
+ const passageReward=reason==='Boss room-clear reward';
  if(passageReward){
   let r=rogueState();
   r.passageRelics=Math.max(0,Number(r.passageRelics)||0)+1;
@@ -456,7 +494,7 @@ function rogueliteMutateDemon(d){
 }
 window.__rogueliteMutateDemon=rogueliteMutateDemon;
 function rogueliteEnterCurrentFloor(type){
- let r=rogueState();r.cycle=rogueCycle();r.act=rogueAct();r.pendingClear=false;r.encounterDefeats=0;r.bossFloor=rogueIsBossFloor();
+ let r=rogueState();r.cycle=rogueCycle();r.act=rogueAct();r.pendingClear=false;r.encounterDefeats=0;r.passageXpEarned=0;r.bossFloor=rogueIsBossFloor();
  // Kills and Enrage from the previous passage do not follow the party down.
  S.enrageKillsThisTurn=0;
  S.enrageActiveTurnBonus=0;
@@ -510,7 +548,7 @@ function rogueliteOpenEncounterReward(){
    {icon:'✠',title:'Draft a Priest Card',desc:'Reveal three Priest cards. Shuffle one extra copy into your run deck for future random draws.',reward:'Deck-building reward',action:()=>rogueliteOpenDraft(rogueliteOpenRoute)},
    {icon:'✚',title:'Recover the Altar',desc:'Restore 6 Altar Protection and gain 2 shared Mana.',reward:'Immediate recovery',action:()=>{restoreAltarLogged(6,'Encounter recovery');addMana(2);rogueliteOpenRoute()}},
    r.nodeType==='elite'
-    ?{icon:'◆',title:'Claim a Relic',cls:'elite',desc:'Recover one random Relic from the original Sanctum Relic deck. This passage reward raises your next Relic XP requirement by 10 XP.',reward:'Passage Relic • +10 next XP cost',action:()=>{let rel=rogueSilentRelic('Elite room-clear reward','rogueRoute');showGameStatus(rel?`Relic claimed: ${rel.n}`:'The Relic deck is empty.','good');if(!rel)rogueliteOpenRoute()}}
+    ?{icon:'◆',title:'Claim Relic XP',cls:'elite',desc:`Earn ${Math.max(0,Number(r.passageXpEarned)||0)} XP from this passage again, plus ${r.floor} XP for your current floor. No Relic is awarded directly.`,reward:`+${Math.max(0,Number(r.passageXpEarned)||0)+Math.max(1,Number(r.floor)||1)} Relic XP`,actionKey:'reward:elite_xp',action:rogueliteClaimEliteXpReward}
     :{icon:'♦',title:'Blood Cache',desc:'Each Priest gains 2 Demon Blood and you collect 1 extra Cinder.',reward:'+2 Blood each • +1 Cinder',action:()=>{rogueGiveBlood(2);rogueAddCinders(1,'Blood Cache');rogueliteOpenRoute()}}
  ];
  rogueShowChoice(`Floor ${r.floor} Cleared`,'Choose One Reward','Your combat build persists through the entire run. Choose one reward before selecting the next route.',choices);
