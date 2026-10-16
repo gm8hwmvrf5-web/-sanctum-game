@@ -30,10 +30,8 @@ function rogueSaveMeta(m){try{localStorage.setItem(ROGUE_META_KEY,JSON.stringify
 function rogueLegacyBasicAttackBonus(){return Math.max(0,Number(S?.rogue?.legacyBasicAttackBonus)||0)}
 function rogueLegacyRelicXpBonus(){return Math.max(0,Number(S?.rogue?.legacyRelicXpBonus)||0)}
 window.basicAttackDamage=function(){
- let relicBonus=Math.max(0,Number(S?.relicMods?.basic)||0);
- // After +5 raw Relic attack, every two extra raw points provide +1.
- let effectiveRelicBonus=relicBonus<=5?relicBonus:5+Math.floor((relicBonus-5)/2);
- return 2+effectiveRelicBonus+rogueLegacyBasicAttackBonus();
+ const relicBonus=Math.max(0,Number(S?.relicMods?.basic)||0);
+ return Math.min(5,2+relicBonus+rogueLegacyBasicAttackBonus());
 };
 function rogueCycleForFloor(f){return Math.floor((Math.max(1,Number(f)||1)-1)/15)+1}
 function rogueCycleFloorFor(f){return ((Math.max(1,Number(f)||1)-1)%15)+1}
@@ -270,28 +268,48 @@ function rogueKillXpValue(d){
 }
 /* Apply all Relic XP gains through one threshold handler. The reward XP
  * is a true XP grant, not a direct Relic draw or a separate XP tier. */
+let rogueRelicXpGrantInProgress=false;
 function rogueGrantRelicXp(amount,source='Reward'){
  const r=rogueState();
  amount=Math.max(0,Math.floor(Number(amount)||0));
  if(!amount)return 0;
  r.relicXp=Math.max(0,Number(r.relicXp)||0)+amount;
  log(`RELIC XP +${amount} — ${source} (${r.relicXp}/${rogueRelicXpNeed()}).`,'good');
+ if(rogueRelicXpGrantInProgress)return 0;
+ rogueRelicXpGrantInProgress=true;
  let safety=0,earnedRelics=0;
- while(safety++<20){
-  const need=rogueRelicXpNeed();
-  if(r.relicXp<need)break;
-  if(!S.relicDeck||!S.relicDeck.length){log(`Relic XP reached ${need}, but the Relic deck is empty.`,'info');break}
-  r.relicXp-=need;
-  const before=(S.activeRelics||[]).length;
-  const rel=pullRelic(`Relic XP reached ${need}. The party's earned Relic XP reveals a Relic.`);
-  if(!rel||(S.activeRelics||[]).length<=before){r.relicXp+=need;break}
-  r.xpRelics=(r.xpRelics||0)+1;
-  earnedRelics++;
-  log(`XP RELIC ${r.xpRelics} claimed. The next Relic now requires ${rogueRelicXpNeed()} XP.`,'good');
- }
+ try{
+  while(safety++<20){
+   // Credit converted XP AFTER an XP-unlocked Relic raises the XP tier.
+   const pending=Math.max(0,Math.floor(Number(r.pendingBasicRelicXp)||0));
+   if(pending){
+    r.pendingBasicRelicXp=0;
+    r.relicXp+=pending;
+    log(`RELIC XP +${pending} — capped Basic Attack Relic conversion (${r.relicXp}/${rogueRelicXpNeed()}).`,'good');
+   }
+   const need=rogueRelicXpNeed();
+   if(r.relicXp<need)break;
+   if(!S.relicDeck||!S.relicDeck.length){log(`Relic XP reached ${need}, but the Relic deck is empty.`,'info');break}
+   r.relicXp-=need;
+   const before=(S.activeRelics||[]).length;
+   const rel=pullRelic(`Relic XP reached ${need}. The party's earned Relic XP reveals a Relic.`);
+   if(!rel||(S.activeRelics||[]).length<=before){r.relicXp+=need;break}
+   r.xpRelics=(r.xpRelics||0)+1;
+   earnedRelics++;
+   log(`XP RELIC ${r.xpRelics} claimed. The next Relic now requires ${rogueRelicXpNeed()} XP.`,'good');
+  }
+ }finally{rogueRelicXpGrantInProgress=false}
  rogueliteRenderHud();
  return earnedRelics;
 }
+function rogueFlushBasicRelicXp(){
+ if(rogueRelicXpGrantInProgress)return 0;
+ const r=rogueState(),pending=Math.max(0,Math.floor(Number(r.pendingBasicRelicXp)||0));
+ if(!pending)return 0;
+ r.pendingBasicRelicXp=0;
+ return rogueGrantRelicXp(pending,'Capped Basic Attack Relic conversion');
+}
+window.__sanctumFlushBasicRelicXp=rogueFlushBasicRelicXp;
 function rogueAwardKillXp(amount,d){
  const r=rogueState(),legacyBonus=rogueLegacyRelicXpBonus();
  amount=Math.max(0,Math.floor(Number(amount)||0))+legacyBonus;
@@ -347,6 +365,16 @@ function rogueSilentRelic(reason='Roguelite reward',popupAfter=''){
   });
   render();
   showNextRelicPopup();
+ }
+ // Resolve converted XP after the original Relic is registered. Carry any
+ // reward continuation to the last popup if XP reveals another Relic.
+ const beforeFlush=(S.relicPopupQueue||[]).length;
+ rogueFlushBasicRelicXp();
+ if(popupAfter&&(S.relicPopupQueue||[]).length>beforeFlush){
+  const queue=S.relicPopupQueue;
+  const own=queue.find(q=>q.key===key&&q.after===popupAfter);
+  if(own)delete own.after;
+  queue[queue.length-1].after=popupAfter;
  }
  return rel;
 }

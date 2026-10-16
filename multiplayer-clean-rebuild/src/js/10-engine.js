@@ -83,15 +83,29 @@ const RELICS=[
 ];
 function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
 function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
-function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0);return 2+(raw<=5?raw:5+Math.floor((raw-5)/2))}
+function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0),legacy=Math.max(0,Number(S?.rogue?.legacyBasicAttackBonus)||0);return Math.min(5,2+raw+legacy)}
 function basicAttackCritChance(){return Math.max(0,Math.min(100,5+((S&&S.relicMods&&S.relicMods.crit)||0)))}
 function ritualScale(n){return Math.ceil(n*1.2)}
 function ritualBoost(n){return ritualScale(n)+((S&&S.relicMods&&S.relicMods.ritual)||0)}
-function applyRelic(r){if(!r)return;S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};for(let k of ['basic','hand','ritual','crit'])S.relicMods[k]=(S.relicMods[k]||0)+((r.mods&&r.mods[k])||0);S.activeRelics=S.activeRelics||[];S.activeRelics.push(r.key);log(`RELIC — ${r.n}: ${r.effect}`,'good')}
+function applyRelic(r){
+ if(!r)return;
+ S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};
+ const addedBasic=Math.max(0,Number(r.mods?.basic)||0),before=basicAttackDamage();
+ for(const k of ['basic','hand','ritual','crit'])S.relicMods[k]=(S.relicMods[k]||0)+((r.mods&&r.mods[k])||0);
+ S.activeRelics=S.activeRelics||[];
+ S.activeRelics.push(r.key);
+ log(`RELIC — ${r.n}: ${r.effect}`,'good');
+ // Any Relic crossing or exceeding the five-damage ceiling converts once
+ // to XP; +2 attack Relics also count as one Relic, not two XP awards.
+ if(addedBasic>0&&before+addedBasic>5&&S.rogue?.enabled){
+  S.rogue.pendingBasicRelicXp=Math.max(0,Number(S.rogue.pendingBasicRelicXp)||0)+20;
+  log(`${r.n}: Basic Attack is capped at 5; gain 20 Relic XP instead.`,'good');
+ }
+}
 function relicModalBlocked(){return !document.getElementById('crucifixModal').classList.contains('hidden')||!document.getElementById('choiceModal').classList.contains('hidden')||!document.getElementById('consecrateModal').classList.contains('hidden')||!document.getElementById('desecrationModal').classList.contains('hidden')||!document.getElementById('descendModal').classList.contains('hidden')}
 function showNextRelicPopup(){S.relicPopupQueue=S.relicPopupQueue||[];if(!S.relicPopupQueue.length||relicModalBlocked())return;let q=S.relicPopupQueue[0],r=relicByKey(q.key);if(!r){S.relicPopupQueue.shift();showNextRelicPopup();return}document.getElementById('relicName').textContent=r.n;document.getElementById('relicCategory').textContent=r.cat;document.getElementById('relicEffect').textContent=r.effect;document.getElementById('relicReason').textContent=q.reason||'A Relic has been recovered from the Sanctum.';document.getElementById('relicModal').classList.remove('hidden');setTimeout(()=>document.getElementById('relicClose').focus(),0)}
 function closeRelicPopup(){document.getElementById('relicModal').classList.add('hidden');let completed=null;if(S.relicPopupQueue&&S.relicPopupQueue.length)completed=S.relicPopupQueue.shift();if(S.relicPopupQueue&&S.relicPopupQueue.length){showNextRelicPopup();return}processOverflowDamageQueue();if(completed&&completed.after&&typeof window.__sanctumRelicPopupAfter==='function'){try{if(window.__sanctumRelicPopupAfter(completed.after,completed))return}catch(err){console.error('Relic popup continuation failed',err)}}if(S.pendingBossChoice){setTimeout(()=>{showBossVictoryChoice();resumeTurnTimerIfReady()},80);return}if(S.pendingVictory){S.pendingVictory=false;setTimeout(()=>alert('Congratulations! You have saved the Sanctum!'),100)}resumeTurnTimerIfReady()}
-function pullRelic(reason){S.relicDeck=S.relicDeck||[];if(!S.relicDeck.length){log('The Relic deck is empty. No further Relics can be drawn.');return null}let key=S.relicDeck.pop(),r=relicByKey(key);if(!r)return null;applyRelic(r);S.relicPopupQueue=S.relicPopupQueue||[];S.relicPopupQueue.push({key,reason});render();showNextRelicPopup();return r}
+function pullRelic(reason){S.relicDeck=S.relicDeck||[];if(!S.relicDeck.length){log('The Relic deck is empty. No further Relics can be drawn.');return null}let key=S.relicDeck.pop(),r=relicByKey(key);if(!r)return null;applyRelic(r);S.relicPopupQueue=S.relicPopupQueue||[];S.relicPopupQueue.push({key,reason});if(typeof window.__sanctumFlushBasicRelicXp==='function')window.__sanctumFlushBasicRelicXp();render();showNextRelicPopup();return r}
 function checkBossDamageRelics(){if(S?.rogue?.enabled)return;S.bossDamageTotal=S.bossDamageTotal||0;S.relicBossThresholds=S.relicBossThresholds||0;let earned=Math.floor(S.bossDamageTotal/25);while(S.relicBossThresholds<earned){S.relicBossThresholds++;pullRelic(`The Priests have dealt ${S.relicBossThresholds*25} cumulative damage to the Boss.`)}}
 function rollGreaterDemonRelic(){
  let roll=Math.floor(Math.random()*100)+1;
@@ -2138,9 +2152,9 @@ async function useRitual(i){
 }
 async function resolveRitual(r,full){
  switch(r.kind){
-  case'castHell':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){if(x.kind==='boss')damageBoss(ritualBoost(full?8:5),r.n,true);else{let halved=ritualIsHalved(x.d),effFull=full&&!halved;damageDemon(x.d,ritualBoost(effFull?8:5),r.n,{ritual:true,suppressNegativeDefeat:effFull,allowOverflow:true})}}break}
-  case'severUnholy':{let greater=allDemons().filter(x=>x.d.greater);if(greater.length){let used=new Set(),max=Math.min(ritualScale(1),greater.length);for(let i=0;i<max;i++){let opts=allDemons().filter(x=>x.d.greater&&!used.has(x.d.id));if(!opts.length)break;if(i>0)opts.push({done:true});let x=await chooseVisualDemonTargets(`${r.n} — choose Greater Demon ${i+1} of up to ${max}${i>0?' or Done':''}`,opts.map(z=>z.done?{kind:'done',done:true,label:'DONE — keep the severing already resolved'}:z));if(!x)return;if(x.done)break;used.add(x.d.id);let halved=ritualIsHalved(x.d),effFull=full&&!halved;x.d.greater=false;x.d.cur=Math.min(x.d.cur,x.d.hp);log(`${x.d.n} is severed back to Lesser form.`,'good');if(effFull)damageDemon(x.d,ritualBoost(3),r.n,{ritual:true,allowOverflow:true})}}else{let x=await chooseDamageTarget(`${r.n} — no Greater Demon is present; choose a damage target`);if(x)dealDamageTarget(x,ritualBoost(full?5:3),r.n,{ritual:true,allowOverflow:true})}break}
-  case'finalExorcism':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;let amount=(effFull?8:4)+(x.kind==='demon'&&x.d.greater?3:0);amount=ritualBoost(amount);dealDamageTarget(x,amount,r.n,{ritual:true,allowOverflow:true})}break}
+  case'castHell':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){if(x.kind==='boss')damageBoss(Math.max(0,ritualBoost(full?8:5)-2),r.n,true);else{let halved=ritualIsHalved(x.d),effFull=full&&!halved;damageDemon(x.d,Math.max(0,ritualBoost(effFull?8:5)-2),r.n,{ritual:true,suppressNegativeDefeat:effFull,allowOverflow:true})}}break}
+  case'severUnholy':{let greater=allDemons().filter(x=>x.d.greater);if(greater.length){let used=new Set(),max=Math.min(ritualScale(1),greater.length);for(let i=0;i<max;i++){let opts=allDemons().filter(x=>x.d.greater&&!used.has(x.d.id));if(!opts.length)break;if(i>0)opts.push({done:true});let x=await chooseVisualDemonTargets(`${r.n} — choose Greater Demon ${i+1} of up to ${max}${i>0?' or Done':''}`,opts.map(z=>z.done?{kind:'done',done:true,label:'DONE — keep the severing already resolved'}:z));if(!x)return;if(x.done)break;used.add(x.d.id);let halved=ritualIsHalved(x.d),effFull=full&&!halved;x.d.greater=false;x.d.cur=Math.min(x.d.cur,x.d.hp);log(`${x.d.n} is severed back to Lesser form.`,'good');if(effFull)damageDemon(x.d,Math.max(0,ritualBoost(3)-2),r.n,{ritual:true,allowOverflow:true})}}else{let x=await chooseDamageTarget(`${r.n} — no Greater Demon is present; choose a damage target`);if(x)dealDamageTarget(x,Math.max(0,ritualBoost(full?5:3)-2),r.n,{ritual:true,allowOverflow:true})}break}
+  case'finalExorcism':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){let effFull=full;if(x.kind==='demon'&&ritualIsHalved(x.d))effFull=false;let amount=(effFull?8:4)+(x.kind==='demon'&&x.d.greater?3:0);amount=Math.max(0,ritualBoost(amount)-2);dealDamageTarget(x,amount,r.n,{ritual:true,allowOverflow:true})}break}
   case'visionFate':{let reveal=full?ritualScale(6):ritualScale(4),p=currentPlayer(),picks=full?ritualScale(2):ritualScale(1),revealed=S.priestDeck.slice(-reveal);for(let n=0;n<picks;n++){if(p.hand.length>=handLimit()){log(`${p.name} reaches the ${handLimit()}-card hand limit.`);break}let top=revealed.filter(c=>S.priestDeck.some(d=>d.id===c.id));if(!top.length)break;if(n>0){let choice=[...top,{done:true,n:'Done',m:0,e:'Keep the card already chosen and finish Vision of Fate.',x:'',id:'vision-done'}];
 
 

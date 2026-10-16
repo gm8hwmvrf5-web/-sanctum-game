@@ -1,9 +1,9 @@
 /* Clean rebuild: immutable game definitions and card/art data. */
 const CHARACTERS = {
   "Exorcist": {img:"./assets/embedded/d106eea5-50272.webp", subtitle:"Demon Slayer", rituals:[
-    {n:"Cast Into Hell",m:0,b:3,h:"Deal 6 damage to a Demon or Boss.",f:"Deal 10 damage. If a normal Demon is defeated, its negative defeat ability does not trigger.",kind:"castHell"},
-    {n:"Sever the Unholy",m:0,b:2,h:"Turn up to 2 Greater Demons back into their Lesser forms. If none exist, deal 4 damage to any target.",f:"Turn up to 2 Greater Demons back into their Lesser forms, then deal 4 damage to each. If none exist, deal 6 damage to any target.",kind:"severUnholy"},
-    {n:"Final Exorcism",m:0,b:4,h:"Deal 5 damage to a Demon or Boss; +4 damage if the target is a Greater Demon.",f:"Deal 10 damage to a Demon or Boss; +4 damage if the target is a Greater Demon.",kind:"finalExorcism"}
+    {n:"Cast Into Hell",m:0,b:3,h:"Deal 4 damage to a Demon or Boss.",f:"Deal 8 damage. If a normal Demon is defeated, its negative defeat ability does not trigger.",kind:"castHell"},
+    {n:"Sever the Unholy",m:0,b:2,h:"Turn up to 2 Greater Demons back into their Lesser forms. If none exist, deal 2 damage to any target.",f:"Turn up to 2 Greater Demons back into their Lesser forms, then deal 2 damage to each. If none exist, deal 4 damage to any target.",kind:"severUnholy"},
+    {n:"Final Exorcism",m:0,b:4,h:"Deal 3 damage to a Demon or Boss; +4 damage if the target is a Greater Demon.",f:"Deal 8 damage to a Demon or Boss; +4 damage if the target is a Greater Demon.",kind:"finalExorcism"}
   ]},
   "Oracle": {img:"./assets/embedded/f029f4d7-55968.webp", subtitle:"Seer and Controller", rituals:[
     {n:"Vision of Fate",m:0,b:2,h:"Look at the top 5 Priest cards and add up to 2 to your hand.",f:"Look at the top 8 Priest cards and add up to 3 to your hand.",kind:"visionFate"},
