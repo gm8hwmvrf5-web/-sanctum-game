@@ -22,8 +22,8 @@ function takeCrucifixCard(){
 let S = freshState();
 let choiceResolve=null, choiceCancelSerial=0, selectedDemonId=null, crucifixDisplayQueue=[];
 let overflowDamageQueue=[], overflowPromptActive=false;
-function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,enrageRuleVersion:1,enrageKillsThisTurn:0,enrageActiveTurnBonus:0,cryptPressureLastArrivalRound:0,cryptPressureLastCheckRound:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,demonMergeVisuals:[],pendingDemonManaDrain:0,bloodOverflowHealedRound:0,bloodOverflowHealedAmount:0,altarRenewalHealedRound:0,altarRenewalHealedAmount:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,log:[]}}
-function demonName(d){return d.greater?d.g:d.n}
+function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,enrageRuleVersion:1,enrageKillsThisTurn:0,enrageActiveTurnBonus:0,cryptPressureLastArrivalRound:0,cryptPressureLastCheckRound:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,demonMergeVisuals:[],pendingDemonManaDrain:0,bloodOverflowHealedRound:0,bloodOverflowHealedAmount:0,altarRenewalHealedRound:0,altarRenewalHealedAmount:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,martyrEyeBalanceVersion:1,log:[]}}
+function demonName(d){return d.status?.ultraForm?`Ultra ${d.g}`:d.greater?d.g:d.n}
 function demonMaxHP(d){let max=d.greater?d.ghp:d.hp;max+=(d.status&&d.status.bossHpBonus)||0;max+=(d.status&&d.status.extraHpBonus)||0;if(bossIs("boneKing")){let loc=findDemonLocation(d);if(loc&&loc.r===3)max+=1}return max}
 function demonBlood(d){let printed=d.greater?d.gb:d.b;let drained=(d.status&&d.status.bloodDrained)||0;return Math.max(0,printed-drained)}
 function baseDemonAttack(d){return d.greater?d.gatk:d.atk}
@@ -79,7 +79,7 @@ const RELICS=[
  {key:'seerBones',n:'Bones of the Seer',cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
  {key:'trinityReliquary',n:'Trinity Reliquary',cat:'Hybrid Relic',effect:'Basic Attack permanently deals +1 damage and maximum Priest hand size increases by 1.',mods:{basic:1,hand:1}},
  {key:'sanctumHeart',n:'Heart of the Sanctum',cat:'Hybrid Relic',effect:'Maximum Priest hand size permanently increases by 1 and Ritual numerical effects gain +1.',mods:{hand:1,ritual:1}},
- {key:'martyrEye',n:"Martyr's Eye",cat:'Critical Strike',effect:'Basic Attack critical-hit chance permanently increases by 15 percentage points.',mods:{crit:15}}
+ {key:'martyrEye',n:"Martyr's Eye",cat:'Critical Strike',effect:'Basic Attack critical-hit chance permanently increases by 5 percentage points.',mods:{crit:5}}
 ];
 function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
 function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
@@ -348,6 +348,14 @@ function normalizeSanctumState(){
  if(!S.activeRelics.includes('martyrEye')&&!S.relicDeck.includes('martyrEye'))S.relicDeck.splice(Math.floor(S.relicDeck.length/2),0,'martyrEye');
  if(!S.relicMods)S.relicMods={basic:0,hand:0,ritual:0,crit:0};
  for(let k of ['basic','hand','ritual','crit'])if(!Number.isFinite(S.relicMods[k]))S.relicMods[k]=0;
+ // Previous builds granted +15% for Martyr's Eye. Reconcile saved
+ // relic totals once without nerfing unrelated bonuses or new +5% grants.
+ if(S.martyrEyeBalanceVersion!==1){
+  const count=(S.activeRelics||[]).filter(key=>key==='martyrEye').length;
+  if(count&&S.relicMods.crit>=15*count)
+   S.relicMods.crit=Math.max(0,S.relicMods.crit-10*count);
+  S.martyrEyeBalanceVersion=1;
+ }
  if(typeof S.relicFiveDefeatClaimed!=='boolean')S.relicFiveDefeatClaimed=S.defeats>=5;
  if(!Number.isFinite(S.bossDamageTotal))S.bossDamageTotal=0;
  if(!Number.isFinite(S.bossStageRoundsElapsed))S.bossStageRoundsElapsed=0;
@@ -1076,9 +1084,14 @@ function mergedDemonStatus(host,donor){
  return out;
 }
 function checkMerge(d){
- if(!d||d.greater||d.status?.noMerge)return false;
+ if(!d||d.status?.noMerge||d.status?.ultraForm)return false;
+ // Only Elite passages permit matching Greater Demons to merge into Ultra.
+ const elite=!!(S?.rogue?.enabled&&S.rogue.nodeType==='elite'&&!S.rogue.bossFloor);
+ const ultraMerge=!!(elite&&d.greater);
+ if(d.greater&&!ultraMerge)return false;
  let here=findDemonLocation(d);if(!here)return false;
- let matches=allDemons().filter(x=>x.d.id!==d.id&&!x.d.greater&&!x.d.status?.noMerge&&x.d.key===d.key);
+ let matches=allDemons().filter(x=>x.d.id!==d.id&&x.d.key===d.key
+  &&!!x.d.greater===!!d.greater&&!x.d.status?.noMerge&&!x.d.status?.ultraForm);
  if(!matches.length)return false;
  // Prefer the room farthest from the Altar: Gateway (0) -> Hall (1) -> Chapel (2) -> Crypt (3).
  matches.sort((a,b)=>a.r-b.r||a.i-b.i);
@@ -1090,7 +1103,7 @@ function checkMerge(d){
  if(other.r<here.r){host=other.d;donor=d}
  let hostLoc=findDemonLocation(host),donorLoc=findDemonLocation(donor);
  if(!hostLoc||!donorLoc)return false;
- // Capture the two Lesser cards *before* the authoritative merge. This
+ // Capture both source cards *before* the authoritative merge. This
  // small event travels with the multiplayer state, so other devices can
  // play the same cosmetic effect without delaying combat or changing turns.
  const mergeSources=[
@@ -1111,7 +1124,7 @@ function checkMerge(d){
  }
  let status=mergedDemonStatus(host,donor);
  S.rooms[donorLoc.r].splice(donorLoc.i,1);
- // The surviving Greater must resurface at the Gateway, not remain in
+ // The newly merged Demon resurfaces at the Gateway, not remain in
  // whichever room held the Lesser host.
  let survivingLoc=findDemonLocation(host);
  if(!survivingLoc)return false;
@@ -1127,18 +1140,31 @@ function checkMerge(d){
    }
  }
  if(selectedDemonId===donor.id)selectedDemonId=host.id;
- host.greater=true;host.status=status;
+ host.greater=true;
+ if(ultraMerge){
+  status.ultraForm=true;
+  // Do not double-apply the Elite +1 Attack when re-scaling the merged
+  // card; Ultra preserves Greater Attack and its original ability.
+  if(status.rogueScaledFloor===S.rogue.floor)
+   status.attackBonus=Math.max(0,(Number(status.attackBonus)||0)-1);
+  else if((host.status?.rogueScaledFloor===S.rogue.floor)||(donor.status?.rogueScaledFloor===S.rogue.floor))
+   status.attackBonus=Math.max(0,(Number(status.attackBonus)||0)-1);
+ }
+ host.status=status;
  host.cur=Math.max(1,host.ghp||host.hp||1);
  if(S?.rogue?.enabled&&typeof window.__rogueliteMutateDemon==='function')window.__rogueliteMutateDemon(host);
  host.cur=demonMaxHP(host);
  S.rooms[0].push(host);
  const mergeVisual={
    id:uid(),createdAt:Date.now(),round:S.round,
-   sources:mergeSources,result:{id:host.id,name:demonName(host),art:demonArt(host)},
+   sources:mergeSources,result:{id:host.id,name:demonName(host),art:demonArt(host),ultra:ultraMerge},
    destination:0
  };
  S.demonMergeVisuals=[...(S.demonMergeVisuals||[]),mergeVisual].slice(-12);
- log(`Two ${host.n} cards shudder together and become ${host.g}! The Greater Demon resurfaces in the Gateway.`,'bad');
+ if(ultraMerge)
+  log(`ELITE ULTRA MERGE — Two ${host.g} become ${demonName(host)} in the Gateway (+15% maximum HP).`,'bad');
+ else
+  log(`Two ${host.n} cards shudder together and become ${host.g}! The Greater Demon resurfaces in the Gateway.`,'bad');
  return true;
 }
 function resolveBoardDuplicateMerges(){
@@ -1217,7 +1243,7 @@ function makeVisualDemonTargetCard(x,finish){
  el.className=`choice damageTargetCard${!isBoss&&d.greater?' greater':''}${isBoss?' bossTarget':''}`;
  el.setAttribute('aria-label',`Target ${name}, HP ${hp}, ${room}`);
  let family=isBoss?'BOSS':d.family;
- el.innerHTML=`<div class="demonArtWrap"><img class="demonArt" src="${art}" alt="${name}"></div><div class="demonBody"><div class="targetRoomTag">${room}</div><div class="name">${name}</div><div class="demonStats"><span class="hp">HP ${hp}</span><span class="blood">Blood ${blood}</span>${!isBoss?`<span class="attack">Attack ${atk}</span>`:''}</div><div class="familyTag">${family}${!isBoss&&d.greater?' • GREATER':''}</div><div class="abilityText">${ability||'No printed ability.'}</div></div>`;
+ el.innerHTML=`<div class="demonArtWrap"><img class="demonArt" src="${art}" alt="${name}"></div><div class="demonBody"><div class="targetRoomTag">${room}</div><div class="name">${name}</div><div class="demonStats"><span class="hp">HP ${hp}</span><span class="blood">Blood ${blood}</span>${!isBoss?`<span class="attack">Attack ${atk}</span>`:''}</div><div class="familyTag">${family}${!isBoss&&d.status?.ultraForm?' • ULTRA':!isBoss&&d.greater?' • GREATER':''}</div><div class="abilityText">${ability||'No printed ability.'}</div></div>`;
  el.onclick=()=>finish(x);
  return el;
 }
@@ -2445,7 +2471,7 @@ function boardDemonAbilityText(d){
 function render(){normalizeSanctumState();document.getElementById('roundStat').textContent=S.round;updateTurnTimerDisplay();document.getElementById('manaStat').textContent=S.mana;let manaBox=document.getElementById('manaStatBox'),manaFill=document.getElementById('manaOrbFill'),manaCap=typeof sharedManaRoundValue==='function'?sharedManaRoundValue():10;if(manaFill)manaFill.style.height=`${clamp(S.mana,0,manaCap)/manaCap*100}%`;if(manaBox){manaBox.setAttribute('aria-valuenow',S.mana);manaBox.setAttribute('aria-valuemax',manaCap);manaBox.classList.toggle('empty',S.mana<=0)}document.getElementById('altarStat').textContent=S.altar;let altarBox=document.getElementById('altarStatBox'),altarFill=document.getElementById('altarMeterFill');if(altarFill)altarFill.style.height=`${clamp(S.altar,0,30)/30*100}%`;if(altarBox){altarBox.setAttribute('aria-valuenow',S.altar);altarBox.classList.toggle('empty',S.altar<=0)}document.getElementById('defeatStat').textContent=`${S.defeats} / 13`;
  for(let r=0;r<4;r++){
    let el=document.getElementById(`room${r}`);
-   el.innerHTML=S.rooms[r].map(d=>`<div class="demon ${d.greater?'greater':''} ${selectedDemonId===d.id?'selected':''}" data-demon="${d.id}" data-key="${d.key}"><button type="button" class="mpDemonTapTarget" data-demon-open="${d.id}" aria-label="Open ${demonName(d)} card"></button><div class="demonArtWrap"><img class="demonArt" decoding="async" fetchpriority="high" src="${demonArt(d)}" alt="${demonName(d)}"></div><div class="demonBody"><div class="name">${demonName(d)}</div><div class="demonStats" aria-label="Health ${d.cur}, Demon Blood ${demonBlood(d)}, Attack ${demonAttack(d)}"><span class="hp" title="Health"><span class="statLabel">HP</span><span class="statValue">${d.cur}</span></span><span class="blood" title="Demon Blood"><span class="statLabel">BLD</span><span class="statValue">${demonBlood(d)}</span></span><span class="attack" title="Attack"><span class="statLabel">ATK</span><span class="statValue">${demonAttack(d)}</span></span></div><div class="familyTag">${d.family}${d.greater?' • GREATER':''}</div><div class="abilityText">${boardDemonAbilityText(d)}</div></div></div>`).join('')||'<div class="cap">Empty</div>';
+   el.innerHTML=S.rooms[r].map(d=>`<div class="demon ${d.greater?'greater':''} ${d.status?.ultraForm?'ultra':''} ${selectedDemonId===d.id?'selected':''}" data-demon="${d.id}" data-key="${d.key}"><button type="button" class="mpDemonTapTarget" data-demon-open="${d.id}" aria-label="Open ${demonName(d)} card"></button><div class="demonArtWrap"><img class="demonArt" decoding="async" fetchpriority="high" src="${demonArt(d)}" alt="${demonName(d)}"></div><div class="demonBody"><div class="name">${demonName(d)}</div><div class="demonStats" aria-label="Health ${d.cur}, Demon Blood ${demonBlood(d)}, Attack ${demonAttack(d)}"><span class="hp" title="Health"><span class="statLabel">HP</span><span class="statValue">${d.cur}</span></span><span class="blood" title="Demon Blood"><span class="statLabel">BLD</span><span class="statValue">${demonBlood(d)}</span></span><span class="attack" title="Attack"><span class="statLabel">ATK</span><span class="statValue">${demonAttack(d)}</span></span></div><div class="familyTag">${d.family}${d.status?.ultraForm?' • ULTRA':d.greater?' • GREATER':''}</div><div class="abilityText">${boardDemonAbilityText(d)}</div></div></div>`).join('')||'<div class="cap">Empty</div>';
    let roomEl=el.closest('.room');
    if(roomEl){
      roomEl.classList.toggle('desecrated',roomDesecrated(r));
