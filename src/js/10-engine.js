@@ -84,7 +84,7 @@ const RELICS=[
 function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
 function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
 function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0);return 2+(raw<=5?raw:5+Math.floor((raw-5)/2))}
-function basicAttackCritChance(){return Math.max(0,Math.min(100,15+((S&&S.relicMods&&S.relicMods.crit)||0)))}
+function basicAttackCritChance(){return Math.max(0,Math.min(100,5+((S&&S.relicMods&&S.relicMods.crit)||0)))}
 function ritualScale(n){return Math.ceil(n*1.2)}
 function ritualBoost(n){return ritualScale(n)+((S&&S.relicMods&&S.relicMods.ritual)||0)}
 function applyRelic(r){if(!r)return;S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};for(let k of ['basic','hand','ritual','crit'])S.relicMods[k]=(S.relicMods[k]||0)+((r.mods&&r.mods[k])||0);S.activeRelics=S.activeRelics||[];S.activeRelics.push(r.key);log(`RELIC — ${r.n}: ${r.effect}`,'good')}
