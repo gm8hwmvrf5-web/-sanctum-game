@@ -81,40 +81,66 @@ assert.equal(ctx.rogueGrantRelicXp(0,'No-op'),0);
 assert.equal(ctx.rogueGrantRelicXp(1,'Threshold check'),1);
 assert.equal(ctx.S.rogue.xpRelics,2);
 assert.equal(ctx.S.rogue.relicXp,21,'Converted XP must count toward the new tier');
-// Check damage directly through the real Exorcist cases in resolveRitual().
+// Check real Exorcist Ritual damage, non-damage control, and availability.
 ctx.S.relicMods.ritual=0;
-for(const [full,expected] of [[false,4],[true,8]]){
- target={kind:'boss'};amount=null;
- await ctx.resolveRitual({kind:'castHell',n:'Cast Into Hell'},full);
- assert.equal(amount,expected,'Cast Into Hell '+full);
+ctx.S.players=[{hand:[]}];
+ctx.currentPlayer=()=>ctx.S.players[0];
+ctx.damageTargets=()=>[target];
+vm.runInContext(extract(engine,'ritualUnavailableReason'),ctx,{timeout:5000});
+for(const [full,expected] of [[false,3],[true,6]]){
+ for(const kind of ['boss','demon']){
+  target=kind==='boss'?{kind:'boss'}:{kind:'demon',d:{greater:false,status:{}}};
+  amount=null;
+  await ctx.resolveRitual({kind:'castHell',n:'Cast Into Hell'},full);
+  assert.equal(amount,expected,'Cast Into Hell '+kind+' '+full);
+ }
 }
-for(const [full,expected] of [[false,2],[true,4]]){
- target={kind:'boss'};amount=null;
- await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},full);
- assert.equal(amount,expected,'Sever the Unholy fallback '+full);
-}
-const greater={id:'greater1',greater:true,hp:20,cur:20,n:'Test Greater Demon'};
-ctx.allDemons=()=>[{d:greater}];
-ctx.chooseVisualDemonTargets=async()=>({d:greater});
-target={kind:'demon',d:greater};amount=null;
-await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},true);
-assert.equal(amount,2,'Sever Greater conversion damage');
-assert.equal(greater.greater,false,'Greater converts to Lesser');
+let damageCalls=0,damageChoiceCalls=0;
+ctx.damageDemon=()=>{damageCalls++};
+ctx.dealDamageTarget=()=>{damageCalls++};
+ctx.chooseDamageTarget=async()=>{damageChoiceCalls++;return target};
 ctx.allDemons=()=>[];
-for(const [full,expected] of [[false,3],[true,8]]){
- target={kind:'boss'};amount=null;
- await ctx.resolveRitual({kind:'finalExorcism',n:'Final Exorcism'},full);
- assert.equal(amount,expected,'Final Exorcism vs Boss '+full);
+assert.match(ctx.ritualUnavailableReason({kind:'severUnholy'}),/no Greater Demons/i);
+await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},false);
+await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},true);
+assert.equal(damageCalls,0,'No fallback or direct Sever damage');
+assert.equal(damageChoiceCalls,0,'Sever should not show fallback damage targeting');
+for(const full of [false,true]){
+ const greater={id:'greater1',greater:true,hp:20,cur:20,n:'Test Greater Demon'};
+ ctx.allDemons=()=>[{d:greater}];
+ ctx.chooseVisualDemonTargets=async()=>({d:greater});
+ assert.equal(ctx.ritualUnavailableReason({kind:'severUnholy'}),'');
+ damageCalls=0;
+ await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},full);
+ assert.equal(greater.greater,false,'Sever converts Greater to Lesser');
+ assert.equal(greater.cur,20,'Sever preserves HP if within lesser maximum');
+ assert.equal(damageCalls,0,'Sever '+full+' must not damage');
 }
-for(const [full,expected] of [[false,7],[true,12]]){
- target={kind:'demon',d:{greater:true}};amount=null;
- await ctx.resolveRitual({kind:'finalExorcism',n:'Final Exorcism'},full);
- assert.equal(amount,expected,'Final Exorcism vs Greater '+full);
+ctx.allDemons=()=>[];
+ctx.dealDamageTarget=(x,n)=>{amount=n};
+ctx.damageDemon=(d,n)=>{amount=n};
+for(const [label,t] of [
+ ['normal',{kind:'demon',d:{greater:false,status:{}}}],
+ ['greater',{kind:'demon',d:{greater:true,status:{}}}],
+ ['ultra',{kind:'demon',d:{greater:true,status:{ultraForm:true}}}],
+ ['ultra-flag-only',{kind:'demon',d:{greater:false,status:{ultraForm:true}}}],
+ ['boss',{kind:'boss'}]
+]){
+ target=t;
+ for(const [full,base] of [[false,2],[true,4]]){
+  amount=null;
+  await ctx.resolveRitual({kind:'finalExorcism',n:'Final Exorcism'},full);
+  const boosted=label!=='normal';
+  assert.equal(amount,base+(boosted?4:0),'Final Exorcism '+label+' '+full);
+ }
 }
-assert(data.includes('h:"Deal 4 damage to a Demon or Boss.",f:"Deal 8 damage.'));
-assert(data.includes('If none exist, deal 2 damage to any target.'));
-assert(data.includes('then deal 2 damage to each. If none exist, deal 4 damage'));
-assert(data.includes('h:"Deal 3 damage to a Demon or Boss; +4 damage'));
-assert(worker.includes("sanctum-clean-v65"));
+ctx.S.relicMods.ritual=2;
+target={kind:'boss'};amount=null;
+await ctx.resolveRitual({kind:'finalExorcism',n:'Final Exorcism'},false);
+assert.equal(amount,8,'Ritual-power bonus remains applied');
+assert(data.includes('h:"Deal 3 damage to a Demon or Boss.",f:"Deal 6 damage to a Demon or Boss.'));
+assert(data.includes('Turn up to 2 Greater Demons back into their Lesser forms. Deal no damage.'));
+assert(data.includes('h:"Deal 2 damage to a normal Demon; deal +4 damage to Greater Demons, Ultra Demons, and Bosses (6 total).'));
+assert(worker.includes("sanctum-clean-v66"));
 assert(engine.includes('Attack damage is capped at 5; if this Relic would exceed the cap, gain 20 Relic XP instead.'));
 console.log('Focused Basic Attack cap, 20-XP conversion, XP tier, hybrid Relic and Exorcist ritual checks passed.');
