@@ -248,7 +248,20 @@ function rogueCleanseAll(){for(let i=0;i<4;i++){S.corruption[i]=0;S.desecratedRo
 function rogueGiveBlood(n){S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+n));log(`Each Priest gains ${n} Demon Blood.`,'good')}
 // Each XP-earned OR passage-reward Relic raises the next XP threshold by one tier.
 // Keep separate counters so older browser/cloud saves retain their earned XP tier.
-function rogueRelicXpNeed(){let r=rogueState();return 35+10*(Math.max(0,Number(r.xpRelics)||0)+Math.max(0,Number(r.passageRelics)||0))}
+/* Relic XP tiers: +10 for Relics 1–5, +20 for 6–10,
+ * +30 for 11–15, and +40 for every Relic after 15.
+ * Preserve the existing XP-earned and passage-reward Relic counters;
+ * Legacy starting Relics do not increase the XP requirement. */
+function rogueRelicXpNeed(){
+ const r=rogueState();
+ const earned=Math.max(0,Math.floor(Number(r.xpRelics)||0))+
+  Math.max(0,Math.floor(Number(r.passageRelics)||0));
+ return 35+
+  10*Math.min(earned,5)+
+  20*Math.max(0,Math.min(earned-5,5))+
+  30*Math.max(0,Math.min(earned-10,5))+
+  40*Math.max(0,earned-15);
+}
 function rogueKillXpValue(d){
  if(!d)return 0;
  let base=demonBlood(d),extra=demonCode(d)==='defeatBlood'?demonValue(d):0;
