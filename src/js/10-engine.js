@@ -401,8 +401,8 @@ const SUPPORT_RITUAL_KINDS=new Set(["visionFate","foretoldDeath","rewriteDestiny
 function applyBossRitualRestriction(r,full){let f=ensureBossFlags();if(bossIs("blackSovereign")&&!f.blackRitualUsed){f.blackRitualUsed=true;log(`${S.boss.n} — Edict of Silence: the first Ritual this round resolves at half effect.`,"bad");return false}if(bossIs("soulTyrant")&&SUPPORT_RITUAL_KINDS.has(r.kind)&&!f.soulSupportUsed){f.soulSupportUsed=true;log(`${S.boss.n} — Chains of Dominion: the first Support Ritual this round resolves at half effect.`,"bad");return false}return full}
 function addBossHpBonus(d,n,label){if(!d||n<=0)return;d.status=d.status||{};d.status.bossHpBonus=(d.status.bossHpBonus||0)+n;d.cur+=n;if(label)log(`${demonName(d)} gains ${n} HP from ${label}.`,"bad")}
 function bossBreachBonus(loss){let f=ensureBossFlags();if(bossIs("lordOfAsh")&&!f.ashenWakeUsed){f.ashenWakeUsed=true;loss+=1;log(`${S.boss.n} — Ashen Wake adds 1 Altar loss to the first breach this round.`,"bad")}return loss}
-/* Each Demon that actually enters play has one independent 10% chance
- * to manifest directly in Hall, Chapel, or Crypt. Never exceed four Demons
+/* GATEWALKER — each Demon that actually enters play has an independent
+ * 10% chance to manifest directly in Hall, Chapel, or Crypt. Never exceed four Demons
  * per room; if no alternate room has space, fall back to the Gateway/queue.
  * Pending queue Demons roll only when they attempt to enter the board. */
 function pickEnteringDemonRoom(){
@@ -416,7 +416,14 @@ function placeEnteringDemon(d){
  if(!d)return -1;
  const room=pickEnteringDemonRoom();
  if(room<0){S.queue.push(d);return -1}
+ d.status=d.status||{};
+ // A Gatewalker is the 10% alternate-room spawn, not a Demon that
+ // later walked to that room. This flag lives in the synchronized/saved
+ // Demon state and survives normal movement.
+ if(room>0)d.status.gatewalker=true;
+ else delete d.status.gatewalker;
  S.rooms[room].push(d);
+ if(room>0)log(`GATEWALKER — ${demonName(d)} manifests directly in the ${ROOM_NAMES[room]}.`,'bad');
  // Directly spawning in the Crypt counts as entering the Crypt for the
  // sixth-round pressure rule (just like moving there from the Chapel).
  if(room===3)S.cryptPressureLastArrivalRound=Math.max(0,Number(S.round)||1);
@@ -1114,6 +1121,9 @@ function mergedDemonStatus(host,donor){
  out.bloodDrained=Math.max(0,(a.bloodDrained||0)+(b.bloodDrained||0));
  if(a.abilityRemoved||b.abilityRemoved)out.abilityRemoved=true;
  if(a.stop||b.stop)out.stop=true;
+ // Keep the Gatewalker mark on the Greater/Ultra survivor when either
+ // source Demon entered the Sanctum through an alternate room.
+ if(a.gatewalker||b.gatewalker)out.gatewalker=true;
  delete out.rogueScaledFloor;delete out.rogueDifficulty;delete out.rogueFloorHealth;delete out.rogueHpBonus;delete out.noMerge;
  out.mergedThisPhase=true;
  return out;
