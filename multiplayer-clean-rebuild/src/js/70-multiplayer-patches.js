@@ -993,11 +993,18 @@ if(typeof moveDemons==='function'){
  const oldMergedStatus=mergedDemonStatus;
 
  // The original max includes all depth/act/boss bonuses but not party size.
+ // Ultra adds 15% to the complete party-scaled Greater maximum HP,
+ // rounded up. Its bonus is derived, not cumulative, so saves and party
+ // size changes retain exactly one Ultra transformation.
+ function ultraAdjustedMax(d,base){
+  return d?.status?.ultraForm?base+Math.ceil(base*.15):base;
+ }
  demonMaxHP=function(d){
   // Enrage is added after party/floor scaling so each kill grants exactly
-  // +1 maximum HP, independent of party size or Ascension depth.
-  return oldMaxHp(d)+Math.max(0,Number(d?.status?.partyHpBonus)||0)
+  // +1 maximum HP before Ultra's 15% health multiplier.
+  const base=oldMaxHp(d)+Math.max(0,Number(d?.status?.partyHpBonus)||0)
    +Math.max(0,Number(d?.status?.enrageHpBonus)||0);
+  return ultraAdjustedMax(d,base);
  };
  // The existing Attack calculation already incorporates floor and cycle.
  demonAttack=function(d){
@@ -1021,9 +1028,11 @@ if(typeof moveDemons==='function'){
     const wasBonus=Math.max(0,Number(d.status.partyHpBonus)||0);
     const previousBase=Number.isFinite(Number(d.status.partyHpBaseMax))
      ?Math.max(1,Number(d.status.partyHpBaseMax)):base;
-    const oldMax=Math.max(1,previousBase+wasBonus);
+    const rage=Math.max(0,Number(d.status.enrageHpBonus)||0);
+    const oldBase=Math.max(1,previousBase+wasBonus+rage);
+    const oldMax=ultraAdjustedMax(d,oldBase);
     const newBonus=Math.max(0,Math.round(base*factor)-base);
-    const newMax=base+newBonus;
+    const newMax=ultraAdjustedMax(d,base+newBonus+rage);
     if(wasBonus!==newBonus||previousBase!==base){
      const oldCurrent=Math.max(0,Number(d.cur)||0);
      d.cur=Math.max(0,Math.min(newMax,Math.round(oldCurrent*newMax/oldMax)));
