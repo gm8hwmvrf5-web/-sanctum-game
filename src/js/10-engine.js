@@ -2197,6 +2197,16 @@ function crucifixBanishRandomDemon(){
 }
 function drawCrucifix(){
  let e=takeCrucifixCard();
+ if(!e){log('No Crucifix card is available to draw.','info');return}
+ // Mercy caused a stuck multiplayer turn when its result waited behind a
+ // blocking Crucifix popup. Resolve this specific card immediately, without
+ // opening/queueing any modal, and let the usual render sync the new state.
+ if(e.n==='Mercy of the Grave'){
+  const result=crucifixBanishRandomDemon();
+  render();
+  showGameStatus(result,'good');
+  return;
+ }
  if(e.choice){
   log(`CRUCIFIX — ${e.n}: ${e.txt}`,'info');
   showChoiceCrucifix(e);
