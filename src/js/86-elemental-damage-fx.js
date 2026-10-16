@@ -1,4 +1,4 @@
-/* Fire/Poison highlights for Cinderbrand and Serpent's Fang. All mechanics
+/* Fire/Poison and grey Gatewalker badges over Demon artwork. All mechanics
  * still live in 70-multiplayer-patches.js; this module reads their statuses
  * and replays lightweight damage events from synchronized game state. */
 (()=>{
@@ -27,23 +27,28 @@ function syncData(){
 // Dedicated DOM icons avoid mobile pseudo-elements clipping one another.
 const FIRE_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 6 8 8 6 11a8 8 0 0 0 12 10c4-5 1-9-3-13 0 3-1 4-2 5 1-5 1-8-1-11Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 13c-1.5 2-3 3.5-3 5a3 3 0 0 0 6 0c0-2-1.5-3.5-3-5Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
 const POISON_OUTLINE="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2.5C10.1 5.5 5.5 10.3 5.5 14.2a6.5 6.5 0 0 0 13 0C18.5 10.3 13.9 5.5 12 2.5Z\" fill=\"none\" stroke=\"#94ad79\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
+// Gothic stone gateway silhouette with pointed arch and iron bars.
+// Styled in muted grey, using the same dimensions as Fire and Poison.
+const GATEWALKER_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21V8L12 2.5 19.5 8V21M7.5 21V9.8L12 6.5 16.5 9.8V21M10 11V21M14 11V21M4 21H20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function makeStatusIcon(kind){
  const icon=document.createElement('span');
  icon.className='sanctum-elemental-icon sanctum-elemental-icon-'+kind;
  icon.setAttribute('aria-hidden','true');
- icon.innerHTML=kind==='fire'?FIRE_OUTLINE:POISON_OUTLINE;
+ icon.innerHTML=kind==='fire'?FIRE_OUTLINE:kind==='gatewalker'?GATEWALKER_OUTLINE:POISON_OUTLINE;
  return icon;
 }
-function decorate(target,fire,poison){
+function decorate(target,fire,poison,gatewalker=false){
  if(!target)return;
  const burning=fire>0,poisoned=poison>0;
+ gatewalker=!!gatewalker;
  target.classList.toggle('sanctum-elemental-fire-active',burning);
  target.classList.toggle('sanctum-elemental-poison-active',poisoned);
+ target.classList.toggle('sanctum-gatewalker-active',gatewalker);
  target.querySelectorAll('.sanctum-elemental-overlays').forEach(layer=>layer.remove());
  const host=target.querySelector('.demonArtWrap')||target;
  let icons=host.querySelector(':scope > .sanctum-elemental-icons');
- const signature=(burning?'fire':'')+(poisoned?'-poison':'');
- if(!burning&&!poisoned){
+ const signature=(burning?'fire':'')+(poisoned?'-poison':'')+(gatewalker?'-gatewalker':'');
+ if(!burning&&!poisoned&&!gatewalker){
   if(icons)icons.remove();
  }else if(!icons||icons.dataset.effects!==signature){
   if(icons)icons.remove();
@@ -53,11 +58,13 @@ function decorate(target,fire,poison){
   icons.setAttribute('aria-hidden','true');
   if(burning)icons.appendChild(makeStatusIcon('fire'));
   if(poisoned)icons.appendChild(makeStatusIcon('poison'));
+  if(gatewalker)icons.appendChild(makeStatusIcon('gatewalker'));
   host.appendChild(icons);
  }
  target.title=[
   burning?'Burning: '+Math.floor(fire)+' Fire damage pending':null,
-  poisoned?'Poison: '+Math.floor(poison)+'/2 Basic Attack hits':null
+  poisoned?'Poison: '+Math.floor(poison)+'/2 Basic Attack hits':null,
+  gatewalker?'Gatewalker: entered the Sanctum beyond the Gateway':null
  ].filter(Boolean).join(' • ');
 }
 function drawHighlights(){
@@ -71,7 +78,7 @@ function drawHighlights(){
   const id=card.getAttribute('data-demon');
   const d=byId.get(id);
   if(!d)return;
-  decorate(card,fireDemons.get(id)||0,Math.max(0,Number(d.status?.elementalPoisonHits)||0));
+  decorate(card,fireDemons.get(id)||0,Math.max(0,Number(d.status?.elementalPoisonHits)||0),!!d.status?.gatewalker);
  });
  const boss=state.bossRevealed?document.querySelector('#bossArea .bossCard'):null;
  if(boss)decorate(boss,fireBoss?1:0,Math.max(0,Number(state.boss?.status?.elementalPoisonHits)||0));
