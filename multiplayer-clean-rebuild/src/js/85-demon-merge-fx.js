@@ -37,7 +37,7 @@ function gatewayPoint(id){
 }
 function cardFace(d,type){
  const card=document.createElement('div');
- card.className='sanctum-merge-ghost '+(type==='greater'?'sanctum-merge-greater':'sanctum-merge-lesser');
+ card.className='sanctum-merge-ghost '+(type!=='lesser'?'sanctum-merge-greater':'sanctum-merge-lesser');
  const image=document.createElement('img');
  image.src=String(d.art||'');image.alt='';image.decoding='async';
  image.draggable=false;card.appendChild(image);
@@ -45,7 +45,7 @@ function cardFace(d,type){
  name.className='sanctum-merge-name';name.textContent=String(d.name||'Demon');
  card.appendChild(name);
  const label=document.createElement('div');
- label.className='sanctum-merge-form';label.textContent=type==='greater'?'GREATER DEMON • GATEWAY':'LESSER DEMON';
+ label.className='sanctum-merge-form';label.textContent=type==='ultra'?'ULTRA DEMON • GATEWAY':type==='greater'?'GREATER DEMON • GATEWAY':'LESSER DEMON';
  card.appendChild(label);
  return card;
 }
@@ -83,11 +83,11 @@ function play(event){
  const layer=ensureLayer(),revealAt=gatewayPoint(id);
  const sources=(event.sources||[]).slice(0,2);
  const twins=sources.map((part,i)=>{
-  const el=cardFace(part,'lesser'),start=roomPoint(part.room,part.index,i);
+  const el=cardFace(part,event.result?.ultra?'greater':'lesser'),start=roomPoint(part.room,part.index,i);
   setPos(el,start);layer.appendChild(el);
   return {el,start};
  });
- const greater=cardFace(event.result||{},'greater');
+ const greater=cardFace(event.result||{},event.result?.ultra?'ultra':'greater');
  setPos(greater,revealAt);greater.classList.add('sanctum-merge-reveal');
  layer.appendChild(greater);
  const flash=document.createElement('div');
