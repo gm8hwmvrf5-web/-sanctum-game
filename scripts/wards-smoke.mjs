@@ -52,7 +52,19 @@ const result=await page.evaluate(async()=>{
  S.mana=30;S.players[S.current].blood=8;render();
  const selectedWard=ws.definitions.find(x=>x.key===selected);
  const placementRoom=selectedWard.rooms?.[0]??0;
- if(!ws.place(placementRoom))throw new Error('Ward placement rejected');
+ if(document.getElementById('wardcraftBar'))throw new Error('Obsolete Wardcraft bar is still above the board');
+ const tracker=document.querySelector('#handPanel .handCharacterPriest .ritualTracker');
+ const endTurn=tracker?.querySelector('#endBtn'),placeWard=document.getElementById('wardcraftCast');
+ if(!endTurn||endTurn.nextElementSibling!==placeWard||placeWard?.hidden||placeWard?.disabled||placeWard.textContent.trim()!=='Place Ward')
+   throw new Error('Place Ward is not enabled immediately after End Turn in the Priest UI');
+ placeWard.click();
+ const castModal=document.getElementById('wardCastModal');
+ const targetRoom=castModal?.querySelector('[data-ward-room="'+placementRoom+'"]');
+ if(!castModal||castModal.classList.contains('hidden')||!targetRoom||targetRoom.disabled)
+   throw new Error('Priest Ward button did not open the room placement popup');
+ targetRoom.click();
+ if(S.wardcraft.active?.key!==selected||!placeWard.hidden)
+   throw new Error('Ward placement or post-placement control visibility is incorrect');
  const room=document.getElementById('room'+placementRoom).closest('.room');
  if(!room.classList.contains('wardcraft-active')||!room.querySelector('.wardcraft-badge')||!room.querySelector('.wardcraft-illustration'))throw new Error('Room glow/illustration/badge not applied');
  if(!getComputedStyle(room.querySelector('.wardcraft-illustration')).backgroundImage.includes('ward-'+selected+'.webp'))
