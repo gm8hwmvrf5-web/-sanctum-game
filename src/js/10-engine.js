@@ -82,7 +82,12 @@ const RELICS=[
  {key:'seerBones',n:'Bones of the Seer',cat:'Ritual Power',effect:'Permanent +1 to numerical Ritual damage, healing, marks, Mana gains, and Demon Blood gains.',mods:{ritual:1}},
  {key:'trinityReliquary',n:'Trinity Reliquary',cat:'Hybrid Relic',effect:'Basic Attack permanently deals +1 damage and maximum Priest hand size increases by 1.',mods:{basic:1,hand:1}},
  {key:'sanctumHeart',n:'Heart of the Sanctum',cat:'Hybrid Relic',effect:'Maximum Priest hand size permanently increases by 1 and Ritual numerical effects gain +1.',mods:{hand:1,ritual:1}},
- {key:'martyrEye',n:"Martyr's Eye",cat:'Critical Strike',effect:'Basic Attack critical-hit chance permanently increases by 5 percentage points.',mods:{crit:5}}
+ {key:'martyrEye',n:"Martyr's Eye",cat:'Critical Strike',effect:'Basic Attack critical-hit chance permanently increases by 5 percentage points.',mods:{crit:5}},
+ {key:'lightningRod',n:'Lightning Rod',cat:'Elemental Basic Attack',effect:'Basic Attack deals its normal damage to the chosen Demon, then lightning arcs for half your base Basic Attack damage (rounded up) to every other Demon in the same room. No splash when attacking a Boss.',mods:{}},
+ {key:'soulHarvestLedger',n:'Ledger of the Fallen',cat:'Relic Experience',effect:'Each defeated Demon grants +5 additional Relic XP (included in Elite passage XP).',mods:{}},
+ {key:'everflowCenser',n:'Everflow Censer',cat:'Shared Mana',effect:'Shared Mana capacity increases by 5. Restore up to 5 additional shared Mana at the beginning of each Priest turn.',mods:{}},
+ {key:'saintAbacus',n:"Saint's Abacus",cat:'Relic Experience',effect:'All Relic XP requirements decrease by 5, to a minimum of 1 XP.',mods:{}},
+ {key:'wardenChain',n:"Warden's Chain",cat:'Demon Control',effect:'Prevent the first otherwise-valid Demon merge each passage, including Greater-to-Ultra merges during Elite passages. Resets each new passage.',mods:{}}
 ];
 // Attack Relic text must describe the five-damage ceiling and XP conversion.
 for(const relic of RELICS){
@@ -368,6 +373,12 @@ function normalizeSanctumState(){
  if(!S.relicDeck||!Array.isArray(S.relicDeck))S.relicDeck=shuffle(RELICS.map(r=>r.key));
  if(!S.activeRelics||!Array.isArray(S.activeRelics))S.activeRelics=[];
  if(!S.activeRelics.includes('martyrEye')&&!S.relicDeck.includes('martyrEye'))S.relicDeck.splice(Math.floor(S.relicDeck.length/2),0,'martyrEye');
+ // Old browser/cloud/saved multiplayer runs need to be able to find the new
+ // five Relics without resetting their established deck or acquired Relics.
+ for(const key of ['lightningRod','soulHarvestLedger','everflowCenser','saintAbacus','wardenChain']){
+  if(!S.relicDeck.includes(key)&&!S.activeRelics.includes(key))
+   S.relicDeck.splice(Math.floor(S.relicDeck.length/2),0,key);
+ }
  if(!S.relicMods)S.relicMods={basic:0,hand:0,ritual:0,crit:0};
  for(let k of ['basic','hand','ritual','crit'])if(!Number.isFinite(S.relicMods[k]))S.relicMods[k]=0;
  // Previous builds granted +15% for Martyr's Eye. Reconcile saved
@@ -1069,7 +1080,15 @@ function setupPlayersUI(){const n=+document.getElementById('playerCount').value;
 function syncSetupTimerOption(){let el=document.getElementById('turnTimerSelect');if(el){let n=Number(S?.turnTimerSeconds||TURN_TIMER_SECONDS||60);n=Math.max(30,Math.min(120,Math.round(n/15)*15));el.value=String(n)}}
 function startGame(){const n=+document.getElementById('playerCount').value;let chars=[];for(let i=0;i<n;i++)chars.push(document.getElementById(`pchar${i}`).value);if(new Set(chars).size!==chars.length){alert('Choose a different character for each player.');return false}let chosenTimer=Number(document.getElementById('turnTimerSelect')?.value||60);chosenTimer=Math.max(30,Math.min(120,Math.round(chosenTimer/15)*15));S=freshState();S.turnTimerSeconds=chosenTimer;S.turnTimerRemaining=chosenTimer;TURN_TIMER_SECONDS=chosenTimer;S.started=true;S.phase='Priest';S.priestDeck=buildPriestDeck();S.priestCycleUsed=[];S.demonDeck=buildDemonDeck();S.demonCycleUsed=[];resetCrucifixDeck();S.boss=drawHiddenBoss();S.boss.cur=S.boss.hp;S.relicDeck=shuffle(RELICS.map(r=>r.key));for(let i=0;i<n;i++){let p={name:document.getElementById(`pname${i}`).value||`Player ${i+1}`,char:chars[i],blood:0,hand:[],basic:false,ritualUsed:[false,false,false],forceEmpower:false,discardUsed:false,consecrateUsed:false};S.players.push(p);drawPriest(p,4)}S.mana=sharedManaRoundValue();for(let i=0;i<normalSpawnCount();i++)spawnOne(false);document.getElementById('setupModal').classList.add('hidden');beginTurn(true);log('The Sanctum is besieged. The first round begins.');render();return true}
 function currentPlayer(){return S.players[S.current]}
-function beginTurn(skipDraw=false){if(!S.started)return;S.phase='Priest';beginNextTurnEnrage();let p=currentPlayer();p.basic=false;p.ritualUsed=[false,false,false];p.forceEmpower=false;p.discardUsed=false;p.consecrateUsed=false;S.mergeManaDiscount=0;S.mergeBloodDiscount=0;resolveAltarTurnRenewals();if(!skipDraw)drawPriest(p,2);log(`${p.name} (${p.char}) begins a turn.`);render();resetTurnTimerForNewTurn()}
+function beginTurn(skipDraw=false){if(!S.started)return;S.phase='Priest';beginNextTurnEnrage();let p=currentPlayer();p.basic=false;p.ritualUsed=[false,false,false];p.forceEmpower=false;p.discardUsed=false;p.consecrateUsed=false;S.mergeManaDiscount=0;S.mergeBloodDiscount=0;
+ // Five bonus Mana at the start of EACH Priest turn, capped by the
+ // Relic-expanded shared pool. No extra UI modal or online choice.
+ if((S.activeRelics||[]).includes('everflowCenser')){
+  const before=S.mana;
+  S.mana=Math.min(sharedManaRoundValue(),S.mana+5);
+  if(S.mana>before)log(`Everflow Censer restores ${S.mana-before} shared Mana at the start of ${p.name}'s turn.`,'good');
+ }
+ resolveAltarTurnRenewals();if(!skipDraw)drawPriest(p,2);log(`${p.name} (${p.char}) begins a turn.`);render();resetTurnTimerForNewTurn()}
 function endTurn(){let p=currentPlayer();if(p.hand.length>handLimit()){alert(`Hand limit is ${handLimit()}. Discard cards before ending your turn.`);return}clearTurnTimerInterval();if(S.current<S.players.length-1){S.current++;beginTurn(false)}else{runDemonPhase()}}
 function normalSpawnCount(){
  // During the Boss Stage, normal deck spawns happen every other round.
@@ -1163,6 +1182,14 @@ function checkMerge(d){
  if(S.globalMergeBlock||(S.roomMergeBlock&&(S.roomMergeBlock[here.r]||S.roomMergeBlock[other.r])))return false;
  if(roomConsecrated(3)){log(`Consecrated Crypt prevents two ${d.n} cards from merging this round.`,'good');return false}
  if(S.blockNextMerge){S.blockNextMerge=false;log(`A merge of two ${d.n} cards is prevented.`,'good');return false}
+ // The Relic blocks one otherwise-permitted merge per passage, rather than
+ // the old one-round block flag. Save the used floor in authoritative state.
+ if(S?.rogue?.enabled&&(S.activeRelics||[]).includes('wardenChain')
+  &&S.rogue.wardenChainBlockedFloor!==S.rogue.floor){
+  S.rogue.wardenChainBlockedFloor=S.rogue.floor;
+  log(`Warden's Chain prevents a merge of two ${d.n} cards on Floor ${S.rogue.floor}.`,'good');
+  return false;
+ }
  let host=d,donor=other.d;
  if(other.r<here.r){host=other.d;donor=d}
  let hostLoc=findDemonLocation(host),donorLoc=findDemonLocation(donor);
@@ -1245,7 +1272,10 @@ function bossDrainAmount(){
  return S.boss.b;
 }
 async function runBossPhase(){S.phase='Boss';ensureBossFlags();log(`${S.boss.n} begins its Boss Phase.`,"bad");render();if(bossIs("crimsonOracle"))await crimsonProphecy();let drain=bossDrainAmount();damageAltar(drain,`${S.boss.n} Boss Rule (${drain} scaled from ${S.boss.b})`);if(S.altar<=0)return;switch(S.boss.key){case"blackSovereign":spawnBossSummonedLesser(1);break;case"boneKing":recallOldestDefeated();break;case"gatebreaker":spawnBossSummonedLesser(2);break;case"lordOfAsh":spawnBossSummonedLesser(1,true);break;case"dreadReaper":recallOldestDefeated();break;case"devourer":spawnBossSummonedLesser(1);break}if(bossIs("plagueFather"))plagueBloom();endRound()}
-function sharedManaRoundValue(){let n=Number(S?.players?.length||1);return n>=4?32:n===3?23:n===2?15:10}
+function sharedManaRoundValue(){
+ const n=Number(S?.players?.length||1),base=n>=4?32:n===3?23:n===2?15:10;
+ return base+((S?.activeRelics||[]).includes('everflowCenser')?5:0);
+}
 // The combined Demon/Boss-phase Mana penalty survives the refill, but is
 // capped by party size. Priest-phase drains and card taxes remain uncapped.
 function demonPhaseManaPenaltyCap(){
@@ -1502,7 +1532,32 @@ async function chooseDamageRoom(title='Choose a room to damage'){
   setTimeout(()=>{let first=g.querySelector('button');if(first)first.focus()},0);
  });
 }
-async function basicAttack(){let p=currentPlayer();if(p.basic)return;let x=await chooseDamageTarget('Basic Attack — choose target');if(!x)return;p.basic=true;let base=basicAttackDamage(),chance=basicAttackCritChance(),critical=Math.random()*100<chance,amount=critical?base*2:base;if(critical)log(`CRITICAL HIT — ${p.name}'s Basic Attack deals double damage (${amount}).`,'good');dealDamageTarget(x,amount,`${p.name}'s ${critical?'CRITICAL ':''}Basic Attack`,{basicAttack:true});render()}
+async function basicAttack(){
+ const p=currentPlayer();if(p.basic)return;
+ const x=await chooseDamageTarget('Basic Attack — choose target');
+ if(!x)return;
+ p.basic=true;
+ const base=basicAttackDamage(),chance=basicAttackCritChance(),critical=Math.random()*100<chance,amount=critical?base*2:base;
+ if(critical)log(`CRITICAL HIT — ${p.name}'s Basic Attack deals double damage (${amount}).`,'good');
+ // Snapshot the chosen Demon's room before dealing damage: a defeat can
+ // remove the target, trigger a Crucifix, or clear an entire passage.
+ const lightning=(S.activeRelics||[]).includes('lightningRod')&&x.kind==='demon';
+ const location=lightning?findDemonLocation(x.d):null;
+ const otherIds=location?(S.rooms[location.r]||[]).filter(d=>d.id!==x.d.id).map(d=>d.id):[];
+ const floor=S.rogue?.floor;
+ dealDamageTarget(x,amount,`${p.name}'s ${critical?'CRITICAL ':''}Basic Attack`,{basicAttack:true});
+ if(lightning&&otherIds.length&&(!S.rogue?.enabled||S.rogue.floor===floor)){
+  const splash=Math.ceil(base/2);
+  for(const id of otherIds){
+   const d=(S.rooms[location.r]||[]).find(y=>y.id===id);
+   if(!d)continue;
+   // Damage is a Basic Attack effect: shields/defeat abilities still work,
+   // but a crit on the selected target never doubles chain lightning.
+   damageDemon(d,splash,'Lightning Rod',{basicAttack:true});
+  }
+ }
+ render();
+}
 function queueOverflowDamage(amount,source='Effect',opts={}){amount=Math.floor(amount||0);if(amount<=0)return;overflowDamageQueue.push({amount,source,opts:{ritual:!!opts.ritual,suppressNegativeDefeat:!!opts.suppressNegativeDefeat}});log(`${amount} overkill damage from ${source} is ready to transfer to another Demon.`,'good')}
 async function processOverflowDamageQueue(){
  if(overflowPromptActive||!overflowDamageQueue.length)return;

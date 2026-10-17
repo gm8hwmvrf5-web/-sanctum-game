@@ -254,11 +254,12 @@ function rogueRelicXpNeed(){
  const r=rogueState();
  const earned=Math.max(0,Math.floor(Number(r.xpRelics)||0))+
   Math.max(0,Math.floor(Number(r.passageRelics)||0));
- return 35+
+ const original=35+
   10*Math.min(earned,5)+
   20*Math.max(0,Math.min(earned-5,5))+
   30*Math.max(0,Math.min(earned-10,5))+
   40*Math.max(0,earned-15);
+ return Math.max(1,original-((S?.activeRelics||[]).includes('saintAbacus')?5:0));
 }
 function rogueKillXpValue(d){
  if(!d)return 0;
@@ -312,12 +313,13 @@ function rogueFlushBasicRelicXp(){
 window.__sanctumFlushBasicRelicXp=rogueFlushBasicRelicXp;
 function rogueAwardKillXp(amount,d){
  const r=rogueState(),legacyBonus=rogueLegacyRelicXpBonus();
- amount=Math.max(0,Math.floor(Number(amount)||0))+legacyBonus;
+ const relicBonus=(S?.activeRelics||[]).includes('soulHarvestLedger')?5:0;
+ amount=Math.max(0,Math.floor(Number(amount)||0))+legacyBonus+relicBonus;
  if(!amount)return;
- // Track the *gross* XP earned in this passage, including Legacy bonuses.
+ // Track the *gross* XP earned in this passage, including Legacy and Relic bonuses.
  // Do not use r.relicXp: the meter may have spent XP on a Relic mid-passage.
  r.passageXpEarned=Math.max(0,Number(r.passageXpEarned)||0)+amount;
- rogueGrantRelicXp(amount,`${demonName(d)}'s kill grants experience${legacyBonus?` (includes +${legacyBonus} Legacy XP)`:''}`);
+ rogueGrantRelicXp(amount,`${demonName(d)}'s kill grants experience${legacyBonus?` (+${legacyBonus} Legacy XP)`:''}${relicBonus?` (+${relicBonus} Ledger XP)`:''}`);
 }
 /* Elite reward: passage kill XP + current global floor. It can naturally
  * cross a Relic threshold, but never draws a Relic directly or adds an
