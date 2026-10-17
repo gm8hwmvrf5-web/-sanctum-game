@@ -21,7 +21,7 @@ try{
  // The Game Menu only appears once a run has started. Verify gameplay
  // first, then toggle without resetting the running single-player state.
  await page.locator('#startBtn').click();
- await page.waitForFunction(()=>window.S?.started===true);
+ await page.waitForFunction(()=>typeof S!=='undefined'&&S.started===true);
  await page.locator('#pauseBtn').click();
  await page.locator('#sanctumSkinSelect').selectOption('kawaii');
  const result=await page.evaluate(()=>{
@@ -98,7 +98,7 @@ try{
  assert.equal(await page.locator('#sanctumSkinSelect').inputValue(),'kawaii');
  // Gameplay must remain operational after a skin switch.
  await page.locator('#startBtn').click();
- await page.waitForFunction(()=>window.S?.started&&window.SanctumSkins?.get()==='kawaii');
+ await page.waitForFunction(()=>typeof S!=='undefined'&&S.started&&window.SanctumSkins?.get()==='kawaii');
  const playing=await page.evaluate(()=>{
   clearTurnTimerInterval();
   return {
