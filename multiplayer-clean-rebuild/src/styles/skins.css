@@ -167,3 +167,100 @@ html[data-sanctum-skin="kawaii"] #boardSection .demonArt,
 html[data-sanctum-skin="kawaii"] #boardSection .bossArt{
  object-fit:cover!important;filter:none!important;
 }
+
+/* Phase 3 • Priest-card illustrations (backgrounds, not <img> tags).
+   The original art stays inline; the override is active only for Kawaii. */
+html[data-sanctum-skin="kawaii"] .cardArt[style*="background-image"]{
+ background-image:var(--sanctum-kawaii-priest-art)!important;
+ background-position:center center!important;
+ background-size:cover!important;
+}
+html[data-sanctum-skin="kawaii"] .cardArt[style]{
+ border-color:#e5b1d3!important;
+}
+/* Ten Ward illustrations: replace the existing --ward-image custom property
+   without rewriting a single Ward or touching game state. */
+html[data-sanctum-skin="kawaii"] [style*="ward-cinder.webp"]{--ward-image:var(--sanctum-cute-ward-cinder)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-thorns.webp"]{--ward-image:var(--sanctum-cute-ward-thorns)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-chains.webp"]{--ward-image:var(--sanctum-cute-ward-chains)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-bell.webp"]{--ward-image:var(--sanctum-cute-ward-bell)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-silence.webp"]{--ward-image:var(--sanctum-cute-ward-silence)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-lantern.webp"]{--ward-image:var(--sanctum-cute-ward-lantern)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-vigil.webp"]{--ward-image:var(--sanctum-cute-ward-vigil)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-absolution.webp"]{--ward-image:var(--sanctum-cute-ward-absolution)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-siphon.webp"]{--ward-image:var(--sanctum-cute-ward-siphon)!important;}
+html[data-sanctum-skin="kawaii"] [style*="ward-chalice.webp"]{--ward-image:var(--sanctum-cute-ward-chalice)!important;}
+html[data-sanctum-skin="kawaii"] .wardcraft-illustration{
+ filter:saturate(1.05) contrast(1.02)!important;opacity:.30!important;
+}
+html[data-sanctum-skin="kawaii"] .ward-draft-art{
+ background-color:#fff0fa!important;
+ border-color:#e8b3d4!important;
+}
+html[data-sanctum-skin="kawaii"] .wardcraft-badge{
+ background:rgba(255,241,251,.94)!important;
+ color:#795278!important;
+ border-color:#dca5cb!important;
+ text-shadow:none!important;
+ border-radius:8px!important;
+}
+/* Relics never had art in Gothic. Phase 3 gives every Relic an illustrated
+   miniature in its claim popup and Relic Deck, hidden in Gothic mode. */
+.sanctum-kawaii-relic-art{display:none!important}
+html[data-sanctum-skin="kawaii"] .sanctum-kawaii-relic-art{
+ display:block!important;
+ width:100%;height:95px;max-width:150px;
+ margin:2px auto 10px;object-fit:contain;flex:none;
+ border:2px solid #e3b6d1;border-radius:12px;
+ background:#fff2fa;box-shadow:0 2px 9px rgba(156,101,151,.2);
+}
+html[data-sanctum-skin="kawaii"] #relicModal .sanctum-kawaii-relic-art{
+ max-width:210px;height:145px;
+}
+html[data-sanctum-skin="kawaii"] .relicDeckReferenceCard{
+ background:linear-gradient(160deg,#fffafe,#ffeafa)!important;
+ color:#744c70!important;
+ border-color:#e2b2ce!important;
+ border-radius:14px!important;
+}
+html[data-sanctum-skin="kawaii"] .relicCard{
+ background:linear-gradient(150deg,#fff9ff,#ffedf5)!important;
+ border-color:#e2aaca!important;
+}
+/* Cute pastel status icons. Keep legacy icon dimensions and placement,
+   especially in iPhone landscape; only the artwork, tint and border change. */
+html[data-sanctum-skin="kawaii"] #boardSection .sanctum-elemental-icon,
+html[data-sanctum-skin="kawaii"] #bossArea .sanctum-elemental-icon{
+ background-color:rgba(255,243,252,.96)!important;
+ border-color:#d7a8d3!important;
+ color:#b876bd!important;
+ border-radius:4px!important;
+}
+html[data-sanctum-skin="kawaii"] .sanctum-elemental-icon-fire{
+ color:#e7899c!important;border-color:#e9a5b0!important;
+}
+html[data-sanctum-skin="kawaii"] .sanctum-elemental-icon-poison{
+ background-image:var(--sanctum-cute-icon-poison)!important;
+ background-size:cover!important;
+}
+html[data-sanctum-skin="kawaii"] .sanctum-elemental-icon-lightning{
+ color:#bd93df!important;border-color:#c5a3e6!important;
+}
+html[data-sanctum-skin="kawaii"] .sanctum-elemental-icon-gatewalker{
+ color:#9fa0c8!important;border-color:#b4b6d9!important;
+}
+html[data-sanctum-skin="kawaii"] .wardcraft-bar{
+ background:linear-gradient(160deg,#fff8fb,#fdeaf7)!important;
+ border-color:#dbaaca!important;color:#8a567d!important;
+}
+html[data-sanctum-skin="kawaii"] .wardcraft-label{color:#ad6599!important;}
+html[data-sanctum-skin="kawaii"] .relicXpMeterStat::before{
+ content:"✦";color:#b78fd4;font-size:12px;margin-right:2px;
+}
+html[data-sanctum-skin="kawaii"] #manaStatBox::before{
+ content:"✧";color:#85b1cf;font-size:12px;margin-right:2px;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ html[data-sanctum-skin="kawaii"] .sanctum-kawaii-relic-art{height:65px;max-width:96px}
+ html[data-sanctum-skin="kawaii"] #relicModal .sanctum-kawaii-relic-art{height:85px;max-width:135px}
+}
