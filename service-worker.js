@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v76';
+const CACHE_NAME='sanctum-clean-v72';
 const CORE=[
   './',
   './index.html',
@@ -13,7 +13,6 @@ const CORE=[
   './src/styles/elemental-damage-fx.css',
   './src/styles/cloud-saves.css',
   './src/styles/difficulty.css',
-  './src/styles/skins.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
@@ -29,14 +28,6 @@ const CORE=[
   './src/js/85-demon-merge-fx.js',
   './src/js/86-elemental-damage-fx.js',
   './src/js/87-cloud-saves.js',
-  './src/js/88-skins.js',
-  './src/js/89-kawaii-art.js',
-  './assets/kawaii/rooms/gateway.avif',
-  './assets/kawaii/rooms/hall.avif',
-  './assets/kawaii/rooms/chapel.avif',
-  './assets/kawaii/rooms/crypt.avif',
-  './assets/kawaii/rooms/boss.avif',
-  './src/js/90-kawaii-phase3.js',
   './assets/wards/ward-cinder.webp',
   './assets/wards/ward-thorns.webp',
   './assets/wards/ward-chains.webp',
