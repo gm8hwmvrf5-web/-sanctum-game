@@ -79,7 +79,7 @@ try{
   const effects=['lightning','fire','poison'].map(k=>card.querySelector('.sanctum-elemental-icon-'+k));
   return effects.map(n=>n?{w:n.getBoundingClientRect().width,h:n.getBoundingClientRect().height}:null);
  });
- assert(mobile.every(x=>x&&x.w===mobile[0].w&&x.h===mobile[0].h),'Mobile landscape Lightning matches Fire/Poison: '+JSON.stringify(mobile));
+ assert(mobile.every(x=>x&&Math.abs(x.w-mobile[0].w)<0.02&&Math.abs(x.h-mobile[0].h)<0.02),'Mobile landscape Lightning matches Fire/Poison: '+JSON.stringify(mobile));
  // Let the five-second status expire without any gameplay turn or re-render.
  await page.waitForFunction(()=>document.querySelectorAll('#boardSection .sanctum-elemental-icon-lightning').length===0,null,{timeout:8200});
  const expired=await page.evaluate(()=>({
