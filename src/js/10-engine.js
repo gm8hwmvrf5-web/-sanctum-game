@@ -1173,8 +1173,13 @@ function checkMerge(d){
  const ultraMerge=!!(elite&&d.greater);
  if(d.greater&&!ultraMerge)return false;
  let here=findDemonLocation(d);if(!here)return false;
+ const protectedPair=S?.rogue?.wardenChainBlockedFloor===S.rogue.floor
+  ?S.rogue.wardenChainBlockedPair||[]:[];
  let matches=allDemons().filter(x=>x.d.id!==d.id&&x.d.key===d.key
-  &&!!x.d.greater===!!d.greater&&!x.d.status?.noMerge&&!x.d.status?.ultraForm);
+  &&!!x.d.greater===!!d.greater&&!x.d.status?.noMerge&&!x.d.status?.ultraForm
+  // A blocked pair stays apart during this passage even when the reverse
+  // Demon is checked immediately afterwards in the same phase.
+  &&!(protectedPair.includes(d.id)&&protectedPair.includes(x.d.id)));
  if(!matches.length)return false;
  // Prefer the room farthest from the Altar: Gateway (0) -> Hall (1) -> Chapel (2) -> Crypt (3).
  matches.sort((a,b)=>a.r-b.r||a.i-b.i);
@@ -1187,6 +1192,7 @@ function checkMerge(d){
  if(S?.rogue?.enabled&&(S.activeRelics||[]).includes('wardenChain')
   &&S.rogue.wardenChainBlockedFloor!==S.rogue.floor){
   S.rogue.wardenChainBlockedFloor=S.rogue.floor;
+  S.rogue.wardenChainBlockedPair=[d.id,other.d.id];
   log(`Warden's Chain prevents a merge of two ${d.n} cards on Floor ${S.rogue.floor}.`,'good');
   return false;
  }
