@@ -116,6 +116,7 @@
 <link rel="stylesheet" href="./src/styles/demon-merge-fx.css?v=clean35">
 <link rel="stylesheet" href="./src/styles/elemental-damage-fx.css?v=clean58">
 <link rel="stylesheet" href="./src/styles/cloud-saves.css?v=clean38">
+<link rel="stylesheet" href="./src/styles/difficulty.css?v=clean70">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -229,6 +230,17 @@
 <div class="modal" id="setupModal">
   <div class="modalbox"><h2>Begin the Exorcism</h2><p>Choose 2–4 players and one unique character for each player.</p>
     <div class="setupOptionsRow"><label>Players: <select id="playerCount"><option>1</option><option>2</option><option>3</option><option>4</option></select></label><label>Turn Timer: <select id="turnTimerSelect" aria-label="Turn timer length"><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60" selected>60 seconds</option><option value="75">75 seconds</option><option value="90">90 seconds</option><option value="105">105 seconds</option><option value="120">2 minutes</option></select></label></div>
+    <div class="difficultySetupRow">
+<label for="difficultySetupSelect">Difficulty:
+  <select id="difficultySetupSelect" aria-label="Difficulty for new game">
+    <option value="easy">Easy — 5% less each round</option>
+    <option value="standard" selected>Standard — current balance</option>
+    <option value="hard">Hard — 5% more each round</option>
+    <option value="hell">Hell — 10% more each round</option>
+    <option value="tormented">Tormented — Hell + stronger Bosses</option>
+  </select>
+</label></div>
+    <p class="difficultyInfo" id="difficultySetupInfo">Standard uses the current enemy scaling.</p>
     <div class="setupgrid" id="setupPlayers"></div>
     <div class="notice">Prototype setup gives each player 4 starting Priest cards. Solo begins with 1 Demon in the Gateway; 2–4 players begin with 2.</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -409,6 +421,20 @@
       <button class="btn blue" id="pauseInviteFriendsBtn" type="button">Invite Friends</button>
       <button class="btn" id="pauseCloudSavesBtn" type="button">Account / Cloud Saves</button>
       <button class="btn green" id="resumeGameBtn" type="button">Resume</button>
+    </div>
+    <div class="difficultyMenuPanel" aria-label="Difficulty settings">
+      <div class="difficultyMenuTitle">Sanctum Difficulty</div>
+      <label for="difficultyPauseSelect">Current Run
+        <select id="difficultyPauseSelect" aria-label="Current game difficulty">
+          <option value="easy">Easy</option>
+          <option value="standard" selected>Standard</option>
+          <option value="hard">Hard</option>
+          <option value="hell">Hell</option>
+          <option value="tormented">Tormented</option>
+        </select>
+      </label>
+      <p id="difficultyPauseInfo" class="difficultyInfo">Standard uses the current enemy scaling.</p>
+      <p class="difficultyInfo">Difficulty scales Demon HP, Demon Attack, Boss HP and Boss Altar drain per global round. A multiplayer difficulty change can be made by the active player and synchronizes with the party.</p>
     </div>
     <div class="fontSettingsPanel" aria-label="Font size settings">
       <div class="fontSettingsTitle">Text Size</div>
@@ -661,11 +687,12 @@
 
 
 <script src="./src/js/00-data.js?v=clean35"></script>
-<script src="./src/js/10-engine.js?v=clean52"></script>
+<script src="./src/js/10-engine.js?v=clean70"></script>
 <script src="./src/js/15-asset-loader.js?v=clean23"></script>
 <script src="./src/js/20-ui-foundation.js?v=clean23"></script>
 <script src="./src/js/25-font-settings.js?v=clean23"></script>
-<script src="./src/js/30-roguelite.js?v=clean50"></script>
+<script src="./src/js/30-roguelite.js?v=clean70"></script>
+<script src="./src/js/35-difficulty.js?v=clean70"></script>
 <script src="./src/js/40-priest-ui.js?v=clean25"></script>
 <script src="./src/js/50-mobile.js?v=clean23"></script>
 <script src="./src/js/60-multiplayer.js?v=clean45"></script>

@@ -1,0 +1,26 @@
+/* Compact Gothic difficulty controls for setup and the paused Game Menu. */
+.difficultySetupRow,.difficultyMenuPanel{
+ border:1px solid rgba(165,118,67,.48);
+ background:linear-gradient(150deg,rgba(39,26,28,.94),rgba(12,11,15,.96));
+ border-radius:9px;
+ padding:11px 13px;
+ margin:10px 0;
+ color:#e2ceaa;
+}
+.difficultySetupRow label,.difficultyMenuPanel label{
+ display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+ font-size:14px;font-weight:600;
+}
+.difficultyMenuTitle{font-size:16px;font-weight:700;letter-spacing:.06em;color:#e3c18b;margin-bottom:9px;}
+.difficultySetupRow select,.difficultyMenuPanel select{
+ flex:1;min-width:175px;max-width:100%;background:#18131a;color:#efd9af;
+ border:1px solid #8f704e;border-radius:6px;padding:9px 10px;
+ font:inherit;font-size:14px;
+}
+.difficultyMenuPanel select:disabled{opacity:.72;cursor:not-allowed;}
+.difficultyInfo{font-size:12px;line-height:1.5;color:#bfae98;margin:6px 0 8px;}
+@media(max-width:620px){
+ .difficultySetupRow,.difficultyMenuPanel{padding:9px 10px;}
+ .difficultySetupRow label,.difficultyMenuPanel label{display:grid;grid-template-columns:1fr;gap:6px;}
+ .difficultySetupRow select,.difficultyMenuPanel select{width:100%;min-width:0;}
+}

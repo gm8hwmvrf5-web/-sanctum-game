@@ -534,8 +534,16 @@ function rogueliteEnterCurrentFloor(type){
    if((r.bossesSpawned||0)>0){let old=S.boss&&S.boss.key;cleanOldBossEffects();S.boss=drawBossForDescent(old);S.boss.cur=S.boss.hp}
    r.bossesSpawned=(r.bossesSpawned||0)+1;S.bossRevealed=false;S.bossDefeatHandled=false;S.bossFlags={spores:{}};resetBossRoundFlags();
    revealBoss();
-   // Bosses retain the original ability package, then scale with Ascension and cumulative floor depth.
-   let pacing=.55+((rogueAct()-1)*.08),mult=rogueDifficultyMultiplier(),floorHp=rogueFloorHealthMultiplier();S.boss.hp=Math.max(42,Math.round(S.boss.hp*pacing*mult*floorHp));S.boss.cur=S.boss.hp;
+   // Tormented removes the normal Boss HP pacing reduction, beginning
+   // at 100% printed HP in solo and rising with player count. The separately
+   // tracked round modifier is reapplied by the difficulty module on render.
+   const difficultyDelta=Number(S.boss.difficultyHpDelta)||0;
+   if(difficultyDelta){
+    S.boss.hp=Math.max(1,S.boss.hp-difficultyDelta);
+    S.boss.cur=Math.max(0,S.boss.cur-difficultyDelta);
+    S.boss.difficultyHpDelta=0;
+   }
+   let pacing=S.difficulty==='tormented'?1:.55+((rogueAct()-1)*.08),mult=rogueDifficultyMultiplier(),floorHp=rogueFloorHealthMultiplier();S.boss.hp=Math.max(42,Math.round(S.boss.hp*pacing*mult*floorHp));S.boss.cur=S.boss.hp;
    log(`BOSS GATE — Cycle ${rogueCycle()}, Act ${rogueAct()}, Floor ${rogueCycleFloorFor(r.floor)}. ${S.boss.n} seals the descent at ${S.boss.hp} HP (${mult}× Ascension • ${floorHp.toFixed(2)}× floor HP • ${rogueFloorDamageMultiplier().toFixed(2)}× floor damage).`,'bad');
    rogueStartNextRound();render();
    if(typeof window.__sanctumWardOpenPassage==='function')window.__sanctumWardOpenPassage();

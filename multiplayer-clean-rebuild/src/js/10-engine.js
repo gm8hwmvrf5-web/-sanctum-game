@@ -22,7 +22,7 @@ function takeCrucifixCard(){
 let S = freshState();
 let choiceResolve=null, choiceCancelSerial=0, selectedDemonId=null, crucifixDisplayQueue=[];
 let overflowDamageQueue=[], overflowPromptActive=false;
-function freshState(){return {started:false,round:1,phase:"Setup",mana:10,altar:30,defeats:0,enrageRuleVersion:1,enrageKillsThisTurn:0,enrageActiveTurnBonus:0,cryptPressureLastArrivalRound:0,cryptPressureLastCheckRound:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,demonMergeVisuals:[],pendingDemonManaDrain:0,bloodOverflowHealedRound:0,bloodOverflowHealedAmount:0,altarRenewalHealedRound:0,altarRenewalHealedAmount:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,martyrEyeBalanceVersion:1,log:[]}}
+function freshState(){return {started:false,difficulty:"standard",round:1,phase:"Setup",mana:10,altar:30,defeats:0,enrageRuleVersion:1,enrageKillsThisTurn:0,enrageActiveTurnBonus:0,cryptPressureLastArrivalRound:0,cryptPressureLastCheckRound:0,rooms:[[],[],[],[]],queue:[],players:[],current:0,priestDeck:[],priestDiscard:[],priestCycleUsed:[],demonDeck:[],demonDiscard:[],demonCycleUsed:[],defeated:[],boss:null,bossRevealed:false,bossStageRoundsElapsed:0,bossFlags:{spores:{}},altarShield:0,altarBarrier:0,altarBarrierRound:0,altarTurnRenewals:[],altarDefeatBlessings:[],altarRoundRenewals:[],crucifixDeck:[],crucifixDiscard:[],pendingCrucifixTransfers:0,demonMergeVisuals:[],pendingDemonManaDrain:0,bloodOverflowHealedRound:0,bloodOverflowHealedAmount:0,altarRenewalHealedRound:0,altarRenewalHealedAmount:0,nextAltarBonus:0,roomStop:{},roomMergeBlock:{},globalMergeBlock:false,blockNextMerge:false,mergeManaDiscount:0,mergeBloodDiscount:0,ignoreNegativeCrucifix:0,ritualRerolls:0,nextRitualFixed:null,corruption:[0,0,0,0],desecratedRooms:[false,false,false,false],consecrated:[false,false,false,false],relicDeck:[],activeRelics:[],relicMods:{basic:0,hand:0,ritual:0,crit:0},relicFiveDefeatClaimed:false,bossDamageTotal:0,relicBossThresholds:0,relicPopupQueue:[],pendingVictory:false,pendingBossChoice:false,bossDefeatHandled:false,bossesDefeated:0,phaseBeforeBossChoice:null,lastDefeatedBossName:"",lastPriestCardPlayed:null,runStats:{damageToDemons:0,cardsPlayed:0,ritualsUsed:0,natural20s:0,greaterDemonsDefeated:0},runStatsShown:false,turnTimerSeconds:60,turnTimerRemaining:60,manualPaused:false,martyrEyeBalanceVersion:1,log:[]}}
 // The same Greater-form flag drives the on-board GREATER stat and
 // Final Exorcism's bonus. Elite-created Greater Demons need no merge history.
 function demonHasGreaterStat(d){return !!(d&&(d.greater||d.status?.ultraForm))}
@@ -1563,9 +1563,24 @@ function registerDemonKillForNextEnrage(){
 }
 function defeatDemon(d,opts={}){let loc=findDemonLocation(d);if(!loc)return;let attachedCrucifix=takeDemonCrucifixAttachment(d);S.rooms[loc.r].splice(loc.i,1);reduceRoomCorruptionOnDemonDefeat(loc.r);S.runStats=S.runStats||{};if(d.greater)S.runStats.greaterDemonsDefeated=(S.runStats.greaterDemonsDefeated||0)+1;let baseBlood=demonBlood(d),extraBlood=demonCode(d)==='defeatBlood'?demonValue(d):0,skipBlood=false,reward=baseBlood;if(bossIs("soulTyrant")&&!d.greater){reward=Math.max(0,baseBlood+extraBlood-1);skipBlood=extraBlood>0;log(`${S.boss.n} — Tyrant's Claim reduces this Lesser Demon's total Blood reward by 1.`,"bad")}distributeKillBlood(reward,S.phase==='Priest'?Number(S.current):null);S.defeats++;registerDemonKillForNextEnrage();S.defeated.push({...d,status:{...d.status}});log(`${demonName(d)} is defeated. Demon Blood is awarded by the multiplayer kill rule. Defeat ${S.defeats}/13.`,'good');resolveAltarDefeatBlessings();if(bossIs("plagueFather")){let f=ensureBossFlags();f.spores[loc.r]=(f.spores[loc.r]||0)+1;log(`${S.boss.n} — Corruption Spores marks ${["Gateway","Hall","Chapel","Crypt"][loc.r]}; the next Demon to enter gains 1 HP.`,"bad")}if(bossIs("devourer")&&!d.greater&&S.boss.cur>0){let before=S.boss.cur;S.boss.cur=Math.min(S.boss.hp,S.boss.cur+1);if(S.boss.cur>before)log(`${S.boss.n} — Feast of Ruin heals the Boss for 1 HP.`,"bad")}triggerDefeatAbility(d,{skipBlood,suppressNegative:!!opts.suppressNegative});if(attachedCrucifix)revealAttachedCrucifix(d,'was defeated and reveals its hidden Crucifix');if(!S?.rogue?.enabled){if(d.greater)rollGreaterDemonRelic();if(S.defeats>=5&&!S.relicFiveDefeatClaimed){S.relicFiveDefeatClaimed=true;pullRelic('Five Demons have been defeated. The Sanctum reveals a hidden Relic.')}}if(S.defeats>=13&&!S.bossRevealed)revealBoss();render()}
 function distributeBlood(n){let left=n;let idx=S.current;let safety=0;while(left>0&&safety<100){let p=S.players[idx%S.players.length];if(p.blood<10){p.blood++;left--}idx++;safety++;if(S.players.every(p=>p.blood>=10))break}if(left>0)healBloodOverflowCapped(left)}
-function bossHpFactor(){let count=S.players?.length||1;return count>=4?1.25:count===3?1.05:count===2?.85:.70}
+function bossHpFactor(){
+ const count=S.players?.length||1;
+ // Tormented starts at the printed Boss HP for solo play and increases
+ // 15 percentage points per additional player. All other modes retain the
+ // existing party-scale HP rule.
+ if(S?.difficulty==='tormented')return 1+0.15*Math.max(0,Math.min(4,count)-1);
+ return count>=4?1.25:count===3?1.05:count===2?.85:.70;
+}
 function scaleBossForPlayers(preserveDamage=false){
  if(!S.boss)return;
+ // Strip the difficulty-only HP delta before recalculating party size;
+ // otherwise resumed multiplayer scaling can multiply it twice.
+ const adjustment=Number(S.boss.difficultyHpDelta)||0;
+ if(adjustment){
+  S.boss.hp=Math.max(1,S.boss.hp-adjustment);
+  if(S.boss.cur!=null)S.boss.cur=Math.max(0,S.boss.cur-adjustment);
+  S.boss.difficultyHpDelta=0;
+ }
  let base=S.boss.baseHp||S.boss.hp;
  let factor=bossHpFactor(),scaled=Math.max(1,Math.round(base*factor));
  let oldMax=S.boss.hp||base,oldCur=S.boss.cur==null?oldMax:S.boss.cur;

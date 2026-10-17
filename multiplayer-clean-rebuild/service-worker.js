@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v69';
+const CACHE_NAME='sanctum-clean-v70';
 const CORE=[
   './',
   './index.html',
@@ -12,12 +12,14 @@ const CORE=[
   './src/styles/demon-merge-fx.css',
   './src/styles/elemental-damage-fx.css',
   './src/styles/cloud-saves.css',
+  './src/styles/difficulty.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
   './src/js/20-ui-foundation.js',
   './src/js/25-font-settings.js',
   './src/js/30-roguelite.js',
+  './src/js/35-difficulty.js',
   './src/js/40-priest-ui.js',
   './src/js/50-mobile.js',
   './src/js/60-multiplayer.js',
