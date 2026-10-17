@@ -138,6 +138,6 @@ assert(rogue.includes("S.difficulty==='tormented'?1:"));
 assert(html.includes('id="difficultyPauseSelect"'));
 assert(html.includes('id="difficultySetupSelect"'));
 assert(html.includes('src/js/35-difficulty.js?v=clean70'));
-assert(sw.includes('sanctum-clean-v70'));
+assert(/sanctum-clean-v\d+/.test(sw),'A versioned service-worker cache is required');
 assert(sw.includes("'./src/js/35-difficulty.js'"));
 console.log('PASS: all five difficulty modes, 2-round progression, boss HP by player count, damage preservation, save/load, multiplayer ownership and menus.');

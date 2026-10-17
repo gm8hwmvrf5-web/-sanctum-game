@@ -60,14 +60,18 @@ try{
   // Ledger adds exactly 5 XP to each Demon kill and the Elite replay count.
   reset();applyRelic(relics[1]);
   const xpVictim=demon('xp');
-  rogueAwardKillXp(3,xpVictim);
-  assert(S.rogue.relicXp===8,'Ledger should grant 3+5 XP for one Demon');
-  assert(S.rogue.passageXpEarned===8,'Elite passage records Ledger XP');
+  // XP handlers are module-private in the roguelite script. Defeat a real
+  // Demon through the public engine instead of bypassing defeat accounting.
+  const expectedXp=demonBlood(xpVictim)+5;
+  S.rooms=[[xpVictim],[],[],[]];S.rogue.encounterGoal=99;
+  defeatDemon(xpVictim);
+  assert(S.rogue.relicXp===expectedXp,'Ledger should add +5 XP to actual defeat XP');
+  assert(S.rogue.passageXpEarned===expectedXp,'Elite passage records Ledger XP');
   // XP threshold discount across multiple tiers.
   reset();applyRelic(relics[3]);
   for(const [earned,need] of [[0,30],[1,40],[5,80],[6,100],[10,180],[16,370]]){
    S.rogue.xpRelics=earned;
-   assert(rogueRelicXpNeed()===need,'Saint Abacus XP tier '+earned+': got '+rogueRelicXpNeed());
+   assert(window.__sanctumBalanceReadouts().relicXpRequired===need,'Saint Abacus XP tier '+earned+': got '+window.__sanctumBalanceReadouts().relicXpRequired);
   }
   // A mana Relic expands the party-size cap and triggers again on each turn.
   reset();applyRelic(relics[2]);
