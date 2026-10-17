@@ -22,7 +22,9 @@ try{
  // first, then toggle without resetting the running single-player state.
  await page.locator('#startBtn').click();
  await page.waitForFunction(()=>typeof S!=='undefined'&&S.started===true);
- await page.locator('#pauseBtn').click();
+ // The desktop build intentionally hides the small-screen Menu button.
+ // Use the same public menu opener as the Tab shortcut.
+ await page.evaluate(()=>{if(!window.openGameMenu())throw Error('Unable to open in-game menu')});
  await page.locator('#sanctumSkinSelect').selectOption('kawaii');
  const result=await page.evaluate(()=>{
   const by=sel=>document.querySelector(sel);
@@ -110,7 +112,9 @@ try{
  assert.equal(playing.roomCount,4);
  assert(playing.playerCount>=1);
  assert(!('skin' in playing.save)&&!('visualSkin' in playing.save),'Save contains game only, no per-device skin');
- await page.locator('#pauseBtn').click();
+ // The desktop build intentionally hides the small-screen Menu button.
+ // Use the same public menu opener as the Tab shortcut.
+ await page.evaluate(()=>{if(!window.openGameMenu())throw Error('Unable to open in-game menu')});
  await page.locator('#sanctumSkinSelect').selectOption('gothic');
  assert.equal(await page.evaluate(()=>window.SanctumSkins.get()),'gothic');
  assert.equal(await page.evaluate(()=>S.started),true,'Changing skin must not reset gameplay');
