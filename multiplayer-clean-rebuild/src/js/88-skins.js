@@ -9,6 +9,7 @@ const SKINS=['gothic','kawaii'];
 const artwork=new Map();
 const backgrounds=new Map();
 const imageOriginals=new WeakMap();
+const imageApplied=new WeakMap();
 const backgroundOriginals=new WeakMap();
 let current='gothic';
 let observer=null;
@@ -65,17 +66,17 @@ function useImage(img){
   original=actual;
   imageOriginals.set(img,original);
  }
- const expected=resolveArtwork(original,current);
- // The real game may reuse an <img> for a new card. If its src is neither
- // its Gothic source nor our own mapped value, treat it as new source art.
- if(actual!==original&&actual!==expected){
+ // Remember the image URL we applied before a skin switch. On return to
+ // Gothic, the currently visible kawaii URL is ours, not a new Gothic asset.
+ const applied=imageApplied.get(img);
+ if(applied!==undefined&&actual!==applied&&actual!==original){
+  // An existing node was reused for a different card by game rendering.
   original=actual;
   imageOriginals.set(img,original);
  }
  const desired=resolveArtwork(original,current);
- if(actual!==desired){
-  img.setAttribute('src',desired);
- }
+ imageApplied.set(img,desired);
+ if(actual!==desired)img.setAttribute('src',desired);
 }
 function useBackground(record){
  let nodes;
