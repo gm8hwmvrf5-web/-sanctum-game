@@ -1,4 +1,4 @@
-/* Fire/Poison and grey Gatewalker badges over Demon artwork. All mechanics
+/* Fire/Poison/Lightning and grey Gatewalker badges over Demon artwork. All mechanics
  * still live in 70-multiplayer-patches.js; this module reads their statuses
  * and replays lightweight damage events from synchronized game state. */
 (()=>{
@@ -30,25 +30,28 @@ const POISON_OUTLINE="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24
 // Gothic stone gateway silhouette with pointed arch and iron bars.
 // Styled in muted grey, using the same dimensions as Fire and Poison.
 const GATEWALKER_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21V8L12 2.5 19.5 8V21M7.5 21V9.8L12 6.5 16.5 9.8V21M10 11V21M14 11V21M4 21H20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Gothic angular lightning outline, matching Fire/Poison's square artwork badge.
+const LIGHTNING_OUTLINE='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.5 5.5 13h6l-1.2 8.5L19 10h-6.2l.7-7.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function makeStatusIcon(kind){
  const icon=document.createElement('span');
  icon.className='sanctum-elemental-icon sanctum-elemental-icon-'+kind;
  icon.setAttribute('aria-hidden','true');
- icon.innerHTML=kind==='fire'?FIRE_OUTLINE:kind==='gatewalker'?GATEWALKER_OUTLINE:POISON_OUTLINE;
+ icon.innerHTML=kind==='fire'?FIRE_OUTLINE:kind==='gatewalker'?GATEWALKER_OUTLINE:kind==='lightning'?LIGHTNING_OUTLINE:POISON_OUTLINE;
  return icon;
 }
-function decorate(target,fire,poison,gatewalker=false){
+function decorate(target,fire,poison,gatewalker=false,lightningUntil=0){
  if(!target)return;
- const burning=fire>0,poisoned=poison>0;
+ const burning=fire>0,poisoned=poison>0,lightning=Number(lightningUntil)>recent();
  gatewalker=!!gatewalker;
  target.classList.toggle('sanctum-elemental-fire-active',burning);
  target.classList.toggle('sanctum-elemental-poison-active',poisoned);
+ target.classList.toggle('sanctum-elemental-lightning-active',lightning);
  target.classList.toggle('sanctum-gatewalker-active',gatewalker);
  target.querySelectorAll('.sanctum-elemental-overlays').forEach(layer=>layer.remove());
  const host=target.querySelector('.demonArtWrap')||target;
  let icons=host.querySelector(':scope > .sanctum-elemental-icons');
- const signature=(burning?'fire':'')+(poisoned?'-poison':'')+(gatewalker?'-gatewalker':'');
- if(!burning&&!poisoned&&!gatewalker){
+ const signature=(burning?'fire':'')+(poisoned?'-poison':'')+(lightning?'-lightning':'')+(gatewalker?'-gatewalker':'');
+ if(!burning&&!poisoned&&!lightning&&!gatewalker){
   if(icons)icons.remove();
  }else if(!icons||icons.dataset.effects!==signature){
   if(icons)icons.remove();
@@ -58,14 +61,27 @@ function decorate(target,fire,poison,gatewalker=false){
   icons.setAttribute('aria-hidden','true');
   if(burning)icons.appendChild(makeStatusIcon('fire'));
   if(poisoned)icons.appendChild(makeStatusIcon('poison'));
+  if(lightning)icons.appendChild(makeStatusIcon('lightning'));
   if(gatewalker)icons.appendChild(makeStatusIcon('gatewalker'));
   host.appendChild(icons);
  }
  target.title=[
   burning?'Burning: '+Math.floor(fire)+' Fire damage pending':null,
   poisoned?'Poison: '+Math.floor(poison)+'/2 Basic Attack hits':null,
+  lightning?'Lightning Rod: struck by lightning (5-second visual effect)':null,
   gatewalker?'Gatewalker: entered the Sanctum beyond the Gateway':null
  ].filter(Boolean).join(' • ');
+}
+// Expire lightning badges even on a paused board with no gameplay re-render.
+let lightningExpiryTimer=null,lightningExpiryAt=0;
+function scheduleLightningExpiry(expiry){
+ if(lightningExpiryTimer&&expiry===lightningExpiryAt)return;
+ if(lightningExpiryTimer){clearTimeout(lightningExpiryTimer);lightningExpiryTimer=null}
+ lightningExpiryAt=expiry;
+ if(expiry>0)lightningExpiryTimer=setTimeout(()=>{
+  lightningExpiryTimer=null;lightningExpiryAt=0;
+  try{drawHighlights()}catch(err){console.warn('Lightning badge cleanup skipped',err)}
+ },Math.max(1,expiry-recent()+25));
 }
 function drawHighlights(){
  const {state,fireDemons,fireBoss}=syncData();
@@ -74,12 +90,16 @@ function drawHighlights(){
  for(const room of state.rooms||[]){
   for(const d of room||[])if(d?.id)byId.set(String(d.id),d);
  }
+ let nextLightningExpiry=0;
  document.querySelectorAll('#boardSection .demons .demon[data-demon]').forEach(card=>{
   const id=card.getAttribute('data-demon');
   const d=byId.get(id);
   if(!d)return;
-  decorate(card,fireDemons.get(id)||0,Math.max(0,Number(d.status?.elementalPoisonHits)||0),!!d.status?.gatewalker);
+  const until=Math.max(0,Number(d.status?.lightningFxUntil)||0);
+  if(until>recent()&&(!nextLightningExpiry||until<nextLightningExpiry))nextLightningExpiry=until;
+  decorate(card,fireDemons.get(id)||0,Math.max(0,Number(d.status?.elementalPoisonHits)||0),!!d.status?.gatewalker,until);
  });
+ scheduleLightningExpiry(nextLightningExpiry);
  const boss=state.bossRevealed?document.querySelector('#bossArea .bossCard'):null;
  if(boss)decorate(boss,fireBoss?1:0,Math.max(0,Number(state.boss?.status?.elementalPoisonHits)||0));
 }
@@ -113,7 +133,7 @@ function targetPoint(evt){
 }
 function showNumber(evt){
  const amount=Math.max(0,Math.floor(Number(evt.damage)||0));
- if(!amount||!(evt.kind==='fire'||evt.kind==='poison'))return;
+ if(!amount||!(evt.kind==='fire'||evt.kind==='poison'||evt.kind==='lightning'))return;
  const pos=targetPoint(evt);
  const label=document.createElement('span');
  label.className='sanctum-elemental-damage sanctum-elemental-damage-'+evt.kind;
