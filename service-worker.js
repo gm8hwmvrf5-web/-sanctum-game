@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v74';
+const CACHE_NAME='sanctum-clean-v75';
 const CORE=[
   './',
   './index.html',
@@ -31,6 +31,7 @@ const CORE=[
   './src/js/87-cloud-saves.js',
   './src/js/88-skins.js',
   './src/js/89-kawaii-art.js',
+  './src/js/90-kawaii-phase3.js',
   './assets/wards/ward-cinder.webp',
   './assets/wards/ward-thorns.webp',
   './assets/wards/ward-chains.webp',

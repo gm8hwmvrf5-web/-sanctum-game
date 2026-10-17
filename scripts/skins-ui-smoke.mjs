@@ -49,7 +49,7 @@ try{
  assert.equal(result.skin,'kawaii');
  assert.equal(result.selected,'kawaii');
  assert.equal(result.stored,'kawaii');
- assert(result.intro.includes('Priest, Relic and Ward')&&result.intro.includes('Phase 3'),'Phase 2 art scope is correctly disclosed');
+ assert(result.intro.includes('Priest cards, Relics, Wards')&&result.intro.includes('kawaii artwork'),'Phase 3 art scope is correctly disclosed');
  assert.notEqual(result.titleBg,orig.titlebar,'Title visibly changes');
  assert.notEqual(result.bodyBg,orig.body,'Background visibly changes');
  assert.equal(result.noThemeInS,true,'Skin setting must never write to multiplayer S');

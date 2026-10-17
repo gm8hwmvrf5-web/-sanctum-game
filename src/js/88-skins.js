@@ -121,7 +121,7 @@ function updateMenu(){
  if(select&&select.value!==current)select.value=current;
  const desc=document.getElementById('sanctumSkinDescription');
  if(desc)desc.textContent=current==='kawaii'
-  ?'Kawaii rooms, Demons and Bosses are active! Pastel scenes and cute card artwork. Priest, Relic and Ward illustrations remain Gothic until Phase 3.'
+  ?'Kawaii rooms, Demons and Bosses are active! Pastel scenes and cute card artwork. Priest cards, Relics, Wards, and status icons now have kawaii artwork.'
   :'Original Gothic UI is active. Your choice is saved for this device.';
 }
 function set(value){
