@@ -1,0 +1,25 @@
+name: Focused Gatewalker Spawn Check
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  gatewalker-spawn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout clean rebuild
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check JavaScript syntax
+        run: |
+          node --check src/js/10-engine.js
+          node --check service-worker.js
+          node --check scripts/gatewalker-room-smoke.mjs
+      - name: Focused Gatewalker spawn check
+        run: node scripts/gatewalker-room-smoke.mjs

@@ -424,12 +424,12 @@ function applyBossRitualRestriction(r,full){let f=ensureBossFlags();if(bossIs("b
 function addBossHpBonus(d,n,label){if(!d||n<=0)return;d.status=d.status||{};d.status.bossHpBonus=(d.status.bossHpBonus||0)+n;d.cur+=n;if(label)log(`${demonName(d)} gains ${n} HP from ${label}.`,"bad")}
 function bossBreachBonus(loss){let f=ensureBossFlags();if(bossIs("lordOfAsh")&&!f.ashenWakeUsed){f.ashenWakeUsed=true;loss+=1;log(`${S.boss.n} — Ashen Wake adds 1 Altar loss to the first breach this round.`,"bad")}return loss}
 /* GATEWALKER — each Demon that actually enters play has an independent
- * 10% chance to manifest directly in Hall, Chapel, or Crypt. Never exceed four Demons
+ * 10% chance to manifest directly in Hall or Chapel (never Crypt). Never exceed four Demons
  * per room; if no alternate room has space, fall back to the Gateway/queue.
  * Pending queue Demons roll only when they attempt to enter the board. */
 function pickEnteringDemonRoom(){
  if(Math.random()<0.10){
-  const alternatives=[1,2,3].filter(r=>Array.isArray(S.rooms[r])&&S.rooms[r].length<4);
+  const alternatives=[1,2].filter(r=>Array.isArray(S.rooms[r])&&S.rooms[r].length<4);
   if(alternatives.length)return alternatives[secureRandomIndex(alternatives.length)];
  }
  return S.rooms[0]?.length<4?0:-1;
@@ -446,9 +446,6 @@ function placeEnteringDemon(d){
  else delete d.status.gatewalker;
  S.rooms[room].push(d);
  if(room>0)log(`GATEWALKER — ${demonName(d)} manifests directly in the ${ROOM_NAMES[room]}.`,'bad');
- // Directly spawning in the Crypt counts as entering the Crypt for the
- // sixth-round pressure rule (just like moving there from the Chapel).
- if(room===3)S.cryptPressureLastArrivalRound=Math.max(0,Number(S.round)||1);
  triggerEnterPlay(d);
  triggerEnterRoom(d);
  // Gateway's desecration HP and consecration damage occur only if this
