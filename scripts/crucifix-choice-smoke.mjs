@@ -21,7 +21,9 @@ function element(){
  const classes=new Set(['hidden']);
  return {
   classList:{add:x=>classes.add(x),remove:x=>classes.delete(x),contains:x=>classes.has(x)},
-  textContent:'',className:'',innerHTML:'',disabled:false,children:[],
+  textContent:'',className:'',disabled:false,children:[],
+  set innerHTML(value){this.children=[];this._html=value},
+  get innerHTML(){return this._html||''},
   appendChild(e){this.children.push(e)},
   querySelectorAll(q){assert.equal(q,'button');return this.children},
   focus(){this.focused=true}

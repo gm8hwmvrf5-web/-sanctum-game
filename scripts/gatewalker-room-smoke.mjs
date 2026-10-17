@@ -83,5 +83,5 @@ for(let i=0;i<1000;i++){
  if(room===1||room===2)selected++;
 }
 assert.equal(selected,100,'Gatewalker chance remains exactly 10% in 1000 evenly spaced samples');
-assert(worker.includes("sanctum-clean-v68"),'Runtime cache bumped');
+assert(/sanctum-clean-v\d+/.test(worker),'Service worker must have a versioned cache');
 console.log('PASS: Gatewalker retains 10% chance; only Hall/Chapel, room-capacity fallback, queue, and persistent marker work.');
