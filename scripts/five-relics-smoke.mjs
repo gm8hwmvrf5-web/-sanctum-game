@@ -62,7 +62,7 @@ try{
   const xpVictim=demon('xp');
   // XP handlers are module-private in the roguelite script. Defeat a real
   // Demon through the public engine instead of bypassing defeat accounting.
-  const expectedXp=demonBlood(xpVictim)+5;
+  const expectedXp=demonBlood(xpVictim)+(demonCode(xpVictim)==='defeatBlood'?demonValue(xpVictim):0)+5;
   S.rooms=[[xpVictim],[],[],[]];S.rogue.encounterGoal=99;
   defeatDemon(xpVictim);
   assert(S.rogue.relicXp===expectedXp,'Ledger should add +5 XP to actual defeat XP');
