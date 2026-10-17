@@ -1,0 +1,144 @@
+/* Sanctum of the Damned • Phase 1 local Gothic / Kawaii skin
+ * No asset replacement until future themed artwork packs are available.
+ * Avoid changing dimensions, pointer events, or gameplay-related CSS. */
+.skinSettingsPanel{
+ margin:10px 0;
+ padding:12px 14px;
+ border:1px solid #806039;
+ border-radius:10px;
+ background:linear-gradient(160deg,#261e20,#171316);
+ color:#e5cfab;
+}
+.skinSettingsHeader{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.skinSettingsTitle{font-weight:800;font-size:16px;letter-spacing:.04em}
+.skinSettingsStar{font-size:20px;color:#dfad71}
+.skinSettingsPanel label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;font-weight:700}
+#sanctumSkinSelect{
+ flex:1;min-width:170px;max-width:100%;
+ padding:9px 12px;border:1px solid #907149;border-radius:9px;
+ background:#211b21;color:#f4e2c5;font:inherit;
+}
+#sanctumSkinSelect:focus-visible{outline:3px solid #e6b24f;outline-offset:2px}
+.skinSettingsHint{font-size:12px;line-height:1.5;margin:8px 0 0;color:#b9a99b}
+
+html[data-sanctum-skin="kawaii"]{
+ --ink:#573552;
+ --line:#dcaecb;
+ --ok:#3d8f78;
+ --bad:#bf5e87;
+ color-scheme:light;
+}
+html[data-sanctum-skin="kawaii"],
+html[data-sanctum-skin="kawaii"] body{
+ color:#573552;
+ background:radial-gradient(ellipse at 16% 12%,#fff7d9 0%,transparent 42%),
+   radial-gradient(ellipse at 85% 2%,#fcd6ea 0%,transparent 42%),
+   linear-gradient(160deg,#fff6fa,#f4ecff 58%,#e8f9f4) !important;
+ font-family:"Trebuchet MS","Arial Rounded MT Bold",Verdana,sans-serif;
+}
+html[data-sanctum-skin="kawaii"] body::before{
+ background:none!important;
+ background-image:radial-gradient(#e7b6d8 1.5px,transparent 1.5px)!important;
+ background-size:24px 24px!important;
+ background-color:transparent!important;
+ opacity:.27!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.titlebar,.panel,.stat,.rogueHudCard,.handPanel){
+ background:linear-gradient(155deg,rgba(255,255,255,.96),rgba(255,232,248,.95))!important;
+ border-color:#dfaaca!important;
+ box-shadow:0 3px 12px rgba(136,73,118,.12)!important;
+ color:#603755!important;
+}
+html[data-sanctum-skin="kawaii"] .titlebar{
+ border-radius:20px!important;
+ border-width:2px!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.brand,.panel h2,.panel h3,.room h3,.rogueHudCard b,.stat b,.bossName){
+ color:#ab538d!important;
+ text-shadow:none!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.subtitle,.stat span,.rogueHudCard span,.playerMeta,.room .cap){
+ color:#7e6080!important;
+}
+html[data-sanctum-skin="kawaii"] .room{
+ border:2px solid #e9b3d0!important;
+ border-radius:19px!important;
+ background:radial-gradient(ellipse at top,rgba(255,255,255,.9),rgba(255,237,246,.91))!important;
+ box-shadow:inset 0 0 20px rgba(247,177,215,.2),0 3px 8px rgba(156,88,146,.12)!important;
+}
+html[data-sanctum-skin="kawaii"] .room.gateway{border-color:#f0b1c7!important;background:linear-gradient(180deg,#ffeaf0,#ffdee9)!important}
+html[data-sanctum-skin="kawaii"] .room.hall{border-color:#b3c8f6!important;background:linear-gradient(180deg,#eef6ff,#dceaff)!important}
+html[data-sanctum-skin="kawaii"] .room.chapel{border-color:#efd49b!important;background:linear-gradient(180deg,#fff9e9,#fff0cd)!important}
+html[data-sanctum-skin="kawaii"] .room.crypt{border-color:#b6dacc!important;background:linear-gradient(180deg,#eefcf5,#ddf5e9)!important}
+html[data-sanctum-skin="kawaii"] .room.boss{border-color:#d3bae9!important;background:linear-gradient(180deg,#f7ecff,#edddff)!important}
+html[data-sanctum-skin="kawaii"] :is(.demon,.bossCard,.ritual,.choice:not(.priestCardChoice),.rogueChoice){
+ background:linear-gradient(165deg,#fffafc,#fce6f1)!important;
+ color:#5c3659!important;
+ border:2px solid #e1accd!important;
+ border-radius:13px!important;
+ box-shadow:0 2px 8px rgba(149,93,136,.12)!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.demon.greater,.bossCard,.rogueChoice.elite){
+ border-color:#bda6e8!important;
+ background:linear-gradient(160deg,#f9f1ff,#efdcff)!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.demon .name,.bossName,.ritual b,.choice h3,.rogueChoice h3){
+ color:#a95492!important;
+}
+html[data-sanctum-skin="kawaii"] .demonArtWrap{
+ border:2px solid #dcb1d0!important;
+ border-radius:12px!important;
+ background:#ffedf8!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.demonArt,.bossArt,.portrait){border-radius:11px}
+html[data-sanctum-skin="kawaii"] :is(.btn,button.btn,.rogueChoice,select,input[type="text"]){
+ border-radius:14px!important;
+}
+html[data-sanctum-skin="kawaii"] .btn{
+ background:linear-gradient(180deg,#ffe9f3,#f6cce4)!important;
+ color:#76395f!important;
+ border:1px solid #d49fc4!important;
+ box-shadow:0 2px 0 rgba(176,114,158,.15)!important;
+ text-shadow:none!important;
+}
+html[data-sanctum-skin="kawaii"] .btn.blue{background:linear-gradient(#e3efff,#cbdfff)!important;border-color:#a4c5e8!important;color:#355e86!important}
+html[data-sanctum-skin="kawaii"] .btn.green{background:linear-gradient(#e8fbf0,#bcebd5)!important;border-color:#94d5b6!important;color:#287257!important}
+html[data-sanctum-skin="kawaii"] .btn.red{background:linear-gradient(#ffe5e9,#ffc9d5)!important;border-color:#e7a4b7!important;color:#924564!important}
+html[data-sanctum-skin="kawaii"] .btn:disabled{opacity:.55!important}
+html[data-sanctum-skin="kawaii"] .btn:focus-visible{outline:3px solid #b67dc1;outline-offset:2px}
+html[data-sanctum-skin="kawaii"] :is(.modalbox,#pauseOverlay .pauseBox){
+ background:linear-gradient(165deg,#fffdff,#fff0f8)!important;
+ color:#5c3c5e!important;
+ border:2px solid #d9a4cf!important;
+ border-radius:23px!important;
+ box-shadow:0 10px 35px rgba(116,74,114,.24)!important;
+}
+html[data-sanctum-skin="kawaii"] :is(#pauseOverlay h2,.modalbox h2,.modalbox h3){color:#ab538d!important}
+html[data-sanctum-skin="kawaii"] :is(#pauseOverlay .pauseIntro,#pauseOverlay .menuHint,.modalbox p){color:#714e6f!important}
+html[data-sanctum-skin="kawaii"] :is(.skinSettingsPanel,.difficultyMenuPanel,.fontSettingsPanel){
+ background:linear-gradient(160deg,#fff9fe,#fdeaf7)!important;
+ border:1px solid #deb3d6!important;
+ border-radius:16px!important;
+ color:#694564!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.skinSettingsTitle,.difficultyMenuTitle,.fontSettingsTitle){color:#a55389!important}
+html[data-sanctum-skin="kawaii"] :is(.skinSettingsHint,.difficultyInfo,.fontSettingsHint){color:#805c76!important}
+html[data-sanctum-skin="kawaii"] :is(#sanctumSkinSelect,#difficultyPauseSelect,#difficultySetupSelect){
+ background:#fffafe!important;
+ color:#65385d!important;
+ border-color:#d6a5cb!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.relicChip,.playerTurnTag,.roomMeta){
+ color:#854c79!important;
+}
+html[data-sanctum-skin="kawaii"] :is(.stat .hp,.demon .hp){color:#c55581!important}
+html[data-sanctum-skin="kawaii"] #pauseLogSection{
+ color:#694765!important;
+}
+@media(max-width:700px){
+ .skinSettingsPanel{padding:9px 10px}
+ .skinSettingsPanel label{display:grid;grid-template-columns:1fr;gap:6px}
+ #sanctumSkinSelect{min-width:0;width:100%}
+ html[data-sanctum-skin="kawaii"] .room{border-radius:11px!important}
+ html[data-sanctum-skin="kawaii"] .demon{border-width:1px!important;border-radius:8px!important}
+}
