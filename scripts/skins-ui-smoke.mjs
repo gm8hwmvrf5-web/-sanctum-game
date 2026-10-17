@@ -8,7 +8,7 @@ const page=await ctx.newPage();
 page.on('pageerror',e=>errors.push(e.message));
 try{
  await page.goto(url,{waitUntil:'networkidle',timeout:60000});
- await page.locator('#sanctumSkinSelect').waitFor();
+ await page.locator('#sanctumSkinSelect').waitFor({state:'attached'});
  const orig=await page.evaluate(()=>{
   if(!window.SanctumSkins)throw Error('Skin engine missing');
   if(window.SanctumSkins.get()!=='gothic')throw Error('Default skin must be Gothic');
