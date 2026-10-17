@@ -165,6 +165,6 @@ assert.equal(amount,8,'Ritual-power bonus remains applied');
 assert(data.includes('h:"Deal 3 damage to a Demon or Boss.",f:"Deal 6 damage to a Demon or Boss.'));
 assert(data.includes('Turn up to 2 Greater Demons back into their Lesser forms. Deal no damage.'));
 assert(data.includes('h:"Deal 2 damage to a normal Demon; deal +4 damage to Greater Demons, Ultra Demons, and Bosses (6 total).'));
-assert(worker.includes("sanctum-clean-v67"));
+assert(/sanctum-clean-v\d+/.test(worker),"A versioned service-worker cache is required");
 assert(engine.includes('Attack damage is capped at 5; if this Relic would exceed the cap, gain 20 Relic XP instead.'));
 console.log('Focused Basic Attack cap, 20-XP conversion, XP tier, hybrid Relic and Exorcist ritual checks passed.');
