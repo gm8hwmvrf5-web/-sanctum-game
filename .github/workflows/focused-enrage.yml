@@ -1,0 +1,32 @@
+name: Focused Enrage Gameplay Check
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  enrage-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check Enrage browser script syntax
+        run: |
+          node --check src/js/10-engine.js
+          node --check src/js/70-multiplayer-patches.js
+          node --check scripts/enrage-smoke.mjs
+      - name: Install focused browser test
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install chromium
+      - name: Run Enrage in real game UI
+        run: |
+          python3 -m http.server 4173 >/tmp/sanctum-enrage-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid"' EXIT
+          sleep 1
+          node scripts/enrage-smoke.mjs
