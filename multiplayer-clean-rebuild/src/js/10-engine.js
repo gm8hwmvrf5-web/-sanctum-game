@@ -1578,7 +1578,26 @@ async function processOverflowDamageQueue(){
  damageDemon(pick.d,item.amount,item.source,{...item.opts,allowOverflow:true});
  if(document.getElementById('crucifixModal').classList.contains('hidden')&&overflowDamageQueue.length)setTimeout(processOverflowDamageQueue,0);
 }
-function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(opts.basicAttack&&code==='basicArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Basic Attack damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(code==='hurtAltar'&&dealt>0&&S.phase==='Priest'&&d.status.hurtAltarLastRound!==S.round){d.status.hurtAltarLastRound=S.round;damageAltar(v,`${demonName(d)}'s retaliation`)}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
+/* Lightning Rod uses the same serialized elemental event stream as Fire and
+ * Poison. Record REAL HP lost before defeat removes the Demon from its room;
+ * other clients replay the yellow numbers from authoritative game state. */
+function recordLightningRodImpact(d,actual,source,opts){
+ if(!opts?.basicAttack||!(S?.activeRelics||[]).includes('lightningRod')||!d||!d.id)return;
+ if(source!=='Lightning Rod'&&!/Basic Attack$/.test(String(source)))return;
+ const damage=Math.max(0,Math.floor(Number(actual)||0));
+ if(!damage)return;
+ const now=Date.now(),loc=findDemonLocation(d);
+ d.status=d.status||{};
+ d.status.lightningFxUntil=now+5000;
+ S.elementalDamageVisuals=Array.isArray(S.elementalDamageVisuals)?S.elementalDamageVisuals:[];
+ S.elementalDamageVisuals.push({
+  id:uid(),kind:'lightning',damage,createdAt:now,targetKind:'demon',
+  targetId:String(d.id),room:loc?loc.r:-1,index:loc?loc.i:0
+ });
+ if(S.elementalDamageVisuals.length>24)
+  S.elementalDamageVisuals.splice(0,S.elementalDamageVisuals.length-24);
+}
+function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(opts.basicAttack&&code==='basicArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Basic Attack damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;recordLightningRodImpact(d,dealt,source,opts);log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(code==='hurtAltar'&&dealt>0&&S.phase==='Priest'&&d.status.hurtAltarLastRound!==S.round){d.status.hurtAltarLastRound=S.round;damageAltar(v,`${demonName(d)}'s retaliation`)}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
 function findDemonLocation(d){for(let r=0;r<4;r++){let i=S.rooms[r].findIndex(x=>x.id===d.id);if(i>=0)return {r,i}}return null}
 // Excess Blood remains a meaningful bonus but can restore at most 4
 // Altar Protection each round across all Priests and defeat sources.

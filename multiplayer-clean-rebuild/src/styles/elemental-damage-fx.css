@@ -41,6 +41,13 @@
  border-color:#777d83;
  background:rgba(17,19,22,.93);
 }
+/* Gothic yellow outline lightning, in the exact same badge row and dimensions
+   as Fire, Poison, and Gatewalker (including phone and landscape sizes). */
+#boardSection .sanctum-elemental-icon-lightning{
+ color:#f1d448;
+ border-color:#ac8735;
+ background:rgba(22,17,11,.94);
+}
 /* Static green outline teardrop; CSS fallback hides legacy cached skull glyphs. */
 #boardSection .sanctum-elemental-icon-poison,
 #bossArea .sanctum-elemental-icon-poison{
@@ -120,6 +127,10 @@
 .sanctum-elemental-damage-poison{
  color:#97f27b;
  text-shadow:0 1px 2px #081309,0 0 7px #44b855;
+}
+.sanctum-elemental-damage-lightning{
+ color:#f6d94e;
+ text-shadow:0 1px 2px #211604,0 0 7px rgba(246,217,78,.85);
 }
 @keyframes sanctumElementalDamageRise{
  0%{opacity:0;transform:translate(-50%,-35%) scale(.8)}
