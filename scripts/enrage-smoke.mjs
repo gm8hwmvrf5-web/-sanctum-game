@@ -92,10 +92,14 @@ try{
   // Fresh passage clears bonus, including all queued kill counts.
   S.enrageKillsThisTurn=5;S.enrageActiveTurnBonus=3;
   const oldFloor=S.rogue.floor;
-  S.rogue.floor=oldFloor+1;
-  S.rogue.encounterGoal=100;
-  rogueliteEnterCurrentFloor('battle');
+  // Route progression is private to the Roguelite module. Exercise the
+  // actual player-facing route choice instead of calling module internals.
+  window.__sanctumRelicPopupAfter('rogueRoute');
+  const routeButton=document.querySelector('#rogueChoiceGrid [data-rogue-choice]');
+  check(routeButton,'Passage route choice should open');
+  routeButton.click();
   clearTurnTimerInterval();
+  check(S.rogue.floor===oldFloor+1,'Route must advance exactly one floor');
   check(S.enrageKillsThisTurn===0&&S.enrageActiveTurnBonus===0,'Passage transition resets Enrage');
   // The state remains JSON-serializable for Supabase snapshots.
   const roundtrip=JSON.parse(JSON.stringify(S));
