@@ -142,3 +142,28 @@ html[data-sanctum-skin="kawaii"] #pauseLogSection{
  html[data-sanctum-skin="kawaii"] .room{border-radius:11px!important}
  html[data-sanctum-skin="kawaii"] .demon{border-width:1px!important;border-radius:8px!important}
 }
+
+/* Phase 2 illustrated rooms. Do not replace pseudo-element crack/ward overlays. */
+html[data-sanctum-skin="kawaii"] #boardSection .room{
+ background-position:center center!important;background-repeat:no-repeat!important;
+ background-size:cover!important;
+}
+html[data-sanctum-skin="kawaii"] #boardSection .room.gateway{
+ background-image:linear-gradient(rgba(255,245,250,.14),rgba(255,232,245,.30)),var(--sanctum-cute-gateway)!important;
+}
+html[data-sanctum-skin="kawaii"] #boardSection .room.hall{
+ background-image:linear-gradient(rgba(243,249,255,.16),rgba(222,237,255,.3)),var(--sanctum-cute-hall)!important;
+}
+html[data-sanctum-skin="kawaii"] #boardSection .room.chapel{
+ background-image:linear-gradient(rgba(255,250,240,.14),rgba(255,244,223,.3)),var(--sanctum-cute-chapel)!important;
+}
+html[data-sanctum-skin="kawaii"] #boardSection .room.crypt{
+ background-image:linear-gradient(rgba(249,238,255,.13),rgba(232,221,251,.29)),var(--sanctum-cute-crypt)!important;
+}
+html[data-sanctum-skin="kawaii"] #boardSection .room.boss{
+ background-image:linear-gradient(rgba(253,238,255,.14),rgba(248,221,251,.3)),var(--sanctum-cute-boss)!important;
+}
+html[data-sanctum-skin="kawaii"] #boardSection .demonArt,
+html[data-sanctum-skin="kawaii"] #boardSection .bossArt{
+ object-fit:cover!important;filter:none!important;
+}

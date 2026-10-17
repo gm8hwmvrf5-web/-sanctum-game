@@ -7,6 +7,7 @@ if(window.SanctumSkins)return;
 const STORAGE_KEY='sanctum-visual-skin-v1';
 const SKINS=['gothic','kawaii'];
 const artwork=new Map();
+const namedArtwork=new Map();
 const backgrounds=new Map();
 const imageOriginals=new WeakMap();
 const imageApplied=new WeakMap();
@@ -45,6 +46,15 @@ function registerArtworkPack(mapping){
  if(count)refreshArtwork();
  return count;
 }
+function registerNamedArtworkPack(mapping){
+ if(!mapping||typeof mapping!=='object')return 0;
+ let count=0;
+ for(const [name,path] of Object.entries(mapping)){
+  if(typeof path==='string'&&name.trim()&&path.trim()){namedArtwork.set(name.trim(),path);count++}
+ }
+ if(count)refreshArtwork();
+ return count;
+}
 function resolveArtwork(originalPath,skin=current){
  if(skin!=='kawaii')return originalPath;
  return artwork.get(urlKey(originalPath))||originalPath;
@@ -74,7 +84,9 @@ function useImage(img){
   original=actual;
   imageOriginals.set(img,original);
  }
- const desired=resolveArtwork(original,current);
+ const displayName=(img.getAttribute('alt')||'').trim();
+ const desired=current==='kawaii'&&namedArtwork.has(displayName)
+  ?namedArtwork.get(displayName):resolveArtwork(original,current);
  imageApplied.set(img,desired);
  if(actual!==desired)img.setAttribute('src',desired);
 }
@@ -109,7 +121,7 @@ function updateMenu(){
  if(select&&select.value!==current)select.value=current;
  const desc=document.getElementById('sanctumSkinDescription');
  if(desc)desc.textContent=current==='kawaii'
-  ?'Kawaii UI is active! Pastel rooms, rounded controls and cute frames. Character, Boss and Relic artwork remains Gothic until the art-pack phases.'
+  ?'Kawaii rooms, Demons and Bosses are active! Pastel scenes and cute card artwork. Priest, Relic and Ward illustrations remain Gothic until Phase 3.'
   :'Original Gothic UI is active. Your choice is saved for this device.';
 }
 function set(value){
@@ -127,6 +139,7 @@ window.SanctumSkins={
  resolveArtwork,
  registerArtwork,
  registerArtworkPack,
+ registerNamedArtworkPack,
  registerBackground,
  refreshArtwork,
  artworkCount:()=>artwork.size
