@@ -117,6 +117,7 @@
 <link rel="stylesheet" href="./src/styles/elemental-damage-fx.css?v=clean72">
 <link rel="stylesheet" href="./src/styles/cloud-saves.css?v=clean38">
 <link rel="stylesheet" href="./src/styles/difficulty.css?v=clean70">
+<link rel="stylesheet" href="./src/styles/skins.css?v=clean73">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -422,6 +423,17 @@
       <button class="btn" id="pauseCloudSavesBtn" type="button">Account / Cloud Saves</button>
       <button class="btn green" id="resumeGameBtn" type="button">Resume</button>
     </div>
+    <section class="skinSettingsPanel" aria-label="Visual skin settings">
+      <div class="skinSettingsHeader"><span class="skinSettingsTitle">Visual Skin</span><span class="skinSettingsStar" aria-hidden="true">✿</span></div>
+      <label for="sanctumSkinSelect">Choose your look
+        <select id="sanctumSkinSelect" aria-label="Visual skin">
+          <option value="gothic">Original Gothic</option>
+          <option value="kawaii">Kawaii (pastel UI)</option>
+        </select>
+      </label>
+      <p id="sanctumSkinDescription" class="skinSettingsHint">Keep the original Gothic game appearance.</p>
+      <p class="skinSettingsHint">Visual only — saved on this device, independent of difficulty, game saves, and other multiplayer players. Alternative character artwork arrives in later phases.</p>
+    </section>
     <div class="difficultyMenuPanel" aria-label="Difficulty settings">
       <div class="difficultyMenuTitle">Sanctum Difficulty</div>
       <label for="difficultyPauseSelect">Current Run
@@ -701,5 +713,6 @@
 <script src="./src/js/85-demon-merge-fx.js?v=clean36"></script>
 <script src="./src/js/86-elemental-damage-fx.js?v=clean72"></script>
 <script src="./src/js/87-cloud-saves.js?v=clean38"></script>
+<script src="./src/js/88-skins.js?v=clean73"></script>
 </body>
 </html>
