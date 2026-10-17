@@ -1,0 +1,26 @@
+name: Focused Crucifix Choice Checks
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  crucifix-choices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout clean rebuild
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: JavaScript syntax checks
+        run: |
+          node --check src/js/00-data.js
+          node --check src/js/10-engine.js
+          node --check service-worker.js
+          node --check scripts/crucifix-choice-smoke.mjs
+      - name: All choice-based Crucifix effects and modal recovery
+        run: node scripts/crucifix-choice-smoke.mjs

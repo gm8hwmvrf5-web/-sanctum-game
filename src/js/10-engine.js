@@ -2211,6 +2211,27 @@ let c=await choosePriestCard(`${r.n} — choose card ${n+1} of ${picks}, or Done
   case'miracleUnity':{let t;if(S.players.length===1)t=currentPlayer();else{let opts=S.players.filter((p,i)=>i!==S.current);t=await choose(`${r.n} — choose another player`,opts,p=>`${p.name} — ${p.char} — Blood ${p.blood}/10`)}if(t){let old=t.blood;t.blood=Math.min(10,t.blood+ritualBoost(2));log(`${t.name} gains ${t.blood-old} Demon Blood from ${r.n}.`,'good');if(full){let before=S.altar;healAltar(ritualBoost(3),r.n);log(`${r.n} restores ${S.altar-before} Altar Protection.`,'good')}}break}
  }
 }
+/* Shared Demon Blood operations for choice-based Crucifixes.
+ * Earlier versions referenced these helpers without defining them: picking
+ * those options threw after both buttons were disabled, trapping the modal. */
+function crucifixPartyBlood(state=S){
+ return (state.players||[]).reduce((total,p)=>total+Math.max(0,Math.floor(Number(p.blood)||0)),0);
+}
+function crucifixSpendPartyBlood(amount,state=S){
+ let remaining=Math.max(0,Math.floor(Number(amount)||0));
+ if(crucifixPartyBlood(state)<remaining)return false;
+ for(const p of state.players||[]){
+  const spent=Math.min(remaining,Math.max(0,Math.floor(Number(p.blood)||0)));
+  p.blood-=spent;
+  remaining-=spent;
+  if(!remaining)break;
+ }
+ return remaining===0;
+}
+function crucifixGiveAllBlood(amount,state=S){
+ const gain=Math.max(0,Math.floor(Number(amount)||0));
+ for(const p of state.players||[])p.blood=Math.min(10,Math.max(0,Number(p.blood)||0)+gain);
+}
 function clearCrucifixChoiceUI(){
  let area=document.getElementById('crucifixChoiceArea');
  if(area){area.innerHTML='';area.classList.add('hidden')}
@@ -2249,13 +2270,38 @@ function renderChoiceCrucifix(e){
   btn.innerHTML=`<b>${ch.label}</b><span>${ch.desc}${allowed?'':' • Unavailable'}</span>`;
   btn.onclick=()=>{
    if(btn.disabled)return;
-   area.querySelectorAll('button').forEach(b=>b.disabled=true);
-   let result=ch.fx(S)||`${ch.label} resolved.`;
-   log(`CRUCIFIX CHOICE — ${e.n}: ${ch.label}.`,'info');
-   render();
+   const buttons=[...area.querySelectorAll('button')];
+   const snapshot=JSON.stringify(S);
+   buttons.forEach(b=>b.disabled=true);
+   let result;
+   try{
+    // Recheck costs immediately before the effect: resources can change while
+    // another Crucifix or synchronized action is being resolved.
+    if(ch.can&&!ch.can(S))throw new Error('This option no longer meets its resource requirements.');
+    result=ch.fx(S)||`${ch.label} resolved.`;
+   }catch(err){
+    console.error(`Crucifix choice ${e.n} / ${ch.label} failed`,err);
+    // Do not leave the player trapped behind permanently disabled buttons.
+    // Return to the exact pre-choice state if the effect was only half-applied.
+    S=JSON.parse(snapshot);
+    try{render()}catch(renderErr){console.error('Crucifix choice recovery render failed',renderErr)}
+    buttons.forEach((b,j)=>{
+     try{b.disabled=!!(e.choices[j].can&&!e.choices[j].can(S))}
+     catch(_){b.disabled=false}
+    });
+    area.classList.remove('hidden');
+    document.getElementById('crucifixResult').textContent='The choice could not resolve. No cost was charged. Please choose again.';
+    close.classList.add('hidden');
+    return;
+   }
+   // Finish the modal before re-rendering/scheduling online state sync.
    area.classList.add('hidden');
    document.getElementById('crucifixResult').textContent=result;
    close.classList.remove('hidden');
+   try{
+    log(`CRUCIFIX CHOICE — ${e.n}: ${ch.label}.`,'info');
+    render();
+   }catch(err){console.error('Crucifix post-choice render failed',err)}
    close.focus();
   };
   area.appendChild(btn);
@@ -2278,6 +2324,9 @@ function closeCrucifixPopup(){
  let modal=document.getElementById('crucifixModal');
  modal.classList.add('hidden');
  clearCrucifixChoiceUI();
+ // In multiplayer, rendered Crucifix effects can be held until all blocking
+ // modals close. Schedule a fresh state sync now that the modal is gone.
+ render();
  if(crucifixDisplayQueue.length){
   let next=crucifixDisplayQueue.shift();
   if(next&&next.choiceEvent)renderChoiceCrucifix(next.choiceEvent);
