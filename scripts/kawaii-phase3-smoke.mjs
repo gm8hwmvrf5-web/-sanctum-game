@@ -83,7 +83,7 @@ try{
   assert(cards.every(c=>c.querySelector('.sanctum-kawaii-relic-art')?.getAttribute('src')?.startsWith('data:image/svg+xml')),'All Relic Deck cards have art');
   assert(getComputedStyle(cards[0].querySelector('.sanctum-kawaii-relic-art')).display==='block','Relic Deck images visible');
   const cssIcon=getComputedStyle(document.querySelector('#boardSection .room.gateway')).backgroundImage;
-  assert(cssIcon.includes('data:image/svg+xml'),'Phase 2 room artwork retained');
+  assert(cssIcon.includes('/assets/kawaii/rooms/gateway.avif'),'Approved red portal Gateway artwork retained');
   assert(JSON.stringify(S)===S0,'Skin artwork must never mutate game state');
   // Switching back must completely restore Gothic art on cards and portraits.
   skins.set('gothic');await new Promise(r=>setTimeout(r,60));

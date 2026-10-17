@@ -45,8 +45,9 @@ try{
   SanctumSkins.set('kawaii');
   await new Promise(r=>setTimeout(r,120));
   const roomNames=['gateway','hall','chapel','crypt','boss'];
+  const roomFiles=['gateway.avif','hall.avif','chapel.avif','crypt.avif','boss.avif'];
   const roomImages=roomNames.map(k=>getComputedStyle(document.querySelector('.room.'+k)).backgroundImage);
-  check(roomImages.every(x=>x.includes('data:image/svg+xml')),'All five kawaii room backgrounds render in CSS');
+  check(roomImages.every((bg,i)=>bg.includes('/assets/kawaii/rooms/'+roomFiles[i])),'All five rooms use the approved paintings, including the portal Gateway: '+JSON.stringify(roomImages));
   const art=fixtures.map(x=>x.el.getAttribute('src')||'');
   check(art.length===80,'All 70 lesser/greater Demon variants plus ten bosses checked');
   check(art.every(src=>src.startsWith('data:image/svg+xml')),'Every Demon and Boss swaps to kawaii SVG');
@@ -63,7 +64,7 @@ try{
   SanctumSkins.set('gothic');
   await new Promise(r=>setTimeout(r,120));
   check(fixtures.every(x=>x.el.getAttribute('src')===x.gothic),'All original Gothic art restored');
-  check(roomNames.every(k=>!getComputedStyle(document.querySelector('.room.'+k)).backgroundImage.includes('data:image/svg+xml')),'Gothic room art restored');
+  check(roomNames.every(k=>!getComputedStyle(document.querySelector('.room.'+k)).backgroundImage.includes('/assets/kawaii/rooms/')),'Original Gothic room art restored');
   SanctumSkins.set('kawaii');
   await new Promise(r=>setTimeout(r,120));
   check(fixtures.every(x=>x.el.getAttribute('src')?.startsWith('data:image/svg+xml')),'Kawaii reenabled without corruption');
@@ -76,7 +77,7 @@ try{
  const mobile=await page.evaluate(()=>{
   const selector=document.getElementById('sanctumSkinSelect');
   const pos=selector.getBoundingClientRect();
-  const roomArt=['gateway','hall','chapel','crypt','boss'].map(k=>getComputedStyle(document.querySelector('.room.'+k)).backgroundImage.includes('data:image/svg+xml'));
+  const roomArt=['gateway','hall','chapel','crypt','boss'].map(k=>getComputedStyle(document.querySelector('.room.'+k)).backgroundImage.includes('/assets/kawaii/rooms/'+k+'.avif'));
   return {selectorWidth:pos.width,selectorRight:pos.right,viewport:innerWidth,rooms:roomArt,active:SanctumSkins.get()};
  });
  assert(mobile.selectorWidth>140&&mobile.selectorRight<=mobile.viewport+2,'Mobile menu fits landscape view');

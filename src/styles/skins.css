@@ -149,19 +149,19 @@ html[data-sanctum-skin="kawaii"] #boardSection .room{
  background-size:cover!important;
 }
 html[data-sanctum-skin="kawaii"] #boardSection .room.gateway{
- background-image:linear-gradient(rgba(255,245,250,.14),rgba(255,232,245,.30)),var(--sanctum-cute-gateway)!important;
+ background-image:linear-gradient(rgba(255,235,242,.06),rgba(255,218,235,.12)),var(--sanctum-cute-gateway)!important;
 }
 html[data-sanctum-skin="kawaii"] #boardSection .room.hall{
- background-image:linear-gradient(rgba(243,249,255,.16),rgba(222,237,255,.3)),var(--sanctum-cute-hall)!important;
+ background-image:linear-gradient(rgba(243,249,255,.06),rgba(222,237,255,.12)),var(--sanctum-cute-hall)!important;
 }
 html[data-sanctum-skin="kawaii"] #boardSection .room.chapel{
- background-image:linear-gradient(rgba(255,250,240,.14),rgba(255,244,223,.3)),var(--sanctum-cute-chapel)!important;
+ background-image:linear-gradient(rgba(255,250,240,.06),rgba(255,244,223,.12)),var(--sanctum-cute-chapel)!important;
 }
 html[data-sanctum-skin="kawaii"] #boardSection .room.crypt{
- background-image:linear-gradient(rgba(249,238,255,.13),rgba(232,221,251,.29)),var(--sanctum-cute-crypt)!important;
+ background-image:linear-gradient(rgba(249,238,255,.06),rgba(232,221,251,.12)),var(--sanctum-cute-crypt)!important;
 }
 html[data-sanctum-skin="kawaii"] #boardSection .room.boss{
- background-image:linear-gradient(rgba(253,238,255,.14),rgba(248,221,251,.3)),var(--sanctum-cute-boss)!important;
+ background-image:linear-gradient(rgba(253,238,255,.06),rgba(248,221,251,.12)),var(--sanctum-cute-boss)!important;
 }
 html[data-sanctum-skin="kawaii"] #boardSection .demonArt,
 html[data-sanctum-skin="kawaii"] #boardSection .bossArt{

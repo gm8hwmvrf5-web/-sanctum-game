@@ -79,12 +79,24 @@ for(const b of BOSSES){
 }
 skins.registerArtworkPack(paths);
 if(skins.registerNamedArtworkPack)skins.registerNamedArtworkPack(named);
-['gateway','hall','chapel','crypt','boss'].forEach((roomName,i)=>{
- document.documentElement.style.setProperty('--sanctum-cute-'+roomName,'url("'+url(roomArt(i))+'")');
+// Optimized color-coded room paintings, selected by the user. These are
+// used ONLY for the Kawaii skin; the Gothic rooms stay untouched.
+// The red swirling PORTAL is the Gateway; the throne is the Boss Room.
+const kawaiiRoomFiles=Object.freeze({
+ gateway:'assets/kawaii/rooms/gateway.avif',
+ hall:'assets/kawaii/rooms/hall.avif',
+ chapel:'assets/kawaii/rooms/chapel.avif',
+ crypt:'assets/kawaii/rooms/crypt.avif',
+ boss:'assets/kawaii/rooms/boss.avif'
 });
+for(const [roomName,relativePath] of Object.entries(kawaiiRoomFiles)){
+ const absolute=new URL(relativePath,document.baseURI).href;
+ document.documentElement.style.setProperty('--sanctum-cute-'+roomName,'url("'+absolute+'")');
+}
 skins.set(skins.get());
 window.SanctumKawaiiArt={
  roomCount:5,
+ roomFiles:kawaiiRoomFiles,
  demonCount:DEMON_TYPES.length,
  bossCount:BOSSES.length,
  nameCount:Object.keys(named).length,
