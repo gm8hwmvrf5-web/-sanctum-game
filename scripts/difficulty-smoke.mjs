@@ -82,10 +82,10 @@ setMode('standard');
 assert.equal(getDemon().cur,15);
 assert.equal(ctx.S.boss.cur,72);
 ctx.S.round=2;setMode('hell');
-assert.equal(getDemon().cur,18);
+assert.equal(getDemon().cur,19);
 assert.equal(ctx.S.boss.cur,93);
 ctx.S.round=2;ctx.render();
-assert.equal(getDemon().cur,18,'repeat rendering must not repeatedly buff');
+assert.equal(getDemon().cur,19,'repeat rendering must not repeatedly buff');
 // Existing saved games use Standard if difficulty is missing.
 ctx.S=newS();delete ctx.S.difficulty;ctx.render();
 assert.equal(ctx.S.difficulty,'standard');

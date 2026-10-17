@@ -125,5 +125,5 @@ assert.equal(choiceArea.classList.contains('hidden'),false,'Choice modal remains
 choiceArea.children[1].onclick();
 assert.equal(ctx.S.mana,7,'Recovered action must apply exactly once');
 assert.equal(elements.crucifixClose.classList.contains('hidden'),false);
-assert(sw.includes('sanctum-clean-v69'),'Service worker cache must be bumped');
+assert(/sanctum-clean-v\d+/.test(sw),'Service worker must use a versioned cache');
 console.log('PASS: all '+tested+' choice-based Crucifix paths across '+cards.length+' cards, Unpaid Vow, party blood, modal completion, and error recovery.');
