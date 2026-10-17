@@ -48,6 +48,16 @@ try{
   const roomFiles=['gateway.avif','hall.avif','chapel.avif','crypt.avif','boss.avif'];
   const roomImages=roomNames.map(k=>getComputedStyle(document.querySelector('.room.'+k)).backgroundImage);
   check(roomImages.every((bg,i)=>bg.includes('/assets/kawaii/rooms/'+roomFiles[i])),'All five rooms use the approved paintings, including the portal Gateway: '+JSON.stringify(roomImages));
+  // Confirm the actual optimized images are present and decodable, not just
+  // CSS URLs with missing assets. The red portal MUST be the Gateway.
+  const decoded=await Promise.all(roomNames.map(async(name,i)=>{
+   check(SanctumKawaiiArt.roomFiles[name]==='assets/kawaii/rooms/'+roomFiles[i],'Incorrect room image mapping: '+name);
+   const img=new Image();
+   img.src=new URL(SanctumKawaiiArt.roomFiles[name],document.baseURI).href;
+   await img.decode();
+   return {name,width:img.naturalWidth,height:img.naturalHeight};
+  }));
+  check(decoded.every(img=>img.width===420&&img.height===315),'Five optimized paintings must decode at intended dimensions: '+JSON.stringify(decoded));
   const art=fixtures.map(x=>x.el.getAttribute('src')||'');
   check(art.length===80,'All 70 lesser/greater Demon variants plus ten bosses checked');
   check(art.every(src=>src.startsWith('data:image/svg+xml')),'Every Demon and Boss swaps to kawaii SVG');
