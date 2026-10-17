@@ -135,7 +135,7 @@ try{
  await second.goto(url,{waitUntil:'networkidle',timeout:60000});
  const independent=await second.evaluate(()=>({skin:window.SanctumSkins.get(),storage:localStorage.getItem('sanctum-visual-skin-v1')}));
  assert.equal(independent.skin,'gothic');
- assert.equal(independent.storage,null);
+ assert.equal(independent.storage,'gothic','New device stores its own default Gothic preference');
  await other.close();
  assert.deepEqual(errors,[],'No JS errors');
  console.log('PASS Phase 1 skin: Gothic default, kawaii live UI, persisted selection, safe artwork mapping, gameplay/save isolation, mobile landscape, independent device preferences.',JSON.stringify({result,swaps,mobile,independent}));
