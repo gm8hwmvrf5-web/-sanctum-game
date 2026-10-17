@@ -53,7 +53,7 @@ try{
    ok(card&&card.querySelector('.sanctum-elemental-icon-lightning'),'Lightning icon shown for '+target.id);
   }
   const byId=id=>document.querySelector('#boardSection .demons [data-demon="'+id+'"]');
-  const sameCard=byId(b);
+  const sameCard=byId(b.id);
   const lightning=sameCard.querySelector('.sanctum-elemental-icon-lightning');
   const fire=sameCard.querySelector('.sanctum-elemental-icon-fire');
   const poison=sameCard.querySelector('.sanctum-elemental-icon-poison');
