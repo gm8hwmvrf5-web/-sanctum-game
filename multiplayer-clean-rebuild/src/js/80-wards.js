@@ -280,21 +280,41 @@ function castPopup(){
  // Popup blocks accidental game-turn progression but does not mutate game state.
  if(typeof pauseTurnTimer==='function')pauseTurnTimer();
 }
+let priestWardButton=null;
+let priestWardDraft=null;
+function mountPriestWardControls(){
+ // The Priest tracker is recreated on render and End Turn is moved there by
+ // the Priest UI module. Reattach the Ward control directly after End Turn.
+ const tracker=document.querySelector('#handPanel .handCharacterPriest .ritualTracker');
+ const end=tracker?.querySelector('#endBtn');
+ if(!tracker||!end)return;
+ if(priestWardButton&&end.nextElementSibling!==priestWardButton)
+   end.insertAdjacentElement('afterend',priestWardButton);
+ const ritualMain=tracker.closest('.ritualMain');
+ if(priestWardDraft&&ritualMain&&priestWardDraft.previousElementSibling!==tracker)
+   tracker.insertAdjacentElement('afterend',priestWardDraft);
+}
 function addInterface(){
- const section=document.getElementById('boardSection');
- if(!section)return;
- const bar=document.createElement('div');
- bar.className='wardcraft-bar';bar.id='wardcraftBar';
- bar.innerHTML='<span class="wardcraft-label">WARDCRAFT</span><span id="wardcraftStatus">Ward draft every 3 combat passages.</span><button type="button" class="btn" id="wardcraftCast" disabled>Place Ward</button>';
- section.parentNode.insertBefore(bar,section);
- const inlineDraft=document.createElement('div');
- inlineDraft.id='wardcraftInlineDraft';inlineDraft.className='wardcraft-inline-draft';inlineDraft.hidden=true;
- bar.insertAdjacentElement('afterend',inlineDraft);
- bar.querySelector('#wardcraftCast').addEventListener('click',()=>{
+ priestWardButton=document.createElement('button');
+ priestWardButton.type='button';
+ priestWardButton.id='wardcraftCast';
+ priestWardButton.className='btn trackerAction wardcraft-priest-action';
+ priestWardButton.textContent='Place Ward';
+ priestWardButton.hidden=true;
+ priestWardButton.disabled=true;
+ priestWardButton.setAttribute('aria-label','Place Ward');
+ priestWardButton.addEventListener('click',()=>{
   const a=ensure();
   if(a?.offers?.length&&!a.selected){queueDraft(0);return;}
   castPopup();
  });
+ // Preserve the fallback draft choices, now inside the Priest UI rather than
+ // in a separate strip over the game board.
+ priestWardDraft=document.createElement('div');
+ priestWardDraft.id='wardcraftInlineDraft';
+ priestWardDraft.className='wardcraft-inline-draft';
+ priestWardDraft.hidden=true;
+ mountPriestWardControls();
  const modal=document.createElement('div');
  modal.id='wardCastModal';modal.className='modal hidden ward-cast-modal';
  modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Place a Ward');
@@ -305,8 +325,9 @@ function addInterface(){
 }
 function renderWardUI(){
  const state=ensure();if(!state)return;
- const a=state.active,w=a&&lookup(a.key),offer=lookup(state.selected),bar=document.getElementById('wardcraftBar');
- const inline=document.getElementById('wardcraftInlineDraft');
+ mountPriestWardControls();
+ const a=state.active,w=a&&lookup(a.key),offer=lookup(state.selected);
+ const inline=priestWardDraft;
  if(inline){
    const show=!!(S?.started&&state.floor===Number(S.rogue?.floor)&&state.offers.length&&!state.selected&&!state.active);
    inline.hidden=!show;
@@ -326,17 +347,31 @@ function renderWardUI(){
      }
    }else inline.dataset.offers='';
  }
- if(bar){
-   const label=bar.querySelector('#wardcraftStatus'),cast=bar.querySelector('#wardcraftCast');
-   if(w){label.textContent=w.name+' · '+ROOM_NAMES[a.room]+' · '+a.charges+' charge(s) · '+a.phasesLeft+' Demon Phase(s)';cast.textContent='Ward Active';cast.disabled=true;}
-   else if(offer){label.textContent=offer.name+' · '+fmt(offer)+(state.lastPlacementRound===S.round?' · Placed this round':'');cast.textContent='Place Ward';cast.disabled=!!refuseText(offer,allowed(offer)[0]);}
-   else if(state.offers.length){label.textContent='Choose 1 of 3 offered Wards for Floor '+state.floor;cast.textContent='Choose Ward';cast.disabled=!!document.body.classList.contains('mpWaitingTurn');}
-   else {const count=Math.max(0,Number(state.combatPassages)||0),left=WARD_OFFER_INTERVAL-(count%WARD_OFFER_INTERVAL);label.textContent=S?.started?'Next Ward draft in '+left+' combat passage'+(left===1?'':'s'):'Ward draft every 3 combat passages';cast.textContent='Place Ward';cast.disabled=true;}
-   bar.hidden=!S?.started||!S.rogue?.enabled;
-   // Old saves and reconnects may contain pending Ward offers without an open dialog.
-   if(state.offers.length&&!state.selected&&!state.active&&!draftRetryTimer&&!S.multiplayerVote?.open){
-     queueDraft(450);
+ const cast=priestWardButton;
+ if(cast){
+   // Show Wardcraft next to End Turn only while there is something to use.
+   cast.hidden=!S?.started||!S.rogue?.enabled||!!w||(!offer&&!state.offers.length);
+   cast.removeAttribute('title');
+   if(offer){
+     const reason=refuseText(offer,allowed(offer)[0]);
+     cast.textContent='Place Ward';
+     cast.setAttribute('aria-label','Place Ward: '+offer.name);
+     cast.title=reason||offer.name+' · '+fmt(offer);
+     cast.disabled=!!reason;
+   }else if(state.offers.length){
+     cast.textContent='Choose Ward';
+     cast.setAttribute('aria-label','Choose a Ward');
+     cast.title='Choose one of three available Wards';
+     cast.disabled=!!document.body.classList.contains('mpWaitingTurn');
+   }else{
+     cast.textContent='Place Ward';
+     cast.setAttribute('aria-label','Place Ward');
+     cast.disabled=true;
    }
+ }
+ // Old saves and reconnects may contain pending Ward offers without an open dialog.
+ if(state.offers.length&&!state.selected&&!state.active&&!draftRetryTimer&&!S.multiplayerVote?.open){
+   queueDraft(450);
  }
  for(let i=0;i<4;i++){
    const room=document.getElementById('room'+i)?.closest('.room');
