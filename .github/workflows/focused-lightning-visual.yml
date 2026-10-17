@@ -1,0 +1,33 @@
+name: Focused Lightning Rod Visuals
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  lightning-fx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check Lightning visual scripts
+        run: |
+          node --check src/js/10-engine.js
+          node --check src/js/86-elemental-damage-fx.js
+          node --check service-worker.js
+          node --check scripts/lightning-rod-visual-smoke.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install chromium
+      - name: Verify Lightning status icon, numbers and expiry in browser
+        run: |
+          python3 -m http.server 4173 >/tmp/sanctum-lightning-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 1
+          node scripts/lightning-rod-visual-smoke.mjs
