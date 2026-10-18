@@ -1,0 +1,175 @@
+/* Gothic UI branch: focused readability + backdrop cleanup.
+   Deliberately scoped to the preview. No game data or event handlers changed. */
+
+/* Keep the illustrated cathedral surround without the opaque black rectangle
+   baked into the center of the image used by the original mockup. */
+html.gothicUiPreview body{
+  background:#100c10!important;
+}
+html.gothicUiPreview body::before{
+  content:""!important;display:block!important;position:fixed!important;inset:0!important;
+  z-index:0!important;pointer-events:none!important;opacity:1!important;
+  background:
+    radial-gradient(ellipse at 52% 74%,rgba(99,65,39,.17),transparent 56%),
+    url('../../assets/ui-gothic/cathedral-backdrop.svg') center center/cover no-repeat,
+    #100c10!important;
+  filter:none!important;
+}
+html.gothicUiPreview body::after{
+  content:""!important;display:block!important;position:fixed!important;inset:0!important;
+  z-index:0!important;pointer-events:none!important;
+  background:url('../../assets/ui-gothic/faithful/reference-shell.webp') center top/100% 100% no-repeat!important;
+  /* Only retain the detailed gothic edge columns/candles, not the solid black
+     center and bottom rectangle from the still-image source. */
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 2.5%,transparent 6.5%,transparent 93.5%,#000 97.5%,#000 100%);
+  mask-image:linear-gradient(90deg,#000 0%,#000 2.5%,transparent 6.5%,transparent 93.5%,#000 97.5%,#000 100%);
+}
+.gothicUiPreview #handPanel,
+.gothicUiPreview #handPanel .handCharacterStage,
+.gothicUiPreview #handPanel .handCharacterCards,
+.gothicUiPreview #handPanel .handCharacterPriest,
+.gothicUiPreview #handPanel #ritualPanel{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+/* "Empty" is an engine-generated placeholder and should not occupy room art.
+   Existing demons, desecration text, consecration controls and boss info remain. */
+.gothicUiPreview #boardSection .room .demons > .cap{display:none!important}
+
+/* High-contrast vector HUD: content stays live; no rasterized glyph icons. */
+#gothicPreviewHeader #topStatusBar.stats{
+  background:linear-gradient(180deg,#171317 0%,#0a0a0e 100%)!important;
+  border:1px solid #b68a53!important;
+  box-shadow:inset 0 0 0 1px #533a26,0 2px 8px rgba(0,0,0,.58)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  filter:none!important;
+  height:59px!important;min-height:59px!important;
+  padding:3px 4px!important;
+}
+#gothicPreviewHeader #topStatusBar > .stat,
+#gothicPreviewHeader #gothicXpHud{
+  position:relative!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  text-align:center!important;
+  padding:3px 3px 3px 29px!important;
+  height:100%!important;
+  min-width:0!important;
+  gap:2px!important;
+  border-right:1px solid #775634!important;
+  background:transparent!important;
+  filter:none!important;
+  transform:none!important;
+}
+#gothicPreviewHeader #topStatusBar > .stat:last-child{border-right:none!important}
+#gothicPreviewHeader #topStatusBar .stat > b,
+#gothicPreviewHeader #gothicXpHud > b{
+  position:relative!important;
+  z-index:5!important;
+  display:block!important;
+  width:100%!important;
+  font:700 clamp(16px,1.4vw,23px)/1 Georgia,"Times New Roman",serif!important;
+  letter-spacing:.01em!important;
+  color:#ffe5b4!important;
+  text-align:center!important;
+  text-shadow:0 1px 1px #000!important;
+  filter:none!important;
+  opacity:1!important;
+  transform:none!important;
+  white-space:nowrap!important;
+}
+#gothicPreviewHeader #topStatusBar .stat > span:not(.gothicHudIcon),
+#gothicPreviewHeader #gothicXpHud > small{
+  display:block!important;
+  width:100%!;
+  position:relative!important;
+  z-index:5!important;
+  font:700 clamp(8px,.71vw,11px)/1.12 Georgia,"Times New Roman",serif!important;
+  color:#e4ccaa!important;
+  text-align:center!important;
+  text-transform:uppercase!important;
+  text-shadow:none!important;
+  letter-spacing:.01em!important;
+  opacity:1!important;
+  filter:none!important;
+  transform:none!important;
+  white-space:nowrap!important;
+}
+#gothicPreviewHeader #topStatusBar .gothicHudIcon{
+  position:absolute!important;
+  display:flex!important;
+  align-items:center!important;justify-content:center!important;
+  left:clamp(5px,.8vw,13px)!important;top:50%!important;
+  transform:translateY(-50%)!important;
+  height:clamp(17px,1.9vw,29px)!important;
+  width:clamp(17px,1.9vw,29px)!important;
+  z-index:6!important;
+  pointer-events:none!important;
+  filter:none!important;
+  opacity:1!important;
+}
+#gothicPreviewHeader #topStatusBar .gothicHudIcon svg{
+  display:block;width:100%;height:100%;overflow:visible;
+  stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:none!important;
+}
+#gothicPreviewHeader #turnTimerStat .gothicHudIcon{color:#e6b967}
+#gothicPreviewHeader #manaStatBox .gothicHudIcon{color:#5ab7ff}
+#gothicPreviewHeader #altarStatBox .gothicHudIcon{color:#f2c96f}
+#gothicPreviewHeader #gothicProgressChip .gothicHudIcon{color:#d9bf8d}
+#gothicPreviewHeader #gothicXpHud .gothicHudIcon{color:#ed7878}
+#gothicPreviewHeader #turnTimerStat::before,
+#gothicPreviewHeader #manaStatBox::before,
+#gothicPreviewHeader #altarStatBox::before,
+#gothicPreviewHeader #gothicProgressChip::before,
+#gothicPreviewHeader #gothicXpHud::before{
+  display:none!important;content:none!important;
+}
+#gothicPreviewHeader #topStatusBar .turnTimerFill,
+#gothicPreviewHeader #topStatusBar .manaMeterFill,
+#gothicPreviewHeader #topStatusBar .altarMeterFill,
+#gothicPreviewHeader #topStatusBar .meterFill,
+#gothicPreviewHeader #topStatusBar .meterGlass,
+#gothicPreviewHeader #topStatusBar .manaMeterGlow{
+  opacity:.05!important;
+  filter:none!important;
+}
+/* Keep the gameplay command artwork, but center text relative to each button.
+   The artwork already contains its icon, so do not add a second one. */
+.gothicUiPreview #gothicPreviewActions .btn{
+  padding:4px 7px!important;
+  text-align:center!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-shadow:0 1px 2px #000!important;
+}
+.gothicUiPreview #gothicPreviewActions .btn:focus-visible{
+  outline:3px solid #ffdf9b!important;outline-offset:2px!important;
+}
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #gothicPreviewHeader #topStatusBar.stats{height:32px!important;min-height:32px!important;padding:1px 2px!important}
+  #gothicPreviewHeader #topStatusBar > .stat,
+  #gothicPreviewHeader #gothicXpHud{padding:1px 1px 1px 15px!important;gap:1px!important}
+  #gothicPreviewHeader #topStatusBar .gothicHudIcon{
+    width:12px!important;height:12px!important;left:2px!important;
+  }
+  #gothicPreviewHeader #topStatusBar .stat > b,
+  #gothicPreviewHeader #gothicXpHud > b{font-size:10px!important}
+  #gothicPreviewHeader #topStatusBar .stat > span:not(.gothicHudIcon),
+  #gothicPreviewHeader #gothicXpHud > small{font-size:5.8px!important;letter-spacing:0!important}
+  .gothicUiPreview #gothicPreviewActions .btn{
+    padding:1px 2px!important;
+    font-size:6.7px!important;
+  }
+}
+@media(orientation:portrait) and (max-width:700px){
+  #gothicPreviewHeader #topStatusBar.stats{height:56px!important;min-height:56px!important}
+  #gothicPreviewHeader #topStatusBar .stat > b,
+  #gothicPreviewHeader #gothicXpHud > b{font-size:clamp(10px,3.1vw,17px)!important}
+  #gothicPreviewHeader #topStatusBar .stat > span:not(.gothicHudIcon),
+  #gothicPreviewHeader #gothicXpHud > small{font-size:clamp(6px,1.8vw,9px)!important}
+  #gothicPreviewHeader #topStatusBar .gothicHudIcon{width:16px!important;height:16px!important;left:3px!important}
+  #gothicPreviewHeader #topStatusBar > .stat,
+  #gothicPreviewHeader #gothicXpHud{padding-left:19px!important}
+}

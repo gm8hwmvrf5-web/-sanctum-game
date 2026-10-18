@@ -13,6 +13,14 @@ for(const spec of [{name:'desktop',width:1536,height:768,isMobile:false},{name:'
   const fetched=await Promise.all(paths.map(async p=>({p,ok:(await fetch(p)).ok})));
   if(fetched.some(x=>!x.ok))throw Error('Art missing: '+JSON.stringify(fetched.filter(x=>!x.ok)));
   const roomArt=getComputedStyle(document.querySelector('#boardSection .room.gateway')).backgroundImage;
+  for(const placeholder of document.querySelectorAll('#boardSection .demons > .cap')){
+   if(getComputedStyle(placeholder).display!=='none')throw Error('Empty placeholder still visible');
+  }
+  for(const id of ['turnTimerStat','manaStatBox','altarStatBox','gothicProgressChip','gothicXpHud']){
+   const stat=document.getElementById(id);
+   if(!stat?.querySelector('.gothicHudIcon svg'))throw Error('Missing centered SVG stat icon '+id);
+  }
+  if(!getComputedStyle(document.body,'::before').backgroundImage.includes('cathedral-backdrop.svg'))throw Error('Obsolete black backdrop still active');
   if(!roomArt.includes('room-gateway.webp'))throw Error('Mockup room art not applied');
   const actions=document.getElementById('gothicPreviewActions');
   const ids=[...actions.querySelectorAll('button')].filter(x=>!x.hidden).map(x=>x.id);
