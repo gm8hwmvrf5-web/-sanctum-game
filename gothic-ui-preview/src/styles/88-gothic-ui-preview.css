@@ -3,8 +3,8 @@
    Loaded last, scoped to the isolated preview branch. */
 html.gothicUiPreview{background:#09080a}
 html.gothicUiPreview body{background:#080709!important;color:#efe0c2!important}
-html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:#09080a url('../../assets/ui-gothic/cathedral-backdrop.svg') center/cover no-repeat!important}
-.gothicUiPreview .app{max-width:1920px!important;padding:7px clamp(5px,1.6vw,29px) 10px!important;position:relative}
+html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0!important;background:#09080a url('../../assets/ui-gothic/cathedral-backdrop.svg') center/cover no-repeat!important}
+.gothicUiPreview .app{max-width:1920px!important;padding:7px clamp(5px,1.6vw,29px) 10px!important;position:relative;z-index:1}
 .gothicUiPreview .app::before{display:none!important}
 /* ===== Crown, status, and Wardcraft banner ===== */
 #gothicPreviewHeader{position:relative;display:grid;grid-template-columns:minmax(0,53%) minmax(0,47%);gap:5px;align-items:center;min-height:clamp(53px,4.3vw,81px);margin:0 0 10px;z-index:8}
@@ -17,9 +17,12 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
 #gothicPreviewHeader #topStatusBar.stats{position:static!important;display:grid!important;grid-template-columns:minmax(0,1.25fr) repeat(4,minmax(0,1fr)) minmax(0,1.1fr)!important;gap:2px!important;min-width:0!important;width:100%!important;height:clamp(46px,3.6vw,68px)!important;min-height:0!important;padding:4px!important;margin:0!important;border:1px solid #6a4c32!important;border-radius:11px!important;background:linear-gradient(180deg,#181116eb,#0c0a0ce8)!important;box-shadow:inset 0 0 11px #764c271b!important;backdrop-filter:blur(4px)}
 #gothicPreviewHeader #topStatusBar .stat{min-height:0!important;height:100%!important;min-width:0!important;margin:0!important;padding:2px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important;overflow:hidden!important;border-radius:0!important;border:0!important;border-right:1px solid #715b3a67!important;background:transparent!important;box-shadow:none!important}
 #gothicPreviewHeader #topStatusBar .stat:last-of-type{border:0!important}
+#gothicPreviewHeader #topStatusBar .stat#gothicProgressChip{background:none!important}
 #gothicPreviewHeader #topStatusBar .stat b,#gothicXpHud b{color:#f3dfbf!important;text-shadow:0 2px 4px #000!important;font-size:clamp(12px,1.25vw,20px)!important;line-height:1.06!important}
 #gothicPreviewHeader #topStatusBar .stat>span,#gothicXpHud small{font:700 clamp(6px,.65vw,10px) Georgia,serif!important;color:#c9b394!important;letter-spacing:.01em!important;white-space:nowrap!important}
-#gothicPreviewHeader #topStatusBar .runProgressStat>span{display:none!important}
+#gothicPreviewHeader #topStatusBar .runProgressStat{display:none!important}
+#gothicProgressChip{position:relative}
+#gothicProgressChip::before{content:"▤";position:absolute;left:5px;top:6px;color:#c7a776;font-size:14px}
 #gothicPreviewHeader #topStatusBar .runProgressPair{display:flex!important;align-items:center!important;justify-content:space-evenly!important;gap:1px!important;height:100%!important;width:100%}
 #gothicPreviewHeader #topStatusBar .runProgressChunk{min-width:0!important;gap:2px!important}
 #gothicPreviewHeader #topStatusBar .runProgressChunk em{color:#bdae9b!important;font-size:clamp(5px,.53vw,8px)!important;letter-spacing:0!important}
@@ -51,7 +54,7 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
 .gothicUiPreview #boardSection .room h3{position:relative!important;z-index:5!important;margin:3px 0 6px!important;font-size:clamp(13px,1.4vw,24px)!important;line-height:1.1!important;color:#f8e9d3!important;text-shadow:0 2px 7px #000,0 0 8px #000!important;letter-spacing:.075em!important;text-align:center!important}
 .gothicUiPreview #boardSection .room h3::before{content:"◆";display:block;color:var(--gothic-accent);line-height:.4;font-size:clamp(10px,1vw,17px);margin:-3px 0 10px;text-shadow:0 0 8px var(--gothic-accent)}
 .gothicUiPreview #boardSection .roomMeta{position:relative!important;z-index:5!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;flex-direction:column!important;margin:0 0 5px!important;min-height:0!important}
-.gothicUiPreview #boardSection .roomMeta .cap{font-size:clamp(7px,.57vw,10px)!important;text-align:center!important;color:#e0c9a6!important;text-shadow:0 1px 2px #000!important}
+.gothicUiPreview #boardSection .roomMeta .cap{position:absolute!important;top:clamp(135px,13vw,240px);left:5px;max-width:calc(100% - 10px);font-size:clamp(7px,.57vw,10px)!important;text-align:center!important;color:#e0c9a6!important;text-shadow:0 1px 2px #000!important;background:#070609a6;padding:2px 4px;border-radius:4px}
 .gothicUiPreview #boardSection .roomMeta [data-cons]{min-height:26px!important;height:auto!important;padding:3px 9px!important;line-height:1.2!important;border:1px solid #e1b56d!important;border-radius:8px!important;background:linear-gradient(#3f2d1c,#171112)!important;color:#f4ddb0!important;box-shadow:0 1px 6px #0009,0 0 5px #ddad512a!important;font-size:clamp(8px,.75vw,12px)!important}
 .gothicUiPreview #boardSection .demons>.cap{font-size:clamp(11px,1vw,16px)!important;color:#e6d9ca!important;margin-top:12px;text-align:center;text-shadow:0 2px 4px #000!important}
 .gothicUiPreview #boardSection .demon{position:relative!important;z-index:4!important;background:rgba(16,7,10,.9)!important;border-color:#b35d46!important;color:#f4ead9!important;border-radius:7px!important}
@@ -60,7 +63,9 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
 .gothicUiPreview #boardSection .boss .cap{max-width:100%;text-shadow:0 2px 4px #000}
 /* ===== Actual stonework panels / Priest hand ===== */
 .gothicUiPreview #handPanel{background:transparent!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important}
-.gothicUiPreview #handPanel .handCharacterStage{display:grid!important;grid-template-columns:minmax(0,44%) minmax(0,56%)!important;gap:clamp(8px,1.6vw,24px)!important;align-items:stretch!important}
+.gothicUiPreview #handPanel .handCharacterStage{display:grid!important;grid-template-columns:minmax(0,44%) minmax(0,56%)!important;gap:clamp(8px,1.6vw,24px)!important;align-items:stretch!important;position:relative}
+.gothicUiPreview #handPanel .handCharacterStage:before{content:"";position:absolute;z-index:0;pointer-events:none;left:48%;bottom:-6px;transform:translateX(-50%);width:clamp(95px,13vw,240px);height:clamp(205px,25vw,460px);background:url('../../assets/ui-gothic/hooded-cantor.svg') center bottom/contain no-repeat;opacity:.94}
+.gothicUiPreview #handPanel .handCharacterStage>.handCharacterPriest,.gothicUiPreview #handPanel .handCharacterStage>.handCharacterCards{position:relative;z-index:1}
 .gothicUiPreview #handPanel .handCharacterCards{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;align-self:stretch!important;padding:clamp(8px,1.5vw,22px)!important;border:0!important;background:rgba(6,5,7,.43)!important;box-shadow:none!important}
 .gothicUiPreview #handPanel .handCharacterCards:before{content:"";position:absolute;inset:0;pointer-events:none;background:url('../../assets/ui-gothic/panel-frame.svg') center/100% 100% no-repeat;opacity:.24}
 .gothicUiPreview #handPanel .gothicHandTitle{display:none!important}
@@ -101,7 +106,7 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
 .gothicUiPreview #ritualPanel .gothicRitualName{display:block;font-size:clamp(11px,1vw,17px);line-height:1.09!important;color:#25150f!important;text-shadow:none!important}
 .gothicUiPreview #ritualPanel .gothicRitualCost{display:block;color:#5b3627!important;font-size:clamp(9px,.76vw,12px)!important;margin:2px 0 0!important}
 .gothicUiPreview #ritualPanel .gothicRitualTiers{display:flex;flex-direction:column;flex:1;gap:clamp(4px,.44vw,9px)!important}
-.gothicUiPreview #ritualPanel .gothicRitualTier{font-size:clamp(10px,.85vw,14px)!important;color:#392515!important;line-height:1.2!important;overflow-wrap:break-word;min-width:0}
+.gothicUiPreview #ritualPanel .gothicRitualTier{font-size:clamp(10px,.85vw,14px)!important;color:#392515!important;line-height:1.2!important;white-space:normal!important;word-break:normal!important;overflow-wrap:anywhere!important;min-width:0}
 .gothicUiPreview #ritualPanel .gothicRitualTier b{font-size:1.07em;color:#4e321d!important;display:block}
 .gothicUiPreview #ritualPanel .gothicRitualTier:last-child{margin-top:auto!important}
 .gothicUiPreview #ritualPanel .gothicRitualTier:last-child b{display:inline;color:#6c481f!important}
@@ -139,6 +144,7 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
  #gothicPreviewHeader #topStatusBar.stats{height:30px!important;padding:1px!important;grid-template-columns:minmax(0,1.5fr) repeat(4,minmax(0,1fr)) minmax(0,1fr)!important}
  #gothicPreviewHeader #topStatusBar .stat b,#gothicXpHud b{font-size:8px!important}
  #gothicPreviewHeader #topStatusBar .stat>span,#gothicXpHud small{font-size:5px!important}
+ #gothicProgressChip::before{display:none!important}
  #gothicPreviewHeader #topStatusBar .runProgressChunk em{font-size:3.7px!important}
  #gothicPreviewHeader #topStatusBar .runProgressChunk strong{font-size:6.2px!important}
  #gothicPreviewHeader #topStatusBar .runProgressDivider{height:14px!important}
@@ -149,6 +155,7 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
  .gothicUiPreview #boardSection .room h3::before{display:none!important}
  .gothicUiPreview #boardSection .roomMeta{margin:0 0 2px!important}
  .gothicUiPreview #boardSection .roomMeta .cap{display:none!important}
+ .gothicUiPreview #handPanel .handCharacterStage:before{display:none!important}
  .gothicUiPreview #boardSection .roomMeta [data-cons]{min-height:17px!important;padding:1px 4px!important;font-size:6.8px!important}
  .gothicUiPreview #handPanel .handCharacterStage{grid-template-columns:minmax(0,48%) minmax(0,52%)!important;gap:4px!important}
  .gothicUiPreview #handPanel .handCharacterCards{padding:2px!important}

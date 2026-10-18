@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="270" height="470" viewBox="0 0 270 470"><defs>
+<linearGradient id="robe" x1="0" x2="1" y1=".2" y2="1"><stop stop-color="#100f14"/><stop offset=".33" stop-color="#4a3a35"/><stop offset=".54" stop-color="#1c1920"/><stop offset="1" stop-color="#08070c"/></linearGradient>
+<linearGradient id="edge"><stop stop-color="#6c5040"/><stop offset=".5" stop-color="#131319"/><stop offset="1" stop-color="#5e4031"/></linearGradient>
+<radialGradient id="light"><stop stop-color="#ffbc54" stop-opacity=".8"/><stop offset="1" stop-color="#ff8c38" stop-opacity="0"/></radialGradient>
+</defs>
+<ellipse cx="137" cy="435" rx="118" ry="25" fill="#000" opacity=".8"/>
+<path d="M117 109Q135 46 152 109L200 190 244 426Q139 454 18 426L66 187Z" fill="url(#robe)" stroke="#8a6750" stroke-opacity=".7" stroke-width="4"/>
+<path d="M77 192Q38 221 30 299L16 423 90 421 105 320Z" fill="url(#edge)" stroke="#8e6650" stroke-width="3"/><path d="M179 190Q231 230 236 300L256 421 186 425 174 306Z" fill="url(#edge)" stroke="#80604a" stroke-width="3"/>
+<path d="M73 186Q80 96 132 55 176 88 194 184L177 216 89 213Z" fill="url(#robe)" stroke="#806550" stroke-width="5"/>
+<path d="M95 155Q110 108 136 101 169 115 168 156L153 192 117 191Z" fill="#070609"/><path d="M106 166 126 172 117 177M142 172l17-6-10 13" fill="#cba371" opacity=".7"/><path d="M134 178v28" stroke="#ac836a" stroke-width="2"/>
+<path d="M100 219Q108 308 74 421M166 222Q155 334 193 420M130 222Q137 353 132 441M85 257Q73 320 57 399M189 257Q201 333 218 406" stroke="#9f7960" opacity=".33" fill="none" stroke-width="5"/>
+<path d="M105 230 133 247 164 230M116 270l18 15 18-15" stroke="#b08c65" opacity=".42" fill="none"/>
+<path d="M130 244h8v106h-8zM109 277h50v9h-50z" fill="#826040" opacity=".72"/>
+<g fill="#c7a370" stroke="#4c3022" stroke-width="2"><path d="M2 469V392h12v77M22 469v-108h13v108M44 469v-69h12v69M207 469v-88h12v88M230 469v-125h13v125M252 469v-74h12v74"/></g>
+<g fill="url(#light)"><ellipse cx="8" cy="387" rx="21" ry="36"/><ellipse cx="29" cy="359" rx="23" ry="38"/><ellipse cx="50" cy="396" rx="20" ry="32"/><ellipse cx="213" cy="374" rx="22" ry="36"/><ellipse cx="236" cy="341" rx="25" ry="42"/><ellipse cx="258" cy="389" rx="20" ry="32"/></g>
+<g fill="#ffda83"><path d="M9 400q-11-13 0-28 11 15 0 28M29 373q-11-13 0-29 11 16 0 29M50 408q-10-12 0-25 11 13 0 25M214 388q-11-13 0-28 11 15 0 28M237 355q-12-13 0-30 12 15 0 30M258 402q-11-12 0-27 11 15 0 27"/></g>
+</svg>

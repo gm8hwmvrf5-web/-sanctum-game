@@ -13,6 +13,11 @@ const xp=document.createElement('div');xp.id='gothicXpHud';
 xp.setAttribute('aria-label','Relic XP');
 xp.innerHTML='<b id="gothicXpValue">0 / 35</b><small>RELIC XP</small><span class="gothicXpTrack"><span class="gothicXpFill" id="gothicXpFill"></span></span>';
 hud.appendChild(xp);
+const progress=document.createElement('div');progress.id='gothicProgressChip';progress.className='stat';
+progress.setAttribute('aria-label','Current floor and run progress');
+progress.innerHTML='<b id="gothicFloorValue">1 / 15</b><span>FLOOR</span>';
+const defeat=document.getElementById('defeatStat')?.closest('.stat');
+hud.insertBefore(progress,defeat||xp);
 for(const room of board.querySelectorAll('.room')){
  if(!room.querySelector('.gothicRoomFrame')){
   const art=document.createElement('span');art.className='gothicRoomFrame';art.setAttribute('aria-hidden','true');room.appendChild(art);
@@ -31,6 +36,16 @@ function syncStatus(){
  const value=document.getElementById('relicXpMeterValue'),meter=document.getElementById('relicXpMeterStat');
  const text=document.getElementById('gothicXpValue'),fill=document.getElementById('gothicXpFill');
  if(value&&text)text.textContent=value.textContent;
+ const floor=document.getElementById('rogueFloor')?.textContent||'?';
+ const f=document.getElementById('gothicFloorValue');if(f)f.textContent=floor;
+ const prog=document.getElementById('gothicProgressChip');
+ if(prog){
+  const passage=document.getElementById('roguePassage')?.textContent||'?';
+  const act=document.getElementById('rogueAct')?.textContent||'?';
+  const round=document.getElementById('roundStat')?.textContent||'?';
+  prog.title='Passage '+passage+' · Act '+act+' · Floor '+floor+' · Round '+round;
+  prog.setAttribute('aria-label',prog.title);
+ }
  if(fill){const v=Number(meter?.getAttribute('aria-valuenow'))||0,max=Math.max(1,Number(meter?.getAttribute('aria-valuemax'))||35);fill.style.width=(Math.min(100,Math.max(0,v/max*100)))+'%';}
 }
 function enhanceRituals(){
@@ -79,7 +94,11 @@ function mount(){
   ritualHeading.appendChild(freshSummary);
  }
  const gauge=document.querySelector('#ritualPanel .ritualTitleWithBlood .ritualBloodGauge');
- if(gauge)ritualHeading.appendChild(gauge);
+ if(gauge){
+  // The Priest renderer regenerates this meter: remove previous copies.
+  ritualHeading.querySelectorAll('.ritualBloodGauge').forEach(node=>node.remove());
+  ritualHeading.appendChild(gauge);
+ }
  let actions=document.getElementById('gothicPreviewActions');
  if(!actions){actions=document.createElement('div');actions.id='gothicPreviewActions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Priest turn actions');priest.appendChild(actions);}
  // The engine recreates the Priest tracker on each render. Prefer those

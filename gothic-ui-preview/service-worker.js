@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-gothic-preview-v1';
+const CACHE_NAME='sanctum-gothic-preview-v2';
 const CORE=[
   './',
   './index.html',
@@ -14,6 +14,14 @@ const CORE=[
   './src/styles/cloud-saves.css',
   './src/styles/difficulty.css',
   './src/styles/88-gothic-ui-preview.css',
+  './assets/ui-gothic/cathedral-backdrop.svg',
+  './assets/ui-gothic/room-tracery.svg',
+  './assets/ui-gothic/header-crest.svg',
+  './assets/ui-gothic/header-banner.svg',
+  './assets/ui-gothic/parchment-ritual.svg',
+  './assets/ui-gothic/action-filigree.svg',
+  './assets/ui-gothic/panel-frame.svg',
+  './assets/ui-gothic/hooded-cantor.svg',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
