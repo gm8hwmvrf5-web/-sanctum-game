@@ -48,11 +48,19 @@ async function testViewport(width,height,phone=false){
   const getRect=e=>e?.getBoundingClientRect();
   const section=getRect(card),body=getRect(tier),title=getRect(head);
   if(!section||!body||!title||!getRect(hand))throw Error('Missing Ritual or Priest hand regions');
-  if(body.top-section.top < (innerWidth<1001?42:72))throw Error('Ritual effect text overlaps the artwork seal');
+  if(body.top-section.top < (innerWidth<1001?40:115))throw Error('Ritual effect text overlaps the artwork seal');
   const nameRect=getRect(qs('#ritualPanel .gothicRitualName'));
-  if(!nameRect||nameRect.left-section.left < (innerWidth<1001?25:65))throw Error('Ritual title text overlaps painted seal');
+  if(!nameRect||(innerWidth<1001?nameRect.left-section.left<30:nameRect.top-section.top<75))throw Error('Ritual title text overlaps painted seal');
   const beforeStyles=getComputedStyle(stage,'::before');
   const overlayStyles=getComputedStyle(stage,'::after');
+  const priestTrack=qs('#handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack');
+  if(!priestTrack)throw Error('Card carousel track missing');
+  const cardScale=getComputedStyle(priestTrack).transform;
+  const matrix=new DOMMatrix(cardScale);
+  if(Math.abs(matrix.a-.85)>.005)throw Error('Priest cards are not scaled down 15%: '+cardScale);
+  const room=qs('#boardSection .room');
+  if(getRect(room).height<(innerWidth<1001?148:innerHeight<=800?285:340))
+    throw Error('Room height did not increase as requested');
   if(!beforeStyles.backgroundImage.includes('cathedral-backdrop.svg'))throw Error('Sharp cathedral art missing behind Priest hand');
   if(!overlayStyles.backgroundImage.includes('lower-environment.webp'))throw Error('Original decorative stone edges missing');
   if(getComputedStyle(hand).filter!=='none')throw Error('Priest carousel has a blur filter');

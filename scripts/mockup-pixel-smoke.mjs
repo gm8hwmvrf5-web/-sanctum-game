@@ -18,6 +18,8 @@ for(const spec of [{name:'desktop',width:1536,height:768,isMobile:false},{name:'
   const boxes=visibleHud.map(e=>e.getBoundingClientRect());
   if(boxes.some(b=>b.height<20)||Math.max(...boxes.map(b=>b.y))-Math.min(...boxes.map(b=>b.y))>2)
     throw Error('HUD stats are not centered on one row: '+JSON.stringify(boxes.map(b=>({y:b.y,height:b.height}))));
+  const stageTrack=document.querySelector('#handContent .hand.carouselTrack');
+  if(stageTrack&&Math.abs(new DOMMatrix(getComputedStyle(stageTrack).transform).a-.85)>.005)throw Error('15 percent card shrink not applied');
   const roomArt=getComputedStyle(document.querySelector('#boardSection .room.gateway')).backgroundImage;
   for(const placeholder of document.querySelectorAll('#boardSection .demons > .cap')){
    if(getComputedStyle(placeholder).display!=='none')throw Error('Empty placeholder still visible');

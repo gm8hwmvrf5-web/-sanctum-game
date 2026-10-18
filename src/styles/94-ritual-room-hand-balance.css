@@ -1,0 +1,170 @@
+/* Gothic preview refinement: Ritual seal clearance, 15%-smaller Priest hand,
+ * taller rooms. All controls and live text remain connected to gameplay. */
+
+/* Leave the ornate frames intact and extend the five rooms vertically. */
+html.gothicUiPreview #boardSection .room{
+  height:clamp(215px,20.85vw,358px)!important;
+  min-height:clamp(215px,20.85vw,358px)!important;
+}
+@media(min-width:1001px) and (max-height:800px){
+  html.gothicUiPreview #boardSection .room{
+    height:clamp(215px,19.7vw,305px)!important;
+    min-height:clamp(215px,19.7vw,305px)!important;
+  }
+}
+
+/* Ritual seals belong to the upper parchment art. The text block now begins
+ * BELOW the seal rather than in the same row and at risk of overlap. */
+html.gothicUiPreview #ritualPanel .ritual{
+  box-sizing:border-box!important;
+  padding:clamp(8px,.73vw,12px)!important;
+  min-height:clamp(292px,19.45vw,346px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:4px!important;
+  overflow:hidden!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualHead{
+  display:block!important;
+  box-sizing:border-box!important;
+  flex:0 0 auto!important;
+  min-height:116px!important;
+  height:auto!important;
+  margin:0!important;
+  padding:74px 8px 6px!important;
+  border-bottom:1px solid #926a4233!important;
+  text-align:left!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualHead > span:last-child{
+  display:block!important;
+  min-width:0!important;
+  width:100%!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualName{
+  display:block!important;
+  font:700 clamp(12px,1.02vw,17px)/1.08 Georgia,serif!important;
+  color:#321d11!important;
+  white-space:normal!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualCost{
+  display:block!important;
+  margin-top:3px!important;
+  font:clamp(9px,.75vw,12px)/1.08 Georgia,serif!important;
+  color:#5b3620!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualTiers{
+  display:flex!important;
+  flex:1 1 auto!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  gap:clamp(4px,.36vw,6px)!important;
+  margin:0!important;
+  padding:5px 8px 7px!important;
+  overflow:visible!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualTier{
+  font:clamp(10px,.81vw,13px)/1.18 Georgia,serif!important;
+  color:#352115!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualTier b{
+  display:block!important;
+  margin:0 0 2px!important;
+  color:#442918!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualTier:last-child{
+  margin-top:auto!important;
+  padding-top:3px!important;
+}
+
+/* Exactly 85% visual scale. Scaling the *existing track* retains card art,
+ * buttons, empowered text, and carousel interaction in matching proportions. */
+html.gothicUiPreview #handPanel #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+  transform:scale(.85)!important;
+  transform-origin:50% 0!important;
+  margin-bottom:-40px!important;
+  filter:none!important;
+  overflow:visible!important;
+}
+html.gothicUiPreview #handPanel .handCharacterCards{
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+  transform:translate(-49px,42px)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  max-width:100%!important;
+}
+html.gothicUiPreview #handPanel #handContent .handCarousel{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media(min-width:1001px) and (max-height:800px){
+  html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+    transform:translate(-35px,36px)!important;
+  }
+  html.gothicUiPreview #ritualPanel .ritual{
+    min-height:clamp(292px,18.5vw,320px)!important;
+  }
+}
+/* iPhone landscape: title remains to the right of the icon because all three
+ * parchment cards have narrow columns, while *both effects* begin below it. */
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  html.gothicUiPreview #boardSection .room{
+    height:150px!important;
+    min-height:150px!important;
+  }
+  html.gothicUiPreview #ritualPanel .ritual{
+    min-height:170px!important;
+    padding:4px!important;
+    gap:2px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualHead{
+    min-height:46px!important;
+    padding:12px 3px 3px 43px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualName{
+    font-size:7.6px!important;line-height:1.07!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualCost{
+    font-size:6.1px!important;margin-top:1px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTiers{
+    padding:3px 3px 4px!important;gap:2px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTier{
+    font-size:6.2px!important;line-height:1.11!important;
+  }
+  html.gothicUiPreview #handPanel #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    transform:scale(.85)!important;
+    transform-origin:50% 0!important;
+    margin-bottom:-31px!important;
+  }
+  html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+    transform:translateY(18px)!important;
+    margin-left:auto!important;margin-right:auto!important;
+  }
+}
+/* Preserve the existing single-column portrait behavior. */
+@media(orientation:portrait) and (max-width:700px){
+  html.gothicUiPreview #boardSection .room{
+    height:268px!important;min-height:268px!important;
+  }
+  html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+    transform:translateY(23px)!important;
+    margin:0 auto!important;
+  }
+  html.gothicUiPreview #handPanel #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    transform:scale(.85)!important;transform-origin:50% 0!important;
+    margin-bottom:-31px!important;
+  }
+  html.gothicUiPreview #ritualPanel .ritual{min-height:195px!important;padding:4px!important}
+  html.gothicUiPreview #ritualPanel .gothicRitualHead{
+    padding:10px 2px 5px 35px!important;min-height:48px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTiers{padding:4px 3px 5px!important}
+  html.gothicUiPreview #ritualPanel .gothicRitualTier{font-size:8.7px!important;line-height:1.14!important}
+}
