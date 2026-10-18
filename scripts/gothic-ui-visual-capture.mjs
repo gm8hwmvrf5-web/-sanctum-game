@@ -36,6 +36,15 @@ for(const cfg of [
  }));
  console.log('GOTHIC_'+cfg.id+'_NAV:'+JSON.stringify(nav));
  console.log('GOTHIC_'+cfg.id+'_HUD:'+JSON.stringify(hud));
+ const geometry=await page.evaluate(()=>{
+  const room=document.querySelector('#boardSection .room');
+  const board=document.getElementById('boardSection');
+  const rm=getComputedStyle(room), bd=getComputedStyle(board);
+  return {viewport:[innerWidth,innerHeight],matches:matchMedia('(orientation:landscape) and (max-height:520px) and (max-width:1000px)').matches,
+   room:{computedHeight:rm.height,minHeight:rm.minHeight,maxHeight:rm.maxHeight,box:room.getBoundingClientRect().height,transform:rm.transform,zoom:rm.zoom},
+   board:{computedHeight:bd.height,maxHeight:bd.maxHeight,box:board.getBoundingClientRect().height,transform:bd.transform,zoom:bd.zoom}};
+ });
+ console.log('GOTHIC_'+cfg.id+'_ROOMGEOMETRY:'+JSON.stringify(geometry));
  console.log('GOTHIC_'+cfg.id+'_LAYOUT:'+JSON.stringify(data));
  console.log('GOTHIC_'+cfg.id+'_JPEG:'+jpg.toString('base64'));
  if(errors.length)console.log('GOTHIC_'+cfg.id+'_ERRORS:'+JSON.stringify(errors));
