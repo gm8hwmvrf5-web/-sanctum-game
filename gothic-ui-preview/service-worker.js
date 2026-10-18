@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-gothic-preview-v22';
+const CACHE_NAME='sanctum-gothic-preview-v23';
 const CORE=[
   './',
   './index.html',
@@ -19,6 +19,7 @@ const CORE=[
   './src/styles/91-reference-v2.css',
   './src/styles/92-gothic-ui-repair.css',
   './src/styles/93-ritual-hand-fix.css',
+  './src/styles/94-ritual-room-hand-balance.css',
   './assets/ui-gothic/cathedral-backdrop.svg',
   './assets/ui-gothic/room-tracery.svg',
   './assets/ui-gothic/header-crest.svg',
