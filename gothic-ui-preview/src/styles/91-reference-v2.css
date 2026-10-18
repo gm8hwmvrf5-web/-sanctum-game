@@ -343,3 +343,37 @@ html.gothicUiPreview body::after{content:none!important;display:none!important}
 }
 /* Keep the hand, rituals, and the gothic stone backdrop separate. */
 .gothicUiPreview #handPanel .handCharacterStage::before{display:none!important;content:none!important}
+
+
+/* Reference alignment: remove the original game rule that made the Priest
+   dashboard only 90% wide and right-aligned within its grid column. */
+.gothicUiPreview #handPanel .handCharacterPriest{
+ width:100%!important;max-width:100%!important;justify-self:stretch!important;
+ margin-left:0!important;margin-right:0!important
+}
+/* Two front cards, title, navigation and the page counter move together. */
+@media(min-width:1001px){
+ .gothicUiPreview #handPanel .handCharacterCards #handContent{
+  transform:translate(-58px,-24px)!important;position:relative!important
+ }
+ .gothicUiPreview #gothicRitualHeading{
+  height:clamp(39px,2.9vw,47px)!important;min-height:clamp(39px,2.9vw,47px)!important
+ }
+}
+/* Boss information is live. Remove the old red rectangle so the cathedral
+   throne and sculptures remain visible as they are in the reference. */
+.gothicUiPreview #boardSection .room.boss #bossArea .cap{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ color:#f5dcc8!important;max-width:92%!important;margin:0 auto!important;
+ font-size:clamp(9px,.78vw,13px)!important;line-height:1.17!important;
+ text-shadow:0 1px 4px #000,0 0 8px #000!important
+}
+/* Larger dynamic Priest card descriptions to match the painted card scale. */
+@media(min-width:1001px){
+ .gothicUiPreview #handContent .hand.carouselTrack>.card.carouselCard h4{
+  font-size:clamp(14px,1.03vw,18px)!important;line-height:1.05!important
+ }
+ .gothicUiPreview #handContent .hand.carouselTrack>.card.carouselCard p{
+  font-size:clamp(11px,.88vw,14px)!important;line-height:1.18!important
+ }
+}
