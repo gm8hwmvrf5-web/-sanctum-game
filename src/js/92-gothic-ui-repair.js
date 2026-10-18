@@ -33,6 +33,11 @@ function refine(){
   button.replaceChildren(icon,caption);
  }
 }
+const crest=document.getElementById('gothicCenterCrest');
+if(crest)crest.remove();
+const gameHeader=document.getElementById('gothicWardHeader');
+const gameTitle=gameHeader?.querySelector('strong');
+if(gameTitle)gameTitle.innerHTML='<span>SANCTUM</span><small>OF THE DAMNED</small>';
 window.__sanctumPolishActions=refine;
 refine();
 })();

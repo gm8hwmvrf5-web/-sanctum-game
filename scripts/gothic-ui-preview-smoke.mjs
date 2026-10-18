@@ -37,6 +37,9 @@ async function testViewport(width,height,phone=false){
     throw Error('Incorrect initial button order: '+visibleActions.join(','));
 
   if(!basic?.querySelector('.gothicActionIcon svg')||!end?.querySelector('.gothicActionIcon svg'))throw Error('Action buttons are missing sharp, live icons');
+  if(document.getElementById('gothicCenterCrest'))throw Error('Retired center crest is still visible');
+  if(!document.querySelector('#gothicWardHeader strong')?.textContent.includes('SANCTUM'))throw Error('Gothic game title missing');
+
   const beforeStyles=getComputedStyle(document.querySelector('#handPanel .handCharacterStage'),'::before');
   if(!beforeStyles.backgroundImage.includes('lower-environment.webp'))throw Error('Reference cathedral artwork is missing behind the Priest hand');
   const ritualNames=[...document.querySelectorAll('#ritualPanel .gothicRitualName')].map(e=>e.textContent);
