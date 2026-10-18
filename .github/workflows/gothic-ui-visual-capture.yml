@@ -5,6 +5,8 @@ on:
     paths:
       - 'src/js/88-gothic-ui-preview.js'
       - 'src/styles/88-gothic-ui-preview.css'
+      - 'src/styles/89-mockup-pixel-skin.css'
+      - 'src/js/89-mockup-pixel-skin.js'
       - 'assets/ui-gothic/**'
       - 'scripts/gothic-ui-visual-capture.mjs'
       - '.github/workflows/gothic-ui-visual-capture.yml'
