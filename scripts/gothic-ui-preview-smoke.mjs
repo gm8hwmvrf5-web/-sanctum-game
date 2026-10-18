@@ -40,8 +40,21 @@ async function testViewport(width,height,phone=false){
   if(document.getElementById('gothicCenterCrest'))throw Error('Retired center crest is still visible');
   if(!document.querySelector('#gothicWardHeader strong')?.textContent.includes('SANCTUM'))throw Error('Gothic game title missing');
 
-  const beforeStyles=getComputedStyle(document.querySelector('#handPanel .handCharacterStage'),'::before');
-  if(!beforeStyles.backgroundImage.includes('lower-environment.webp'))throw Error('Reference cathedral artwork is missing behind the Priest hand');
+  const stage=qs('#handPanel .handCharacterStage');
+  const hand=qs('#handContent');
+  const card=qs('#ritualPanel .ritual');
+  const tier=qs('#ritualPanel .gothicRitualTiers');
+  const head=qs('#ritualPanel .gothicRitualHead');
+  const getRect=e=>e?.getBoundingClientRect();
+  const section=getRect(card),body=getRect(tier),title=getRect(head);
+  if(!section||!body||!title||!getRect(hand))throw Error('Missing Ritual or Priest hand regions');
+  if(body.top-section.top < (innerWidth<1001?42:72))throw Error('Ritual effect text overlaps the artwork seal');
+  if(title.left-section.left < (innerWidth<1001?25:65))throw Error('Ritual heading overlaps painted seal');
+  const beforeStyles=getComputedStyle(stage,'::before');
+  const overlayStyles=getComputedStyle(stage,'::after');
+  if(!beforeStyles.backgroundImage.includes('cathedral-backdrop.svg'))throw Error('Sharp cathedral art missing behind Priest hand');
+  if(!overlayStyles.backgroundImage.includes('lower-environment.webp'))throw Error('Original decorative stone edges missing');
+  if(getComputedStyle(hand).filter!=='none')throw Error('Priest carousel has a blur filter');
   const ritualNames=[...document.querySelectorAll('#ritualPanel .gothicRitualName')].map(e=>e.textContent);
   if(ritualNames.length!==3||!ritualNames.every(Boolean))throw Error('Ritual names unreadable or missing');
   if(!action||basic?.parentElement!==action||end?.parentElement!==action||menu?.parentElement!==action||ward?.parentElement!==action)throw Error('Real game actions not relocated: '+JSON.stringify({started:S?.started,phase:S?.phase,action:!!action,basic:basic?.parentElement?.id,end:end?.parentElement?.id,menu:menu?.parentElement?.id,ward:ward?.parentElement?.id,priest:!!priest,hasRender:!!window.__sanctumGothicPreview}));

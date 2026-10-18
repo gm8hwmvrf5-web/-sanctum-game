@@ -1,0 +1,199 @@
+/* Surgical fixes after reference screenshot review — UI preview only.
+ * The engine's ritual text, Priest carousel and player action handlers stay live. */
+
+/* RITUALS — painted seals sit in the upper-left quarter of each parchment.
+   Reserve that space for the seals; do not let Lesser text start under them. */
+html.gothicUiPreview #ritualPanel .ritual{
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  padding:clamp(9px,.85vw,14px)!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualHead{
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:clamp(15px,1.15vw,20px) 5px 6px clamp(77px,6.05vw,101px)!important;
+  min-height:clamp(83px,6.25vw,106px)!important;
+  gap:0!important;
+  border-bottom:1px solid #8b65432a!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualHead > span:last-child{
+  display:block!important;min-width:0!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualName{
+  font-size:clamp(12px,1vw,17px)!important;
+  line-height:1.11!important;
+  color:#301a10!important;
+  overflow-wrap:normal!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualCost{
+  display:block!important;
+  font-size:clamp(9px,.78vw,13px)!important;
+  margin-top:4px!important;
+  line-height:1.08!important;
+  color:#583620!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualTiers{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:5px 6px 9px!important;
+  gap:clamp(4px,.45vw,8px)!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualTier{
+  line-height:1.2!important;
+  overflow-wrap:break-word!important;
+  white-space:normal!important;
+}
+html.gothicUiPreview #ritualPanel .gothicRitualTier:last-child{
+  margin-top:auto!important;
+  padding-bottom:2px!important;
+}
+
+/* PRIEST CAROUSEL — move the whole original carousel, not its grid/absolute
+   card positioning, and keep both front cards centered relative to the hand. */
+html.gothicUiPreview #handPanel .handCharacterCards{
+  align-self:stretch!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+  background:transparent!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  filter:none!important;
+}
+html.gothicUiPreview #handPanel .handCharacterCards::before,
+html.gothicUiPreview #handPanel .handCharacterCards::after{
+  content:none!important;display:none!important;
+}
+html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+  position:relative!important;
+  transform:translate(-18px,16px)!important;
+  margin:0 auto!important;
+  width:100%!important;max-width:100%!important;
+  background:transparent!important;box-shadow:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  filter:none!important;
+}
+html.gothicUiPreview #handPanel #handContent .handCarousel{
+  margin-right:auto!important;margin-left:auto!important;
+  /* Keep the engine's grid and card-position rules intact. */
+  filter:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+html.gothicUiPreview #handPanel .hand.carouselTrack{
+  filter:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+html.gothicUiPreview #handPanel .hand.carouselTrack > .card.carouselCard{
+  filter:none!important;backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* The haze is in the middle of the old WebP itself, not a CSS filter.
+   Replace the blurred middle with the sharp Gothic architectural SVG.
+   Keep only the original sharp candle/stone edges through an overlay mask. */
+html.gothicUiPreview #handPanel .handCharacterStage::before{
+  background-image:
+    radial-gradient(ellipse at 49% 78%,rgba(78,46,27,.20),rgba(7,6,10,.12) 65%,rgba(5,4,8,.47)),
+    url('../../assets/ui-gothic/cathedral-backdrop.svg')!important;
+  background-position:center,center!important;
+  background-size:100% 100%,100% 100%!important;
+  background-repeat:no-repeat!important;
+  filter:none!important;backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  opacity:1!important;
+}
+html.gothicUiPreview #handPanel .handCharacterStage::after{
+  display:block!important;
+  content:""!important;
+  position:absolute!important;
+  inset:-8px -5px -35px!important;
+  top:-8px!important;bottom:-35px!important;left:-5px!important;right:-5px!important;
+  width:auto!important;height:auto!important;
+  max-width:none!important;max-height:none!important;
+  background:url('../../assets/ui-gothic/faithful/lower-environment.webp')
+    center/100% 100% no-repeat!important;
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 8%,transparent 27%,transparent 83%,#000 98%,#000 100%)!important;
+  mask-image:linear-gradient(90deg,#000 0%,#000 8%,transparent 27%,transparent 83%,#000 98%,#000 100%)!important;
+  -webkit-mask-composite:source-over!important;
+  opacity:1!important;
+  filter:none!important;transform:none!important;
+  z-index:0!important;
+  pointer-events:none!important;
+}
+html.gothicUiPreview #handPanel .handCharacterCards,
+html.gothicUiPreview #handPanel .handCharacterPriest{
+  position:relative!important;
+  z-index:2!important;
+}
+
+/* The desktop reference leaves enough room for the entire Ritual effect and
+   does not crop the Free (20) text at the bottom. */
+@media(min-width:1001px) and (max-height:800px){
+  html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+    transform:translate(-35px,14px)!important;
+  }
+  html.gothicUiPreview #ritualPanel .ritual{
+    min-height:clamp(242px,16.25vw,270px)!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualHead{
+    padding-left:clamp(72px,5.65vw,88px)!important;
+    min-height:clamp(74px,5.75vw,94px)!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTiers{
+    padding-top:4px!important;
+    font-size:inherit!important;
+  }
+}
+/* Phone landscape: proportional icon clearance so the narrow three-column
+   Ritual layout remains usable and the carousel does not fall off the screen. */
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  html.gothicUiPreview #ritualPanel .ritual{
+    min-height:169px!important;
+    padding:4px!important;
+    gap:2px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualHead{
+    min-height:42px!important;
+    padding:8px 2px 2px 39px!important;
+    align-items:flex-start!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualName{
+    font-size:7.9px!important;line-height:1.07!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualCost{
+    font-size:6.1px!important;margin-top:1px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTiers{
+    padding:4px 2px 3px!important;gap:3px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTier{
+    font-size:6.4px!important;line-height:1.13!important;
+  }
+  html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+    transform:translateY(9px)!important;
+    margin:0 auto!important;
+  }
+  html.gothicUiPreview #handPanel .handCharacterStage::after{
+    inset:-3px -2px -12px!important;
+  }
+}
+@media(orientation:portrait) and (max-width:700px){
+  html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+    transform:translateY(13px)!important;
+  }
+  html.gothicUiPreview #ritualPanel .ritual{padding:4px!important;gap:3px!important}
+  html.gothicUiPreview #ritualPanel .gothicRitualHead{
+    min-height:53px!important;padding:10px 2px 4px 33px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTiers{
+    padding:4px 2px 5px!important;gap:4px!important;
+  }
+  html.gothicUiPreview #ritualPanel .gothicRitualTier{
+    font-size:9px!important;line-height:1.16!important;
+  }
+}

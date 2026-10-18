@@ -37,6 +37,7 @@ for(const spec of [{name:'desktop',width:1536,height:768,isMobile:false},{name:'
   if(rituals.length!==3)throw Error('Ritual count changed');
   if(!getComputedStyle(document.querySelector('#ritualPanel .ritual')).backgroundImage.includes('ritual-red-v2.webp'))throw Error('Updated reference ritual artwork missing');
   if(!getComputedStyle(document.body,'::before').backgroundImage.includes('reference-cathedral-shell.webp'))throw Error('Reference cathedral background missing');
+  if(!getComputedStyle(document.querySelector('#handPanel .handCharacterStage'),'::before').backgroundImage.includes('cathedral-backdrop.svg'))throw Error('Sharp Priest-stage backing missing');
   const region=el=>{const a=el.getBoundingClientRect();return {x:Math.round(a.x),y:Math.round(a.y),w:Math.round(a.width),h:Math.round(a.height)}};
   return {rooms:[...document.querySelectorAll('#boardSection .room')].map(region),hand:region(document.getElementById('handPanel')),actions:region(actions)};
  });
