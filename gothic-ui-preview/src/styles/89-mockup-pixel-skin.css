@@ -210,3 +210,28 @@ html.gothicUiPreview body::before{
  .gothicUiPreview #handPanel .handCharacterCards{grid-row:1!important}
  .gothicUiPreview #gothicPreviewActions .btn{font-size:10px!important;padding-left:17px!important}
 }
+
+
+/* FINAL MOCKUP COMPARISON PASS — use only artwork, never old screenshot text. */
+#gothicPreviewHeader #topStatusBar .stat:has(#defeatStat){display:none!important}
+#gothicPreviewHeader #topStatusBar.stats{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.gothicUiPreview #handPanel .handCharacterStage::before{
+ background-image:url('../../assets/ui-gothic/faithful/hooded-figure.webp')!important;
+ left:49%!important;bottom:-5px!important;width:clamp(125px,14vw,232px)!important;
+ height:clamp(142px,15vw,230px)!important;
+ opacity:.8!important;filter:brightness(.72) contrast(1.12)!important;
+ z-index:0!important;pointer-events:none!important
+}
+.gothicUiPreview #handPanel .handCharacterStage>.handCharacterCards,
+.gothicUiPreview #handPanel .handCharacterStage>.handCharacterPriest{position:relative!important;z-index:2!important}
+.gothicUiPreview #handPanel #gothicPreviewActions{position:relative!important;z-index:5!important}
+.gothicUiPreview #handPanel #gothicPreviewActions .btn{
+ background-size:100% 100%!important;box-shadow:none!important;
+ position:relative!important;z-index:5!important
+}
+.gothicUiPreview #handPanel .handCharacterCards{background:rgba(9,7,9,.17)!important}
+.gothicUiPreview #handPanel #ritualPanel{background:rgba(7,5,8,.24)!important}
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ .gothicUiPreview #handPanel .handCharacterStage::before{display:none!important}
+ .gothicUiPreview #gothicPreviewActions .btn{background-size:100% 100%!important}
+}

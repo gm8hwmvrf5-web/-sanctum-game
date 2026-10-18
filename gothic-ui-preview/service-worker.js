@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-gothic-preview-v3';
+const CACHE_NAME='sanctum-gothic-preview-v4';
 const CORE=[
   './',
   './index.html',
@@ -38,6 +38,7 @@ const CORE=[
   './assets/ui-gothic/faithful/action-menu.webp',
   './assets/ui-gothic/faithful/banner.webp',
   './assets/ui-gothic/faithful/crest.webp',
+  './assets/ui-gothic/faithful/hooded-figure.webp',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
