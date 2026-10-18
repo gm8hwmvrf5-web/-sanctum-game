@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-gothic-preview-v12';
+const CACHE_NAME='sanctum-gothic-preview-v13';
 const CORE=[
   './',
   './index.html',

@@ -31,6 +31,10 @@ for(const cfg of [
    const rectangle=(e)=>{let r=e.getBoundingClientRect();return [Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)]};
    return {hud:rectangle(h),css:{display:getComputedStyle(h).display,columns:getComputedStyle(h).gridTemplateColumns},items:[...h.children].map(el=>({id:el.id,cls:el.className,display:getComputedStyle(el).display,position:getComputedStyle(el).position,rect:rectangle(el),b:el.querySelector(':scope>b')?rectangle(el.querySelector(':scope>b')):null,text:el.textContent.trim().slice(0,90)}))};
  });
+ const nav=await page.evaluate(()=>[...document.querySelectorAll('#handPanel .carouselNav')].map(el=>{
+  const b=el.getBoundingClientRect();return {text:el.textContent,cls:el.className,parent:el.parentElement?.className,rect:[Math.round(b.x),Math.round(b.y),Math.round(b.width),Math.round(b.height)]};
+ }));
+ console.log('GOTHIC_'+cfg.id+'_NAV:'+JSON.stringify(nav));
  console.log('GOTHIC_'+cfg.id+'_HUD:'+JSON.stringify(hud));
  console.log('GOTHIC_'+cfg.id+'_LAYOUT:'+JSON.stringify(data));
  console.log('GOTHIC_'+cfg.id+'_JPEG:'+jpg.toString('base64'));
