@@ -24,7 +24,7 @@ async function testViewport(width,height,phone=false){
   const btns=[...action?.querySelectorAll('button')||[]].map(x=>x.id);
   if(!document.documentElement.classList.contains('gothicUiPreview'))throw Error('Preview stylesheet not enabled');
   if(!board||!priest||!hud||!qs('#gothicPreviewHeader'))throw Error('Missing core board/Priest/HUD');
-  if(!qs('#gothicWardHeader').textContent.includes('WARDCRAFT'))throw Error('No Wardcraft header');
+  if(!qs('#gothicWardHeader').textContent.includes('SANCTUM'))throw Error('No Sanctum title in new header');
   if(qs('#gothicPreviewHeader').querySelector('#topStatusBar')!==hud)throw Error('Status HUD not integrated');
   const uniqueBasic=document.querySelectorAll('#basicBtn').length;
   const uniqueEnd=document.querySelectorAll('#endBtn').length;
