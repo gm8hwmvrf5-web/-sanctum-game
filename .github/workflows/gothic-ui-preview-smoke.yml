@@ -17,6 +17,8 @@ jobs:
       - name: Check UI module syntax
         run: |
           node --check src/js/88-gothic-ui-preview.js
+          node --check src/js/89-mockup-pixel-skin.js
+          node --check src/js/90-hud-room-cleanup.js
           node --check service-worker.js
       - name: Install browser for two viewport checks
         run: |
