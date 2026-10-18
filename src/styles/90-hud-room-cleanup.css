@@ -81,7 +81,7 @@ html.gothicUiPreview body::after{
 #gothicPreviewHeader #topStatusBar .stat > span:not(.gothicHudIcon),
 #gothicPreviewHeader #gothicXpHud > small{
   display:block!important;
-  width:100%!;
+  width:100%!important;
   position:relative!important;
   z-index:5!important;
   font:700 clamp(8px,.71vw,11px)/1.12 Georgia,"Times New Roman",serif!important;
@@ -172,4 +172,22 @@ html.gothicUiPreview body::after{
   #gothicPreviewHeader #topStatusBar .gothicHudIcon{width:16px!important;height:16px!important;left:3px!important}
   #gothicPreviewHeader #topStatusBar > .stat,
   #gothicPreviewHeader #gothicXpHud{padding-left:19px!important}
+}
+
+
+/* The retired run-progress container must stay hidden. Without this exact
+   override, an earlier child selector re-enables it and collapses the HUD
+   into two grid rows only nine pixels tall. */
+#gothicPreviewHeader #topStatusBar > .stat.runProgressStat{display:none!important}
+#gothicPreviewHeader #topStatusBar > .stat:has(#defeatStat){display:none!important}
+#gothicPreviewHeader #topStatusBar > .stat:not(.runProgressStat){min-height:0!important}
+
+/* Subtle ambient stone light through the bottom area, rather than a
+   uniform opaque black band behind the Priest commands. */
+html.gothicUiPreview body::before{
+  background:
+    radial-gradient(ellipse at 48% 84%,rgba(130,82,44,.34),transparent 64%),
+    linear-gradient(180deg,rgba(4,3,4,0) 46%,rgba(93,57,40,.2) 100%),
+    url('../../assets/ui-gothic/cathedral-backdrop.svg') center center/cover no-repeat,
+    #100c10!important;
 }

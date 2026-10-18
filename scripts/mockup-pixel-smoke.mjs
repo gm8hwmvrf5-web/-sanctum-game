@@ -12,6 +12,12 @@ for(const spec of [{name:'desktop',width:1536,height:768,isMobile:false},{name:'
   const paths=['reference-shell','room-gateway','room-hall','room-chapel','room-crypt','room-boss','parchment-red','parchment-purple','parchment-gold','action-attack','action-ward','action-end','action-menu','banner','crest','hooded-figure'].map(n=>'./assets/ui-gothic/faithful/'+n+'.webp');
   const fetched=await Promise.all(paths.map(async p=>({p,ok:(await fetch(p)).ok})));
   if(fetched.some(x=>!x.ok))throw Error('Art missing: '+JSON.stringify(fetched.filter(x=>!x.ok)));
+  const hud=document.getElementById('topStatusBar');
+  const visibleHud=[...hud.children].filter(e=>getComputedStyle(e).display!=='none');
+  if(visibleHud.length!==5)throw Error('HUD must contain five visible columns, got '+visibleHud.map(e=>e.id||e.className));
+  const boxes=visibleHud.map(e=>e.getBoundingClientRect());
+  if(boxes.some(b=>b.height<20)||Math.max(...boxes.map(b=>b.y))-Math.min(...boxes.map(b=>b.y))>2)
+    throw Error('HUD stats are not centered on one row: '+JSON.stringify(boxes.map(b=>({y:b.y,height:b.height}))));
   const roomArt=getComputedStyle(document.querySelector('#boardSection .room.gateway')).backgroundImage;
   for(const placeholder of document.querySelectorAll('#boardSection .demons > .cap')){
    if(getComputedStyle(placeholder).display!=='none')throw Error('Empty placeholder still visible');
