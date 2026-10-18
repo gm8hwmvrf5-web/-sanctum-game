@@ -113,9 +113,10 @@ function mountUI(){
  status();
 }
 function enhance(){try{mountUI();status();}catch(e){console.warn('[Gothic UI preview] Decoration skipped:',e)}}
+// Defer direct Priest rerenders until Wardcraft has attached its live button.
 if(typeof renderPlayer==='function'){
  const prev=renderPlayer;
- renderPlayer=function(){const out=prev.apply(this,arguments);enhance();return out};
+ renderPlayer=function(){const out=prev.apply(this,arguments);queueMicrotask(enhance);return out};
 }
 if(typeof render==='function'){
  const prev=render;
@@ -124,7 +125,7 @@ if(typeof render==='function'){
 }
 if(typeof rogueliteRenderHud==='function'){
  const prev=rogueliteRenderHud;
- rogueliteRenderHud=function(){const out=prev.apply(this,arguments);enhance();return out};
+ rogueliteRenderHud=function(){const out=prev.apply(this,arguments);queueMicrotask(enhance);return out};
 }
 enhance();
 window.__sanctumGothicPreview={mount:enhance};
