@@ -309,3 +309,58 @@ html.gothicUiPreview #ritualPanel .ritual{
 html.gothicUiPreview #ritualPanel .gothicRitualTiers{
  overflow:visible!important;
 }
+
+
+/* Final approved header: no center gem, no Wardcraft counter strip, and
+   the five live stats share the full remaining width. */
+html.gothicUiPreview #gothicPreviewHeader{
+ display:grid!important;
+ grid-template-columns:minmax(190px,23%) minmax(0,77%)!important;
+ gap:0!important;
+ align-items:center!important;
+}
+html.gothicUiPreview #gothicCenterCrest{display:none!important}
+html.gothicUiPreview #gothicWardHeader{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;max-width:100%!important;
+ height:clamp(50px,3.9vw,67px)!important;min-height:0!important;
+ padding:5px 12px!important;
+ background:url('../../assets/ui-gothic/header-banner.svg') center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;overflow:hidden!important;
+}
+html.gothicUiPreview #gothicWardHeader strong{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ justify-content:center!important;gap:1px!important;
+ visibility:visible!important;opacity:1!important;position:relative!important;
+ width:auto!important;height:auto!important;min-width:0!important;
+ color:#f0d39c!important;text-shadow:0 1px 3px #000!important;
+ font:700 clamp(13px,1.3vw,23px)/1 Georgia,serif!important;
+ letter-spacing:.045em!important;white-space:nowrap!important;
+}
+html.gothicUiPreview #gothicWardHeader strong small{
+ font:500 .65em/1 Georgia,serif!important;letter-spacing:.11em!important;
+ color:#dbbe8b!important;white-space:nowrap!important;
+}
+html.gothicUiPreview #gothicWardHeader #gothicWardStatus{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+html.gothicUiPreview #gothicPreviewHeader #topStatusBar.stats{
+ width:100%!important;max-width:none!important;
+ grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ html.gothicUiPreview #gothicPreviewHeader{
+  grid-template-columns:minmax(110px,24%) minmax(0,76%)!important;
+ }
+ html.gothicUiPreview #gothicWardHeader{height:31px!important;padding:2px 10px!important}
+ html.gothicUiPreview #gothicWardHeader strong{font-size:9px!important}
+ html.gothicUiPreview #gothicWardHeader strong small{font-size:6px!important}
+}
+@media(orientation:portrait) and (max-width:700px){
+ html.gothicUiPreview #gothicPreviewHeader{
+  grid-template-columns:1fr!important;
+ }
+ html.gothicUiPreview #gothicWardHeader{height:43px!important}
+ html.gothicUiPreview #gothicWardHeader strong{font-size:18px!important}
+}
