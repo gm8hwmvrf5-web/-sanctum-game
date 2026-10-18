@@ -191,3 +191,12 @@ html.gothicUiPreview body::before{
     url('../../assets/ui-gothic/cathedral-backdrop.svg') center center/cover no-repeat,
     #100c10!important;
 }
+
+
+/* Final HUD legibility: short labels and subtle, nonblocking timer sand. */
+#gothicPreviewHeader #topStatusBar .stat > span:not(.gothicHudIcon),
+#gothicPreviewHeader #gothicXpHud > small{letter-spacing:.04em!important}
+#gothicPreviewHeader #turnTimerStat .turnTimerSandSpecks,
+#gothicPreviewHeader #turnTimerStat .turnTimerSandStream{
+ opacity:.17!important;pointer-events:none!important
+}
