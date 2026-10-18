@@ -1,146 +1,125 @@
-/* Visual-only Gothic UI preview for a dedicated testing branch.
- * Original game state, button events and Supabase behavior are reused. */
+/* Faithful SVG-art Gothic visual layer. The game engine stays unchanged. */
 (()=>{
 'use strict';
-const app=document.querySelector('body>.app');
-const board=document.getElementById('boardSection');
-const originalHud=document.getElementById('topStatusBar');
-if(!app||!board||!originalHud)return;
+const app=document.querySelector('body>.app'),board=document.getElementById('boardSection'),hud=document.getElementById('topStatusBar');
+if(!app||!board||!hud)return;
 document.documentElement.classList.add('gothicUiPreview');
-
-const header=document.createElement('div');
-header.id='gothicPreviewHeader';
-header.setAttribute('aria-label','Wardcraft and combat status');
-header.innerHTML='<div id="gothicWardHeader"><strong>WARDCRAFT</strong><span id="gothicWardStatus">Wardcraft is waiting for the next passage.</span></div><div id="gothicHudDock"></div>';
-app.insertBefore(header,board);
-header.querySelector('#gothicHudDock').appendChild(originalHud);
-const xp=document.createElement('div');
-xp.id='gothicXpHud';
+const banner=document.createElement('div');banner.id='gothicPreviewHeader';
+banner.setAttribute('aria-label','Wardcraft and combat status');
+banner.innerHTML='<div id="gothicWardHeader"><strong>WARDCRAFT</strong><span id="gothicWardStatus">Wards await your descent</span></div><img id="gothicCenterCrest" src="./assets/ui-gothic/header-crest.svg" alt="" aria-hidden="true"><div id="gothicHudDock"></div>';
+app.insertBefore(banner,board);
+banner.querySelector('#gothicHudDock').appendChild(hud);
+const xp=document.createElement('div');xp.id='gothicXpHud';
 xp.setAttribute('aria-label','Relic XP');
 xp.innerHTML='<b id="gothicXpValue">0 / 35</b><small>RELIC XP</small><span class="gothicXpTrack"><span class="gothicXpFill" id="gothicXpFill"></span></span>';
-originalHud.appendChild(xp);
-
-function status(){
- const ward=typeof window.__sanctumWards==='object'?window.__sanctumWards:null;
- const s=typeof S!=='undefined'?S:null;
- const a=s?.wardcraft;
- const label=document.getElementById('gothicWardStatus');
- if(!label)return;
- if(!s?.started){label.textContent='Wards await your descent';}
- else if(a?.active){label.textContent='Active Ward · '+(ward?.definitions?.find(w=>w.key===a.active.key)?.name||'Sanctum Ward');}
- else if(a?.selected){label.textContent='Ward ready to place';}
- else if(a?.offers?.length){label.textContent='Choose your Ward for this passage';}
- else{const interval=ward?.interval||3;const count=Math.max(0,Number(a?.combatPassages)||0);const left=interval-(count%interval);label.textContent='Next Ward draft in '+left+' combat passage'+(left===1?'':'s');}
- const relicMeter=document.getElementById('relicXpMeterStat');
- const value=document.getElementById('relicXpMeterValue');
- const out=document.getElementById('gothicXpValue');
- if(value&&out)out.textContent=value.textContent;
- const now=Number(relicMeter?.getAttribute('aria-valuenow'))||0;
- const max=Number(relicMeter?.getAttribute('aria-valuemax'))||35;
- const fill=document.getElementById('gothicXpFill');
- if(fill)fill.style.width=Math.min(100,Math.max(0,now/Math.max(1,max)*100))+'%';
+hud.appendChild(xp);
+for(const room of board.querySelectorAll('.room')){
+ if(!room.querySelector('.gothicRoomFrame')){
+  const art=document.createElement('span');art.className='gothicRoomFrame';art.setAttribute('aria-hidden','true');room.appendChild(art);
+ }
 }
-function improveRituals(){
- document.querySelectorAll('#ritualPanel .ritualMain .rituals>.ritual:not([data-gothic-ritual])').forEach((ritual,index)=>{
-  const title=ritual.querySelector(':scope > b');
-  const details=ritual.querySelector(':scope > small');
-  const btn=ritual.querySelector(':scope > button');
-  if(!title||!details||!btn)return;
-  const name=title.textContent.trim();
-  const textCost=[...ritual.childNodes].filter(node=>node.nodeType===3).map(node=>node.textContent).join(' ');
-  const cost=(textCost.match(/(\d+)\s+Demon Blood/i)||[])[1]||'0';
-  const head=document.createElement('div');
-  head.className='gothicRitualHead';
-  const seal=document.createElement('span');
-  seal.className='gothicRitualSeal';
-  seal.setAttribute('aria-hidden','true');
-  seal.textContent=['♰','✦','☀'][index]||'✦';
-  const caption=document.createElement('span');
-  const titleNode=document.createElement('b');titleNode.className='gothicRitualName';titleNode.textContent=name;
-  const costNode=document.createElement('small');costNode.className='gothicRitualCost';costNode.textContent=cost+' Demon Blood';
-  caption.append(titleNode,costNode);head.append(seal,caption);
+function syncStatus(){
+ const s=typeof S==='undefined'?null:S,ward=window.__sanctumWards||null,a=s?.wardcraft;
+ const out=document.getElementById('gothicWardStatus');
+ if(out){
+  if(!s?.started)out.textContent='Wards await your descent';
+  else if(a?.active)out.textContent='Active Ward · '+(ward?.definitions?.find(w=>w.key===a.active.key)?.name||'Sanctum Ward');
+  else if(a?.selected)out.textContent='Ward ready to place';
+  else if(a?.offers?.length)out.textContent='Choose your Ward for this passage';
+  else{const n=ward?.interval||3,c=Math.max(0,Number(a?.combatPassages)||0),left=n-c%n;out.textContent='Next Ward draft in '+left+' combat passage'+(left===1?'':'s');}
+ }
+ const value=document.getElementById('relicXpMeterValue'),meter=document.getElementById('relicXpMeterStat');
+ const text=document.getElementById('gothicXpValue'),fill=document.getElementById('gothicXpFill');
+ if(value&&text)text.textContent=value.textContent;
+ if(fill){const v=Number(meter?.getAttribute('aria-valuenow'))||0,max=Math.max(1,Number(meter?.getAttribute('aria-valuemax'))||35);fill.style.width=(Math.min(100,Math.max(0,v/max*100)))+'%';}
+}
+function enhanceRituals(){
+ const rituals=document.querySelectorAll('#ritualPanel .ritualMain .rituals>.ritual:not([data-gothic-ritual])');
+ rituals.forEach((r,index)=>{
+  const title=r.querySelector(':scope > b'),desc=r.querySelector(':scope > small'),button=r.querySelector(':scope > button[data-rit]');
+  if(!title||!desc||!button)return;
+  const cost=(Array.from(r.childNodes).filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join(' ').match(/(\d+)\s+Demon Blood/i)||[])[1]||'0';
+  const head=document.createElement('div');head.className='gothicRitualHead';
+  const seal=document.createElement('span');seal.className='gothicRitualSeal';seal.dataset.ritualIndex=String(index);seal.textContent=['♰','✦','☀'][index]||'✦';seal.setAttribute('aria-hidden','true');
+  const info=document.createElement('span');
+  const name=document.createElement('b');name.className='gothicRitualName';name.textContent=title.textContent;
+  const blood=document.createElement('small');blood.className='gothicRitualCost';blood.textContent=cost+' Demon Blood';
+  info.append(name,blood);head.append(seal,info);
   const tiers=document.createElement('div');tiers.className='gothicRitualTiers';
-  const sectionHtml=details.innerHTML.split(/<br\s*\/?>/i);
-  sectionHtml.forEach(html=>{
-   if(!html.trim())return;
-   const el=document.createElement('div');el.className='gothicRitualTier';
-   el.innerHTML=html;
-   tiers.appendChild(el);
+  desc.innerHTML.split(/<br\s*\/?>/i).forEach(s=>{
+   if(!s.trim())return;
+   const section=document.createElement('div');section.className='gothicRitualTier';section.innerHTML=s;tiers.appendChild(section);
   });
-  ritual.replaceChildren(head,tiers,btn);
-  ritual.dataset.gothicRitual='1';
+  r.replaceChildren(head,tiers,button);r.dataset.gothicRitual='1';
+  // Retain the original ritual button and its game handler, but make the full
+  // parchment clickable for mouse/touch and keyboard in the mockup layout.
+  r.classList.add('gothicRitualReady');r.setAttribute('role','button');r.tabIndex=0;
+  r.setAttribute('aria-label',name.textContent+' — '+blood.textContent+'. '+button.textContent);
+  r.onclick=event=>{if(event.target.closest('button'))return;button.click();};
+  r.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();button.click();}};
  });
 }
-function mountUI(){
- const cards=document.querySelector('#handPanel .handCharacterCards');
- if(cards&&!cards.querySelector(':scope > .gothicHandTitle')){
-  const title=document.createElement('div');
-  title.className='gothicHandTitle';title.textContent='PRIEST HAND';
-  cards.insertBefore(title,cards.firstChild);
- }
+function mount(){
  const priest=document.querySelector('#handPanel .handCharacterPriest');
  if(!priest)return;
- let actionBar=document.getElementById('gothicPreviewActions');
- if(!actionBar){
-  actionBar=document.createElement('div');actionBar.id='gothicPreviewActions';
-  actionBar.setAttribute('role','group');
-  actionBar.setAttribute('aria-label','Priest turn actions');
-  priest.appendChild(actionBar);
+ const cards=document.querySelector('#handPanel .handCharacterCards');
+ if(cards&&!cards.querySelector(':scope > .gothicHandTitle')){
+  const unused=document.createElement('div');unused.className='gothicHandTitle';unused.textContent='Priest hand';cards.insertBefore(unused,cards.firstChild);
  }
- // Priest rerenders create fresh gameplay buttons in the Ritual panel.
- // Prefer those over the detached previous buttons in the action strip.
- const freshBasic=priest.querySelector('#ritualPanel #basicBtn');
- const freshEnd=priest.querySelector('#ritualPanel #endBtn');
- const priorBasic=actionBar.querySelector('#basicBtn');
- const priorEnd=actionBar.querySelector('#endBtn');
- const basic=freshBasic||priorBasic;
- const end=freshEnd||priorEnd;
- const ward=document.getElementById('wardcraftCast');
+ let ritualHeading=document.getElementById('gothicRitualHeading');
+ if(!ritualHeading){
+  ritualHeading=document.createElement('div');ritualHeading.id='gothicRitualHeading';
+  ritualHeading.innerHTML='<span class="gothicHeadingText">RITUALS</span>';
+  priest.insertBefore(ritualHeading,document.getElementById('ritualPanel'));
+ }
+ const freshSummary=document.querySelector('#handPanel .priestRelicTopStack .relicSummary');
+ const existingSummary=ritualHeading.querySelector('.relicSummary');
+ if(freshSummary){
+  if(existingSummary&&existingSummary!==freshSummary)existingSummary.remove();
+  ritualHeading.appendChild(freshSummary);
+ }
+ const gauge=document.querySelector('#ritualPanel .ritualTitleWithBlood .ritualBloodGauge');
+ if(gauge)ritualHeading.appendChild(gauge);
+ let actions=document.getElementById('gothicPreviewActions');
+ if(!actions){actions=document.createElement('div');actions.id='gothicPreviewActions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Priest turn actions');priest.appendChild(actions);}
+ // The engine recreates the Priest tracker on each render. Prefer those
+ // newly wired buttons; old buttons are detached to avoid duplicate IDs.
+ const newBasic=priest.querySelector('#ritualPanel #basicBtn'),newEnd=priest.querySelector('#ritualPanel #endBtn');
+ const oldBasic=actions.querySelector('#basicBtn'),oldEnd=actions.querySelector('#endBtn');
+ const basic=newBasic||oldBasic,end=newEnd||oldEnd;
  if(!basic||!end)return;
- if(priorBasic&&priorBasic!==basic)priorBasic.remove();
- if(priorEnd&&priorEnd!==end)priorEnd.remove();
- // Reuse live onClick bindings, do not create substitute gameplay actions.
- if(basic.parentNode!==actionBar)actionBar.appendChild(basic);
+ if(oldBasic&&oldBasic!==basic)oldBasic.remove();
+ if(oldEnd&&oldEnd!==end)oldEnd.remove();
+ const ward=document.getElementById('wardcraftCast');
  let placeholder=document.getElementById('gothicWardPlaceholder');
- if(!placeholder){
-  placeholder=document.createElement('button');placeholder.id='gothicWardPlaceholder';
-  placeholder.className='btn';placeholder.type='button';placeholder.textContent='Place Ward';
-  placeholder.disabled=true;placeholder.title='Earn and choose a Ward to place it.';
- }
- if(ward&&ward.parentNode!==actionBar)actionBar.appendChild(ward);
- if(placeholder.parentNode!==actionBar)actionBar.appendChild(placeholder);
- placeholder.hidden=!!(ward&&!ward.hidden);
- if(end.parentNode!==actionBar)actionBar.appendChild(end);
+ if(!placeholder){placeholder=document.createElement('button');placeholder.id='gothicWardPlaceholder';placeholder.type='button';placeholder.className='btn';placeholder.disabled=true;placeholder.textContent='Place Ward';placeholder.title='Choose a Ward to enable placement';}
+ placeholder.hidden=!!ward&&!ward.hidden;
  let menu=document.getElementById('gothicMenuBtn');
- if(!menu){
-  menu=document.createElement('button');menu.type='button';menu.id='gothicMenuBtn';
-  menu.className='btn';menu.textContent='Menu';menu.setAttribute('aria-label','Open pause menu');
-  menu.addEventListener('click',()=>{if(typeof window.openGameMenu==='function')window.openGameMenu();});
- }
- // Restack on every render; a fresh Priest button must never jump behind Menu.
- actionBar.appendChild(basic);
- if(ward)actionBar.appendChild(ward);
- actionBar.appendChild(placeholder);
- actionBar.appendChild(end);
- actionBar.appendChild(menu);
- improveRituals();
- status();
+ if(!menu){menu=document.createElement('button');menu.type='button';menu.className='btn';menu.id='gothicMenuBtn';menu.textContent='Menu';menu.setAttribute('aria-label','Open pause menu');menu.addEventListener('click',()=>window.openGameMenu?.());}
+ // Fixed mockup order. Re-mount the live Ward button after Wardcraft's render hook.
+ actions.appendChild(basic);
+ if(ward)actions.appendChild(ward);
+ actions.appendChild(placeholder);
+ actions.appendChild(end);
+ actions.appendChild(menu);
+ enhanceRituals();
+ syncStatus();
 }
-function enhance(){try{mountUI();status();}catch(e){console.warn('[Gothic UI preview] Decoration skipped:',e)}}
-// Defer direct Priest rerenders until Wardcraft has attached its live button.
+let queued=false;
+function enhance(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;try{mount()}catch(err){console.warn('Gothic visual preview skipped',err)}});}
 if(typeof renderPlayer==='function'){
  const prev=renderPlayer;
- renderPlayer=function(){const out=prev.apply(this,arguments);queueMicrotask(enhance);return out};
+ renderPlayer=function(){const result=prev.apply(this,arguments);enhance();return result};
 }
 if(typeof render==='function'){
  const prev=render;
- render=function(){const out=prev.apply(this,arguments);enhance();return out};
+ render=function(){const result=prev.apply(this,arguments);enhance();return result};
  try{window.render=render}catch(_){}
 }
 if(typeof rogueliteRenderHud==='function'){
  const prev=rogueliteRenderHud;
- rogueliteRenderHud=function(){const out=prev.apply(this,arguments);queueMicrotask(enhance);return out};
+ rogueliteRenderHud=function(){const result=prev.apply(this,arguments);enhance();return result};
 }
 enhance();
-window.__sanctumGothicPreview={mount:enhance};
+window.__sanctumGothicPreview={mount:()=>{mount();syncStatus();}};
 })();
