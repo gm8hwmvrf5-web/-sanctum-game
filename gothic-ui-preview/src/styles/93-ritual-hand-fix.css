@@ -197,3 +197,18 @@ html.gothicUiPreview #handPanel .handCharacterPriest{
     font-size:9px!important;line-height:1.16!important;
   }
 }
+
+
+/* Last visual correction at the approved desktop mockup size: front Priest
+   cards share the centerline of the left half of the cathedral scene. */
+@media(min-width:1001px) and (min-height:801px){
+ html.gothicUiPreview #handPanel .handCharacterCards #handContent{
+  transform:translate(-49px,16px)!important;
+ }
+}
+/* The very left of the former image contains an old, non-interactive arrow.
+   Only keep the crisp stone and candle edges, never that baked-in arrow. */
+html.gothicUiPreview #handPanel .handCharacterStage::after{
+ -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 3%,transparent 7%,transparent 94%,#000 100%)!important;
+ mask-image:linear-gradient(90deg,#000 0%,#000 3%,transparent 7%,transparent 94%,#000 100%)!important;
+}
