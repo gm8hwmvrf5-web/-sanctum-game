@@ -87,10 +87,19 @@ function mountUI(){
   actionBar.setAttribute('aria-label','Priest turn actions');
   priest.appendChild(actionBar);
  }
- const basic=document.getElementById('basicBtn');
- const end=document.getElementById('endBtn');
+ // Priest rerenders create fresh gameplay buttons in the Ritual panel.
+ // Prefer those over the detached previous buttons in the action strip.
+ const freshBasic=priest.querySelector('#ritualPanel #basicBtn');
+ const freshEnd=priest.querySelector('#ritualPanel #endBtn');
+ const priorBasic=actionBar.querySelector('#basicBtn');
+ const priorEnd=actionBar.querySelector('#endBtn');
+ const basic=freshBasic||priorBasic;
+ const end=freshEnd||priorEnd;
  const ward=document.getElementById('wardcraftCast');
  if(!basic||!end)return;
+ if(priorBasic&&priorBasic!==basic)priorBasic.remove();
+ if(priorEnd&&priorEnd!==end)priorEnd.remove();
+ // Reuse live onClick bindings, do not create substitute gameplay actions.
  if(basic.parentNode!==actionBar)actionBar.appendChild(basic);
  let placeholder=document.getElementById('gothicWardPlaceholder');
  if(!placeholder){

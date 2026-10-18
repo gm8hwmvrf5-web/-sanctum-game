@@ -26,6 +26,10 @@ async function testViewport(width,height,phone=false){
   if(!board||!priest||!hud||!qs('#gothicPreviewHeader'))throw Error('Missing core board/Priest/HUD');
   if(!qs('#gothicWardHeader').textContent.includes('WARDCRAFT'))throw Error('No Wardcraft header');
   if(qs('#gothicPreviewHeader').querySelector('#topStatusBar')!==hud)throw Error('Status HUD not integrated');
+  const uniqueBasic=document.querySelectorAll('#basicBtn').length;
+  const uniqueEnd=document.querySelectorAll('#endBtn').length;
+  if(uniqueBasic!==1||uniqueEnd!==1)throw Error('Duplicate turn action buttons: basic='+uniqueBasic+' end='+uniqueEnd);
+  if(action?.querySelectorAll('button').length!==5)throw Error('Unexpected action bar button count: '+action?.querySelectorAll('button').length);
   if(!action||basic?.parentElement!==action||end?.parentElement!==action||menu?.parentElement!==action||ward?.parentElement!==action)throw Error('Real game actions not relocated: '+JSON.stringify({started:S?.started,phase:S?.phase,action:!!action,basic:basic?.parentElement?.id,end:end?.parentElement?.id,menu:menu?.parentElement?.id,ward:ward?.parentElement?.id,priest:!!priest,hasRender:!!window.__sanctumGothicPreview}));
   if(!priest.querySelector('.gothicHandTitle')&&!qs('.gothicHandTitle'))throw Error('Priest card header missing');
   if(qs('#ritualPanel .ritual')&&!qs('#ritualPanel .gothicRitualHead'))throw Error('Rituals not converted');
