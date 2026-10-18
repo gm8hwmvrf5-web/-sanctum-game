@@ -64,7 +64,7 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
 /* ===== Actual stonework panels / Priest hand ===== */
 .gothicUiPreview #handPanel{background:transparent!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important}
 .gothicUiPreview #handPanel .handCharacterStage{display:grid!important;grid-template-columns:minmax(0,44%) minmax(0,56%)!important;gap:clamp(8px,1.6vw,24px)!important;align-items:stretch!important;position:relative}
-.gothicUiPreview #handPanel .handCharacterStage:before{content:"";position:absolute;z-index:0;pointer-events:none;left:48%;bottom:-6px;transform:translateX(-50%);width:clamp(95px,13vw,240px);height:clamp(205px,25vw,460px);background:url('../../assets/ui-gothic/hooded-cantor.svg') center bottom/contain no-repeat;opacity:.94}
+.gothicUiPreview #handPanel .handCharacterStage:before{content:"";position:absolute;z-index:0;pointer-events:none;left:48%;bottom:-6px;transform:translateX(-50%);width:clamp(95px,13vw,240px);height:clamp(205px,25vw,460px);background:url('../../assets/ui-gothic/hooded-cantor.svg') center bottom/contain no-repeat;opacity:.63;filter:brightness(.75) sepia(.16) contrast(1.15)}
 .gothicUiPreview #handPanel .handCharacterStage>.handCharacterPriest,.gothicUiPreview #handPanel .handCharacterStage>.handCharacterCards{position:relative;z-index:1}
 .gothicUiPreview #handPanel .handCharacterCards{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;align-self:stretch!important;padding:clamp(8px,1.5vw,22px)!important;border:0!important;background:rgba(6,5,7,.43)!important;box-shadow:none!important}
 .gothicUiPreview #handPanel .handCharacterCards:before{content:"";position:absolute;inset:0;pointer-events:none;background:url('../../assets/ui-gothic/panel-frame.svg') center/100% 100% no-repeat;opacity:.24}
@@ -130,7 +130,8 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
 .gothicUiPreview #gothicPreviewActions #gothicMenuBtn{background:linear-gradient(#252022,#0a090b)!important;border-color:#987449!important}
 .gothicUiPreview #gothicPreviewActions #gothicMenuBtn::before{content:"☰"}
 .gothicUiPreview #gothicPreviewActions #wardcraftCast[hidden],.gothicUiPreview #gothicPreviewActions #gothicWardPlaceholder[hidden]{display:none!important}
-.gothicUiPreview #gothicPreviewActions .btn:disabled{opacity:.51!important;cursor:not-allowed!important}
+.gothicUiPreview #gothicPreviewActions .btn:disabled{opacity:.57!important;cursor:not-allowed!important}
+.gothicUiPreview #gothicPreviewActions #gothicWardPlaceholder:disabled{opacity:.85!important}
 .gothicUiPreview #handPanel #iphonePauseMenuBtn{display:none!important}
 .gothicUiPreview #mainSection{margin-top:8px!important}
 /* ==== Keep genuine landscape functionality. Fit five rooms + Priest controls. ==== */
@@ -167,6 +168,7 @@ html.gothicUiPreview body::before{content:"";position:fixed;inset:0;pointer-even
  .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-left{left:0!important}
  .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-right{left:233px!important}
  .gothicUiPreview #handContent .handCarousel .carouselHint{display:none!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .carouselNav{position:relative!important;left:auto!important;right:auto!important;transform:none!important;margin:0!important;width:20px!important;min-width:20px!important;height:28px!important}
  .gothicUiPreview #handPanel .handCharacterPriest{gap:2px!important}
  .gothicUiPreview #gothicRitualHeading{min-height:22px!important;height:22px!important;gap:3px!important;padding:2px 5px!important}
  .gothicUiPreview #gothicRitualHeading .gothicHeadingText{font-size:10px!important}

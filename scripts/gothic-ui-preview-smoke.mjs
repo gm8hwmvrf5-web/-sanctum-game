@@ -60,6 +60,15 @@ async function testViewport(width,height,phone=false){
   const rooms=[...board.querySelectorAll('.room')].map(n=>Math.round(n.getBoundingClientRect().width));
   return {buttons:btns,headerWidth:Math.round(rect.width),rooms,rituals:qs('#ritualPanel .rituals')?.children.length,landscape:innerWidth>innerHeight};
  });
+ const assetCheck=await page.evaluate(async()=>{
+  const paths=['header-crest.svg','header-banner.svg','room-tracery.svg','parchment-ritual.svg','action-filigree.svg','panel-frame.svg','cathedral-backdrop.svg','hooded-cantor.svg'];
+  const checks=await Promise.all(paths.map(async name=>{
+    const response=await fetch('./assets/ui-gothic/'+name,{cache:'no-store'});
+    return {name,ok:response.ok};
+  }));
+  return checks.filter(x=>!x.ok);
+ });
+ if(assetCheck.length)throw Error('Missing actual Gothic UI assets: '+JSON.stringify(assetCheck));
  if(errs.length)throw Error('Browser errors: '+errs.join('; '));
  checks.push({viewport:width+'x'+height,...result});
  await page.close();
