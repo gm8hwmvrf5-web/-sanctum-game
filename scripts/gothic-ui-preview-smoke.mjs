@@ -30,6 +30,8 @@ async function testViewport(width,height,phone=false){
   const uniqueEnd=document.querySelectorAll('#endBtn').length;
   if(uniqueBasic!==1||uniqueEnd!==1)throw Error('Duplicate turn action buttons: basic='+uniqueBasic+' end='+uniqueEnd);
   if(action?.querySelectorAll('button').length!==5)throw Error('Unexpected action bar button count: '+action?.querySelectorAll('button').length);
+  if(document.querySelectorAll('#gothicRitualHeading .ritualBloodGauge').length!==1)throw Error('Duplicate Ritual Blood gauges');
+  if(document.getElementById('gothicProgressChip')?.title.includes('Floor')!==true)throw Error('Floor progress chip missing');
   const visibleActions=[...action.querySelectorAll('button')].filter(b=>!b.hidden).map(b=>b.id);
   if(visibleActions.join(',')!=='basicBtn,gothicWardPlaceholder,endBtn,gothicMenuBtn')
     throw Error('Incorrect initial button order: '+visibleActions.join(','));
