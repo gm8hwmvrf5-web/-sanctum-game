@@ -117,7 +117,12 @@ function mountUI(){
   menu.className='btn';menu.textContent='Menu';menu.setAttribute('aria-label','Open pause menu');
   menu.addEventListener('click',()=>{if(typeof window.openGameMenu==='function')window.openGameMenu();});
  }
- if(menu.parentNode!==actionBar)actionBar.appendChild(menu);
+ // Restack on every render; a fresh Priest button must never jump behind Menu.
+ actionBar.appendChild(basic);
+ if(ward)actionBar.appendChild(ward);
+ actionBar.appendChild(placeholder);
+ actionBar.appendChild(end);
+ actionBar.appendChild(menu);
  improveRituals();
  status();
 }

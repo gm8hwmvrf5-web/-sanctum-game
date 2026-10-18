@@ -30,6 +30,10 @@ async function testViewport(width,height,phone=false){
   const uniqueEnd=document.querySelectorAll('#endBtn').length;
   if(uniqueBasic!==1||uniqueEnd!==1)throw Error('Duplicate turn action buttons: basic='+uniqueBasic+' end='+uniqueEnd);
   if(action?.querySelectorAll('button').length!==5)throw Error('Unexpected action bar button count: '+action?.querySelectorAll('button').length);
+  const visibleActions=[...action.querySelectorAll('button')].filter(b=>!b.hidden).map(b=>b.id);
+  if(visibleActions.join(',')!=='basicBtn,gothicWardPlaceholder,endBtn,gothicMenuBtn')
+    throw Error('Incorrect initial button order: '+visibleActions.join(','));
+
   if(!action||basic?.parentElement!==action||end?.parentElement!==action||menu?.parentElement!==action||ward?.parentElement!==action)throw Error('Real game actions not relocated: '+JSON.stringify({started:S?.started,phase:S?.phase,action:!!action,basic:basic?.parentElement?.id,end:end?.parentElement?.id,menu:menu?.parentElement?.id,ward:ward?.parentElement?.id,priest:!!priest,hasRender:!!window.__sanctumGothicPreview}));
   if(!priest.querySelector('.gothicHandTitle')&&!qs('.gothicHandTitle'))throw Error('Priest card header missing');
   if(qs('#ritualPanel .ritual')&&!qs('#ritualPanel .gothicRitualHead'))throw Error('Rituals not converted');
@@ -43,6 +47,9 @@ async function testViewport(width,height,phone=false){
   render();
   const ready=qs('#wardcraftCast');
   if(!ready||ready.hidden||ready.parentElement!==qs('#gothicPreviewActions'))throw Error('Selected Ward action is not visible');
+  const readyOrder=[...action.querySelectorAll('button')].filter(b=>!b.hidden).map(b=>b.id);
+  if(readyOrder.join(',')!=='basicBtn,wardcraftCast,endBtn,gothicMenuBtn')
+    throw Error('Incorrect Ward-ready button order: '+readyOrder.join(','));
   // Existing button opens the real existing targeting modal.
   ready.click();
   if(qs('#wardCastModal')?.classList.contains('hidden'))throw Error('Ward placement modal failed to open');
