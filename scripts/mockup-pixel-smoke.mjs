@@ -9,7 +9,7 @@ for(const spec of [{name:'desktop',width:1536,height:768,isMobile:false},{name:'
  await page.waitForTimeout(300);
  const check=await page.evaluate(async()=>{
   if(!document.documentElement.classList.contains('gothicUiPixelSkin'))throw Error('Pixel skin not loaded');
-  const paths=['reference-shell','room-gateway','room-hall','room-chapel','room-crypt','room-boss','parchment-red','parchment-purple','parchment-gold','action-attack','action-ward','action-end','action-menu','banner','crest'].map(n=>'./assets/ui-gothic/faithful/'+n+'.webp');
+  const paths=['reference-shell','room-gateway','room-hall','room-chapel','room-crypt','room-boss','parchment-red','parchment-purple','parchment-gold','action-attack','action-ward','action-end','action-menu','banner','crest','hooded-figure'].map(n=>'./assets/ui-gothic/faithful/'+n+'.webp');
   const fetched=await Promise.all(paths.map(async p=>({p,ok:(await fetch(p)).ok})));
   if(fetched.some(x=>!x.ok))throw Error('Art missing: '+JSON.stringify(fetched.filter(x=>!x.ok)));
   const roomArt=getComputedStyle(document.querySelector('#boardSection .room.gateway')).backgroundImage;
