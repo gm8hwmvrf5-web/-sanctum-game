@@ -377,3 +377,16 @@ html.gothicUiPreview body::after{content:none!important;display:none!important}
   font-size:clamp(11px,.88vw,14px)!important;line-height:1.18!important
  }
 }
+
+
+/* Final placement tuning against the 1672×941 approved image. */
+@media(min-width:1001px) and (min-height:801px){
+ #gothicWardHeader{width:74%!important}
+ #gothicCenterCrest{left:53.7%!important}
+ .gothicUiPreview #ritualPanel .rituals{margin-top:-13px!important}
+ .gothicUiPreview #gothicPreviewActions{
+  width:calc(100% - 50px)!important;
+  transform:translate(65px,-7px)!important;
+ }
+ .gothicUiPreview #gothicPreviewActions #gothicWardPlaceholder:disabled{opacity:1!important}
+}
