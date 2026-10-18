@@ -235,3 +235,15 @@ html.gothicUiPreview body::before{
  .gothicUiPreview #handPanel .handCharacterStage::before{display:none!important}
  .gothicUiPreview #gothicPreviewActions .btn{background-size:100% 100%!important}
 }
+
+
+/* Desktop proportional pass, measured against the 1846×852 source image. */
+@media(min-width:1001px) and (min-height:521px){
+ #gothicPreviewHeader{height:70px!important;min-height:70px!important}
+ #gothicWardHeader{height:69px!important;min-height:69px!important}
+ #gothicPreviewHeader #topStatusBar.stats{height:50px!important;min-height:50px!important}
+ .gothicUiPreview #boardSection .room{height:clamp(185px,17.05vw,326px)!important;min-height:clamp(185px,17.05vw,326px)!important}
+ .gothicUiPreview #gothicRitualHeading{height:38px!important;min-height:38px!important;padding-top:2px!important;padding-bottom:2px!important}
+ .gothicUiPreview #ritualPanel .ritual{min-height:clamp(204px,14.2vw,267px)!important}
+ .gothicUiPreview #handPanel .handCharacterCards{min-height:332px!important}
+}
