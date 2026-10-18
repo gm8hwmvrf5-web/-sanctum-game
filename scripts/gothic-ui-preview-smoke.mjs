@@ -38,7 +38,7 @@ async function testViewport(width,height,phone=false){
 
   if(!basic?.querySelector('.gothicActionIcon svg')||!end?.querySelector('.gothicActionIcon svg'))throw Error('Action buttons are missing sharp, live icons');
   const beforeStyles=getComputedStyle(document.querySelector('#handPanel .handCharacterStage'),'::before');
-  if(!beforeStyles.backgroundImage.includes('room-chapel-v2.webp'))throw Error('Gothic cathedral backdrop is missing behind the Priest hand');
+  if(!beforeStyles.backgroundImage.includes('lower-environment.webp'))throw Error('Reference cathedral artwork is missing behind the Priest hand');
   const ritualNames=[...document.querySelectorAll('#ritualPanel .gothicRitualName')].map(e=>e.textContent);
   if(ritualNames.length!==3||!ritualNames.every(Boolean))throw Error('Ritual names unreadable or missing');
   if(!action||basic?.parentElement!==action||end?.parentElement!==action||menu?.parentElement!==action||ward?.parentElement!==action)throw Error('Real game actions not relocated: '+JSON.stringify({started:S?.started,phase:S?.phase,action:!!action,basic:basic?.parentElement?.id,end:end?.parentElement?.id,menu:menu?.parentElement?.id,ward:ward?.parentElement?.id,priest:!!priest,hasRender:!!window.__sanctumGothicPreview}));
