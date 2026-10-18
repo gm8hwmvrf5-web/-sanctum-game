@@ -1,7 +1,7 @@
 import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});
 for(const cfg of [
- {id:'DESKTOP',width:1536,height:768,isMobile:false},
+ {id:'DESKTOP',width:1672,height:941,isMobile:false},
  {id:'IPHONE',width:844,height:390,isMobile:true}
 ]){
  const page=await browser.newPage({viewport:{width:cfg.width,height:cfg.height},isMobile:cfg.isMobile,deviceScaleFactor:1});
@@ -25,7 +25,7 @@ for(const cfg of [
   return Object.fromEntries(selectors.map(s=>[s,rect(document.querySelector(s))]));
  });
  await page.waitForTimeout(350);
- const jpg=await page.screenshot({type:'jpeg',quality:43,fullPage:false,animations:'disabled'});
+ const jpg=await page.screenshot({type:'jpeg',quality:77,fullPage:false,animations:'disabled'});
  const hud=await page.evaluate(()=>{
    const h=document.getElementById('topStatusBar');
    const rectangle=(e)=>{let r=e.getBoundingClientRect();return [Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)]};

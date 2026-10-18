@@ -26,7 +26,7 @@ for(const spec of [{name:'desktop',width:1536,height:768,isMobile:false},{name:'
    const stat=document.getElementById(id);
    if(!stat?.querySelector('.gothicHudIcon svg'))throw Error('Missing centered SVG stat icon '+id);
   }
-  if(!getComputedStyle(document.body,'::before').backgroundImage.includes('cathedral-backdrop.svg'))throw Error('Obsolete black backdrop still active');
+  if(!getComputedStyle(document.body,'::before').backgroundImage.includes('reference-cathedral-shell.webp'))throw Error('Updated artwork backdrop is not loaded');
   if(!roomArt.includes('room-gateway-v2.webp'))throw Error('Mockup room art not applied');
   const actions=document.getElementById('gothicPreviewActions');
   const ids=[...actions.querySelectorAll('button')].filter(x=>!x.hidden).map(x=>x.id);

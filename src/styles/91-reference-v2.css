@@ -327,3 +327,19 @@ html.gothicUiPreview body::after{content:none!important;display:none!important}
  .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode{--gcard:160px!important}
  .gothicUiPreview #gothicPreviewActions .btn{font-size:10px!important;padding-left:18px!important}
 }
+
+
+/* Shorter desktop viewports keep command buttons visible without compromising
+   the reference-sized 1672×941 art direction. */
+@media(min-width:1001px) and (max-height:800px){
+ .gothicUiPreview #boardSection .room{height:clamp(188px,17.8vw,285px)!important;min-height:clamp(188px,17.8vw,285px)!important}
+ .gothicUiPreview #handPanel .handCharacterCards{min-height:340px!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode{--gcard:clamp(157px,13.45vw,208px)!important}
+ .gothicUiPreview #gothicRitualHeading{height:44px!important;min-height:44px!important}
+ .gothicUiPreview #ritualPanel .ritual{min-height:clamp(232px,15.8vw,252px)!important}
+ .gothicUiPreview #gothicPreviewActions,.gothicUiPreview #gothicPreviewActions .btn{
+  height:61px!important;min-height:61px!important
+ }
+}
+/* Keep the hand, rituals, and the gothic stone backdrop separate. */
+.gothicUiPreview #handPanel .handCharacterStage::before{display:none!important;content:none!important}
