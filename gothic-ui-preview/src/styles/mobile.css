@@ -1,0 +1,1744 @@
+/* source: popupCardsMatchBoardPatch */
+
+/* Make demon/boss popups use the same card treatment and size as on-board cards. */
+#choiceModal .modalbox{width:min(940px,96vw);}
+#choiceModal .choicegrid.damageTargetGrid{grid-template-columns:repeat(auto-fit,150px) !important;justify-content:center !important;gap:8px !important;}
+#choiceModal .choice.damageTargetCard{
+  width:150px !important;
+  min-height:0 !important;
+  box-sizing:border-box !important;
+  margin:0 !important;
+  padding:5px !important;
+  overflow:hidden !important;
+  border:1px solid #573838 !important;
+  border-radius:7px !important;
+  background:#201212 !important;
+  color:#eadbbf !important;
+  box-shadow:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:6px !important;
+  cursor:pointer !important;
+  text-align:left !important;
+  transform:none !important;
+}
+#choiceModal .choice.damageTargetCard.greater{background:#2a1710 !important;border-color:#b46b2d !important;}
+#choiceModal .choice.damageTargetCard.bossTarget{width:150px !important;background:#270d0d !important;border-color:#9e3a30 !important;}
+#choiceModal .choice.damageTargetCard:hover{filter:brightness(1.08) !important;transform:none !important;}
+#choiceModal .choice.damageTargetCard .demonArtWrap{height:92px !important;border:1px solid #8b6737 !important;border-radius:6px !important;box-shadow:inset 0 0 14px rgba(0,0,0,.45) !important;}
+#choiceModal .choice.damageTargetCard .demonBody{min-width:0 !important;flex:1 !important;display:flex !important;flex-direction:column !important;gap:4px !important;}
+#choiceModal .choice.damageTargetCard .name{color:#f1d5a4 !important;font-weight:bold !important;line-height:1.1 !important;font-size:11px !important;}
+#choiceModal .choice.damageTargetCard .demonStats{display:flex !important;flex-wrap:wrap !important;gap:3px 4px !important;font-size:9.5px !important;line-height:1.2 !important;}
+#choiceModal .choice.damageTargetCard .demonStats span{display:inline-block !important;padding:1px 4px !important;border:1px solid #5e4a35 !important;border-radius:999px !important;background:rgba(0,0,0,.18) !important;}
+#choiceModal .choice.damageTargetCard .targetRoomTag{color:#ad9b7d !important;font-size:8px !important;letter-spacing:.55px !important;text-transform:uppercase !important;line-height:1.15 !important;}
+#choiceModal .choice.damageTargetCard .familyTag{display:inline-block !important;align-self:flex-start !important;margin:0 !important;padding:1px 5px !important;border:1px solid #614d33 !important;border-radius:999px !important;color:#cdb783 !important;font-size:8px !important;letter-spacing:.6px !important;text-transform:uppercase !important;}
+#choiceModal .choice.damageTargetCard .abilityText{font-size:10px !important;line-height:1.32 !important;color:#e5d9c7 !important;margin-top:1px !important;white-space:normal !important;overflow-wrap:anywhere !important;}
+#choiceModal .choice.damageTargetDone{width:150px !important;min-height:118px !important;display:grid !important;place-items:center !important;text-align:center !important;border:1px dashed #7d6744 !important;background:#19140f !important;color:#e3c88e !important;font-weight:700 !important;border-radius:7px !important;}
+#cardRevealModal .modalbox{width:min(980px,96vw);}
+#cardRevealModal .deckpair{display:grid !important;grid-template-columns:150px auto 150px !important;gap:8px !important;justify-content:center !important;align-items:start !important;border:none !important;background:transparent !important;padding:0 !important;}
+#cardRevealModal .deckface{width:150px !important;min-width:150px !important;background:#201212 !important;border:1px solid #573838 !important;border-radius:7px !important;padding:5px !important;display:flex !important;flex-direction:column !important;box-sizing:border-box !important;}
+#cardRevealModal .deckface.greater{background:#2a1710 !important;border-color:#b46b2d !important;}
+#cardRevealModal .deckface img{height:92px !important;max-height:none !important;aspect-ratio:auto !important;object-fit:contain !important;object-position:center center !important;padding:0 !important;margin-bottom:6px !important;border-radius:6px !important;border:1px solid #8b6737 !important;}
+#cardRevealModal .deckface b{color:#f1d5a4 !important;line-height:1.1 !important;font-size:11px !important;}
+#cardRevealModal .deckface small{color:#cdb783 !important;font-size:8px !important;line-height:1.25 !important;}
+#cardRevealModal .deckface p{font-size:10px !important;line-height:1.32 !important;color:#e5d9c7 !important;margin:5px 0 0 !important;}
+#cardRevealModal .deckarrow{align-self:center !important;color:#d4aa55 !important;font-size:20px !important;margin-top:38px !important;}
+@media(max-width:700px){
+  #choiceModal .choicegrid.damageTargetGrid{grid-template-columns:repeat(auto-fit,145px) !important;}
+  #choiceModal .choice.damageTargetCard, #choiceModal .choice.damageTargetDone{width:145px !important;}
+  #cardRevealModal .deckpair{grid-template-columns:145px auto 145px !important;}
+  #cardRevealModal .deckface{width:145px !important;min-width:145px !important;}
+}
+
+
+/* source: popupCardArtworkExactMatchPatch */
+
+/* Popup demon faces use the same compact art window and full-creature framing as board cards. */
+#choiceModal .choice.damageTargetCard .demonArt{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  margin:0 !important;
+  transform:scale(.96) !important;
+  transform-origin:center center !important;
+}
+#choiceModal .choice.damageTargetCard .demonArtWrap,
+#cardRevealModal .deckface img{
+  background:radial-gradient(circle at 50% 40%,#241714 0%,#100b0b 72%,#070606 100%) !important;
+}
+#choiceModal .choice.damageTargetCard.bossTarget .demonArtWrap{height:92px !important;}
+
+
+/* source: iphoneLandscapeDedicatedStyles */
+
+/* Dedicated iPhone / short-phone landscape layout. Desktop and portrait remain unchanged. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  html,body{
+    width:100% !important;
+    min-height:100% !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+    -webkit-text-size-adjust:100% !important;
+    overscroll-behavior-y:auto !important;
+  }
+  body{
+    margin:0 !important;
+    padding:0 !important;
+    touch-action:manipulation !important;
+  }
+  .app{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:
+      max(4px,env(safe-area-inset-top))
+      max(5px,env(safe-area-inset-right))
+      max(4px,env(safe-area-inset-bottom))
+      max(5px,env(safe-area-inset-left)) !important;
+  }
+
+  /* Five-room board stays visible as a single landscape strip. */
+  #boardSection.board{
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:4px !important;
+    overflow:visible !important;
+    scroll-snap-type:none !important;
+    padding:0 !important;
+    margin:0 !important;
+  }
+  #boardSection .room{
+    flex:initial !important;
+    min-width:0 !important;
+    width:auto !important;
+    min-height:138px !important;
+    height:138px !important;
+    padding:3px !important;
+    border-radius:7px !important;
+    overflow:hidden !important;
+  }
+  #boardSection .room.boss{grid-column:auto !important;}
+  #boardSection .room h3{
+    margin:0 0 2px !important;
+    font-size:10px !important;
+    line-height:1.05 !important;
+    letter-spacing:.6px !important;
+  }
+  #boardSection .roomMeta{
+    min-height:20px !important;
+    margin:0 0 2px !important;
+    gap:2px !important;
+    justify-content:center !important;
+  }
+  #boardSection .roomMeta .cap{display:none !important;}
+  #boardSection .roomMeta .tag{
+    font-size:6.5px !important;
+    padding:1px 3px !important;
+    margin:0 !important;
+  }
+  #boardSection .roomMeta .btn{
+    min-height:20px !important;
+    height:20px !important;
+    padding:1px 4px !important;
+    font-size:7px !important;
+    line-height:1 !important;
+    border-radius:5px !important;
+  }
+  #boardSection .demons{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:2px !important;
+  }
+  #boardSection .demon{
+    min-width:0 !important;
+    min-height:0 !important;
+    height:52px !important;
+    padding:2px !important;
+    gap:1px !important;
+    border-radius:5px !important;
+    overflow:hidden !important;
+  }
+  #boardSection .demonArtWrap{
+    height:21px !important;
+    min-height:21px !important;
+    border-radius:3px !important;
+    margin:0 !important;
+  }
+  #boardSection .demonArt{
+    width:100% !important;
+    height:100% !important;
+    min-height:0 !important;
+    margin:0 !important;
+    object-fit:contain !important;
+    object-position:center center !important;
+  }
+  #boardSection .demonBody{gap:0 !important;min-width:0 !important;}
+  #boardSection .demon .name{
+    font-size:7px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  #boardSection .demonStats{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:1px !important;
+    font-size:6.5px !important;
+    line-height:1 !important;
+    overflow:hidden !important;
+  }
+  #boardSection .demonStats span{padding:0 2px !important;white-space:nowrap !important;}
+  #boardSection .abilityText,
+  #boardSection .manualAbility,
+  #boardSection .familyTag{display:none !important;}
+  #boardSection .bossCard{padding:3px !important;border-radius:5px !important;}
+  #boardSection .bossArt{
+    height:66px !important;
+    aspect-ratio:auto !important;
+    object-fit:contain !important;
+    margin-bottom:2px !important;
+  }
+  #boardSection .bossName{font-size:8px !important;line-height:1 !important;}
+  #boardSection .bossSubtitle{font-size:6px !important;margin:1px 0 !important;}
+  #boardSection .bossAbilityMini{display:none !important;}
+  #boardSection .room.boss .cap{font-size:7px !important;line-height:1.15 !important;margin:2px !important;}
+
+  /* One thin, sticky status row. */
+  #topStatusBar.stats{
+    position:sticky !important;
+    top:0 !important;
+    z-index:45 !important;
+    display:grid !important;
+    grid-template-columns:minmax(190px,2.25fr) repeat(5,minmax(54px,1fr)) !important;
+    gap:3px !important;
+    margin:4px 0 !important;
+    padding:3px !important;
+    background:rgba(8,8,10,.94) !important;
+    border:1px solid #4e3c27 !important;
+    border-radius:7px !important;
+    backdrop-filter:blur(10px) !important;
+  }
+  #topStatusBar .stat{
+    min-width:0 !important;
+    min-height:34px !important;
+    height:34px !important;
+    margin:0 !important;
+    padding:2px 3px !important;
+    border-radius:5px !important;
+    overflow:hidden !important;
+  }
+  #topStatusBar .stat b{
+    font-size:12px !important;
+    line-height:1 !important;
+    margin:1px 0 !important;
+  }
+  #topStatusBar .stat>span{
+    font-size:6px !important;
+    line-height:1 !important;
+    letter-spacing:.3px !important;
+    white-space:nowrap !important;
+  }
+  #topStatusBar .runProgressStat{padding:2px 5px !important;}
+  #topStatusBar .runProgressStat>span{display:none !important;}
+  #topStatusBar .runProgressPair{
+    height:100% !important;
+    gap:4px !important;
+    align-items:center !important;
+  }
+  #topStatusBar .runProgressChunk{min-width:0 !important;}
+  #topStatusBar .runProgressChunk em{font-size:5.8px !important;line-height:1 !important;}
+  #topStatusBar .runProgressChunk strong{font-size:9px !important;line-height:1.05 !important;}
+  #topStatusBar .runProgressDivider{height:20px !important;}
+  #rogueHud{display:none !important;}
+
+  /* Compact hand + Priest dashboard side by side. */
+  #handPanel{
+    margin:4px 0 !important;
+    padding:5px !important;
+    border-radius:8px !important;
+  }
+  #handPanel .handCharacterStage{
+    display:grid !important;
+    grid-template-columns:minmax(0,61%) minmax(265px,39%) !important;
+    gap:6px !important;
+    align-items:start !important;
+  }
+  #handPanel .handCharacterCards{
+    display:block !important;
+    min-width:0 !important;
+    align-self:start !important;
+    grid-column:1 !important;
+    grid-row:1 !important;
+  }
+  #handPanel .handCharacterPriest{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    width:auto !important;
+    justify-self:stretch !important;
+  }
+  #handPanel .handCharacterPriest.panel{
+    min-width:0 !important;
+    margin:0 !important;
+    padding:5px !important;
+    border-radius:7px !important;
+  }
+  #handPanel .playerHeader{
+    grid-template-columns:54px minmax(0,1fr) !important;
+    gap:5px !important;
+    align-items:start !important;
+  }
+  #handPanel .portrait{
+    width:54px !important;
+    height:54px !important;
+    border-radius:6px !important;
+  }
+  #handPanel .handCharacterPriest h2{font-size:13px !important;margin:0 0 3px !important;}
+  #handPanel .playerMeta{gap:2px !important;}
+  #handPanel .badge{font-size:7.5px !important;padding:2px 4px !important;}
+  #handPanel .handCharacterPriest .ritualTracker{
+    gap:3px !important;
+    padding:0 0 4px !important;
+    margin:0 0 4px !important;
+    flex-wrap:wrap !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+  #handPanel .handCharacterPriest .ritualTracker #endBtn{
+    width:70px !important;
+    min-width:70px !important;
+    max-width:70px !important;
+    min-height:34px !important;
+    height:34px !important;
+    padding:3px 4px !important;
+    font-size:8.4px !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker .trackerAction{
+    min-height:28px !important;
+    padding:3px 5px !important;
+    font-size:7.8px !important;
+  }
+  #handPanel .playerTurnTag{
+    width:100% !important;
+    margin:0 !important;
+    padding:2px 0 !important;
+    border:0 !important;
+    gap:3px !important;
+  }
+  #handPanel .playerTurnTag b{font-size:8px !important;}
+  #handPanel .playerTurnTag small{font-size:7px !important;}
+  #handPanel .ritualBloodGauge{min-height:8px !important;height:8px !important;}
+  #handPanel .relicXpStrip{min-height:7px !important;height:7px !important;}
+
+  /* Keep the four-card fan, but size it for a landscape phone. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    width:100% !important;
+    max-width:500px !important;
+    grid-template-columns:28px minmax(0,1fr) 28px !important;
+    gap:2px !important;
+    left:0 !important;
+    margin:0 auto !important;
+  }
+  #handContent .handCarousel .carouselNav{
+    width:28px !important;
+    min-width:28px !important;
+    height:42px !important;
+    min-height:42px !important;
+    font-size:20px !important;
+    padding:0 !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    position:relative !important;
+    display:block !important;
+    width:430px !important;
+    max-width:100% !important;
+    min-height:218px !important;
+    height:218px !important;
+    padding:0 !important;
+    margin:0 auto !important;
+    overflow:visible !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    position:absolute !important;
+    top:0 !important;
+    display:flex !important;
+    width:158px !important;
+    min-width:158px !important;
+    max-width:158px !important;
+    min-height:208px !important;
+    max-height:208px !important;
+    padding:5px 5px 34px !important;
+    font-size:8.5px !important;
+    overflow:hidden !important;
+    transform:none !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{left:50px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{left:216px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    position:absolute !important;
+    top:8px !important;
+    display:flex !important;
+    width:126px !important;
+    min-width:126px !important;
+    max-width:126px !important;
+    min-height:188px !important;
+    max-height:188px !important;
+    padding:4px !important;
+    overflow:hidden !important;
+    opacity:.54 !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left{
+    left:0 !important;
+    transform:scale(.86) rotate(-2deg) !important;
+    transform-origin:right center !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    left:304px !important;
+    transform:scale(.86) rotate(2deg) !important;
+    transform-origin:left center !important;
+  }
+  #handContent .hand.carouselTrack > .card .cardArt,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardArt,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardArt{
+    height:66px !important;
+    min-height:66px !important;
+    margin:-5px -5px 3px !important;
+  }
+  #handContent .hand.carouselTrack > .card h4{
+    font-size:10px !important;
+    line-height:1.05 !important;
+    margin:2px 28px 2px 0 !important;
+  }
+  #handContent .hand.carouselTrack > .card p,
+  #handContent .hand.carouselTrack > .card .cardBottom p{
+    font-size:8px !important;
+    line-height:1.15 !important;
+    margin:2px 0 !important;
+  }
+  #handContent .hand.carouselTrack > .card .cost{
+    width:24px !important;
+    height:24px !important;
+    right:4px !important;
+    top:4px !important;
+    font-size:9px !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions{
+    left:4px !important;
+    right:4px !important;
+    bottom:4px !important;
+    gap:3px !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions button{
+    min-height:28px !important;
+    padding:2px 3px !important;
+    font-size:7.5px !important;
+  }
+  #handContent .handCarousel .carouselMeta{
+    min-height:16px !important;
+    margin-top:-2px !important;
+    padding:0 !important;
+    font-size:8px !important;
+    justify-content:center !important;
+  }
+  #handContent .handCarousel .carouselCount{padding:1px 5px !important;}
+  #handContent .relicSummary,#handContent>.notice{font-size:8px !important;margin:2px auto !important;padding:4px !important;}
+
+  /* Rituals and log remain side by side instead of switching to portrait stacking. */
+  #mainSection.ritualLogStage{
+    display:grid !important;
+    grid-template-columns:minmax(0,1.65fr) minmax(220px,.72fr) !important;
+    gap:5px !important;
+    margin-top:4px !important;
+    align-items:start !important;
+  }
+  #ritualPanel,#logPanel{padding:5px !important;margin:0 !important;}
+  #ritualPanel .ritualMain .rituals{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:4px !important;
+  }
+  #ritualPanel .ritualMain h3{font-size:12px !important;margin:2px 0 4px !important;}
+  #ritualPanel .ritualMain .ritual{
+    min-height:100px !important;
+    padding:4px !important;
+    font-size:8.5px !important;
+    line-height:1.15 !important;
+  }
+  #ritualPanel .ritualMain .ritual small{font-size:7.4px !important;line-height:1.12 !important;}
+  #ritualPanel .ritualMain .ritual .btn{
+    min-height:30px !important;
+    padding:3px !important;
+    font-size:7.5px !important;
+  }
+  #logPanel>h3{font-size:11px !important;margin:0 0 3px !important;}
+  #logPanel>h3:nth-of-type(2),#logPanel .controls{display:none !important;}
+  #logPanel .log{
+    height:108px !important;
+    padding:4px !important;
+    font-size:7.5px !important;
+    line-height:1.12 !important;
+  }
+  #logPanel .log div{padding:1px 0 !important;}
+  #infoSection{display:none !important;}
+
+  
+  
+  
+  
+
+  /* Short-screen modal treatment, including the Tab menu and setup. */
+  .modal{
+    align-items:center !important;
+    justify-items:center !important;
+    padding:
+      max(3px,env(safe-area-inset-top))
+      max(5px,env(safe-area-inset-right))
+      max(3px,env(safe-area-inset-bottom))
+      max(5px,env(safe-area-inset-left)) !important;
+  }
+  .modalbox,
+  .rogueModalBox,
+  .bossDeckBox,
+  .demonDeckBox{
+    width:min(94vw,900px) !important;
+    max-height:calc(100dvh - 8px) !important;
+    border-radius:10px !important;
+    padding:8px !important;
+    overflow:auto !important;
+  }
+  #setupModal .modalbox{width:min(820px,96vw) !important;}
+  #setupModal h2{font-size:18px !important;margin:0 0 4px !important;}
+  #setupModal .setupOptionsRow{margin:3px 0 5px !important;gap:8px !important;}
+  #setupModal .setupgrid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:5px !important;}
+  #setupModal .setupPlayer{padding:5px !important;font-size:10px !important;}
+  #setupModal input,#setupModal select{min-height:32px !important;padding:3px 5px !important;font-size:10px !important;}
+  #setupModal .notice{font-size:8.5px !important;line-height:1.2 !important;padding:4px !important;margin:4px 0 !important;}
+  #setupModal .btn{min-height:34px !important;padding:4px 7px !important;font-size:9px !important;}
+  #pauseOverlay .pauseActions{
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:4px !important;
+  }
+  #pauseOverlay .pauseActions .btn{min-height:34px !important;padding:4px !important;font-size:8px !important;}
+  #pauseOverlay h2{font-size:18px !important;margin:0 0 4px !important;}
+
+  /* Target/reward cards fit the short display. */
+  .choicegrid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:4px !important;}
+  .choice{min-height:42px !important;padding:4px !important;font-size:8.5px !important;}
+  .damageTargetGrid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}
+  .targetDemonCard,.visualDemonTargetCard{max-height:calc(100dvh - 70px) !important;}
+
+  /* Tutorial and ritual roll toast stay clear of the Dynamic Island / action cluster. */
+  #rogueTutorialCoach{
+    left:calc(5px + env(safe-area-inset-left)) !important;
+    bottom:calc(5px + env(safe-area-inset-bottom)) !important;
+    width:min(360px,48vw) !important;
+    max-height:calc(100dvh - 10px) !important;
+    overflow:auto !important;
+    padding:7px !important;
+  }
+  #rogueTutorialCoach h3{font-size:14px !important;margin:2px 0 3px !important;}
+  #rogueTutorialBody,#rogueTutorialTask{font-size:8.5px !important;line-height:1.2 !important;}
+  .ritualRollOverlay{
+    bottom:max(4px,env(safe-area-inset-bottom)) !important;
+    max-width:60vw !important;
+  }
+  .ritualRollCard{min-width:190px !important;padding:7px 12px 8px !important;}
+  .ritualRollToastNumber{font-size:42px !important;}
+  #handPanel .handCharacterPriest .priestActionTop{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:4px !important;
+    margin:0 0 4px !important;
+  }
+  #handPanel .handCharacterPriest .priestActionTop #basicBtn,
+  #handPanel .handCharacterPriest .priestActionTop #endBtn{
+    flex:1 1 0 !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    min-height:34px !important;
+    height:34px !important;
+    padding:3px 4px !important;
+    font-size:8.4px !important;
+    white-space:nowrap !important;
+  }
+
+}
+
+
+/* iPhone landscape Priest-area refinement: ~15% smaller cards, wider Priest UI,
+   and only the two turn-action buttons remain in the Priest header row. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  /* Give the Priest dashboard more horizontal room. */
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,55%) minmax(290px,45%) !important;
+    gap:5px !important;
+  }
+
+  /* Remove the compact stat/player/cinder trackers that sat beside End Turn.
+     Basic Attack and End Turn remain as the only items in this row. */
+  #handPanel .handCharacterPriest .ritualTracker > .badge,
+  #handPanel .handCharacterPriest .ritualTracker > .playerTurnTag,
+  #handPanel .handCharacterPriest .ritualTracker > #actionCinderBadge{
+    display:none !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker{
+    min-height:0 !important;
+    gap:4px !important;
+    padding:0 !important;
+    margin:0 0 2px !important;
+    border-bottom:0 !important;
+    flex-wrap:nowrap !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+  #handPanel .handCharacterPriest .ritualTracker #endBtn{
+    width:auto !important;
+    max-width:none !important;
+    min-width:82px !important;
+    flex:0 0 auto !important;
+    min-height:30px !important;
+    height:30px !important;
+    padding:3px 7px !important;
+    font-size:8.5px !important;
+  }
+  #handPanel .handCharacterPriest .ritualMain > h3{
+    margin:2px 0 3px !important;
+  }
+
+  /* Roughly 15% reduction from the previous landscape-phone card fan. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    max-width:425px !important;
+    grid-template-columns:24px minmax(0,1fr) 24px !important;
+    gap:1px !important;
+  }
+  #handContent .handCarousel .carouselNav{
+    width:24px !important;
+    min-width:24px !important;
+    height:36px !important;
+    min-height:36px !important;
+    font-size:17px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    width:366px !important;
+    height:186px !important;
+    min-height:186px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    width:134px !important;
+    min-width:134px !important;
+    max-width:134px !important;
+    min-height:177px !important;
+    max-height:177px !important;
+    padding:4px 4px 29px !important;
+    font-size:7.5px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{left:42px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{left:183px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    width:107px !important;
+    min-width:107px !important;
+    max-width:107px !important;
+    min-height:160px !important;
+    max-height:160px !important;
+    top:7px !important;
+    padding:3px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left{left:0 !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{left:259px !important;}
+
+  #handContent .hand.carouselTrack > .card .cardArt,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardArt,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardArt{
+    height:56px !important;
+    min-height:56px !important;
+    margin:-4px -4px 3px !important;
+  }
+  #handContent .hand.carouselTrack > .card h4{
+    font-size:9px !important;
+    margin:1px 24px 1px 0 !important;
+  }
+  #handContent .hand.carouselTrack > .card p,
+  #handContent .hand.carouselTrack > .card .cardBottom p{
+    font-size:7px !important;
+    line-height:1.12 !important;
+    margin:1px 0 !important;
+  }
+  #handContent .hand.carouselTrack > .card .cost{
+    width:21px !important;
+    height:21px !important;
+    right:3px !important;
+    top:3px !important;
+    font-size:8px !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions{
+    left:3px !important;
+    right:3px !important;
+    bottom:3px !important;
+    gap:2px !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions button{
+    min-height:24px !important;
+    padding:1px 2px !important;
+    font-size:6.7px !important;
+  }
+  #handContent .handCarousel .carouselMeta{
+    min-height:14px !important;
+    font-size:7px !important;
+  }
+}
+
+/* Particularly short older iPhones (SE/8-class) need a slightly tighter board. */
+@media (orientation:landscape) and (max-height:380px) and (max-width:850px){
+  #boardSection .room{height:126px !important;min-height:126px !important;}
+  #boardSection .demon{height:46px !important;}
+  #boardSection .demonArtWrap{height:17px !important;min-height:17px !important;}
+  #topStatusBar.stats{grid-template-columns:minmax(176px,2.2fr) repeat(5,minmax(50px,1fr)) !important;}
+  #handPanel .handCharacterStage{grid-template-columns:minmax(0,55%) minmax(285px,45%) !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{width:346px !important;height:176px !important;min-height:176px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{width:126px !important;min-width:126px !important;max-width:126px !important;min-height:167px !important;max-height:167px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{left:39px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{left:172px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{width:99px !important;min-width:99px !important;max-width:99px !important;min-height:150px !important;max-height:150px !important;}
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{left:247px !important;}
+}
+
+
+/* source: iphoneLandscapeTighterPriestUiPatch */
+
+/* Dedicated iPhone landscape: thinner XP, smaller turn actions, tighter Priest vertical layout. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+
+  /* 40% thinner than the current 20px Relic XP bar: 12px. */
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat{
+    min-height:12px !important;
+    height:12px !important;
+    padding:0 5px !important;
+    gap:3px !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat b{
+    font-size:8px !important;
+    line-height:1 !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat span{
+    font-size:5.5px !important;
+    line-height:1 !important;
+    margin:0 !important;
+  }
+
+  /* Pull the whole Priest stack upward by removing excess vertical gaps. */
+  #handPanel .handCharacterPriest .priestRelicTopStack{
+    gap:2px !important;
+    margin:0 0 2px 0 !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > .relicSummary{
+    padding:3px 5px !important;
+    font-size:8.4px !important;
+    line-height:1.12 !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > .relicSummary .relicChip{
+    font-size:7px !important;
+    padding:1px 4px !important;
+  }
+
+  /* 40% smaller than the current 30px / ~82px landscape buttons. */
+  #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+
+  #handPanel .handCharacterPriest .ritualTracker #endBtn{
+    min-width:49px !important;
+    width:49px !important;
+    max-width:49px !important;
+    min-height:18px !important;
+    height:18px !important;
+    padding:1px 2px !important;
+    font-size:6.2px !important;
+    line-height:1.05 !important;
+    border-radius:5px !important;
+    white-space:normal !important;
+  }
+
+  /* Remove remaining air between actions, Ritual title, gauge and cards. */
+  #handPanel .handCharacterPriest .ritualTracker{
+    gap:3px !important;
+    padding:0 !important;
+    margin:0 0 1px !important;
+    min-height:18px !important;
+  }
+  #handPanel .handCharacterPriest .ritualMain .ritualTitleWithBlood,
+  #handPanel .handCharacterPriest .ritualMain > h3{
+    margin:0 0 2px !important;
+  }
+  #handPanel .handCharacterPriest .ritualBloodGauge{
+    min-height:6px !important;
+    height:6px !important;
+  }
+  #handPanel .handCharacterPriest .ritualBloodGauge em{
+    font-size:5.5px !important;
+    line-height:1 !important;
+  }
+  #handPanel .handCharacterPriest .rituals{
+    margin-top:0 !important;
+  }
+}
+
+
+/* source: iphoneLandscapeTighterPriestUiV2Patch */
+
+/* Dedicated iPhone landscape refinements requested after the tighter Priest UI pass. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+
+  /* XP bar: another 10% thinner than 12px => ~11px. */
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat{
+    min-height:11px !important;
+    height:11px !important;
+    padding:0 4px !important;
+    gap:2px !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat b{
+    font-size:7.2px !important;
+  }
+  #handPanel .handCharacterPriest .priestRelicTopStack > #relicXpMeterStat span{
+    font-size:5px !important;
+  }
+
+  /* Basic Attack / End Turn: another 25% smaller than the current 49x18 controls. */
+  #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+  #handPanel .handCharacterPriest .ritualTracker #endBtn{
+    min-width:37px !important;
+    width:37px !important;
+    max-width:37px !important;
+    min-height:14px !important;
+    height:14px !important;
+    padding:0 1px !important;
+    font-size:4.8px !important;
+    line-height:1 !important;
+    border-radius:4px !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker{
+    min-height:14px !important;
+    margin-bottom:0 !important;
+  }
+
+  /* Anchor Priest-card buttons to the actual bottom edge of each card. */
+  #handContent .hand.carouselTrack > .card{
+    position:relative !important;
+  }
+  #handContent .hand.carouselTrack > .card .cardBottom{
+    position:static !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions,
+  #handContent .hand.carouselTrack > .card .cardBottom .actions{
+    position:absolute !important;
+    left:3px !important;
+    right:3px !important;
+    bottom:2px !important;
+    margin:0 !important;
+    z-index:8 !important;
+  }
+  #handContent .hand.carouselTrack > .card .actions button{
+    min-height:22px !important;
+    height:22px !important;
+    padding:1px 2px !important;
+    font-size:6.5px !important;
+  }
+
+  /* Preserve a small text-safe area above the now-bottom-anchored buttons. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    padding-bottom:27px !important;
+  }
+}
+
+
+/* source: iphoneLandscapePriestCardTextFillPatch */
+
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardBottom,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardBottom{
+    display:flex !important;
+    flex:1 1 auto !important;
+    flex-direction:column !important;
+    min-height:0 !important;
+    position:static !important;
+    margin:0 -4px -4px !important;
+    padding:4px 4px 26px !important;
+  }
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardBottom p:last-of-type,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardBottom p:last-of-type{
+    margin-top:auto !important;
+    margin-bottom:0 !important;
+    padding-bottom:1px !important;
+  }
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center .cardBottom .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right .cardBottom .actions{
+    position:absolute !important;
+    left:3px !important;
+    right:3px !important;
+    bottom:2px !important;
+    margin:0 !important;
+    z-index:10 !important;
+  }
+}
+
+
+/* source: iphoneLandscapeUniformParchmentPatch */
+
+/* Restore the original weathered parchment treatment across the whole lower
+   face of the two playable front Priest cards. Keep text tight to the buttons. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom{
+    position:relative !important;
+    display:flex !important;
+    flex:1 1 auto !important;
+    flex-direction:column !important;
+    min-height:0 !important;
+    margin:0 -4px -4px !important;
+    padding:4px 4px 26px !important;
+    border-radius:0 0 7px 7px !important;
+
+    /* Preserve the original embedded parchment image; only normalize its
+       sizing/blending so there is no flat-colored lower block. */
+    background-size:cover !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+    background-blend-mode:multiply !important;
+    border-top:1px solid rgba(111,78,30,.42) !important;
+    overflow:hidden !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.24),
+      inset 0 16px 24px rgba(120,85,35,.14),
+      inset 0 0 44px rgba(84,54,18,.36),
+      0 0 0 1px rgba(95,67,28,.22) !important;
+  }
+
+  /* Make the existing weathering overlays belong to the parchment panel again. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom::before,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom::before,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom::after,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom::after{
+    position:absolute !important;
+    inset:0 !important;
+    pointer-events:none !important;
+  }
+
+  /* Keep the final rules paragraph sitting immediately above the action row. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom p:last-of-type,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom p:last-of-type{
+    margin-top:auto !important;
+    margin-bottom:0 !important;
+    padding-bottom:1px !important;
+    background:transparent !important;
+  }
+
+  /* Buttons remain at the true bottom of the textured parchment face. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-center .cardBottom .actions,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode
+  .hand.carouselTrack > .card.carouselCard.is-right .cardBottom .actions{
+    position:absolute !important;
+    left:3px !important;
+    right:3px !important;
+    bottom:2px !important;
+    margin:0 !important;
+    z-index:10 !important;
+    background:transparent !important;
+  }
+}
+
+
+/* source: iphoneLandscapeTrueCardBottomFix */
+
+/* Final iPhone-landscape card fix: remove the redundant outer bottom padding.
+   The weathered parchment body now reaches the true card bottom, and the
+   action row remains directly beneath the final rules text. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    padding-bottom:4px !important;
+  }
+}
+
+
+/* source: iphoneLandscapeCompactStatAndWiderPriestPatch */
+
+/* Dedicated iPhone landscape refinements:
+   - middle status/timer/altar bar ~50% thinner
+   - hand area centered in its pane, then nudged left
+   - Priest dashboard given slightly more width
+   - reduced vertical whitespace so everything below the board moves upward */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+
+  /* About half the previous 34px stat-card thickness. */
+  #topStatusBar.stats{
+    gap:2px !important;
+    margin:2px 0 !important;
+    padding:1px !important;
+    border-radius:5px !important;
+  }
+  #topStatusBar .stat{
+    min-height:18px !important;
+    height:18px !important;
+    padding:0 2px !important;
+    border-radius:4px !important;
+  }
+  #topStatusBar .stat b{
+    font-size:8px !important;
+    line-height:1 !important;
+    margin:0 !important;
+  }
+  #topStatusBar .stat > span{
+    font-size:4.6px !important;
+    line-height:1 !important;
+    letter-spacing:.15px !important;
+  }
+  #topStatusBar .runProgressStat{
+    padding:0 3px !important;
+  }
+  #topStatusBar .runProgressPair{
+    gap:2px !important;
+  }
+  #topStatusBar .runProgressChunk em{
+    font-size:4.3px !important;
+    line-height:1 !important;
+  }
+  #topStatusBar .runProgressChunk strong{
+    font-size:6.8px !important;
+    line-height:1 !important;
+  }
+  #topStatusBar .runProgressDivider{
+    height:10px !important;
+  }
+
+  /* Bring the whole hand/Priest block closer to the stat bar. */
+  #handPanel{
+    margin:2px 0 !important;
+    padding:4px !important;
+  }
+
+  /* Slightly wider Priest UI. */
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,52%) minmax(305px,48%) !important;
+    gap:4px !important;
+  }
+
+  /* Center the Priest-card fan in its own left pane, then nudge it left. */
+  #handPanel .handCharacterCards{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-width:0 !important;
+  }
+  #handPanel .handCharacterCards #handContent{
+    width:100% !important;
+    min-width:0 !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    margin-left:auto !important;
+    margin-right:auto !important;
+    transform:translateX(-10px) !important;
+  }
+}
+
+/* Keep the same proportions on shorter SE/8-class landscape screens. */
+@media (orientation:landscape) and (max-height:380px) and (max-width:850px){
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,52%) minmax(300px,48%) !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    transform:translateX(-8px) !important;
+  }
+}
+
+
+/* source: iphoneLandscapeVerticalCenterPriestCardsPatch */
+
+/* Center the Priest-card fan vertically within the full left-side landscape pane. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #handPanel .handCharacterStage{
+    align-items:stretch !important;
+  }
+
+  #handPanel .handCharacterCards{
+    align-self:stretch !important;
+    height:100% !important;
+    min-height:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+
+  #handPanel .handCharacterCards #handContent{
+    width:100% !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:stretch !important;
+  }
+
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    margin-top:auto !important;
+    margin-bottom:auto !important;
+  }
+}
+
+
+/* source: iphoneLandscapePriestWidthMenuV3Patch */
+
+/* iPhone landscape: 10% narrower Priest cards, larger Priest dashboard,
+   and one compact Menu button aligned with Basic Attack / End Turn. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  /* Give more of the lower play area to the Priest UI. */
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,48%) minmax(0,52%) !important;
+    gap:4px !important;
+  }
+
+  /* Front Priest cards: 134px -> 121px (~10% narrower), height unchanged. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    max-width:383px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    width:329px !important;
+    max-width:329px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    width:121px !important;
+    min-width:121px !important;
+    max-width:121px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{
+    left:38px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    left:165px !important;
+  }
+
+  /* Rear preview cards scale with the narrower fan. */
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    width:96px !important;
+    min-width:96px !important;
+    max-width:96px !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left{
+    left:0 !important;
+  }
+  #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    left:233px !important;
+  }
+
+  /* One action row: Basic Attack | End Turn | Menu, with Menu pinned right. */
+  #handPanel .handCharacterPriest .ritualTracker{
+    display:flex !important;
+    align-items:center !important;
+    flex-wrap:nowrap !important;
+    gap:4px !important;
+    min-height:20px !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+  #handPanel .handCharacterPriest .ritualTracker #endBtn,
+  #handPanel .handCharacterPriest .ritualTracker #iphonePauseMenuBtn{
+    width:auto !important;
+    max-width:none !important;
+    min-width:54px !important;
+    min-height:20px !important;
+    height:20px !important;
+    padding:1px 4px !important;
+    font-size:6.4px !important;
+    line-height:1 !important;
+    border-radius:4px !important;
+    white-space:nowrap !important;
+  }
+  #handPanel .handCharacterPriest .ritualTracker #iphonePauseMenuBtn{
+    margin-left:auto !important;
+    min-width:46px !important;
+  }
+
+  
+  
+}
+
+/* Keep shorter iPhones usable while still enlarging the Priest side. */
+@media (orientation:landscape) and (max-height:380px) and (max-width:850px){
+  #handPanel .handCharacterStage{
+    grid-template-columns:minmax(0,49%) minmax(0,51%) !important;
+  }
+}
+
+
+/* source: iphoneRemoveFloatingNavEqualRitualsV4Patch */
+
+
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  
+
+  
+  
+
+  /* All three Priest Ritual boxes share the height of the tallest one. */
+  #ritualPanel .ritualMain .rituals{
+    align-items:stretch !important;
+    grid-auto-rows:1fr !important;
+  }
+  #ritualPanel .ritualMain .ritual{
+    height:100% !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  #ritualPanel .ritualMain .ritual > .btn,
+  #ritualPanel .ritualMain .ritual > button{
+    margin-top:auto !important;
+  }
+}
+
+
+
+
+
+
+
+
+@media(max-width:700px){
+  body{padding-bottom:max(0px,env(safe-area-inset-bottom)) !important;}
+}
+
+
+/* Priest card names must remain on exactly one line. */
+#handContent .hand.carouselTrack > .card h4,
+#handContent .hand > .card h4{
+  white-space:nowrap !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  line-height:1 !important;
+  letter-spacing:-0.1px !important;
+}
+
+
+/* source: ritualFreeRollSizeV10Patch */
+
+/* Keep the Natural 20 line the same text size as the other Ritual roll lines. */
+#ritualPanel .ritualMain .ritual small .ritualFreeRoll{
+  font-size:inherit !important;
+  line-height:inherit !important;
+}
+
+
+/* source: iphoneLandscapeViewportFitV13Patch */
+
+/* iPhone / short-phone landscape only. Desktop and tablets remain untouched. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  html,body{
+    width:100vw !important;
+    height:100dvh !important;
+    min-height:100dvh !important;
+    margin:0 !important;
+    overflow:hidden !important;
+  }
+  body > .app,
+  .app{
+    max-width:none !important;
+    margin:0 !important;
+    transform-origin:top left !important;
+  }
+  
+}
+
+
+/* source: iphoneDemonAbilityTextV14Patch */
+
+/* Show Demon printed abilities on phones without increasing room height. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demon{
+    height:52px !important;
+    min-height:52px !important;
+    padding:2px !important;
+    gap:0 !important;
+    overflow:hidden !important;
+  }
+
+  /* Reclaim vertical room inside each Demon card for the printed ability. */
+  #boardSection .demonArtWrap{
+    height:12px !important;
+    min-height:12px !important;
+    flex:0 0 12px !important;
+    margin:0 !important;
+  }
+
+  #boardSection .demonBody{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:0 !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demon .name{
+    font-size:6.3px !important;
+    line-height:1 !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  #boardSection .demonStats{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:1px !important;
+    font-size:5.1px !important;
+    line-height:1 !important;
+    margin:0 !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demonStats span{
+    padding:0 1px !important;
+    white-space:nowrap !important;
+  }
+
+  /* The family/manual labels stay hidden; the actual printed ability returns. */
+  #boardSection .familyTag,
+  #boardSection .manualAbility{
+    display:none !important;
+  }
+
+  #boardSection .abilityText{
+    display:-webkit-box !important;
+    -webkit-box-orient:vertical !important;
+    -webkit-line-clamp:4 !important;
+    overflow:hidden !important;
+    max-height:21px !important;
+    margin:1px 0 0 !important;
+    padding:0 !important;
+    font-size:5.2px !important;
+    line-height:1.02 !important;
+    letter-spacing:-0.05px !important;
+    color:#eadfca !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+  }
+}
+
+
+/* source: iphoneDemonAbilityGuaranteedV15Patch */
+
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demon .abilityText{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:relative !important;
+    z-index:4 !important;
+    flex:1 1 auto !important;
+    min-height:15px !important;
+    max-height:22px !important;
+    overflow:hidden !important;
+    margin:1px 0 0 !important;
+    padding:1px 1px 0 !important;
+    font-size:5.4px !important;
+    line-height:1.04 !important;
+    font-weight:600 !important;
+    color:#fff0cf !important;
+    text-shadow:0 1px 1px #000 !important;
+    background:rgba(0,0,0,.18) !important;
+    white-space:normal !important;
+    word-break:normal !important;
+    overflow-wrap:anywhere !important;
+  }
+
+  /* Preserve enough vertical room for the ability even on the smallest phone cards. */
+  #boardSection .demonArtWrap{
+    height:9px !important;
+    min-height:9px !important;
+    flex-basis:9px !important;
+  }
+  #boardSection .demon .name{
+    font-size:6px !important;
+    line-height:1 !important;
+  }
+  #boardSection .demonStats{
+    font-size:4.8px !important;
+    line-height:1 !important;
+  }
+}
+
+
+/* source: iphoneLargerDemonArtworkV16Patch */
+
+/* Phone landscape: give Demon artwork a much larger dedicated panel
+   while keeping the printed ability visible beside it. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demon{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:stretch !important;
+    height:52px !important;
+    min-height:52px !important;
+    padding:2px !important;
+    gap:2px !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demonArtWrap{
+    display:block !important;
+    flex:0 0 36% !important;
+    width:36% !important;
+    min-width:36% !important;
+    max-width:36% !important;
+    height:48px !important;
+    min-height:48px !important;
+    max-height:48px !important;
+    margin:0 !important;
+    border-radius:4px !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demonArt{
+    width:100% !important;
+    height:100% !important;
+    min-height:100% !important;
+    max-height:100% !important;
+    margin:0 !important;
+    object-fit:cover !important;
+    object-position:center 28% !important;
+    transform:none !important;
+  }
+
+  #boardSection .demonBody{
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:48px !important;
+    min-height:48px !important;
+    max-height:48px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:0 !important;
+    overflow:hidden !important;
+  }
+
+  #boardSection .demon .name{
+    font-size:6px !important;
+    line-height:1 !important;
+  }
+
+  #boardSection .demonStats{
+    font-size:4.7px !important;
+    line-height:1 !important;
+  }
+
+  #boardSection .demon .abilityText{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    max-height:27px !important;
+    overflow:hidden !important;
+    margin:1px 0 0 !important;
+    padding:1px !important;
+    font-size:5.1px !important;
+    line-height:1.02 !important;
+    color:#fff0cf !important;
+    background:rgba(0,0,0,.18) !important;
+  }
+}
+
+
+/* source: simpleSandTimerV17Patch */
+
+/* Reuse the existing timer box: sand accumulates from the bottom while
+   a lightweight animated stream falls into it. No layout dimensions change. */
+.turnTimerStat,
+#turnTimerStatBox{
+  --sand-fill:0%;
+  position:relative !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+  background:
+    radial-gradient(circle at 50% 28%,rgba(202,158,79,.06),transparent 42%),
+    linear-gradient(180deg,#17140f,#0b0a08) !important;
+  border-color:#8d7548 !important;
+}
+
+/* Retire the old liquid timer fill without touching the actual timer logic. */
+.turnTimerStat .turnTimerFill,
+#turnTimerStatBox .turnTimerFill{
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+.turnTimerSandPile{
+  position:absolute;
+  z-index:1;
+  left:0;
+  right:0;
+  bottom:0;
+  height:var(--sand-fill);
+  pointer-events:none;
+  overflow:visible;
+  background:
+    radial-gradient(circle at 20% 26%,rgba(255,226,157,.80) 0 1px,transparent 1.4px),
+    radial-gradient(circle at 63% 56%,rgba(218,166,80,.78) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 82% 22%,rgba(255,239,185,.62) 0 1px,transparent 1.4px),
+    linear-gradient(180deg,#e9bd68 0%,#c78c3f 46%,#8c5728 100%);
+  background-size:11px 10px,13px 12px,17px 14px,100% 100%;
+  box-shadow:
+    inset 0 3px 4px rgba(255,230,166,.24),
+    0 -1px 4px rgba(221,164,73,.26);
+  transition:height .3s linear;
+}
+.turnTimerSandPile::before{
+  content:"";
+  position:absolute;
+  left:10%;
+  right:10%;
+  top:-3px;
+  height:7px;
+  border-radius:50% 50% 30% 30%;
+  background:linear-gradient(180deg,#f1c974,#b87935);
+  box-shadow:0 -1px 3px rgba(246,207,126,.28);
+}
+
+.turnTimerSandStream{
+  position:absolute;
+  z-index:2;
+  top:0;
+  left:50%;
+  width:4px;
+  bottom:var(--sand-fill);
+  min-height:2px;
+  transform:translateX(-50%);
+  pointer-events:none;
+  overflow:hidden;
+  opacity:.94;
+}
+.turnTimerSandStream::before{
+  content:"";
+  position:absolute;
+  inset:-12px 0 0;
+  background:
+    radial-gradient(circle,#ffd98a 0 1px,transparent 1.35px) 50% 0/4px 7px repeat-y,
+    radial-gradient(circle,#c98f42 0 .8px,transparent 1.2px) 25% 2px/4px 9px repeat-y;
+  animation:sanctumSandFall .42s linear infinite;
+}
+.turnTimerSandStream::after{
+  content:"";
+  position:absolute;
+  left:1px;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:linear-gradient(180deg,rgba(255,224,147,.25),#e0a751 48%,rgba(185,119,48,.38));
+}
+
+.turnTimerSandSpecks{
+  position:absolute;
+  z-index:2;
+  inset:0;
+  pointer-events:none;
+  opacity:.6;
+  background:
+    radial-gradient(circle at 46% 18%,#edbc65 0 .8px,transparent 1.1px),
+    radial-gradient(circle at 55% 38%,#ffd98b 0 .7px,transparent 1px),
+    radial-gradient(circle at 49% 63%,#c9883b 0 .8px,transparent 1.1px);
+  background-size:17px 23px,19px 29px,23px 31px;
+  animation:sanctumSandSpecks .85s linear infinite;
+}
+
+.turnTimerStat.sandPaused .turnTimerSandStream,
+.turnTimerStat.sandPaused .turnTimerSandSpecks,
+#turnTimerStatBox.sandPaused .turnTimerSandStream,
+#turnTimerStatBox.sandPaused .turnTimerSandSpecks{
+  animation-play-state:paused !important;
+  opacity:.18;
+}
+.turnTimerStat.sandFinished .turnTimerSandStream,
+#turnTimerStatBox.sandFinished .turnTimerSandStream{
+  display:none !important;
+}
+
+.turnTimerStat b,
+.turnTimerStat span,
+#turnTimerStatBox b,
+#turnTimerStatBox span,
+#turnTimerStatValue{
+  position:relative !important;
+  z-index:6 !important;
+  text-shadow:0 1px 2px #000,0 0 4px rgba(0,0,0,.72) !important;
+}
+
+@keyframes sanctumSandFall{
+  from{transform:translateY(-10px)}
+  to{transform:translateY(11px)}
+}
+@keyframes sanctumSandSpecks{
+  from{background-position:0 -18px,4px -28px,-3px -32px}
+  to{background-position:0 14px,4px 18px,-3px 20px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .turnTimerSandStream::before,
+  .turnTimerSandSpecks{animation:none !important}
+}
+
+
+/* source: demonStatsReadabilityV18Patch */
+
+/* Demon HP / Blood / Attack readability pass — about 5% larger without
+   changing Demon-card dimensions or artwork sizing. */
+#boardSection .demonStats{
+  font-size:10px !important;
+  font-weight:600 !important;
+  text-shadow:0 1px 1px rgba(0,0,0,.7) !important;
+}
+
+@media (max-width:700px){
+  #boardSection .demonStats{
+    font-size:11.6px !important;
+  }
+}
+
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demonStats{
+    font-size:4.95px !important;
+    font-weight:600 !important;
+    letter-spacing:.01px !important;
+  }
+}
+
+
+/* source: demonCompactStatsV19Patch */
+
+/* Board-only Demon stat line: Health / Blood / Attack as compact values. */
+#boardSection .demonStats{
+  align-items:center !important;
+}
+#boardSection .demonStats .hp,
+#boardSection .demonStats .blood,
+#boardSection .demonStats .attack,
+#boardSection .demonStats .statSep{
+  border:0 !important;
+  background:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+}
+#boardSection .demonStats .hp{
+  color:#ff9db4 !important;
+}
+#boardSection .demonStats .blood{
+  color:#e33a49 !important;
+}
+#boardSection .demonStats .attack{
+  color:#ffffff !important;
+}
+#boardSection .demonStats .statSep{
+  color:#b8aa95 !important;
+  opacity:.9;
+  font-weight:700 !important;
+}
+
+
+/* source: demonStatLabelsV20Patch */
+
+/* Board Demon stat labels: compact abbreviations with full-size values. */
+#boardSection .demonStats{
+  opacity:1 !important;
+  gap:5px !important;
+  font-size:10.7px !important;
+  font-weight:700 !important;
+  letter-spacing:.08px !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.9) !important;
+}
+#boardSection .demonStats .hp,
+#boardSection .demonStats .blood,
+#boardSection .demonStats .attack{
+  display:inline-flex !important;
+  align-items:baseline !important;
+  gap:1px !important;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  white-space:nowrap !important;
+}
+#boardSection .demonStats .statLabel,
+#boardSection .demonStats .statValue{
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  line-height:1 !important;
+}
+#boardSection .demonStats .statLabel{
+  font-size:.78em !important;
+  font-weight:700 !important;
+  opacity:.88 !important;
+}
+#boardSection .demonStats .statValue{
+  font-size:1em !important;
+  font-weight:800 !important;
+}
+#boardSection .demonStats .hp{color:#ff9db4 !important;}
+#boardSection .demonStats .blood{color:#e33a49 !important;}
+#boardSection .demonStats .attack{color:#ffffff !important;}
+#boardSection .demonStats .statSep{display:none !important;}
+@media (max-width:700px){
+  #boardSection .demonStats{
+    font-size:12.2px !important;
+    gap:4px !important;
+  }
+  #boardSection .demonStats .hp,
+  #boardSection .demonStats .blood,
+  #boardSection .demonStats .attack{
+    gap:.7px !important;
+  }
+  #boardSection .demonStats .statLabel{
+    font-size:.62em !important;
+    letter-spacing:-.08px !important;
+  }
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #boardSection .demonStats{
+    gap:2px !important;
+    opacity:1 !important;
+    font-size:5.3px !important;
+    font-weight:700 !important;
+    letter-spacing:.01px !important;
+  }
+  #boardSection .demonStats .hp,
+  #boardSection .demonStats .blood,
+  #boardSection .demonStats .attack{
+    gap:.35px !important;
+  }
+  #boardSection .demonStats .statLabel{
+    font-size:3.4px !important;
+    letter-spacing:-.1px !important;
+  }
+  #boardSection .demonStats .statValue{
+    font-size:5.3px !important;
+  }
+}
