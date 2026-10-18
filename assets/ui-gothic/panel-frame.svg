@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="500" viewBox="0 0 850 500" fill="none"><defs><linearGradient id="e"><stop stop-color="#6d422c"/><stop offset=".48" stop-color="#deb374"/><stop offset="1" stop-color="#77492e"/></linearGradient></defs><rect x="2" y="2" width="846" height="496" rx="10" stroke="url(#e)" stroke-width="4"/><rect x="8" y="9" width="834" height="481" rx="7" stroke="#ae824d" stroke-opacity=".58" stroke-width="1.5"/>
+<g stroke="#d0a468" stroke-width="3" opacity=".72"><path d="M5 90C80 75 85 10 105 6M5 30Q40 50 68 8M5 65Q38 54 36 8M845 90C770 75 765 10 745 6M845 30Q810 50 782 8M845 65Q812 54 814 8M5 410C80 425 85 490 105 494M5 470Q40 450 68 492M5 435Q38 446 36 492M845 410C770 425 765 490 745 494M845 470Q810 450 782 492M845 435Q812 446 814 492"/></g>
+<path d="M390 2 425 27 460 2M390 498 425 473 460 498" stroke="#f3cc89" stroke-width="2"/>
+<path d="M425 0 435 12 425 25 415 12ZM425 475 435 488 425 500 415 488Z" fill="#e4bc78"/>
+</svg>
