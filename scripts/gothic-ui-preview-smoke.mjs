@@ -49,7 +49,8 @@ async function testViewport(width,height,phone=false){
   const section=getRect(card),body=getRect(tier),title=getRect(head);
   if(!section||!body||!title||!getRect(hand))throw Error('Missing Ritual or Priest hand regions');
   if(body.top-section.top < (innerWidth<1001?42:72))throw Error('Ritual effect text overlaps the artwork seal');
-  if(title.left-section.left < (innerWidth<1001?25:65))throw Error('Ritual heading overlaps painted seal');
+  const nameRect=getRect(qs('#ritualPanel .gothicRitualName'));
+  if(!nameRect||nameRect.left-section.left < (innerWidth<1001?25:65))throw Error('Ritual title text overlaps painted seal');
   const beforeStyles=getComputedStyle(stage,'::before');
   const overlayStyles=getComputedStyle(stage,'::after');
   if(!beforeStyles.backgroundImage.includes('cathedral-backdrop.svg'))throw Error('Sharp cathedral art missing behind Priest hand');
