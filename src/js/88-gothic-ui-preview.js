@@ -113,7 +113,7 @@ if(typeof renderPlayer==='function'){
 }
 if(typeof render==='function'){
  const prev=render;
- render=function(){const result=prev.apply(this,arguments);enhance();return result};
+ render=function(){const result=prev.apply(this,arguments);mount();syncStatus();return result};
  try{window.render=render}catch(_){}
 }
 if(typeof rogueliteRenderHud==='function'){
