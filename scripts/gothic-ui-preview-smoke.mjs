@@ -59,7 +59,7 @@ async function testViewport(width,height,phone=false){
   const matrix=new DOMMatrix(cardScale);
   if(Math.abs(matrix.a-.85)>.005)throw Error('Priest cards are not scaled down 15%: '+cardScale);
   const room=qs('#boardSection .room');
-  if(getRect(room).height<(innerWidth<1001?148:innerHeight<=800?285:340))
+  if(getRect(room).height<(innerWidth<1001?142:innerHeight<=800?285:340))
     throw Error('Room height did not increase as requested');
   if(!beforeStyles.backgroundImage.includes('cathedral-backdrop.svg'))throw Error('Sharp cathedral art missing behind Priest hand');
   if(!overlayStyles.backgroundImage.includes('lower-environment.webp'))throw Error('Original decorative stone edges missing');

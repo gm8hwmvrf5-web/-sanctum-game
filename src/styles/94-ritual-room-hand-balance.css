@@ -114,8 +114,9 @@ html.gothicUiPreview #handPanel #handContent .handCarousel{
  * parchment cards have narrow columns, while *both effects* begin below it. */
 @media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
   html.gothicUiPreview #boardSection .room{
-    height:150px!important;
-    min-height:150px!important;
+    /* Layout is ~0.89× scaled on iPhone; this renders ~145px tall. */
+    height:164px!important;
+    min-height:164px!important;
   }
   html.gothicUiPreview #ritualPanel .ritual{
     min-height:170px!important;
