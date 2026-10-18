@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v73';
+const CACHE_NAME='sanctum-gothic-preview-v1';
 const CORE=[
   './',
   './index.html',
@@ -13,6 +13,7 @@ const CORE=[
   './src/styles/elemental-damage-fx.css',
   './src/styles/cloud-saves.css',
   './src/styles/difficulty.css',
+  './src/styles/88-gothic-ui-preview.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
@@ -28,6 +29,7 @@ const CORE=[
   './src/js/85-demon-merge-fx.js',
   './src/js/86-elemental-damage-fx.js',
   './src/js/87-cloud-saves.js',
+  './src/js/88-gothic-ui-preview.js',
   './assets/wards/ward-cinder.webp',
   './assets/wards/ward-thorns.webp',
   './assets/wards/ward-chains.webp',
@@ -62,7 +64,7 @@ self.addEventListener('install',event=>{
 
 self.addEventListener('activate',event=>{
   event.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key))))
+    caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('sanctum-gothic-preview-')&&key!==CACHE_NAME).map(key=>caches.delete(key))))
   );
   self.clients.claim();
 });
