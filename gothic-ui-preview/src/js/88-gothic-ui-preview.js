@@ -121,6 +121,7 @@ function mount(){
  actions.appendChild(placeholder);
  actions.appendChild(end);
  actions.appendChild(menu);
+ if(typeof window.__sanctumPolishActions==='function')window.__sanctumPolishActions();
  enhanceRituals();
  syncStatus();
 }
