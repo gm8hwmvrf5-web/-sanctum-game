@@ -17,4 +17,15 @@ for(const [id,paths] of Object.entries(glyphs)){
  icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" focusable="false">'+paths+'</svg>';
  stat.prepend(icon);
 }
+}
+// Keep labels legible at both desktop and iPhone landscape sizes; leave the
+// existing accessible names and live stat values untouched.
+for(const [id,label] of Object.entries({
+ turnTimerStat:'TIMER',manaStatBox:'MANA',altarStatBox:'ALTAR',
+ gothicProgressChip:'FLOOR',gothicXpHud:'RELIC XP'
+})){
+ const stat=document.getElementById(id);
+ const field=stat?.querySelector(':scope > span:not(.gothicHudIcon), :scope > small');
+ if(field)field.textContent=label;
+}
 })();
