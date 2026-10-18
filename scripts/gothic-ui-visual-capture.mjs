@@ -26,6 +26,12 @@ for(const cfg of [
  });
  await page.waitForTimeout(350);
  const jpg=await page.screenshot({type:'jpeg',quality:43,fullPage:false,animations:'disabled'});
+ const hud=await page.evaluate(()=>{
+   const h=document.getElementById('topStatusBar');
+   const rectangle=(e)=>{let r=e.getBoundingClientRect();return [Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)]};
+   return {hud:rectangle(h),css:{display:getComputedStyle(h).display,columns:getComputedStyle(h).gridTemplateColumns},items:[...h.children].map(el=>({id:el.id,cls:el.className,display:getComputedStyle(el).display,position:getComputedStyle(el).position,rect:rectangle(el),b:el.querySelector(':scope>b')?rectangle(el.querySelector(':scope>b')):null,text:el.textContent.trim().slice(0,90)}))};
+ });
+ console.log('GOTHIC_'+cfg.id+'_HUD:'+JSON.stringify(hud));
  console.log('GOTHIC_'+cfg.id+'_LAYOUT:'+JSON.stringify(data));
  console.log('GOTHIC_'+cfg.id+'_JPEG:'+jpg.toString('base64'));
  if(errors.length)console.log('GOTHIC_'+cfg.id+'_ERRORS:'+JSON.stringify(errors));
