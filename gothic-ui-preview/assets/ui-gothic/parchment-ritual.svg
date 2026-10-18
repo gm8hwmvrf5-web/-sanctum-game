@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="530" viewBox="0 0 450 530"><defs>
+<linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4dcb3"/><stop offset=".22" stop-color="#e6cba0"/><stop offset=".63" stop-color="#d4b486"/><stop offset=".9" stop-color="#e8c99b"/><stop offset="1" stop-color="#aa7c54"/></linearGradient>
+<radialGradient id="spots"><stop stop-color="#6b3f28" stop-opacity=".19"/><stop offset="1" stop-color="#6b3f28" stop-opacity="0"/></radialGradient>
+<filter id="paperGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".13" numOctaves="3" seed="4" result="n"/><feColorMatrix in="n" type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".11"/></feComponentTransfer></filter></defs>
+<path d="M15 4C80 7 154 1 228 5S390 4 435 8Q446 45 442 115L444 473Q444 522 423 522L17 523Q4 493 8 448L5 61Q6 18 15 4Z" fill="url(#paper)" stroke="#79512c" stroke-width="7"/>
+<path d="M12 15 433 14 430 508 20 511Z" fill="none" stroke="#ffe4ae" stroke-opacity=".62" stroke-width="3"/>
+<ellipse cx="58" cy="40" rx="125" ry="98" fill="url(#spots)"/><ellipse cx="400" cy="501" rx="150" ry="120" fill="url(#spots)"/><ellipse cx="426" cy="150" rx="40" ry="180" fill="url(#spots)"/>
+<path d="M19 33Q8 90 18 150M430 320Q443 400 429 481M27 503Q180 515 330 509" fill="none" stroke="#865330" stroke-opacity=".45" stroke-width="5"/>
+<path d="M20 9H430V520H20Z" filter="url(#paperGrain)" opacity=".46"/>
+</svg>
