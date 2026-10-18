@@ -19,6 +19,8 @@ jobs:
           node --check src/js/88-gothic-ui-preview.js
           node --check src/js/89-mockup-pixel-skin.js
           node --check src/js/90-hud-room-cleanup.js
+          node --check src/js/91-reference-v2.js
+          node --check src/js/92-gothic-ui-repair.js
           node --check service-worker.js
       - name: Install browser for two viewport checks
         run: |

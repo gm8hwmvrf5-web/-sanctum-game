@@ -8,6 +8,8 @@ on:
       - 'src/styles/89-mockup-pixel-skin.css'
       - 'src/styles/90-hud-room-cleanup.css'
       - 'src/styles/91-reference-v2.css'
+      - 'src/styles/92-gothic-ui-repair.css'
+      - 'src/js/92-gothic-ui-repair.js'
       - 'src/js/91-reference-v2.js'
       - 'src/js/90-hud-room-cleanup.js'
       - 'src/js/89-mockup-pixel-skin.js'

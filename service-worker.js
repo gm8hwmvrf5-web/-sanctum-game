@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-gothic-preview-v15';
+const CACHE_NAME='sanctum-gothic-preview-v16';
 const CORE=[
   './',
   './index.html',
@@ -17,6 +17,7 @@ const CORE=[
   './src/styles/89-mockup-pixel-skin.css',
   './src/styles/90-hud-room-cleanup.css',
   './src/styles/91-reference-v2.css',
+  './src/styles/92-gothic-ui-repair.css',
   './assets/ui-gothic/cathedral-backdrop.svg',
   './assets/ui-gothic/room-tracery.svg',
   './assets/ui-gothic/header-crest.svg',
@@ -80,6 +81,7 @@ const CORE=[
   './src/js/89-mockup-pixel-skin.js',
   './src/js/90-hud-room-cleanup.js',
   './src/js/91-reference-v2.js',
+  './src/js/92-gothic-ui-repair.js',
   './assets/wards/ward-cinder.webp',
   './assets/wards/ward-thorns.webp',
   './assets/wards/ward-chains.webp',
