@@ -223,3 +223,54 @@ html.gothicUiPreview #ritualPanel .gothicRitualTier:last-child b{
  html.gothicUiPreview #ritualPanel .gothicRitualName{font-size:11px!important}
  html.gothicUiPreview #ritualPanel .gothicRitualTier{font-size:9px!important}
 }
+
+/* Correct previous decorative pseudo-element dimensions: stage artwork must
+   fill the WHOLE Priest+Ritual surface, never look like a miniature sixth room. */
+html.gothicUiPreview #handPanel .handCharacterStage::before{
+ box-sizing:border-box!important;
+ left:-5px!important;right:-5px!important;
+ top:-8px!important;bottom:-35px!important;
+ width:auto!important;height:auto!important;
+ max-width:none!important;max-height:none!important;
+ transform:none!important;
+ background-position:center,center,center 75%!important;
+}
+html.gothicUiPreview #handPanel .handCharacterStage::after{
+ transform:none!important;
+}
+/* Override the two-ID legacy button background-image selectors as well:
+   the cropped image sprites included partial printed words/symbols. */
+html.gothicUiPreview #gothicPreviewActions #basicBtn{
+ background-image:url('../../assets/ui-gothic/action-filigree.svg'),
+   linear-gradient(175deg,#732129,#270d13)!important;
+ background-size:100% 100%,100% 100%!important;
+}
+html.gothicUiPreview #gothicPreviewActions #wardcraftCast,
+html.gothicUiPreview #gothicPreviewActions #gothicWardPlaceholder{
+ background-image:url('../../assets/ui-gothic/action-filigree.svg'),
+   linear-gradient(175deg,#6c4726,#29180e)!important;
+ background-size:100% 100%,100% 100%!important;
+}
+html.gothicUiPreview #gothicPreviewActions #endBtn{
+ background-image:url('../../assets/ui-gothic/action-filigree.svg'),
+   linear-gradient(175deg,#17664e,#0a2d25)!important;
+ background-size:100% 100%,100% 100%!important;
+}
+html.gothicUiPreview #gothicPreviewActions #gothicMenuBtn{
+ background-image:url('../../assets/ui-gothic/action-filigree.svg'),
+   linear-gradient(175deg,#292328,#0b0a0d)!important;
+ background-size:100% 100%,100% 100%!important;
+}
+/* Prevent the old button fill and its inline icon from peeking through. */
+html.gothicUiPreview #gothicPreviewActions .btn{
+ background-repeat:no-repeat!important;
+ color:#f6e6c4!important;
+}
+/* Keep hot spot placement accurate on iPhone landscape too. */
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ html.gothicUiPreview #handPanel .handCharacterStage::before{
+  left:-2px!important;right:-2px!important;
+  top:-2px!important;bottom:-12px!important;
+  width:auto!important;height:auto!important;
+ }
+}
