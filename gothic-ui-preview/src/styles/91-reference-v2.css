@@ -1,0 +1,329 @@
+/* Wardcraft reference v2 — art extracted from approved 1672×941 composition.
+   The screen remains an actual playable UI. All values/cards/menus are live.
+   This stylesheet applies only to the isolated gothic-ui-preview branch. */
+html.gothicUiPreview body{background:#090609!important}
+html.gothicUiPreview body::before{
+ content:""!important;display:block!important;position:fixed!important;inset:0!important;z-index:0!important;
+ pointer-events:none!important;opacity:1!important;filter:none!important;
+ background:#0c090d url('../../assets/ui-gothic/reference-v2/reference-cathedral-shell.webp') center top/100% 100% no-repeat!important
+}
+html.gothicUiPreview body::after{content:none!important;display:none!important}
+.gothicUiPreview .app{
+ max-width:1900px!important;padding:0 clamp(8px,2.3vw,41px) 22px!important;
+ position:relative!important;z-index:1!important;overflow:visible!important
+}
+/* Ornate banner, centered crest and compact high-contrast HUD are separate layers. */
+#gothicPreviewHeader{
+ height:clamp(61px,4.85vw,82px)!important;min-height:clamp(61px,4.85vw,82px)!important;
+ display:grid!important;grid-template-columns:minmax(0,60%) minmax(0,40%)!important;
+ margin:0 0 4px!important;gap:0!important;align-items:center!important
+}
+#gothicWardHeader{
+ display:block!important;position:relative!important;width:83%!important;min-width:0!important;
+ height:clamp(57px,4.65vw,79px)!important;min-height:0!important;padding:0!important;
+ background:url('../../assets/ui-gothic/reference-v2/wardcraft-banner-v2.webp') center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important
+}
+#gothicWardHeader strong{visibility:hidden!important;position:absolute!important}
+#gothicWardHeader #gothicWardStatus{
+ display:block!important;position:absolute!important;top:34%!important;left:45%!important;right:7%!important;
+ font:clamp(10px,.88vw,15px)/1.2 Georgia,serif!important;white-space:nowrap!important;
+ color:#f3dfc0!important;text-shadow:0 1px 2px #000!important;overflow:hidden!important;text-overflow:ellipsis
+}
+#gothicCenterCrest{
+ width:clamp(65px,7vw,122px)!important;height:auto!important;top:-7px!important;left:51.5%!important;
+ filter:drop-shadow(0 0 5px #a3782e)!important;z-index:9!important
+}
+#gothicPreviewHeader #topStatusBar.stats{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;
+ height:clamp(50px,3.75vw,65px)!important;min-height:0!important;width:100%!important;
+ margin:0!important;padding:3px!important;border:1px solid #8e683b!important;border-radius:11px!important;
+ background:linear-gradient(180deg,#1b1619f8,#0b0a0dfc)!important;
+ box-shadow:inset 0 0 0 1px #624b2b6f,0 2px 10px #0007!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+#gothicPreviewHeader #topStatusBar > .runProgressStat,
+#gothicPreviewHeader #topStatusBar > .stat:has(#defeatStat){display:none!important}
+#gothicPreviewHeader #topStatusBar > .stat:not(.runProgressStat),
+#gothicPreviewHeader #gothicXpHud{
+ display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;
+ text-align:center!important;gap:2px!important;padding:2px 3px 2px clamp(23px,2.25vw,39px)!important;
+ border:0!important;border-right:1px solid #79604481!important;background:transparent!important;
+ height:100%!important;min-height:0!important;position:relative!important;overflow:visible!important
+}
+#gothicPreviewHeader #gothicXpHud{border-right:0!important}
+#gothicPreviewHeader #topStatusBar .stat > b,
+#gothicPreviewHeader #gothicXpHud > b{
+ font:700 clamp(13px,1.27vw,23px)/1 Georgia,serif!important;
+ color:#f2d8a6!important;text-shadow:0 1px 1px #000!important;
+ filter:none!important;opacity:1!important;white-space:nowrap!important;text-align:center!important
+}
+#gothicPreviewHeader #topStatusBar .stat > span:not(.gothicHudIcon),
+#gothicPreviewHeader #gothicXpHud > small{
+ font:700 clamp(7px,.7vw,12px)/1.05 Georgia,serif!important;
+ color:#d7c1a1!important;text-shadow:none!important;letter-spacing:.015em!important;
+ text-transform:uppercase!important;white-space:nowrap!important
+}
+#gothicPreviewHeader #topStatusBar .gothicHudIcon{
+ position:absolute!important;display:block!important;left:clamp(2px,.55vw,10px)!important;
+ top:50%!important;width:clamp(21px,2.3vw,37px)!important;height:clamp(21px,2.3vw,37px)!important;
+ transform:translateY(-50%)!important;background-position:center!important;background-size:contain!important;
+ background-repeat:no-repeat!important;filter:none!important;opacity:1!important
+}
+#gothicPreviewHeader #topStatusBar .gothicHudIcon svg{display:none!important}
+#gothicPreviewHeader #turnTimerStat .gothicHudIcon{background-image:url('../../assets/ui-gothic/reference-v2/hud-timer-v2.webp')!important}
+#gothicPreviewHeader #manaStatBox .gothicHudIcon{background-image:url('../../assets/ui-gothic/reference-v2/hud-mana-v2.webp')!important}
+#gothicPreviewHeader #altarStatBox .gothicHudIcon{background-image:url('../../assets/ui-gothic/reference-v2/hud-altar-v2.webp')!important}
+#gothicPreviewHeader #gothicProgressChip .gothicHudIcon{background-image:url('../../assets/ui-gothic/reference-v2/hud-floor-v2.webp')!important}
+#gothicPreviewHeader #gothicXpHud .gothicHudIcon{background-image:url('../../assets/ui-gothic/reference-v2/hud-xp-v2.webp')!important}
+#gothicPreviewHeader #topStatusBar .stat::before,#gothicPreviewHeader #gothicXpHud::before{content:none!important;display:none!important}
+#gothicPreviewHeader #topStatusBar .meterFill,
+#gothicPreviewHeader #topStatusBar .meterGlass,
+#gothicPreviewHeader #topStatusBar .manaMeterGlow{opacity:.025!important;filter:none!important}
+/* The five reference rooms carry their original gothic frames, no duplicate CSS tracery. */
+.gothicUiPreview #boardSection.board{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:2px!important;min-width:0!important;margin:0 0 clamp(6px,.8vw,14px)!important;padding:0!important
+}
+.gothicUiPreview #boardSection .room{
+ min-width:0!important;position:relative!important;overflow:hidden!important;padding:0!important;margin:0!important;
+ height:clamp(190px,19.1vw,327px)!important;min-height:clamp(190px,19.1vw,327px)!important;
+ background-size:100% 100%!important;background-position:center!important;background-repeat:no-repeat!important;
+ border:0!important;border-radius:1px!important;box-shadow:none!important
+}
+.gothicUiPreview #boardSection .room.gateway{background-image:url('../../assets/ui-gothic/reference-v2/room-gateway-v2.webp')!important}
+.gothicUiPreview #boardSection .room.hall{background-image:url('../../assets/ui-gothic/reference-v2/room-hall-v2.webp')!important}
+.gothicUiPreview #boardSection .room.chapel{background-image:url('../../assets/ui-gothic/reference-v2/room-chapel-v2.webp')!important}
+.gothicUiPreview #boardSection .room.crypt{background-image:url('../../assets/ui-gothic/reference-v2/room-crypt-v2.webp')!important}
+.gothicUiPreview #boardSection .room.boss{background-image:url('../../assets/ui-gothic/reference-v2/room-boss-v2.webp')!important}
+.gothicUiPreview #boardSection .room::after,.gothicUiPreview #boardSection .room .gothicRoomFrame{display:none!important}
+.gothicUiPreview #boardSection .room >h3{visibility:hidden!important;margin:0!important;padding:0!important;height:16.3%!important;min-height:0!important}
+.gothicUiPreview #boardSection .room >h3::before{display:none!important}
+.gothicUiPreview #boardSection .roomMeta{
+ position:absolute!important;z-index:8!important;top:16.3%!important;left:0!important;right:0!important;
+ width:100%!important;height:10%!important;min-height:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important
+}
+.gothicUiPreview #boardSection .roomMeta [data-cons]{
+ height:100%!important;min-height:0!important;min-width:33%!important;max-width:42%!important;
+ padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;color:transparent!important;
+ cursor:pointer!important;border-radius:6px!important
+}
+.gothicUiPreview #boardSection .roomMeta [data-cons]:focus-visible{outline:2px solid #ffebae!important}
+.gothicUiPreview #boardSection .room .demons{
+ position:relative!important;z-index:5!important;display:block!important;margin:12.5% 4% 0!important;
+ max-height:61%!important;overflow-y:auto!important;scrollbar-width:thin!important;
+}
+.gothicUiPreview #boardSection .room .demons >.cap{display:none!important}
+.gothicUiPreview #boardSection .room .demon{
+ width:min(94%,230px)!important;min-height:0!important;
+ display:flex!important;flex-direction:row!important;align-items:stretch!important;
+ padding:3px!important;margin:0 0 3px!important;
+ background:#1a0b0edb!important;border:1px solid #a97854!important;box-shadow:0 0 7px #000c!important;
+ border-radius:5px!important;color:#f1dfc8!important
+}
+.gothicUiPreview #boardSection .room .demonArtWrap{flex:0 0 34%!important;max-width:34%!important;min-width:0!important;height:106px!important;overflow:hidden!important}
+.gothicUiPreview #boardSection .room .demonArt{width:100%!important;height:100%!important;object-fit:cover!important}
+.gothicUiPreview #boardSection .room .demonBody{
+ min-width:0!important;display:flex!important;flex-direction:column!important;
+ flex:1!important;padding:2px 4px!important;line-height:1.1!important;gap:3px!important
+}
+.gothicUiPreview #boardSection .room .demon .name{font:700 clamp(9px,.79vw,13px)/1.05 Georgia,serif!important;color:#f8e6ce!important}
+.gothicUiPreview #boardSection .room .demonStats{font-size:clamp(8px,.75vw,12px)!important;gap:4px!important;flex-wrap:wrap!important}
+.gothicUiPreview #boardSection .room .demon .abilityText{font:clamp(8px,.7vw,12px)/1.15 Georgia,serif!important;color:#f0d8c1!important}
+.gothicUiPreview #boardSection .room .demon .familyTag{font-size:clamp(7px,.54vw,10px)!important}
+.gothicUiPreview #boardSection .room.boss #bossArea .cap{color:#efd5c7!important;background:#280b0cae!important;font-size:clamp(8px,.72vw,12px)!important;padding:3px!important}
+/* The lower chamber closely follows the reference hand/ritual proportion. */
+.gothicUiPreview #handPanel{padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.gothicUiPreview #handPanel .handCharacterStage{
+ display:grid!important;grid-template-columns:minmax(0,46.7%) minmax(0,53.3%)!important;
+ gap:clamp(8px,1vw,17px)!important;align-items:stretch!important;position:relative!important
+}
+.gothicUiPreview #handPanel .handCharacterStage::before{content:none!important;display:none!important}
+.gothicUiPreview #handPanel .handCharacterCards{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ min-height:clamp(335px,25vw,425px)!important;min-width:0!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;padding:3px!important
+}
+.gothicUiPreview #handPanel .handCharacterCards::before{content:none!important;display:none!important}
+.gothicUiPreview #handPanel .handCharacterPriest{
+ display:flex!important;flex-direction:column!important;gap:7px!important;background:transparent!important;
+ border:0!important;padding:0!important;box-shadow:none!important;min-width:0!important
+}
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+ --gcard:clamp(157px,14.1vw,240px)!important;
+ display:grid!important;grid-template-columns:34px minmax(0,1fr) 34px!important;
+ gap:4px!important;width:min(100%,calc(2 * var(--gcard) + 100px))!important;max-width:100%!important;
+ margin:0 auto!important;justify-content:center!important
+}
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+ width:calc(2 * var(--gcard) + 47px)!important;max-width:100%!important;
+ min-height:calc(var(--gcard) * 1.41 + 12px)!important;overflow:visible!important
+}
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-center,
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-right{
+ width:var(--gcard)!important;min-width:var(--gcard)!important;max-width:var(--gcard)!important;
+ height:calc(var(--gcard) * 1.4)!important;min-height:calc(var(--gcard) * 1.4)!important;max-height:calc(var(--gcard) * 1.4)!important;
+ left:15px!important;top:0!important;opacity:1!important;overflow:hidden!important
+}
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-right{left:calc(var(--gcard) + 22px)!important}
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-left,
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-right{
+ width:calc(var(--gcard) * .82)!important;max-width:none!important;height:calc(var(--gcard) * 1.15)!important;
+ min-height:0!important;top:20px!important;opacity:.62!important
+}
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-left{left:-23px!important}
+.gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-right{left:calc(2 * var(--gcard) - 43px)!important}
+.gothicUiPreview #handContent .hand.carouselTrack>.card.carouselCard .cardArt{height:calc(var(--gcard) * .52)!important;min-height:0!important}
+.gothicUiPreview #handContent .handCarousel .carouselNav{width:33px!important;min-width:33px!important;height:62px!important;border-radius:13px!important}
+.gothicUiPreview #handContent .handCarousel .carouselMeta{justify-content:center!important;text-align:center!important;margin-top:2px!important;padding:0!important}
+.gothicUiPreview #handContent .handCarousel .carouselHint{display:inline!important;color:#ac9790!important;font-size:clamp(8px,.8vw,12px)!important}
+/* Rituals get the original painted parchment ornaments, not generic UI cards. */
+.gothicUiPreview #gothicRitualHeading{
+ display:flex!important;align-items:center!important;
+ min-height:clamp(39px,3.25vw,56px)!important;height:clamp(39px,3.25vw,56px)!important;
+ padding:2px 8px!important;gap:12px!important;
+ border:0!important;border-bottom:2px solid #a17a45!important;background:#0e0a0cb8!important;
+ border-radius:0!important;box-shadow:none!important
+}
+.gothicUiPreview #gothicRitualHeading .gothicHeadingText{
+ font:700 clamp(17px,1.63vw,27px)/1 Georgia,serif!important;color:#f2d8a4!important;letter-spacing:.025em!important
+}
+.gothicUiPreview #gothicRitualHeading .relicSummary{
+ font:clamp(9px,.78vw,13px)/1.14 Georgia,serif!important;color:#e5cdb4!important;
+ margin:0!important;max-height:36px!important;min-width:0!important
+}
+.gothicUiPreview #gothicRitualHeading .ritualBloodGauge{width:clamp(75px,12vw,200px)!important;min-width:64px!important;height:13px!important}
+.gothicUiPreview #handPanel #ritualPanel{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important}
+.gothicUiPreview #ritualPanel .rituals{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:clamp(5px,.7vw,11px)!important;align-items:stretch!important
+}
+.gothicUiPreview #ritualPanel .ritual{
+ min-height:clamp(249px,17vw,305px)!important;height:auto!important;padding:clamp(9px,.85vw,14px)!important;
+ display:flex!important;flex-direction:column!important;gap:7px!important;
+ background-color:transparent!important;background-size:100% 100%!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;color:#321f10!important;opacity:1!important
+}
+.gothicUiPreview #ritualPanel .ritual:nth-child(1){background-image:url('../../assets/ui-gothic/reference-v2/ritual-red-v2.webp')!important}
+.gothicUiPreview #ritualPanel .ritual:nth-child(2){background-image:url('../../assets/ui-gothic/reference-v2/ritual-purple-v2.webp')!important}
+.gothicUiPreview #ritualPanel .ritual:nth-child(3){background-image:url('../../assets/ui-gothic/reference-v2/ritual-gold-v2.webp')!important}
+.gothicUiPreview #ritualPanel .ritual.used{opacity:.65!important}
+.gothicUiPreview #ritualPanel .gothicRitualHead{
+ padding:4px 0 7px clamp(42px,4vw,61px)!important;min-height:clamp(54px,4.15vw,68px)!important;
+ gap:0!important;margin:0!important;border-bottom:1px solid #8f70402e!important
+}
+.gothicUiPreview #ritualPanel .gothicRitualSeal{display:none!important}
+.gothicUiPreview #ritualPanel .gothicRitualName{
+ font:700 clamp(13px,1.1vw,19px)/1.12 Georgia,serif!important;color:#2b190f!important;white-space:normal!important
+}
+.gothicUiPreview #ritualPanel .gothicRitualCost{
+ font:clamp(10px,.76vw,13px)/1.1 Georgia,serif!important;color:#4e301f!important;margin-top:3px!important
+}
+.gothicUiPreview #ritualPanel .gothicRitualTiers{display:flex!important;flex-direction:column!important;gap:clamp(6px,.6vw,10px)!important}
+.gothicUiPreview #ritualPanel .gothicRitualTier{
+ font:clamp(11px,.87vw,15px)/1.23 Georgia,serif!important;color:#382416!important;
+ overflow-wrap:anywhere!important;white-space:normal!important
+}
+.gothicUiPreview #ritualPanel .gothicRitualTier b{
+ display:block!important;font-weight:700!important;margin:0 0 3px!important;color:#442818!important;font-size:1.07em!important
+}
+.gothicUiPreview #ritualPanel .gothicRitualTier:last-child b{display:inline!important}
+.gothicUiPreview #ritualPanel .ritual>button{display:none!important}
+.gothicUiPreview #ritualPanel .ritual:focus-visible{outline:3px solid #ecbd69!important}
+/* Bottom engraved controls preserve real onClick handlers and Ward gating. */
+.gothicUiPreview #gothicPreviewActions{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:clamp(6px,.9vw,15px)!important;margin:0!important;padding:0!important;border:0!important;
+ background:transparent!important;min-height:clamp(57px,4.7vw,80px)!important
+}
+.gothicUiPreview #gothicPreviewActions .btn{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:clamp(57px,4.7vw,80px)!important;min-height:0!important;
+ border:0!important;border-radius:1px!important;box-shadow:none!important;
+ padding:4px 5px 4px clamp(26px,3.7vw,61px)!important;
+ background-size:100% 100%!important;background-repeat:no-repeat!important;
+ font:clamp(11px,.95vw,16px)/1.1 Georgia,serif!important;color:#fff0d1!important;text-shadow:0 1px 2px #000!important;
+ text-align:center!important
+}
+.gothicUiPreview #gothicPreviewActions #basicBtn{background-image:url('../../assets/ui-gothic/reference-v2/button-attack-v2.webp')!important}
+.gothicUiPreview #gothicPreviewActions #wardcraftCast,.gothicUiPreview #gothicPreviewActions #gothicWardPlaceholder{background-image:url('../../assets/ui-gothic/reference-v2/button-ward-v2.webp')!important}
+.gothicUiPreview #gothicPreviewActions #endBtn{background-image:url('../../assets/ui-gothic/reference-v2/button-end-v2.webp')!important}
+.gothicUiPreview #gothicPreviewActions #gothicMenuBtn{background-image:url('../../assets/ui-gothic/reference-v2/button-menu-v2.webp')!important}
+.gothicUiPreview #gothicPreviewActions .btn::before,.gothicUiPreview #gothicPreviewActions .btn::after{display:none!important}
+.gothicUiPreview #gothicPreviewActions .btn:disabled{opacity:.77!important}
+.gothicUiPreview #gothicPreviewActions #gothicWardPlaceholder:disabled{opacity:.88!important}
+.gothicUiPreview #gothicPreviewActions #wardcraftCast[hidden],
+.gothicUiPreview #gothicPreviewActions #gothicWardPlaceholder[hidden]{display:none!important}
+.gothicUiPreview #gothicPreviewActions .btn:focus-visible{outline:2px solid #ffe4a8!important;outline-offset:1px!important}
+/* Compact landscape: same design, independently scaled for usable touch targets. */
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ .gothicUiPreview .app{padding:0 4px 6px!important}
+ #gothicPreviewHeader{height:35px!important;min-height:35px!important;grid-template-columns:55% 45%!important;margin-bottom:2px!important}
+ #gothicWardHeader{height:33px!important;width:94%!important}
+ #gothicWardHeader #gothicWardStatus{left:45%!important;top:37%!important;font-size:6.1px!important}
+ #gothicCenterCrest{width:44px!important;top:-4px!important}
+ #gothicPreviewHeader #topStatusBar.stats{height:30px!important;min-height:30px!important;padding:1px!important}
+ #gothicPreviewHeader #topStatusBar >.stat:not(.runProgressStat),#gothicPreviewHeader #gothicXpHud{
+  padding:1px 1px 1px 14px!important;gap:0!important
+ }
+ #gothicPreviewHeader #topStatusBar .gothicHudIcon{left:1px!important;width:13px!important;height:16px!important}
+ #gothicPreviewHeader #topStatusBar .stat>b,#gothicPreviewHeader #gothicXpHud>b{font-size:9px!important}
+ #gothicPreviewHeader #topStatusBar .stat>span:not(.gothicHudIcon),#gothicPreviewHeader #gothicXpHud>small{font-size:5.5px!important}
+ .gothicUiPreview #boardSection.board{gap:2px!important;margin-bottom:4px!important}
+ .gothicUiPreview #boardSection .room{height:136px!important;min-height:136px!important}
+ .gothicUiPreview #boardSection .room>h3{height:16%!important;min-height:0!important}
+ .gothicUiPreview #boardSection .roomMeta{top:16%!important;min-height:0!important;height:10%!important}
+ .gothicUiPreview #boardSection .roomMeta [data-cons]{width:31%!important;min-width:31%!important}
+ .gothicUiPreview #boardSection .room .demons{margin:14% 2% 0!important;max-height:63%!important}
+ .gothicUiPreview #boardSection .room .demon{
+  width:90%!important;min-height:0!important;display:block!important;font-size:6px!important;padding:1px!important
+ }
+ .gothicUiPreview #boardSection .room .demonArtWrap{max-width:100%!important;width:100%!important;height:31px!important}
+ .gothicUiPreview #boardSection .room .demonBody{padding:1px!important}
+ .gothicUiPreview #boardSection .room .demon .name{font-size:6px!important}
+ .gothicUiPreview #boardSection .room .demonStats{font-size:5.6px!important}
+ .gothicUiPreview #boardSection .room .demon .abilityText{font-size:5.4px!important}
+ .gothicUiPreview #boardSection .room .demon .familyTag{display:none!important}
+ .gothicUiPreview #handPanel .handCharacterStage{grid-template-columns:minmax(0,48%) minmax(0,52%)!important;gap:4px!important}
+ .gothicUiPreview #handPanel .handCharacterCards{min-height:0!important;padding:1px!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode{--gcard:121px!important;width:100%!important;grid-template-columns:20px minmax(0,1fr) 20px!important;gap:1px!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{width:329px!important;max-width:329px!important;min-height:208px!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-center,
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-right{
+  width:121px!important;min-width:121px!important;max-width:121px!important;
+  height:188px!important;min-height:188px!important;max-height:188px!important
+ }
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-center{left:38px!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-right{left:165px!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-left{left:0!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack>.card.carouselCard.is-back-right{left:233px!important}
+ .gothicUiPreview #handContent .handCarousel .carouselHint{display:none!important}
+ .gothicUiPreview #gothicRitualHeading{min-height:22px!important;height:22px!important;gap:4px!important;padding:1px 4px!important}
+ .gothicUiPreview #gothicRitualHeading .gothicHeadingText{font-size:10px!important}
+ .gothicUiPreview #gothicRitualHeading .relicSummary{font-size:6px!important}
+ .gothicUiPreview #gothicRitualHeading .ritualBloodGauge{height:8px!important;width:70px!important;min-width:42px!important}
+ .gothicUiPreview #ritualPanel .rituals{gap:3px!important}
+ .gothicUiPreview #ritualPanel .ritual{min-height:166px!important;padding:4px!important;gap:2px!important}
+ .gothicUiPreview #ritualPanel .gothicRitualHead{min-height:23px!important;padding:2px 0 2px 23px!important}
+ .gothicUiPreview #ritualPanel .gothicRitualName{font-size:8px!important}
+ .gothicUiPreview #ritualPanel .gothicRitualCost{font-size:5.8px!important}
+ .gothicUiPreview #ritualPanel .gothicRitualTiers{gap:2px!important}
+ .gothicUiPreview #ritualPanel .gothicRitualTier{font-size:6.35px!important;line-height:1.14!important}
+ .gothicUiPreview #gothicPreviewActions{height:24px!important;min-height:24px!important;gap:3px!important}
+ .gothicUiPreview #gothicPreviewActions .btn{height:24px!important;min-height:24px!important;padding:1px 1px 1px 14px!important;font-size:6.8px!important}
+}
+@media(orientation:portrait) and (max-width:700px){
+ #gothicPreviewHeader{height:auto!important;min-height:0!important;grid-template-columns:1fr!important}
+ #gothicWardHeader{width:100%!important;height:48px!important}
+ #gothicWardHeader #gothicWardStatus{top:33%!important;font-size:10px!important}
+ #gothicCenterCrest{display:none!important}
+ #gothicPreviewHeader #topStatusBar.stats{height:56px!important;margin-top:3px!important}
+ .gothicUiPreview #boardSection.board{display:block!important}
+ .gothicUiPreview #boardSection .room{height:240px!important;min-height:240px!important;margin-bottom:6px!important}
+ .gothicUiPreview #handPanel .handCharacterStage{grid-template-columns:1fr!important}
+ .gothicUiPreview #handPanel .handCharacterPriest{grid-row:2!important}
+ .gothicUiPreview #handPanel .handCharacterCards{grid-row:1!important}
+ .gothicUiPreview #handContent .handCarousel.twoFrontMode.fourVisibleMode{--gcard:160px!important}
+ .gothicUiPreview #gothicPreviewActions .btn{font-size:10px!important;padding-left:18px!important}
+}
