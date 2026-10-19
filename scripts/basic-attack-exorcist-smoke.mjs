@@ -23,7 +23,7 @@ let target={kind:'boss'};
 let amount=null;
 const ctx={
  S:{
-  relicMods:{basic:0,hand:0,ritual:0,crit:0},activeRelics:[],relicDeck:['xp-one','xp-two','xp-three'],
+  difficulty:'standard',relicMods:{basic:0,hand:0,ritual:0,crit:0},activeRelics:[],relicDeck:['xp-one','xp-two','xp-three'],
   rogue:{enabled:true,legacyBasicAttackBonus:0,relicXp:0,xpRelics:0,passageRelics:0,pendingBasicRelicXp:0}
  },
  log:(...args)=>logs.push(args),
@@ -43,7 +43,7 @@ const ctx={
 };
 ctx.window=ctx;
 vm.createContext(ctx);
-for(const fn of ['basicAttackDamage','applyRelic','resolveRitual'])
+for(const fn of ['basicAttackCap','basicAttackDamage','applyRelic','resolveRitual'])
  vm.runInContext(extract(engine,fn),ctx,{timeout:5000});
 const overStart=rogue.indexOf('window.basicAttackDamage=function(){');
 const overEnd=rogue.indexOf('\n};',overStart);
@@ -54,13 +54,25 @@ ctx.S.rogue.legacyBasicAttackBonus=2;
 assert.equal(ctx.basicAttackDamage(),4,'Legacy bonus must count toward the cap');
 ctx.applyRelic({key:'within',n:'Within Cap',effect:'Basic +1',mods:{basic:1}});
 assert.equal(ctx.basicAttackDamage(),5);
-assert.equal(ctx.S.rogue.pendingBasicRelicXp,0,'Reaching exactly 5 should not award XP');
-ctx.applyRelic({key:'over',n:'Over Cap',effect:'Basic +2',mods:{basic:2}});
-assert.equal(ctx.basicAttackDamage(),5);
-assert.equal(ctx.S.rogue.pendingBasicRelicXp,20,'Excess +2 should give XP only once');
+ctx.applyRelic({key:'toward',n:'Toward Cap',effect:'Basic +2',mods:{basic:2}});
+assert.equal(ctx.basicAttackDamage(),7);
+assert.equal(ctx.S.rogue.pendingBasicRelicXp,0,'Below cap must not award XP');
 ctx.applyRelic({key:'hybrid',n:'Hybrid',effect:'Basic +1, hand +1',mods:{basic:1,hand:1}});
-assert.equal(ctx.S.rogue.pendingBasicRelicXp,40);
+assert.equal(ctx.basicAttackDamage(),8,'Easy/Standard attacks cap at 8');
+assert.equal(ctx.S.rogue.pendingBasicRelicXp,0,'Reaching exactly 8 should not award XP');
 assert.equal(ctx.S.relicMods.hand,1,'Hybrid non-basic bonus must remain active');
+ctx.applyRelic({key:'over',n:'Over Cap',effect:'Basic +1',mods:{basic:1}});
+assert.equal(ctx.basicAttackDamage(),8);
+assert.equal(ctx.S.rogue.pendingBasicRelicXp,20,'Crossing 8 grants one XP conversion');
+ctx.applyRelic({key:'over-two',n:'Over Cap +2',effect:'Basic +2',mods:{basic:2}});
+assert.equal(ctx.basicAttackDamage(),8);
+assert.equal(ctx.S.rogue.pendingBasicRelicXp,40,'Excess +2 grants one XP conversion, not two');
+for(const [difficulty,cap] of [['easy',8],['standard',8],['hard',10],['hell',10],['tormented',10]]){
+ ctx.S.difficulty=difficulty;
+ assert.equal(ctx.basicAttackCap(),cap,difficulty+' cap');
+ assert.equal(ctx.basicAttackDamage(),cap,difficulty+' capped attack');
+}
+ctx.S.difficulty='standard';
 // Test the actual XP handler and check that awarded XP respects Relic thresholds.
 vm.runInContext('let rogueRelicXpGrantInProgress=false;',ctx,{timeout:5000});
 for(const fn of ['rogueRelicXpNeed','rogueGrantRelicXp','rogueFlushBasicRelicXp'])
@@ -166,5 +178,7 @@ assert(data.includes('h:"Deal 3 damage to a Demon or Boss.",f:"Deal 6 damage to 
 assert(data.includes('Turn up to 2 Greater Demons back into their Lesser forms. Deal no damage.'));
 assert(data.includes('h:"Deal 2 damage to a normal Demon; deal +4 damage to Greater Demons, Ultra Demons, and Bosses (6 total).'));
 assert(/sanctum-clean-v\d+/.test(worker),"A versioned service-worker cache is required");
-assert(engine.includes('Attack damage is capped at 5; if this Relic would exceed the cap, gain 20 Relic XP instead.'));
-console.log('Focused Basic Attack cap, 20-XP conversion, XP tier, hybrid Relic and Exorcist ritual checks passed.');
+assert(engine.includes('Basic Attack is capped at 8 on Easy/Standard or 10 on Hard/Hell/Tormented;'));
+assert(engine.includes('before+addedBasic>basicAttackCap()'));
+assert(rogue.includes('return Math.min(basicAttackCap(),2+relicBonus+rogueLegacyBasicAttackBonus());'));
+console.log('Focused difficulty-based 8/10 Basic Attack caps, 20-XP conversion, XP tier, hybrid Relic and Exorcist ritual checks passed.');
