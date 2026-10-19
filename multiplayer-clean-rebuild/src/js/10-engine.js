@@ -491,7 +491,7 @@ async function crimsonProphecy(){
  }
 }
 function plagueBloom(){for(let r=0;r<4;r++){if(!S.rooms[r].length)continue;let d=S.rooms[r][0],before=d.cur;d.cur=Math.min(demonMaxHP(d),d.cur+1);if(d.cur>before)log(`${S.boss.n} — Pestilent Bloom heals ${demonName(d)} in ${["Gateway","Hall","Chapel","Crypt"][r]} for 1 HP.`,"bad")}}
-function damageBoss(amt,source="Damage",ritual=false){if(!S.bossRevealed||!S.boss||amt<=0)return;let f=ensureBossFlags();if(f.bossMark){amt+=f.bossMark;log(`Sacred marking adds ${f.bossMark} damage to ${S.boss.n}.`,'good');f.bossMarkCharges=(f.bossMarkCharges||1)-1;if(f.bossMarkCharges<=0){delete f.bossMark;delete f.bossMarkCharges}}let original=amt;if(ritual&&bossIs("fallenSeraph")&&!f.seraphHaloUsed){f.seraphHaloUsed=true;amt=Math.max(1,Math.floor(amt/2));log(`${S.boss.n} — Profane Halo halves the first Ritual that targets it this round (${original} → ${amt}).`,"bad")}if(ritual&&bossIs("devourer")){let reduced=Math.max(1,amt-1);if(reduced!==amt)log(`${S.boss.n} — Hungering Maw reduces Ritual damage by 1 (${amt} → ${reduced}).`,"bad");amt=reduced}if(bossIs("dreadReaper")&&!f.reaperPreventUsed){f.reaperPreventUsed=true;let blocked=Math.min(2,amt);amt-=blocked;log(`${S.boss.n} — Harvest Unending prevents ${blocked} of the first damage it would take this round.`,"bad")}if(amt<=0){render();return}let before=S.boss.cur;S.boss.cur=Math.max(0,S.boss.cur-amt);let dealt=before-S.boss.cur;S.bossDamageTotal=(S.bossDamageTotal||0)+dealt;log(`${source} deals ${dealt} damage to ${S.boss.n}. Total Boss damage: ${S.bossDamageTotal}.`,"good");checkBossDamageRelics();defeatBossIfNeeded();render()}
+function damageBoss(amt,source="Damage",ritual=false,opts={}){if(!S.bossRevealed||!S.boss||amt<=0)return;let f=ensureBossFlags();if(f.bossMark){amt+=f.bossMark;log(`Sacred marking adds ${f.bossMark} damage to ${S.boss.n}.`,'good');f.bossMarkCharges=(f.bossMarkCharges||1)-1;if(f.bossMarkCharges<=0){delete f.bossMark;delete f.bossMarkCharges}}let original=amt;if(ritual&&bossIs("fallenSeraph")&&!f.seraphHaloUsed){f.seraphHaloUsed=true;amt=Math.max(1,Math.floor(amt/2));log(`${S.boss.n} — Profane Halo halves the first Ritual that targets it this round (${original} → ${amt}).`,"bad")}if(ritual&&bossIs("devourer")){let reduced=Math.max(1,amt-1);if(reduced!==amt)log(`${S.boss.n} — Hungering Maw reduces Ritual damage by 1 (${amt} → ${reduced}).`,"bad");amt=reduced}if(bossIs("dreadReaper")&&!f.reaperPreventUsed){f.reaperPreventUsed=true;let blocked=Math.min(2,amt);amt-=blocked;log(`${S.boss.n} — Harvest Unending prevents ${blocked} of the first damage it would take this round.`,"bad")}if(amt<=0){render();return}let before=S.boss.cur;S.boss.cur=Math.max(0,S.boss.cur-amt);let dealt=before-S.boss.cur;S.bossDamageTotal=(S.bossDamageTotal||0)+dealt;recordCriticalHitImpact({kind:'boss'},dealt,opts);log(`${source} deals ${dealt} damage to ${S.boss.n}. Total Boss damage: ${S.bossDamageTotal}.`,"good");checkBossDamageRelics();defeatBossIfNeeded();render()}
 function triggerEnterRoom(d){let code=demonCode(d),v=demonValue(d);if(code==='roomAltar'){damageAltar(v,`${demonName(d)} enters a room`)}let loc=findDemonLocation(d);if(!loc)return;applyRoomEntryEffects(d);loc=findDemonLocation(d);if(!loc)return;let f=ensureBossFlags();if(bossIs("boneKing")&&loc.r===3){d.cur+=1;log(`${S.boss.n} — Ossuary Court grants ${demonName(d)} +1 HP in the Crypt.`,"bad")}let sporeCount=f.spores[loc.r]||0;if(bossIs("plagueFather")&&sporeCount>0){f.spores[loc.r]=sporeCount-1;addBossHpBonus(d,1,"Corruption Spores")}if(bossIs("gatebreaker")&&!f.breachUsed&&(loc.r===1||loc.r===2)){f.breachUsed=true;let moved=moveOneForward(d,`${S.boss.n} — Breach the Sanctum`);if(moved)log(`${S.boss.n} — Breach the Sanctum moves ${demonName(d)} 1 additional room forward.`,"bad");else log(`${S.boss.n} — Breach the Sanctum tries to move ${demonName(d)}, but the next room is full.`,"bad")}}
 function triggerEnterPlay(d){let code=demonCode(d),v=demonValue(d);if(code==='enterMana'){drainSharedManaByDemon(v,`${demonName(d)} enters play`)}if(code==='entryDiscard'){for(const p of S.players){for(let n=0;n<v&&p.hand.length;n++){const idx=Math.floor(Math.random()*p.hand.length),card=p.hand.splice(idx,1)[0];returnPriestCardToDiscard(card);log(`${demonName(d)} forces ${p.name} to discard ${card.n}.`,'bad')}}}if(d.family==='Undead'){let bonus=0;for(let x of allDemons()){if(x.d.id!==d.id&&demonCode(x.d)==='undeadAttack')bonus+=demonValue(x.d)}if(bonus>0){d.status=d.status||{};d.status.attackRoundBonus=(d.status.attackRoundBonus||0)+bonus;log(`${demonName(d)} gains +${bonus} Attack this round from Death Hierophant / Soul Conqueror.`,'bad')}}let f=ensureBossFlags();if(bossIs("crimsonOracle")&&!f.omenUsed){f.omenUsed=true;addBossHpBonus(d,2,"Omen Unbound")}}
 function spawnSpecificImp(count=1){let base=DEMON_TYPES[0];for(let i=0;i<count;i++){let d={...base,id:`imp-${uid()}`,greater:false,cur:base.hp,status:{}};applyPendingCrucifixTransferToSpawn(d);let room=placeEnteringDemon(d);log(`${d.n} is spawned by a Demon ability${room>=0?` in the ${ROOM_NAMES[room]}`:' and waits in the Gate Queue'}.`,'bad')}}
@@ -1522,7 +1522,7 @@ const PURIFIABLE_STATUS_GROUPS=[
 ];
 function removePurifiableStatus(d,g){if(!d||!g)return;g.keys.forEach(k=>delete d.status[k]);d.cur=Math.min(d.cur,demonMaxHP(d));}
 
-function dealDamageTarget(x,amt,source='Effect',opts={}){if(!x||amt<=0)return 0;if(x.kind==='boss'){damageBoss(amt,source,!!opts.ritual);return 0}return damageDemon(x.d,amt,source,opts)}
+function dealDamageTarget(x,amt,source='Effect',opts={}){if(!x||amt<=0)return 0;if(x.kind==='boss'){damageBoss(amt,source,!!opts.ritual,opts);return 0}return damageDemon(x.d,amt,source,opts)}
 async function chooseDamageRoom(title='Choose a room to damage'){
  let rooms=['Gateway','Hall','Chapel','Crypt'].map((n,i)=>({n,i,kind:'room'})).filter(x=>S.rooms[x.i].length>0);
  let bossTarget=(S.bossRevealed&&S.boss&&S.boss.cur>0)?{n:'Boss Room',i:4,kind:'boss',boss:S.boss}:null;
@@ -1551,7 +1551,7 @@ async function basicAttack(){
  const location=lightning?findDemonLocation(x.d):null;
  const otherIds=location?(S.rooms[location.r]||[]).filter(d=>d.id!==x.d.id).map(d=>d.id):[];
  const floor=S.rogue?.floor;
- dealDamageTarget(x,amount,`${p.name}'s ${critical?'CRITICAL ':''}Basic Attack`,{basicAttack:true});
+ dealDamageTarget(x,amount,`${p.name}'s ${critical?'CRITICAL ':''}Basic Attack`,{basicAttack:true,criticalHit:critical});
  if(lightning&&otherIds.length&&(!S.rogue?.enabled||S.rogue.floor===floor)){
   const splash=Math.ceil(base/2);
   for(const id of otherIds){
@@ -1581,6 +1581,31 @@ async function processOverflowDamageQueue(){
 /* Lightning Rod uses the same serialized elemental event stream as Fire and
  * Poison. Record REAL HP lost before defeat removes the Demon from its room;
  * other clients replay the yellow numbers from authoritative game state. */
+/* Cosmetic only: crit damage is calculated by existing combat mechanics.
+ * Record actual HP removed while the hit target still exists, so a lethal
+ * blow can show the number before the card or Boss disappears. Events use
+ * the existing multiplayer-synced floating-damage visual stream. */
+function recordCriticalHitImpact(target,actual,opts){
+ if(!opts?.criticalHit||!target)return;
+ const damage=Math.max(0,Math.floor(Number(actual)||0));
+ if(!damage)return;
+ const demon=target.kind==='demon'?target.d:null;
+ const loc=demon?findDemonLocation(demon):null;
+ const event={
+  id:uid(),kind:'critical',damage,createdAt:Date.now(),
+  targetKind:demon?'demon':'boss',
+  targetId:String(demon?.id||S.boss?.key||'boss'),
+  room:loc?loc.r:4,index:loc?loc.i:0
+ };
+ S.elementalDamageVisuals=Array.isArray(S.elementalDamageVisuals)?S.elementalDamageVisuals:[];
+ S.elementalDamageVisuals.push(event);
+ if(S.elementalDamageVisuals.length>24)
+  S.elementalDamageVisuals.splice(0,S.elementalDamageVisuals.length-24);
+ // Immediately place the number over the original card even if the hit kills.
+ // The renderer deduplicates this event across subsequent board refreshes.
+ if(typeof window.__sanctumShowCriticalDamage==='function')
+  window.__sanctumShowCriticalDamage(event);
+}
 function recordLightningRodImpact(d,actual,source,opts){
  if(!opts?.basicAttack||!(S?.activeRelics||[]).includes('lightningRod')||!d||!d.id)return;
  if(source!=='Lightning Rod'&&!/Basic Attack$/.test(String(source)))return;
@@ -1597,7 +1622,7 @@ function recordLightningRodImpact(d,actual,source,opts){
  if(S.elementalDamageVisuals.length>24)
   S.elementalDamageVisuals.splice(0,S.elementalDamageVisuals.length-24);
 }
-function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(opts.basicAttack&&code==='basicArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Basic Attack damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;recordLightningRodImpact(d,dealt,source,opts);log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(code==='hurtAltar'&&dealt>0&&S.phase==='Priest'&&d.status.hurtAltarLastRound!==S.round){d.status.hurtAltarLastRound=S.round;damageAltar(v,`${demonName(d)}'s retaliation`)}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
+function damageDemon(d,amt,source='Effect',opts={}){if(d.status.mark){amt+=d.status.mark;log(`A sacred mark adds ${d.status.mark} damage.`,'good');d.status.markCharges=(d.status.markCharges||1)-1;if(d.status.markCharges<=0){delete d.status.mark;delete d.status.markCharges}}let code=demonCode(d),v=demonValue(d);if(code==='ignoreDamage'&&!d.status.damageIgnoreUsed){let blocked=Math.min(amt,v);amt-=blocked;d.status.damageIgnoreUsed=true;log(`${demonName(d)} ignores ${blocked} damage.`,'bad')}if(opts.ritual&&code==='ritualArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Ritual damage by ${blocked}.`,'bad')}if(opts.basicAttack&&code==='basicArmor'){let blocked=Math.min(amt,v);amt-=blocked;log(`${demonName(d)} reduces Basic Attack damage by ${blocked}.`,'bad')}if(amt<=0){render();return 0}let before=d.cur,overflow=Math.max(0,amt-before);d.cur=Math.max(0,d.cur-amt);let dealt=Math.max(0,before-d.cur);S.runStats=S.runStats||{};S.runStats.damageToDemons=(S.runStats.damageToDemons||0)+dealt;recordLightningRodImpact(d,dealt,source,opts);recordCriticalHitImpact({kind:'demon',d},dealt,opts);log(`${source} deals ${dealt} to ${demonName(d)}.`,'good');if(code==='hurtMana'){addMana(-v);log(`${demonName(d)} causes the shared Mana pool to lose ${v}.`,'bad')}if(code==='hurtAltar'&&dealt>0&&S.phase==='Priest'&&d.status.hurtAltarLastRound!==S.round){d.status.hurtAltarLastRound=S.round;damageAltar(v,`${demonName(d)}'s retaliation`)}if(d.cur<=0){defeatDemon(d,{suppressNegative:!!opts.suppressNegativeDefeat});if(opts.allowOverflow&&overflow>0)queueOverflowDamage(overflow,source,opts)}render();return overflow}
 function findDemonLocation(d){for(let r=0;r<4;r++){let i=S.rooms[r].findIndex(x=>x.id===d.id);if(i>=0)return {r,i}}return null}
 // Excess Blood remains a meaningful bonus but can restore at most 4
 // Altar Protection each round across all Priests and defeat sources.

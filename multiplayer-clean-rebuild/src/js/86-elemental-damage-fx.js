@@ -121,7 +121,8 @@ function targetPoint(evt){
   card=Array.from(document.querySelectorAll('#boardSection .demons [data-demon]'))
    .find(x=>x.getAttribute('data-demon')===String(evt.targetId||''));
  }
- if(!card&&Number.isInteger(evt.room)&&evt.room>=0&&evt.room<=3){
+ if(!card&&evt.targetKind==='boss')card=document.querySelector('#boardSection .room.boss');
+  if(!card&&Number.isInteger(evt.room)&&evt.room>=0&&evt.room<=3){
   card=document.getElementById('room'+evt.room);
  }
  const w=window.innerWidth||900,h=window.innerHeight||600;
@@ -133,17 +134,28 @@ function targetPoint(evt){
 }
 function showNumber(evt){
  const amount=Math.max(0,Math.floor(Number(evt.damage)||0));
- if(!amount||!(evt.kind==='fire'||evt.kind==='poison'||evt.kind==='lightning'))return;
+ if(!amount||!(evt.kind==='fire'||evt.kind==='poison'||evt.kind==='lightning'||evt.kind==='critical'))return;
  const pos=targetPoint(evt);
  const label=document.createElement('span');
  label.className='sanctum-elemental-damage sanctum-elemental-damage-'+evt.kind;
- label.textContent='−'+amount;
+ label.textContent=evt.kind==='critical'?'CRIT! −'+amount:'−'+amount;
  label.setAttribute('aria-hidden','true');
  label.style.left=pos.x+'px';
- label.style.top=pos.y+'px';
+ label.style.top=(pos.y-(evt.kind==='critical'?14:0))+'px';
  damageLayer().appendChild(label);
- setTimeout(()=>label.remove(),reduced()?750:1620);
+ setTimeout(()=>label.remove(),reduced()?750:(evt.kind==='critical'?1800:1620));
 }
+// Called at impact before a defeated target is removed. Other clients use
+// drawDamage() from the same serialized visual event after multiplayer sync.
+window.__sanctumShowCriticalDamage=function(event){
+ try{
+  const id=String(event?.id||'');
+  if(!id||seen.has(id))return;
+  seen.add(id);
+  if(seen.size>160)seen.delete(seen.values().next().value);
+  showNumber(event);
+ }catch(error){console.warn('Critical hit number skipped safely',error)}
+};
 function drawDamage(){
  const list=typeof S!=='undefined'&&Array.isArray(S?.elementalDamageVisuals)
   ?S.elementalDamageVisuals:[];
