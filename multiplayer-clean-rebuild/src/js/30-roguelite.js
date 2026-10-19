@@ -31,7 +31,7 @@ function rogueLegacyBasicAttackBonus(){return Math.max(0,Number(S?.rogue?.legacy
 function rogueLegacyRelicXpBonus(){return Math.max(0,Number(S?.rogue?.legacyRelicXpBonus)||0)}
 window.basicAttackDamage=function(){
  const relicBonus=Math.max(0,Number(S?.relicMods?.basic)||0);
- return Math.min(5,2+relicBonus+rogueLegacyBasicAttackBonus());
+ return Math.min(basicAttackCap(),2+relicBonus+rogueLegacyBasicAttackBonus());
 };
 function rogueCycleForFloor(f){return Math.floor((Math.max(1,Number(f)||1)-1)/15)+1}
 function rogueCycleFloorFor(f){return ((Math.max(1,Number(f)||1)-1)%15)+1}

@@ -89,14 +89,15 @@ const RELICS=[
  {key:'saintAbacus',n:"Saint's Abacus",cat:'Relic Experience',effect:'All Relic XP requirements decrease by 5, to a minimum of 1 XP.',mods:{}},
  {key:'wardenChain',n:"Warden's Chain",cat:'Demon Control',effect:'Prevent the first otherwise-valid Demon merge each passage, including Greater-to-Ultra merges during Elite passages. Resets each new passage.',mods:{}}
 ];
-// Attack Relic text must describe the five-damage ceiling and XP conversion.
+// Attack Relic text describes the difficulty-specific ceiling and XP conversion.
 for(const relic of RELICS){
  if(Number(relic.mods?.basic)>0)
-  relic.effect+=' Attack damage is capped at 5; if this Relic would exceed the cap, gain 20 Relic XP instead.';
+  relic.effect+=' Basic Attack is capped at 8 on Easy/Standard or 10 on Hard/Hell/Tormented; if this Relic would exceed the current cap, gain 20 Relic XP instead.';
 }
 function relicByKey(k){return RELICS.find(r=>r.key===k)||null}
 function handLimit(){return HAND_LIMIT+((S&&S.relicMods&&S.relicMods.hand)||0)}
-function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0),legacy=Math.max(0,Number(S?.rogue?.legacyBasicAttackBonus)||0);return Math.min(5,2+raw+legacy)}
+function basicAttackCap(){return ['hard','hell','tormented'].includes(S?.difficulty)?10:8}
+function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0),legacy=Math.max(0,Number(S?.rogue?.legacyBasicAttackBonus)||0);return Math.min(basicAttackCap(),2+raw+legacy)}
 function basicAttackCritChance(){return Math.max(0,Math.min(100,5+((S&&S.relicMods&&S.relicMods.crit)||0)))}
 function ritualScale(n){return Math.ceil(n*1.2)}
 function ritualBoost(n){return ritualScale(n)+((S&&S.relicMods&&S.relicMods.ritual)||0)}
@@ -108,11 +109,11 @@ function applyRelic(r){
  S.activeRelics=S.activeRelics||[];
  S.activeRelics.push(r.key);
  log(`RELIC — ${r.n}: ${r.effect}`,'good');
- // Any Relic crossing or exceeding the five-damage ceiling converts once
+ // Any Relic crossing the current difficulty's attack ceiling converts once
  // to XP; +2 attack Relics also count as one Relic, not two XP awards.
- if(addedBasic>0&&before+addedBasic>5&&S.rogue?.enabled){
+ if(addedBasic>0&&before+addedBasic>basicAttackCap()&&S.rogue?.enabled){
   S.rogue.pendingBasicRelicXp=Math.max(0,Number(S.rogue.pendingBasicRelicXp)||0)+20;
-  log(`${r.n}: Basic Attack is capped at 5; gain 20 Relic XP instead.`,'good');
+  log(`${r.n}: Basic Attack is capped at ${basicAttackCap()} on this difficulty; gain 20 Relic XP instead.`,'good');
  }
 }
 function relicModalBlocked(){return !document.getElementById('crucifixModal').classList.contains('hidden')||!document.getElementById('choiceModal').classList.contains('hidden')||!document.getElementById('consecrateModal').classList.contains('hidden')||!document.getElementById('desecrationModal').classList.contains('hidden')||!document.getElementById('descendModal').classList.contains('hidden')}
