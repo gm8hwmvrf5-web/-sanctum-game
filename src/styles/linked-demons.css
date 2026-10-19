@@ -1,0 +1,30 @@
+/* Linked Demon blood bonds: an independent cosmetic marker on the artwork.
+ * Does not alter room layout, hit targets or existing elemental icon rows. */
+#boardSection .demons .demon.sanctum-blood-linked{
+ box-shadow:inset 0 0 0 1px rgba(179,45,56,.72),0 0 10px rgba(157,24,40,.24);
+}
+#boardSection .demons .demon.sanctum-blood-enraged{
+ box-shadow:inset 0 0 0 1px rgba(225,86,60,.82),0 0 12px rgba(205,51,26,.3);
+}
+#boardSection .demons .demon .demonArtWrap{position:relative}
+#boardSection .sanctum-blood-marker{
+ position:absolute;top:3px;right:3px;z-index:9;
+ display:flex;align-items:center;gap:2px;
+ max-width:calc(100% - 6px);padding:2px 3px;
+ color:#ef9a9b;background:rgba(34,7,12,.94);
+ border:1px solid #aa4857;border-radius:4px;
+ font:700 8px/1 Georgia,serif;letter-spacing:.25px;
+ pointer-events:none;user-select:none;
+ box-shadow:0 1px 5px rgba(10,0,0,.75);
+}
+#boardSection .sanctum-blood-marker svg{
+ width:13px;height:13px;display:block;flex:none;
+}
+#boardSection .sanctum-blood-marker-rage{
+ color:#ffc088;border-color:#c46d3d;
+ background:rgba(43,12,7,.95);
+}
+@media (orientation:landscape) and (max-height:520px){
+ #boardSection .sanctum-blood-marker{padding:1px 2px;font-size:7px}
+ #boardSection .sanctum-blood-marker svg{width:11px;height:11px}
+}
