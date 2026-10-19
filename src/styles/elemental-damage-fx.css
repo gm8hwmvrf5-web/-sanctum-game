@@ -132,6 +132,22 @@
  color:#f6d94e;
  text-shadow:0 1px 2px #211604,0 0 7px rgba(246,217,78,.85);
 }
+.sanctum-elemental-damage-critical{
+ color:#ffe19a;
+ font-size:23px;
+ font-weight:900;
+ letter-spacing:.5px;
+ -webkit-text-stroke:.65px #37190d;
+ text-shadow:0 2px 2px #170906,0 0 10px #bd6726,0 0 18px #e5a34d;
+ animation:sanctumCriticalDamageRise 1.65s ease-out both;
+}
+@keyframes sanctumCriticalDamageRise{
+ 0%{opacity:0;transform:translate(-50%,-20%) scale(.75)}
+ 17%{opacity:1;transform:translate(-50%,-52%) scale(1.22)}
+ 36%{opacity:1;transform:translate(-50%,-76%) scale(1.02)}
+ 70%{opacity:1;transform:translate(-50%,-115%) scale(1)}
+ 100%{opacity:0;transform:translate(-50%,-170%) scale(.96)}
+}
 @keyframes sanctumElementalDamageRise{
  0%{opacity:0;transform:translate(-50%,-35%) scale(.8)}
  16%{opacity:1;transform:translate(-50%,-65%) scale(1.04)}
@@ -140,6 +156,7 @@
 }
 @media(max-width:700px){
  .sanctum-elemental-damage{font-size:14px}
+ .sanctum-elemental-damage-critical{font-size:17px}
  .sanctum-miasma{filter:blur(2px)}
 }
 @media(prefers-reduced-motion:reduce){
