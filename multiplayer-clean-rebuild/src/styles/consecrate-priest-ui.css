@@ -45,3 +45,58 @@
   #consecrateModal .consecrate-room-choices{grid-template-columns:1fr}
   #consecrateModal .consecrate-room-choice{padding:9px}
 }
+
+/* Aligned Gothic ritual cards: each column shares a single bottom baseline.
+ * Stretch the Priest panel into its existing hand-area row (no board resize). */
+#handPanel .handCharacterPriest > #ritualPanel{
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:0;
+}
+#handPanel .handCharacterPriest > #ritualPanel > .ritualMain{
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:0;
+}
+#handPanel .handCharacterPriest .ritualMain > .rituals{
+  flex:1 1 auto !important;
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  grid-template-rows:minmax(max-content,1fr) !important;
+  align-items:stretch !important;
+  gap:6px !important;
+  width:100% !important;
+}
+#handPanel .handCharacterPriest .ritualMain .rituals > .ritual{
+  height:100% !important;
+  min-height:0 !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding-bottom:7px !important;
+  position:relative;
+}
+#handPanel .handCharacterPriest .ritualMain .rituals > .ritual > button[data-rit]{
+  flex:0 0 auto !important;
+  align-self:stretch !important;
+  width:100% !important;
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  margin-top:auto !important;
+  margin-bottom:0 !important;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  #handPanel .handCharacterPriest .ritualMain .rituals > .ritual{padding-bottom:5px !important}
+  #handPanel .handCharacterPriest .ritualMain > .rituals{gap:4px !important}
+}
+@media (orientation:portrait) and (max-width:700px){
+  #handPanel .handCharacterPriest .ritualMain > .rituals{
+    grid-template-columns:1fr !important;
+    grid-template-rows:auto !important;
+    flex:0 0 auto !important;
+  }
+  #handPanel .handCharacterPriest .ritualMain .rituals > .ritual{min-height:116px !important}
+}
