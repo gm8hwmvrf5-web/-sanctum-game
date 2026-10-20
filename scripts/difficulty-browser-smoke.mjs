@@ -15,6 +15,10 @@ try{
  assert(setup.includes('10%'),setup);
  await page.locator('#startBtn').click();
  await page.waitForFunction(()=>window.__sanctumDifficulty?.level()==='hell'&&S.started,{timeout:10000});
+ // Every new run must resolve one starting Law before opening Pause.
+ await page.waitForFunction(()=>S.rogue?.laws?.offer?.keys?.length===3,{timeout:10000});
+ await page.locator('#rogueChoiceGrid .lawDraftChoice').first().click();
+ await page.waitForFunction(()=>S.phase==='Priest'&&S.rogue?.laws?.active?.length===1);
  let snap=await page.evaluate(()=>{
   const d=S.rooms.flat()[0];
   return {difficulty:S.difficulty,round:S.round,enemyHp:demonMaxHP(d),enemyAttack:demonAttack(d),baseHp:d.hp,baseAttack:d.atk,roundMultiplier:window.__sanctumDifficulty.multiplier(),save:JSON.parse(compactSaveJSON()).state.difficulty};

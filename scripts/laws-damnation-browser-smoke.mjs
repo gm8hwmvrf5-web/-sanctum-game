@@ -81,7 +81,9 @@ try{
     return true;
    };
    document.getElementById('playerCount').value='2';
+   setupPlayersUI();
    document.getElementById('startBtn').click();
+   if(!S.started||S.players.length!==2)throw Error('Simulated host did not start with two Priests');
    const offered=S.rogue.laws.offer?.keys||[];
    const deferred=!S.multiplayerVote&&offered.length===3;
    canChoose=true;
