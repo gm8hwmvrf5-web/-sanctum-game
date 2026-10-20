@@ -1,12 +1,12 @@
 /* Sanctum of the Damned — protected Altar in a Gothic cathedral.
-   High-quality 3840×2162 WebP, upscaled from the chosen three-step altar art.
+   High-quality 6144×3458 WebP, upscaled from the original three-step altar PNG.
    Display-only: preserve Priest cards, Rituals, room art and all UI geometry.
    Transparent Priest/hand containers let the altar appear behind the cards. */
 body::before{
   background-color:#0b0709 !important;
   background-image:
     linear-gradient(180deg,rgba(4,3,5,.20),rgba(4,3,5,.12) 44%,rgba(4,3,5,.23)),
-    url("../../assets/backgrounds/sanctum-three-step-altar-bg-4k.webp") !important;
+    url("../../assets/backgrounds/sanctum-three-step-altar-bg-6k.webp") !important;
   background-position:center center !important;
   background-size:cover !important;
   background-attachment:scroll !important;
