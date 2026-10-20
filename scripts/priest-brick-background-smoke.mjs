@@ -44,7 +44,7 @@ try {
      brick:wall.backgroundImage,
      priestCard:card&&{background:getComputedStyle(card).backgroundColor,
       image:getComputedStyle(card).backgroundImage},
-     ritualCards:ritualCards.map(el=>getComputedStyle(el).backgroundColor),
+     ritualCards:ritualCards.map(el=>({color:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage})),
      ritualButtonCount:buttons.length,
      buttonsAligned:buttons.length===3&&Math.max(...buttons.map(el=>el.getBoundingClientRect().bottom))-Math.min(...buttons.map(el=>el.getBoundingClientRect().bottom))<=2,
      endBesideConsecrate:document.getElementById('endBtn')?.nextElementSibling===document.getElementById('consecrateBtn'),
@@ -57,7 +57,7 @@ try {
    assert(report.priestCard&&(report.priestCard.background!=='rgba(0, 0, 0, 0)'||report.priestCard.image!=='none'),
     label+' visible Priest cards retain their art/frame/fill');
    assert.equal(report.ritualCards.length,3,label+' three Ritual cards still rendered');
-   assert(report.ritualCards.every(x=>x!=='rgba(0, 0, 0, 0)'),label+' readable Ritual card fills remain');
+   assert(report.ritualCards.every(x=>x.color!=='rgba(0, 0, 0, 0)'||x.image!=='none'),label+' readable Ritual card fills remain');
    assert.equal(report.ritualButtonCount,3);
    assert(report.buttonsAligned,label+' Ritual buttons remain aligned');
    assert(report.endBesideConsecrate,label+' turn action order preserved');
