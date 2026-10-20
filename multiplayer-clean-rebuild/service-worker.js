@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v86';
+const CACHE_NAME='sanctum-clean-v87';
 const CORE=[
   './',
   './index.html',
@@ -16,6 +16,7 @@ const CORE=[
   './src/styles/cloud-saves.css',
   './src/styles/difficulty.css',
   './src/styles/consecrate-priest-ui.css',
+  './src/styles/aspect-ratio.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
@@ -33,6 +34,7 @@ const CORE=[
   './src/js/87-cloud-saves.js',
   './src/js/88-linked-demons.js',
   './src/js/89-laws-damnation.js',
+  './src/js/90-aspect-ratio.js',
   './assets/wards/ward-cinder.webp',
   './assets/wards/ward-thorns.webp',
   './assets/wards/ward-chains.webp',

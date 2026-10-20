@@ -120,6 +120,7 @@
 <link rel="stylesheet" href="./src/styles/cloud-saves.css?v=clean38">
 <link rel="stylesheet" href="./src/styles/difficulty.css?v=clean70">
 <link rel="stylesheet" href="./src/styles/consecrate-priest-ui.css?v=clean84">
+<link rel="stylesheet" href="./src/styles/aspect-ratio.css?v=clean87">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -440,6 +441,18 @@
       <p id="difficultyPauseInfo" class="difficultyInfo">Standard uses the current enemy scaling.</p>
       <p class="difficultyInfo">Difficulty scales Demon HP, Demon Attack, Boss HP and Boss Altar drain per global round. A multiplayer difficulty change can be made by the active player and synchronizes with the party.</p>
     </div>
+    <div class="aspectRatioMenuPanel" aria-label="Aspect ratio display settings">
+      <div class="aspectRatioMenuTitle">Display Aspect Ratio</div>
+      <label for="aspectRatioSelect">
+        <span>Screen Layout</span>
+        <select id="aspectRatioSelect" aria-label="Display aspect ratio">
+          <option value="auto">Automatic (Device)</option>
+          <option value="19.5:9">19.5:9 — Widescreen</option>
+          <option value="4:3">4:3 — Tablet</option>
+        </select>
+      </label>
+      <p class="aspectRatioHint" id="aspectRatioHint">Automatic matches your screen. Change this at any time; it only affects your device, not multiplayer gameplay.</p>
+    </div>
     <div class="fontSettingsPanel" aria-label="Font size settings">
       <div class="fontSettingsTitle">Text Size</div>
       <div class="fontSettingRow">
@@ -707,5 +720,6 @@
 <script src="./src/js/87-cloud-saves.js?v=clean38"></script>
 <script src="./src/js/88-linked-demons.js?v=clean75"></script>
 <script src="./src/js/89-laws-damnation.js?v=clean81"></script>
+<script src="./src/js/90-aspect-ratio.js?v=clean87"></script>
 </body>
 </html>

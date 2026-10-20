@@ -1,0 +1,80 @@
+/* Local aspect-ratio layout presets. No changes to room art, cards or gameplay. */
+#pauseOverlay .aspectRatioMenuPanel{
+ border:1px solid rgba(165,118,67,.48);
+ background:linear-gradient(150deg,rgba(39,26,28,.94),rgba(12,11,15,.96));
+ border-radius:9px;
+ padding:11px 13px;
+ margin:10px 0;
+ color:#e2ceaa;
+}
+#pauseOverlay .aspectRatioMenuTitle{
+ color:#e3c18b;
+ font-size:16px;
+ font-weight:700;
+ letter-spacing:.06em;
+ margin:0 0 9px;
+}
+#pauseOverlay .aspectRatioMenuPanel label{
+ display:flex;
+ flex-wrap:wrap;
+ align-items:center;
+ gap:10px;
+ font-size:14px;
+ font-weight:600;
+}
+#pauseOverlay .aspectRatioMenuPanel select{
+ flex:1;
+ min-width:175px;
+ max-width:100%;
+ background:#18131a;
+ color:#efd9af;
+ border:1px solid #8f704e;
+ border-radius:6px;
+ padding:9px 10px;
+ font:inherit;
+ font-size:14px;
+}
+#pauseOverlay .aspectRatioHint{
+ font-size:12px;
+ line-height:1.5;
+ color:#bfae98;
+ margin:6px 0 0;
+}
+/* Each profile limits the game width using the screen HEIGHT as its frame.
+ * Game content can still scroll vertically: never crop game controls.
+ * For short landscape phones, 720px is the minimum readable width.
+ * The mode is purely CSS and does not touch synchronized game state. */
+html[data-sanctum-aspect="19.5:9"] .app{
+ width:100% !important;
+ max-width:min(100%,calc(100dvh * 19.5 / 9)) !important;
+ margin-left:auto !important;
+ margin-right:auto !important;
+}
+html[data-sanctum-aspect="4:3"] .app{
+ width:100% !important;
+ max-width:min(100%,max(720px,calc(100dvh * 4 / 3))) !important;
+ margin-left:auto !important;
+ margin-right:auto !important;
+}
+/* On portrait screens, retain the full available width rather than force
+ * landscape-width cards into a narrow strip. */
+@media(orientation:portrait){
+ html[data-sanctum-aspect="19.5:9"] .app,
+ html[data-sanctum-aspect="4:3"] .app{
+  max-width:100% !important;
+ }
+}
+@media(max-width:620px){
+ #pauseOverlay .aspectRatioMenuPanel{padding:9px 10px}
+ #pauseOverlay .aspectRatioMenuPanel label{
+  display:grid;grid-template-columns:1fr;gap:6px;
+ }
+ #pauseOverlay .aspectRatioMenuPanel select{width:100%;min-width:0}
+}
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ #pauseOverlay .aspectRatioMenuPanel{padding:5px 7px;margin:5px 0}
+ #pauseOverlay .aspectRatioMenuTitle{font-size:12px;margin:0 0 3px}
+ #pauseOverlay .aspectRatioMenuPanel label{font-size:10px;gap:5px}
+ #pauseOverlay .aspectRatioMenuPanel select{min-width:130px;padding:4px 6px;font-size:10px;min-height:30px}
+ #pauseOverlay .aspectRatioHint{font-size:9px;line-height:1.25}
+}
