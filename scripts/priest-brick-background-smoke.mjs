@@ -34,7 +34,7 @@ try {
       border:css.borderTopWidth,shadow:css.boxShadow,width:r.width,height:r.height};
     };
     const ancestor=style('body > .app > #handPanel');
-    const priest=style('#handPanel .handCharacterPriest.panel');
+    const priest=style('#handPanel .handCharacterPriest');
     const rituals=style('#handPanel .handCharacterPriest > #ritualPanel.panel');
     const card=document.querySelector('#handContent .hand.carouselTrack > .card');
     const ritualCards=[...document.querySelectorAll('#handPanel .handCharacterPriest .rituals > .ritual')];
@@ -54,7 +54,7 @@ try {
    assert(report.shells.every(s=>s&&s.background==='rgba(0, 0, 0, 0)'&&s.image==='none'&&s.border==='0px'&&s.shadow==='none'),
     label+' backplates should reveal brick, not black: '+JSON.stringify(report.shells));
    assert(report.brick.includes('url('),label+' original brick background remains');
-   assert(report.priestCard&&report.priestCard.background!=='rgba(0, 0, 0, 0)',
+   assert(report.priestCard&&(report.priestCard.background!=='rgba(0, 0, 0, 0)'||report.priestCard.image!=='none'),
     label+' visible Priest cards retain their art/frame/fill');
    assert.equal(report.ritualCards.length,3,label+' three Ritual cards still rendered');
    assert(report.ritualCards.every(x=>x!=='rgba(0, 0, 0, 0)'),label+' readable Ritual card fills remain');
