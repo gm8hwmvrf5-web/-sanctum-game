@@ -1,0 +1,23 @@
+/* Ritual stats now live on the Ritual cards, not beside End Turn.
+   Keep the player's identity and the right-aligned Cinders tracker visible. */
+#handPanel .handCharacterPriest .ritualTitleWithBlood .ritualPowerNote{
+ display:block;
+ margin-top:2px;
+ font:400 9px/1.15 Georgia,"Times New Roman",serif;
+ letter-spacing:.15px;
+ text-transform:none;
+ color:#d2b98c;
+ white-space:normal;
+}
+#handPanel .handCharacterPriest .ritualTracker .playerTurnTag{
+ margin-left:4px !important;
+}
+#handPanel .handCharacterPriest .ritualTracker #actionCinderBadge{
+ margin-left:auto !important;
+}
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ #handPanel .handCharacterPriest .ritualTitleWithBlood .ritualPowerNote{
+  font-size:7px;
+  line-height:1.1;
+ }
+}
