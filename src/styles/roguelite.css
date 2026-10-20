@@ -1360,3 +1360,83 @@
   #demonDeckGrid .deckarrow{transform:rotate(90deg);min-height:19px}
   #demonDeckGrid .codexDemon .demonArtWrap{height:170px}
 }
+
+
+/* Two-line new-game synopsis and optional full-text reader.
+ * Kept scoped to setup so the combat/Gothic UI remains unchanged. */
+#setupModal #rogueSetupNotice{
+ position:relative;
+ font-size:12px !important;
+ line-height:1.42 !important;
+ padding:8px 10px !important;
+ margin:8px 0 !important;
+}
+#setupModal #rogueSetupNotice .rogueSynopsisPreview{
+ display:-webkit-box;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:2;
+ line-clamp:2;
+ overflow:hidden;
+ padding-right:65px;
+ max-height:2.84em;
+}
+#setupModal #rogueSetupNotice .rogueSynopsisMore{
+ position:absolute;
+ right:7px;
+ bottom:7px;
+ border:0;
+ background:linear-gradient(90deg,rgba(38,26,15,0),#261a0f 22%,#261a0f);
+ color:#f3d69c;
+ text-decoration:underline;
+ text-underline-offset:2px;
+ font:700 12px/1.42 Georgia,serif;
+ padding:1px 3px 1px 12px;
+ border-radius:3px;
+ cursor:pointer;
+}
+#setupModal #rogueSetupNotice .rogueSynopsisMore:hover,
+#setupModal #rogueSetupNotice .rogueSynopsisMore:focus-visible{
+ color:#ffedca;
+ outline:1px solid #d5af69;
+}
+#rogueSynopsisModal{z-index:2750 !important;}
+#rogueSynopsisModal .rogueSynopsisBox{
+ width:min(660px,94vw);
+ max-height:min(86dvh,680px);
+ overflow:auto;
+ padding:18px 20px;
+ text-align:left;
+}
+#rogueSynopsisModal #rogueSynopsisTitle{
+ margin:0 0 12px;
+ color:#f0d6a0;
+}
+#rogueSynopsisModal #rogueSynopsisFull{
+ font:400 14px/1.65 Georgia,"Times New Roman",serif;
+ color:#e7d9c1;
+ margin:0 0 18px;
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+}
+#rogueSynopsisModal #rogueSynopsisClose{display:block;min-width:100px;margin-left:auto;}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ #setupModal #rogueSetupNotice{
+  font-size:10.5px !important;
+  line-height:1.45 !important;
+  padding:5px 8px !important;
+  margin:4px 0 !important;
+ }
+ #setupModal #rogueSetupNotice .rogueSynopsisPreview{
+  max-height:2.9em;
+ }
+ #setupModal #rogueSetupNotice .rogueSynopsisMore{
+  font-size:10.5px !important;
+  right:5px;
+  bottom:4px;
+  padding:0 3px 0 10px;
+ }
+ #rogueSynopsisModal .rogueSynopsisBox{max-height:calc(100dvh - 14px) !important;padding:10px 13px !important}
+ #rogueSynopsisModal #rogueSynopsisTitle{font-size:17px;margin-bottom:5px}
+ #rogueSynopsisModal #rogueSynopsisFull{font-size:12px;line-height:1.5;margin-bottom:10px}
+ #rogueSynopsisModal #rogueSynopsisClose{min-height:30px;padding:4px 12px}
+}

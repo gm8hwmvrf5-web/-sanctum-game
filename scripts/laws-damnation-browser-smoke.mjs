@@ -7,8 +7,33 @@ page.on('pageerror',error=>errors.push(error.message));
 try{
  await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'networkidle',timeout:60000});
  // Verify exact new-game synopsis without changing game mechanics.
- assert.equal(await page.locator('#rogueSetupNotice').textContent(),
-  "Endless Roguelite: Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss you can use cinders for permanent buffs, after that the same run continues into a new cycle at 1.5× difficulty. Each Defeat of a Demon or allowing them to reach the Altar has a 15 percent chance to  draw one random Crucifix card these can be damaging or helpful to your run. Demon Blood earned from kills also becomes Relic XP. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies . Multiple copies of cards in your hand can be merged to become stronger. The Sinking Repository opens automatically after every Boss offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio that can be bought for unbanked Cinders. After the third boss the Legacy checkpoint opens.",'New-game synopsis must match requested copy');
+ assert.equal(await page.locator('#rogueSynopsisFull').textContent(),
+  "Endless Roguelite: Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss you can use cinders for permanent buffs, after that the same run continues into a new cycle at 1.5× difficulty. Each Defeat of a Demon or allowing them to reach the Altar has a 15 percent chance to  draw one random Crucifix card these can be damaging or helpful to your run. Demon Blood earned from kills also becomes Relic XP. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies . Multiple copies of cards in your hand can be merged to become stronger. The Sinking Repository opens automatically after every Boss offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio that can be bought for unbanked Cinders. After the third boss the Legacy checkpoint opens.",'Full new-game synopsis must match requested copy');
+ assert.equal(await page.locator('#rogueSynopsisMore').count(),1);
+ const initialView=await page.evaluate(()=>{
+  const notice=document.getElementById('rogueSetupNotice');
+  const preview=document.querySelector('#rogueSetupNotice .rogueSynopsisPreview');
+  const more=document.getElementById('rogueSynopsisMore');
+  return {lineClamp:getComputedStyle(preview).webkitLineClamp,
+   textLines:preview.getBoundingClientRect().height / parseFloat(getComputedStyle(preview).lineHeight),
+   fullHeight:preview.scrollHeight,renderedHeight:preview.clientHeight,
+   visible:more.getBoundingClientRect().width>0,
+   setupVisible:!document.getElementById('setupModal').classList.contains('hidden'),
+   synopsisHidden:document.getElementById('rogueSynopsisModal').classList.contains('hidden'),
+   setupScrollHeight:document.querySelector('#setupModal .modalbox').scrollHeight};
+ });
+ assert.equal(initialView.lineClamp,'2','Synopsis must be clamped to two lines');
+ assert(initialView.textLines<=2.1,'Synopsis preview must fit two lines');
+ assert(initialView.fullHeight>initialView.renderedHeight,'Synopsis text should be truncated');
+ assert(initialView.visible&&initialView.setupVisible&&initialView.synopsisHidden);
+ await page.locator('#rogueSynopsisMore').click();
+ assert.equal(await page.locator('#rogueSynopsisModal').isVisible(),true,
+  'Tapping …more opens full synopsis');
+ assert.equal(await page.locator('#rogueSynopsisFull').textContent(),"Endless Roguelite: Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss you can use cinders for permanent buffs, after that the same run continues into a new cycle at 1.5× difficulty. Each Defeat of a Demon or allowing them to reach the Altar has a 15 percent chance to  draw one random Crucifix card these can be damaging or helpful to your run. Demon Blood earned from kills also becomes Relic XP. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies . Multiple copies of cards in your hand can be merged to become stronger. The Sinking Repository opens automatically after every Boss offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio that can be bought for unbanked Cinders. After the third boss the Legacy checkpoint opens.");
+ await page.locator('#rogueSynopsisClose').click();
+ assert.equal(await page.locator('#rogueSynopsisModal').isHidden(),true,
+  'Close restores New Game');
+ assert.equal(await page.locator('#setupModal').isVisible(),true);
  const result=await page.evaluate(async()=>{
   window.alert=()=>{};
   const el=id=>document.getElementById(id);
@@ -47,6 +72,23 @@ try{
  phone.on('pageerror',e=>mobileErrors.push(e.message));
  try{
   await phone.goto('http://127.0.0.1:4173/index.html',{waitUntil:'networkidle',timeout:60000});
+  const previewOnPhone=await phone.evaluate(()=>{
+   const el=document.querySelector('#rogueSetupNotice .rogueSynopsisPreview');
+   const more=document.getElementById('rogueSynopsisMore');
+   const style=getComputedStyle(el);
+   return {lines:el.getBoundingClientRect().height/parseFloat(style.lineHeight),
+    clamp:style.webkitLineClamp,moreVisible:more.getBoundingClientRect().width>0,
+    synopsisHidden:document.getElementById('rogueSynopsisModal').classList.contains('hidden')};
+  });
+  assert.equal(previewOnPhone.clamp,'2');
+  assert(previewOnPhone.lines<=2.1,'iPhone setup synopsis should show two lines');
+  assert(previewOnPhone.moreVisible&&previewOnPhone.synopsisHidden);
+  await phone.locator('#rogueSynopsisMore').click();
+  assert.equal(await phone.locator('#rogueSynopsisModal').isVisible(),true,
+   'Tap …more must open full synopsis on phone');
+  assert.equal(await phone.locator('#rogueSynopsisFull').textContent(),"Endless Roguelite: Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss you can use cinders for permanent buffs, after that the same run continues into a new cycle at 1.5× difficulty. Each Defeat of a Demon or allowing them to reach the Altar has a 15 percent chance to  draw one random Crucifix card these can be damaging or helpful to your run. Demon Blood earned from kills also becomes Relic XP. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies . Multiple copies of cards in your hand can be merged to become stronger. The Sinking Repository opens automatically after every Boss offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio that can be bought for unbanked Cinders. After the third boss the Legacy checkpoint opens.");
+  await phone.locator('#rogueSynopsisClose').click();
+  assert.equal(await phone.locator('#rogueSynopsisModal').isHidden(),true);
   const mobile=await phone.evaluate(()=>{
    document.getElementById('playerCount').value='1';
    document.getElementById('startBtn').click();
