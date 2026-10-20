@@ -111,6 +111,14 @@
     --sanctum-modal-limit:779px; /* 820px × .95 */
     --sanctum-modal-vw:91.2vw;
   }
+  /* Respect the same 5% reduction on the Laws and reward menus.
+     Their desktop-specific custom width must not override mobile sizing. */
+  #rogueChoiceModal:not([data-mp-group-vote="1"]) > .modalbox,
+  #rogueLegacyModal > .modalbox,
+  #rogueGuideModal > .modalbox,
+  #pauseOverlay > .modalbox{
+    --sanctum-modal-vw:89.3vw;
+  }
   #rogueChoiceModal[data-mp-group-vote="1"] > .modalbox{
     --sanctum-modal-limit:874px; /* 920px × .95 */
     --sanctum-modal-vw:92.15vw;
