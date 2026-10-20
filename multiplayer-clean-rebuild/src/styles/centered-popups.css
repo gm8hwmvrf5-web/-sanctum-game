@@ -1,0 +1,123 @@
+/* Center all Clean Rebuild popups over the visible screen, not a mobile
+   bottom sheet. The specified widths are 95% of their previous modal widths.
+   The dialogs scroll internally on short/mobile displays and preserve their
+   original gothic surfaces and all interactions. */
+.modal{
+  position:fixed !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100dvh !important;
+  min-height:0 !important;
+  max-width:100vw !important;
+  display:grid !important;
+  place-items:center !important;
+  align-items:center !important;
+  justify-items:center !important;
+  padding:
+    max(10px,env(safe-area-inset-top))
+    max(12px,env(safe-area-inset-right))
+    max(10px,env(safe-area-inset-bottom))
+    max(12px,env(safe-area-inset-left)) !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  box-sizing:border-box !important;
+}
+.modal.hidden{display:none !important}
+.modal > .modalbox{
+  --sanctum-modal-limit:836px; /* 95% of default 880px */
+  --sanctum-modal-vw:91.2vw;  /* 95% of default 96vw */
+  box-sizing:border-box !important;
+  position:relative;
+  justify-self:center !important;
+  align-self:center !important;
+  min-width:0 !important;
+  width:min(var(--sanctum-modal-limit),var(--sanctum-modal-vw)) !important;
+  max-width:100% !important;
+  max-height:calc(100dvh - max(10px,env(safe-area-inset-top)) - max(10px,env(safe-area-inset-bottom)) - 4px) !important;
+  margin:auto !important;
+  overflow:auto !important;
+  border-width:2px !important;
+  border-radius:12px !important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+/* Per-dialog original widths retained proportionally, including scrollable
+   deck readers and all three start-of-run Laws of Damnation choices. */
+#rogueChoiceModal > .modalbox,
+#rogueLegacyModal > .modalbox,
+#rogueGuideModal > .modalbox,
+#pauseOverlay > .modalbox{
+  --sanctum-modal-limit:855px; /* 900px × .95 */
+  --sanctum-modal-vw:90.25vw;
+}
+#rogueChoiceModal[data-mp-group-vote="1"] > .modalbox{
+  --sanctum-modal-limit:931px; /* 980px × .95 */
+  --sanctum-modal-vw:91.2vw;
+}
+#choiceModal > .modalbox{
+  --sanctum-modal-limit:893px;
+  --sanctum-modal-vw:91.2vw;
+}
+#cardRevealModal > .modalbox{
+  --sanctum-modal-limit:931px;
+  --sanctum-modal-vw:91.2vw;
+}
+#bossDeckModal > .modalbox{--sanctum-modal-limit:1187.5px;--sanctum-modal-vw:93.1vw}
+#demonDeckModal > .modalbox{--sanctum-modal-limit:1045px;--sanctum-modal-vw:93.1vw}
+#priestDeckModal > .modalbox{--sanctum-modal-limit:1064px;--sanctum-modal-vw:91.2vw}
+#cloudSaveModal > .modalbox{--sanctum-modal-limit:646px;--sanctum-modal-vw:90.25vw}
+#rogueSynopsisModal > .modalbox{--sanctum-modal-limit:627px;--sanctum-modal-vw:89.3vw}
+#loadChooserModal > .modalbox,
+#relicModal > .modalbox,
+#crucifixModal > .modalbox,
+.ward-cast-modal > .modalbox{--sanctum-modal-limit:494px;--sanctum-modal-vw:89.3vw}
+#descendModal > .modalbox{--sanctum-modal-limit:532px;--sanctum-modal-vw:89.3vw}
+#endRunStatsModal > .modalbox{--sanctum-modal-limit:722px;--sanctum-modal-vw:89.3vw}
+#consecrateModal > .modalbox,
+#desecrationModal > .modalbox{--sanctum-modal-limit:456px;--sanctum-modal-vw:89.3vw}
+#consecrateModal.consecrate-picker-mode > .modalbox{--sanctum-modal-limit:741px;--sanctum-modal-vw:90.25vw}
+#newGameConfirmModal > .modalbox{--sanctum-modal-limit:437px;--sanctum-modal-vw:89.3vw}
+#damageAmountModal > .modalbox{--sanctum-modal-limit:399px;--sanctum-modal-vw:89.3vw}
+@media (max-width:700px) and (orientation:portrait){
+  /* Previously edge-to-edge 100vw bottom sheets; now 95vw floating dialogs. */
+  .modal > .modalbox{
+    --sanctum-modal-vw:95vw;
+    border-radius:12px !important;
+  }
+  /* On narrow portrait displays the dialog still leaves a safe margin. */
+  #rogueChoiceModal > .modalbox,
+  #rogueLegacyModal > .modalbox,
+  #rogueGuideModal > .modalbox,
+  #pauseOverlay > .modalbox,
+  #setupModal > .modalbox{--sanctum-modal-vw:95vw}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .modal{
+    padding:
+      max(6px,env(safe-area-inset-top))
+      max(8px,env(safe-area-inset-right))
+      max(6px,env(safe-area-inset-bottom))
+      max(8px,env(safe-area-inset-left)) !important;
+  }
+  /* The old mobile rule used 94vw / 900px: decrease both by 5%. */
+  .modal > .modalbox{
+    --sanctum-modal-limit:855px;
+    --sanctum-modal-vw:89.3vw;
+    max-height:calc(100dvh - max(6px,env(safe-area-inset-top)) - max(6px,env(safe-area-inset-bottom))) !important;
+    border-radius:10px !important;
+    padding:8px !important;
+  }
+  #setupModal > .modalbox{
+    --sanctum-modal-limit:779px; /* 820px × .95 */
+    --sanctum-modal-vw:91.2vw;
+  }
+  #rogueChoiceModal[data-mp-group-vote="1"] > .modalbox{
+    --sanctum-modal-limit:874px; /* 920px × .95 */
+    --sanctum-modal-vw:92.15vw;
+  }
+}
+/* Real dialog content wraps instead of forcing the popup beyond the screen. */
+.modal > .modalbox .rogueChoiceGrid,
+.modal > .modalbox .choicegrid{max-width:100%;min-width:0}
+.modal > .modalbox .rogueChoice,
+.modal > .modalbox .choice{min-width:0;overflow-wrap:break-word}
