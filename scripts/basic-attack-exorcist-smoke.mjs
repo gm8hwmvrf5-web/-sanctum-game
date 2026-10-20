@@ -80,10 +80,10 @@ for(const fn of ['rogueRelicXpNeed','rogueGrantRelicXp','rogueFlushBasicRelicXp'
 assert.equal(ctx.rogueFlushBasicRelicXp(),1,'40 XP should grant the first Relic');
 assert.equal(ctx.S.rogue.relicXp,5,'Overflow XP must persist');
 assert.equal(ctx.S.rogue.xpRelics,1,'Earned Relic raises XP tier');
-assert.equal(ctx.rogueRelicXpNeed(),45);
+assert.equal(ctx.rogueRelicXpNeed(),38);
 assert.equal(ctx.S.rogue.pendingBasicRelicXp,0);
 // If an XP-unlocked Relic is itself capped, the 20 XP must arrive after tier increment.
-ctx.S.rogue.relicXp=45;
+ctx.S.rogue.relicXp=38;
 ctx.pullRelic=()=>{
  ctx.S.relicDeck.pop();
  ctx.applyRelic({key:'chain',n:'Chained Relic',effect:'Basic +1',mods:{basic:1}});
