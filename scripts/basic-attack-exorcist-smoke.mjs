@@ -75,7 +75,7 @@ for(const [difficulty,cap] of [['easy',8],['standard',8],['hard',10],['hell',10]
 ctx.S.difficulty='standard';
 // Test the actual XP handler and check that awarded XP respects Relic thresholds.
 vm.runInContext('let rogueRelicXpGrantInProgress=false;',ctx,{timeout:5000});
-for(const fn of ['rogueRelicXpNeed','rogueGrantRelicXp','rogueFlushBasicRelicXp'])
+for(const fn of ['rogueRelicXpCount','rogueRelicXpNeed','rogueGrantRelicXp','rogueFlushBasicRelicXp'])
  vm.runInContext(extract(rogue,fn),ctx,{timeout:5000});
 assert.equal(ctx.rogueFlushBasicRelicXp(),1,'40 XP should grant the first Relic');
 assert.equal(ctx.S.rogue.relicXp,20,'Overflow XP must persist');
