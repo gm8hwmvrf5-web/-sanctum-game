@@ -16,7 +16,7 @@ try{
    const report=await page.evaluate(async()=>{
      const before=getComputedStyle(document.body,'::before');
      const art=new Image();
-     art.src='./assets/backgrounds/sanctum-ritual-chamber-bg-4k.webp';
+     art.src='./assets/backgrounds/sanctum-three-step-altar-bg-4k.webp';
      await art.decode();
      const rect=document.querySelector('body > .app')?.getBoundingClientRect();
      const hand=getComputedStyle(document.querySelector('#handPanel'));
@@ -26,7 +26,7 @@ try{
        appWidth:rect?.width,viewportWidth:innerWidth,
        handBackground:hand.backgroundColor,handImage:hand.backgroundImage};
    });
-   assert(report.image.includes('sanctum-ritual-chamber-bg-4k.webp'),label+' selected new art must be the actual body background');
+   assert(report.image.includes('sanctum-three-step-altar-bg-4k.webp'),label+' selected protected-altar art must be the actual body background');
    assert(report.image.includes('linear-gradient'),label+' subtle dark overlay retained for readability');
    assert(report.size.split(',').every(s=>s.trim()==='cover'),label+' art scales proportionally with cover: '+report.size);
    assert.equal(report.opacity,'1',label+' art should be visible and not dimmed by old brick opacity');
