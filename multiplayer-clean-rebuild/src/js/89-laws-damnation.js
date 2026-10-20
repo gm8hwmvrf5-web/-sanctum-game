@@ -147,7 +147,10 @@ startGame=function(){
  if(ok&&isRogue()){
   S.rogue.laws={active:[],offer:null,completedBossFloors:[],normalSpawns:0};
   offer('start');
-  render();
+  // Avoid triggering the multiplayer render/state-sync before the lobby's
+  // scheduled game_start RPC has completed. The authoritative shared choice
+  // renders as soon as the host's initial state is published.
+  if(!window.__sanctumWardOnlineInfo?.()?.online)render();
  }
  return ok;
 };
