@@ -22,6 +22,11 @@ try{
    assert.equal(initial.mode,'auto');
    assert.equal(initial.selected,'auto');
    assert.deepEqual(initial.options,['auto','19.5:9','4:3']);
+   // The selector belongs to the paused Game Menu, which is normally
+   // hidden behind the opening New Game setup. Show the actual menu
+   // surface before using the browser's real dropdown interaction.
+   await page.evaluate(()=>document.getElementById('pauseOverlay').classList.remove('hidden'));
+   assert.equal(await page.locator('#aspectRatioSelect').isVisible(),true);
    // Paused Game Menu remains the only place the user changes this display preference.
    // Trigger the actual change event so the browser checks binding + storage.
    await page.locator('#aspectRatioSelect').selectOption('19.5:9');
@@ -50,6 +55,7 @@ try{
      'Wide vs tablet should make a visible game width difference on desktop '+JSON.stringify({wide,tablet}));
    }
    await page.reload({waitUntil:'networkidle'});
+   await page.evaluate(()=>document.getElementById('pauseOverlay').classList.remove('hidden'));
    const persisted=await page.evaluate(()=>({
     mode:window.SanctumAspectRatio.value,
     selected:document.getElementById('aspectRatioSelect').value,
