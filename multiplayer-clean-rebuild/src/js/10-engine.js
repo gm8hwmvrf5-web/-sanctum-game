@@ -101,6 +101,54 @@ function basicAttackDamage(){let raw=Math.max(0,Number(S?.relicMods?.basic)||0),
 function basicAttackCritChance(){return Math.max(0,Math.min(100,5+((S&&S.relicMods&&S.relicMods.crit)||0)))}
 function ritualScale(n){return Math.ceil(n*1.2)}
 function ritualBoost(n){return ritualScale(n)+((S&&S.relicMods&&S.relicMods.ritual)||0)}
+
+/* Display the SAME calculated numbers used by resolveRitual.
+   Relic Ritual Power is additive to the effective numeric amount, never
+   an extra multiplicative damage buff. Control-only rituals are unaffected. */
+function ritualDisplayedEffect(r,greater){
+ const full=!!greater;
+ const relicPower=Math.max(0,Number(S?.relicMods?.ritual)||0);
+ const boosted=n=>ritualBoost(n);
+ switch(r.kind){
+  case 'castHell':
+   return 'Deal '+((full?6:3)+relicPower)+' damage to a Demon or Boss.'
+    +(full?' If a normal Demon is defeated, its negative defeat ability does not trigger.':'');
+  case 'finalExorcism':{
+   const normal=(full?4:2)+relicPower;
+   return 'Deal '+normal+' damage to a normal Demon; '+(normal+4)
+    +' to Greater Demons, Ultra Demons or Bosses (+4).';
+  }
+  case 'foretoldDeath':
+   return 'Mark a Demon or Boss. The next '+ritualScale(1)
+    +' damage sources each deal +'+boosted(full?6:4)+' damage.';
+  case 'crusaderSmite':
+   return 'Deal '+boosted(full?9:5)+' damage to a Demon or Boss.';
+  case 'martyrGuard':
+   return 'Restore '+boosted(full?5:3)+' Altar Protection.'
+    +(full?' Gain '+boosted(1)+' Demon Blood.':'');
+  case 'sacredMark':
+   return 'Mark a Demon or Boss. The next '+ritualScale(full?2:1)
+    +' damage sources each deal +'+boosted(3)+' damage.';
+  case 'divineIntervention':
+   return 'Restore '+boosted(full?6:4)+' Altar Protection.'
+    +(full?' Gain '+boosted(2)+' shared Mana.':'');
+  case 'palmJudgment':
+   return 'Deal '+Math.max(0,boosted(full?6:3)-2)
+    +' damage to a Demon (or '+((full?8:4)+relicPower)+' to a Boss).'
+    +' Move a targeted Demon back '+(full?2:1)+' room'+(full?'s':'')+'.';
+  case 'innerPeace':
+   return 'Gain '+((full?3:2)+relicPower)+' Demon Blood.'
+    +(full?' Draw '+ritualScale(1)+' Priest cards.':'');
+  case 'abbessRebuke':
+   return 'Deal '+boosted(full?7:4)+' damage to a Demon or Boss.';
+  case 'miracleUnity':
+   return 'Choose another player. They gain '+boosted(2)+' Demon Blood.'
+    +(full?' Restore '+boosted(3)+' Altar Protection.':'');
+  default:
+   return full?r.f:r.h;
+ }
+}
+
 function applyRelic(r){
  if(!r)return;
  S.relicMods=S.relicMods||{basic:0,hand:0,ritual:0,crit:0};
@@ -2833,7 +2881,7 @@ function renderPlayer(){
  }
  let ritualSpent=p.ritualUsed&&p.ritualUsed.some(Boolean),slot=`Player ${S.current+1}`,displayPlayer=p.name&&p.name!==slot?`${slot} • ${p.name}`:slot;
  if(ritualEl){
-   ritualEl.innerHTML=`<div class="ritualTracker"><span class="badge">Demon Blood: <b>${p.blood}/10</b></span><span class="badge">Hand: <b>${p.hand.length}/${handLimit()}</b></span><span class="badge">Discard: <b>${p.discardUsed?'Used':'Ready'}</b></span><span class="badge">Ritual: <b>${ritualSpent?'Used':'Available'}</b></span><span class="badge">Ritual Power: <b>+${(S.relicMods&&S.relicMods.ritual)||0}</b></span><button class="btn red trackerAction" id="basicBtn" ${p.basic?'disabled':''}>${p.basic?'Basic Attack Used':`Basic Attack (${basicAttackDamage()})`}</button><button class="btn green trackerAction" id="endBtn">End Turn</button><button class="btn trackerAction" id="consecrateBtn" ${S.phase!=='Priest'||p.consecrateUsed?'disabled':''}>Consecrate</button><span class="playerTurnTag"><b>${displayPlayer}</b><small>${p.char}</small></span></div><h3 class="ritualTitleWithBlood"><span>Rituals</span><span class="ritualBloodGauge" role="meter" aria-label="Demon Blood" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${Math.max(0,Math.min(10,p.blood||0))}" title="Demon Blood ${Math.max(0,Math.min(10,p.blood||0))}/10"><span class="ritualBloodGaugeFill" style="width:${Math.max(0,Math.min(10,p.blood||0))*10}%"></span><em>${Math.max(0,Math.min(10,p.blood||0))}/10</em></span></h3><div class="rituals">${ch.rituals.map((r,i)=>`<div class="ritual ${ritualSpent?'used':''}"><b>${r.n}</b> — ${r.b} Demon Blood<small><b>Lesser (1–9):</b> ${r.h}<br><b>Greater (10–19):</b> ${r.f}<br><b class="ritualFreeRoll">Free - (20)</b></small><button class="btn" data-rit="${i}">${ritualSpent?'Ritual Used — Tap for reason':'Roll d20 & Use'}</button></div>`).join('')}</div>`;
+   ritualEl.innerHTML=`<div class="ritualTracker"><button class="btn red trackerAction" id="basicBtn" ${p.basic?'disabled':''}>${p.basic?'Basic Attack Used':`Basic Attack (${basicAttackDamage()})`}</button><button class="btn green trackerAction" id="endBtn">End Turn</button><button class="btn trackerAction" id="consecrateBtn" ${S.phase!=='Priest'||p.consecrateUsed?'disabled':''}>Consecrate</button><span class="playerTurnTag"><b>${displayPlayer}</b><small>${p.char}</small></span></div><h3 class="ritualTitleWithBlood"><span>Rituals<small class="ritualPowerNote">Relic Power +${Math.max(0,Number(S.relicMods?.ritual)||0)} • current effects</small></span><span class="ritualBloodGauge" role="meter" aria-label="Demon Blood" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${Math.max(0,Math.min(10,p.blood||0))}" title="Demon Blood ${Math.max(0,Math.min(10,p.blood||0))}/10"><span class="ritualBloodGaugeFill" style="width:${Math.max(0,Math.min(10,p.blood||0))*10}%"></span><em>${Math.max(0,Math.min(10,p.blood||0))}/10</em></span></h3><div class="rituals">${ch.rituals.map((r,i)=>`<div class="ritual ${ritualSpent?'used':''}"><b>${r.n}</b> — ${r.b} Demon Blood<small><b>Lesser (1–9):</b> ${ritualDisplayedEffect(r,false)}<br><b>Greater (10–19):</b> ${ritualDisplayedEffect(r,true)}<br><b class="ritualFreeRoll">Free - (20)</b></small><button class="btn" data-rit="${i}">${ritualSpent?'Ritual Used — Tap for reason':'Roll d20 & Use'}</button></div>`).join('')}</div>`;
  }
  if(ritualEl){let basic=ritualEl.querySelector('#basicBtn'),endBtn=ritualEl.querySelector('#endBtn');if(basic)basic.onclick=basicAttack;if(endBtn)endBtn.onclick=endTurn;let consecrateBtn=ritualEl.querySelector('#consecrateBtn');if(consecrateBtn)consecrateBtn.onclick=openConsecratePicker;ritualEl.querySelectorAll('[data-rit]').forEach(b=>b.onclick=()=>useRitual(+b.dataset.rit));}
  if(handEl){handEl.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>playCard(b.dataset.play));handEl.querySelectorAll('[data-emp]').forEach(b=>b.onclick=()=>empowerCard(b.dataset.emp));handEl.querySelectorAll('[data-disc]').forEach(b=>b.onclick=()=>discardCard(b.dataset.disc));}
