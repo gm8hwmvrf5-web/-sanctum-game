@@ -767,7 +767,72 @@ window.__sanctumBalanceReadouts=()=>({
 });
 
 // Setup/rules copy: clarify the new run structure without disturbing the original controls.
-const setupBox=document.querySelector('#setupModal .modalbox');if(setupBox&&!document.getElementById('rogueSetupNotice')){let n=document.createElement('div');n.id='rogueSetupNotice';n.className='notice';n.innerHTML='<b>Endless Roguelite:</b> Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss you can use cinders for permanent buffs, after that the same run continues into a new cycle at 1.5× difficulty. Each Defeat of a Demon or allowing them to reach the Altar has a 15 percent chance to  draw one random Crucifix card these can be damaging or helpful to your run. Demon Blood earned from kills also becomes Relic XP. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies . Multiple copies of cards in your hand can be merged to become stronger. The Sinking Repository opens automatically after every Boss offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio that can be bought for unbanked Cinders. After the third boss the Legacy checkpoint opens.';let h=setupBox.querySelector('h2');h?.insertAdjacentElement('afterend',n)}
+const setupBox=document.querySelector('#setupModal .modalbox');
+if(setupBox&&!document.getElementById('rogueSetupNotice')){
+ const notice=document.createElement('div');
+ notice.id='rogueSetupNotice';
+ notice.className='notice';
+ notice.innerHTML='<b>Endless Roguelite:</b> Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss you can use cinders for permanent buffs, after that the same run continues into a new cycle at 1.5× difficulty. Each Defeat of a Demon or allowing them to reach the Altar has a 15 percent chance to  draw one random Crucifix card these can be damaging or helpful to your run. Demon Blood earned from kills also becomes Relic XP. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies . Multiple copies of cards in your hand can be merged to become stronger. The Sinking Repository opens automatically after every Boss offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio that can be bought for unbanked Cinders. After the third boss the Legacy checkpoint opens.';
+ const fullSynopsis=notice.textContent;
+ // Preserve the same copy and bold heading, but clamp the startup text to
+ // two readable lines instead of pushing the setup controls offscreen.
+ const preview=document.createElement('span');
+ preview.className='rogueSynopsisPreview';
+ while(notice.firstChild)preview.appendChild(notice.firstChild);
+ notice.appendChild(preview);
+ const more=document.createElement('button');
+ more.type='button';
+ more.id='rogueSynopsisMore';
+ more.className='rogueSynopsisMore';
+ more.textContent='…more';
+ more.setAttribute('aria-haspopup','dialog');
+ more.setAttribute('aria-controls','rogueSynopsisModal');
+ more.setAttribute('aria-expanded','false');
+ notice.appendChild(more);
+ setupBox.querySelector('h2')?.insertAdjacentElement('afterend',notice);
+ // Use the existing Gothic modal styling and a dedicated scrollable reader
+ // so the long text remains legible on compact iPhone landscape screens.
+ const modal=document.createElement('div');
+ modal.id='rogueSynopsisModal';
+ modal.className='modal hidden rogueSynopsisModal';
+ modal.setAttribute('role','dialog');
+ modal.setAttribute('aria-modal','true');
+ modal.setAttribute('aria-labelledby','rogueSynopsisTitle');
+ const reader=document.createElement('div');
+ reader.className='modalbox rogueSynopsisBox';
+ const heading=document.createElement('h2');
+ heading.id='rogueSynopsisTitle';
+ heading.textContent='Endless Roguelite';
+ const paragraph=document.createElement('p');
+ paragraph.id='rogueSynopsisFull';
+ paragraph.textContent=fullSynopsis;
+ const close=document.createElement('button');
+ close.type='button';
+ close.id='rogueSynopsisClose';
+ close.className='btn';
+ close.textContent='Close';
+ reader.append(heading,paragraph,close);
+ modal.appendChild(reader);
+ document.body.appendChild(modal);
+ function closeSynopsis(){
+  modal.classList.add('hidden');
+  more.setAttribute('aria-expanded','false');
+  more.focus();
+ }
+ more.onclick=()=>{
+  modal.classList.remove('hidden');
+  more.setAttribute('aria-expanded','true');
+  close.focus();
+ };
+ close.onclick=closeSynopsis;
+ modal.onclick=e=>{if(e.target===modal)closeSynopsis();};
+ document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!modal.classList.contains('hidden')){
+   e.preventDefault();
+   closeSynopsis();
+  }
+ });
+}
 const rules=document.getElementById('rulesText');if(rules){rules.innerHTML=`<div class="notice"><b>Endless Roguelite Structure:</b> Clear short encounters, choose a reward, then choose the next route. Every cycle has Bosses on Floors 5, 10, and 15. The Sinking Repository opens after every Boss. The third Boss opens the Repository before remaining Cinders are banked at the Legacy checkpoint; continuing starts another 3 Acts at 1.5× base cycle difficulty. Demon Blood from kills doubles as Relic XP. Relic XP requirements are 20, 30, 40, 50, 60, 70, 80, 90, and 100 for Relics 1–9, then 120 for the tenth and +20 per Relic afterward. XP-earned and passage-reward Relics raise the requirement; Legacy starting and Repository-purchased Relics do not. Exactly 15% of each fresh Demon deck secretly carries Crucifix triggers; defeating a marked Demon or letting it reach the Altar draws a Crucifix card. Altar Protection, Priest hands, Blood, XP progress, Corruption, Relics, and your evolving Priest run deck persist between floors. Drafted Priest cards are shuffled into future random draws. Cinders spent in The Sinking Repository are removed from the run balance and therefore are not banked at the cycle checkpoint. Unspent Cinders also bank at the end of every 15-floor cycle.</div>`+rules.innerHTML;rules.innerHTML=rules.innerHTML.replace(/The Boss appears after the 13th base Demon defeat\./g,'In Roguelite mode, Bosses appear on Floors 5, 10, and 15.').replace(/progress toward the 13 required base-Demon defeats/g,'progress toward the current encounter-clear requirement')}
 const bossDeckP=document.querySelector('#bossDeckModal p');if(bossDeckP)bossDeckP.textContent='10 unique Boss Demons from the original Boss deck. In this Roguelite Edition, a randomized Boss guards Floors 5, 10, and 15. Boss identity, artwork, abilities, and the existing hidden Boss bag are preserved.';
 
