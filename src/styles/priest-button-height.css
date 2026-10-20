@@ -1,0 +1,41 @@
+/* Priest actions only — 10% thinner, with original gothic typography and widths.
+   This file loads after the existing responsive and Priest CSS overrides.
+   All three Ritual cards remain equal-height grid columns, with Use at the bottom. */
+#handPanel .handCharacterPriest .ritualTracker #basicBtn,
+#handPanel .handCharacterPriest .ritualTracker #endBtn,
+#handPanel .handCharacterPriest .ritualTracker #consecrateBtn,
+#handPanel .handCharacterPriest .ritualTracker #wardcraftCast{
+ box-sizing:border-box !important;
+ height:25.2px !important;
+ min-height:25.2px !important;
+ padding-top:3px !important;
+ padding-bottom:3px !important;
+}
+/* Original 27px Ritual Use baseline => 24.3px. Keep the existing bottom alignment. */
+#handPanel .handCharacterPriest .ritualMain .rituals > .ritual > button[data-rit]{
+ box-sizing:border-box !important;
+ height:24.3px !important;
+ min-height:24.3px !important;
+ padding-top:2px !important;
+ padding-bottom:2px !important;
+ margin-top:auto !important;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ /* Original phone turn-action height 20px => 18px. Labels keep their font size. */
+ #handPanel .handCharacterPriest .ritualTracker #basicBtn,
+ #handPanel .handCharacterPriest .ritualTracker #endBtn,
+ #handPanel .handCharacterPriest .ritualTracker #consecrateBtn,
+ #handPanel .handCharacterPriest .ritualTracker #wardcraftCast{
+  height:18px !important;
+  min-height:18px !important;
+  padding-top:1px !important;
+  padding-bottom:1px !important;
+ }
+ /* Original mobile 25.5px => 23px, retaining equal Ritual baselines. */
+ #handPanel .handCharacterPriest .ritualMain .rituals > .ritual > button[data-rit]{
+  height:23px !important;
+  min-height:23px !important;
+  padding-top:2px !important;
+  padding-bottom:2px !important;
+ }
+}

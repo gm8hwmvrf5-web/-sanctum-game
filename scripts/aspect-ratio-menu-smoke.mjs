@@ -79,6 +79,44 @@ try{
    await page.locator('#aspectRatioSelect').selectOption('19.5:9');
    assert.equal(await page.evaluate(()=>JSON.stringify(S)),before,'Display mode must not modify game state');
    assert.deepEqual(errors,[],'Browser errors');
+   // Focused live Priest UI layout check — no gameplay audit or network room.
+   await page.evaluate(()=>{
+    document.getElementById('playerCount').value='1';
+    document.getElementById('startBtn').click();
+    if(!S.started)throw Error('New Game did not start');
+    if(S.rogue?.laws?.offer?.keys?.length===3){
+     window.__sanctumLawChoose(S.rogue.laws.offer.keys[0]);
+     document.getElementById('rogueChoiceModal').classList.add('hidden');
+    }
+    clearTurnTimerInterval();
+    render();
+   });
+   const actions=await page.evaluate(()=>{
+    const el=id=>document.getElementById(id);
+    const ward=el('wardcraftCast');
+    if(ward){ward.hidden=false;ward.style.visibility='hidden';}
+    const turn=['basicBtn','endBtn','consecrateBtn','wardcraftCast']
+     .map(id=>({id,height:el(id)?.getBoundingClientRect().height,
+      text:el(id)?.textContent.trim()}));
+    if(ward){ward.hidden=true;ward.style.visibility='';}
+    const rituals=[...document.querySelectorAll('#ritualPanel button[data-rit]')]
+     .map(x=>({height:x.getBoundingClientRect().height,
+      bottom:x.getBoundingClientRect().bottom}));
+    return {turn,rituals,
+     adjacent:el('endBtn')?.nextElementSibling===el('consecrateBtn'),
+     ratio:document.documentElement.dataset.sanctumAspect};
+   });
+   assert.equal(actions.adjacent,true,label+' Consecrate stays next to End Turn');
+   assert.equal(actions.turn.length,4);
+   const maxTurn=label==='iPhone landscape'?18.7:25.9;
+   assert(actions.turn.every(x=>x.height>0&&x.height<=maxTurn),
+    label+' Priest actions must all be ~10% thinner: '+JSON.stringify(actions.turn));
+   assert.equal(actions.rituals.length,3,label+' three Ritual Use buttons');
+   const maxRit=label==='iPhone landscape'?23.7:25;
+   assert(actions.rituals.every(x=>x.height>0&&x.height<=maxRit),
+    label+' Ritual buttons must be ~10% thinner: '+JSON.stringify(actions.rituals));
+   assert(Math.max(...actions.rituals.map(x=>x.bottom))-Math.min(...actions.rituals.map(x=>x.bottom))<=1.5,
+    label+' Ritual Use bottoms must align: '+JSON.stringify(actions.rituals));
    console.log('PASS '+label+': saved local ratios, visible layout adjustment, original Auto, unchanged gameplay state.');
   }finally{await context.close()}
  }
