@@ -30,12 +30,18 @@ for(const [label,viewport] of [
    render();
   });
   const result=await page.evaluate(()=>{
+   const bossHelp=document.getElementById('bossArea');
+   if(bossHelp?.textContent.trim())throw Error('Boss Room must contain no pre-boss helper text');
    const oldButtons=document.querySelectorAll('[data-cons]');
    const empty=[...document.querySelectorAll('#room0,#room1,#room2,#room3')].filter(x=>x.textContent.includes('Empty'));
    const end=document.getElementById('endBtn');
    const priestAction=document.getElementById('consecrateBtn');
    const uses=[...document.querySelectorAll('#ritualPanel button[data-rit]')];
-   return {roomButtons:oldButtons.length,emptyLabels:empty.length,
+   const cards=[...document.querySelectorAll('#ritualPanel .ritualMain .rituals > .ritual')];
+   const cardBounds=cards.map(el=>({top:el.getBoundingClientRect().top,bottom:el.getBoundingClientRect().bottom}));
+   const buttonBounds=uses.map(el=>({top:el.getBoundingClientRect().top,bottom:el.getBoundingClientRect().bottom}));
+   const handPanel=document.getElementById('handPanel').getBoundingClientRect();
+   return {roomButtons:oldButtons.length,emptyLabels:empty.length,cardBounds,buttonBounds,handBottom:handPanel.bottom,
     adjacent:end?.nextElementSibling===priestAction,
     consecrateVisible:!!priestAction&&!priestAction.disabled&&getComputedStyle(priestAction).display!=='none',
     rituals:uses.map(x=>({height:x.getBoundingClientRect().height,minHeight:getComputedStyle(x).minHeight})),
@@ -46,6 +52,18 @@ for(const [label,viewport] of [
   assert.equal(result.adjacent,true,label+' Consecrate must follow End Turn');
   assert.equal(result.consecrateVisible,true,label+' Priest Consecrate control must be visible');
   assert.equal(result.buttons,3,label+' must retain three Ritual actions');
+  assert.equal(result.cardBounds.length,3);
+  const bottoms=result.cardBounds.map(x=>x.bottom);
+  const buttonTops=result.buttonBounds.map(x=>x.top);
+  const buttonBottoms=result.buttonBounds.map(x=>x.bottom);
+  assert(Math.max(...bottoms)-Math.min(...bottoms)<=1.5,
+    label+' Ritual borders must share a bottom line: '+JSON.stringify(result.cardBounds));
+  assert(Math.max(...buttonTops)-Math.min(...buttonTops)<=1.5,
+    label+' Ritual Use buttons must align on the same row: '+JSON.stringify(result.buttonBounds));
+  assert(Math.max(...buttonBottoms)-Math.min(...buttonBottoms)<=1.5,
+    label+' Ritual Use buttons must end on the same line: '+JSON.stringify(result.buttonBounds));
+  assert(result.handBottom-Math.max(...bottoms)<=30,
+    label+' Rituals should extend close to hand panel bottom edge: '+JSON.stringify(result));
   const maxH=label==='desktop'?34:30;
   assert(result.rituals.every(x=>x.height<=maxH),
    label+' ritual use buttons should be thinner: '+JSON.stringify(result.rituals));
