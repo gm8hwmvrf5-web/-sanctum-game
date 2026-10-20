@@ -16,7 +16,7 @@ const logs=[];let seq=0,route=0,checkpoint=0,offerUi=null,usedDamage=0,bloodAwar
 const modal={dataset:{},classList:{contains:cls=>cls==='hidden'}};
 const document={getElementById:id=>id==='rogueChoiceModal'?modal:null};
 const timers=new Map();
-const ctx={S,document,Math,window:null,
+const ctx={S,document,Math,window:null,ROOM_NAMES:['Gateway','Hall','Chapel','Crypt'],
  setTimeout(fn,ms){const id=++seq;timers.set(id,fn);return id},
  clearTimeout(id){timers.delete(id)},
  clearTurnTimerInterval(){},
