@@ -112,14 +112,14 @@ function choose(key){
 window.__sanctumLawChoose=choose;
 window.__sanctumLawInterceptRoute=()=>{
  const s=get(),r=S?.rogue;
- if(!s||!r?.bossDefeatHandled||r.floor%5!==0||r.floor%15===0)return false;
+ if(!s||!S?.bossDefeatHandled||r.floor%5!==0||r.floor%15===0)return false;
  if(s.offer){defer();return true}
  if(s.completedBossFloors.includes(r.floor))return false;
  return offer('boss');
 };
 window.__sanctumLawInterceptCycleCheckpoint=()=>{
  const s=get(),r=S?.rogue;
- if(!s||!r?.bossDefeatHandled||r.floor%15!==0)return false;
+ if(!s||!S?.bossDefeatHandled||r.floor%15!==0)return false;
  if(s.offer){defer();return true}
  if(s.completedBossFloors.includes(r.floor))return false;
  return offer('cycle');
