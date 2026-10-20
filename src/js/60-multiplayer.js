@@ -19,6 +19,8 @@
   let authoritativeActiveSeat=null;
   let lastPublishedHash='';
   let publishTimer=0;
+  // The authoritative game_start must never be replaced by a post-start render sync.
+  let gameStartPublishPending=false;
   let publishBusy=false;
   let publishQueued=false;
   let applyingRemote=false;
@@ -1447,8 +1449,17 @@
 
   function schedulePublish(actionType='state_sync',payload={},delay=320){
     if(!session||!S||!S.started||applyingRemote||startingOnline||resolvingVoteTransition)return;
+    // A new game's opening Law triggers rendering immediately after hosting.
+    // Never let that ordinary render cancel the required game_start RPC:
+    // without it, the lobby cannot become a playable shared game.
+    if(gameStartPublishPending&&actionType!=='game_start')return;
+    if(actionType==='game_start')gameStartPublishPending=true;
     clearTimeout(publishTimer);
-    publishTimer=setTimeout(()=>pushSharedState(actionType,payload),delay);
+    publishTimer=setTimeout(async()=>{
+      publishTimer=0;
+      try{await pushSharedState(actionType,payload)}
+      finally{if(actionType==='game_start')gameStartPublishPending=false}
+    },delay);
   }
 
   function freshPriestShuffle(cards){

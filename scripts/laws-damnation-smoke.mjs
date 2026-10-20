@@ -145,6 +145,34 @@ assert.equal(ctx.demonAttack(S.rooms[0][0]),4,'Fourth round gives Demon +1 Attac
 assert(html.includes('89-laws-damnation.js?v=clean80'));
 assert(html.includes('laws-damnation.css?v=clean80'));
 assert(mp.includes("key.startsWith('law:')"),'Multiplayer must rebuild Law actions');
+ // Isolate the actual multiplayer scheduling function: a generic state_sync
+ // render right after game_start must not cancel the startup RPC.
+ const publishStart=mp.indexOf("  function schedulePublish(actionType=");
+ const publishEnd=mp.indexOf("  function freshPriestShuffle(",publishStart);
+ assert(publishStart>=0&&publishEnd>publishStart,'Multiplayer publish scheduling function available');
+ const pending=new Map(),sent=[];
+ let timerId=0;
+ const publishCtx={
+  session:{isHost:true},S:{started:true},
+  applyingRemote:false,startingOnline:false,resolvingVoteTransition:false,
+  gameStartPublishPending:false,publishTimer:0,
+  setTimeout(fn,delay){const id=++timerId;pending.set(id,{fn,delay});return id},
+  clearTimeout(id){pending.delete(id)},
+  async pushSharedState(kind){sent.push(kind);return true}
+ };
+ vm.createContext(publishCtx);
+ vm.runInContext(mp.slice(publishStart,publishEnd),publishCtx,{timeout:1000});
+ publishCtx.schedulePublish('game_start',{players:2},30);
+ const initialId=publishCtx.publishTimer;
+ assert(pending.has(initialId),'Startup RPC must be scheduled');
+ publishCtx.schedulePublish('state_sync',{},0);
+ assert.equal(publishCtx.publishTimer,initialId,'Render state sync cannot override pending game_start');
+ assert.equal(pending.size,1,'Only the pending game_start should remain');
+ await pending.get(initialId).fn();
+ assert.equal(sent[0],'game_start','Lobby must receive game_start before state_sync');
+ assert.equal(publishCtx.gameStartPublishPending,false,'Startup priority guard must release');
+ publishCtx.schedulePublish('state_sync',{},0);
+ assert.equal(pending.size,2,'Post-start state changes can synchronize normally');
 assert(rogue.includes('window.__sanctumLawInterceptCycleCheckpoint'), 'Third Boss requires Law transition');
 assert(engine.includes('__sanctumLawCardManaCost'), 'Empowered mana discount hook must exist');
 assert(sw.includes("'./src/js/89-laws-damnation.js'"));
