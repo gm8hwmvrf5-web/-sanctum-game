@@ -26,6 +26,12 @@ const result=await page.evaluate(async()=>{
  document.querySelector('#playerCount').value='1';
  document.getElementById('startBtn').click();
  if(!S?.started)throw new Error('Game did not start');
+ // New runs require selecting one of three Laws before Priest combat
+ // becomes active. The Ward check begins after that mandatory draft.
+ const lawKeys=S.rogue?.laws?.offer?.keys;
+ if(!Array.isArray(lawKeys)||lawKeys.length!==3||typeof window.__sanctumLawChoose!=='function'
+  ||!window.__sanctumLawChoose(lawKeys[0])||S.phase!=='Priest')
+  throw new Error('Could not resolve the starting Law before Ward checks');
  if(ws.interval!==3)throw new Error('Ward cadence must be every 3 combat passages');
  if(!S?.wardcraft||S.wardcraft.combatPassages!==1||S.wardcraft.offers.length)throw new Error('Ward offered before third combat passage');
  if(!document.getElementById('rogueChoiceModal').classList.contains('hidden'))throw new Error('Ward popup appeared on first combat passage');
