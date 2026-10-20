@@ -20,4 +20,23 @@
   font-size:7px;
   line-height:1.1;
  }
+ /* An older phone-only stylesheet hid Cinders alongside the obsolete badges.
+    Restore Cinders while allowing the compact action row to wrap safely. */
+ #handPanel .handCharacterPriest .ritualTracker{
+  flex-wrap:wrap !important;
+  row-gap:2px !important;
+ }
+ #handPanel .handCharacterPriest .ritualTracker > #actionCinderBadge{
+  display:inline-flex !important;
+  align-items:center !important;
+  width:auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  min-height:16px !important;
+  margin-left:auto !important;
+  padding:1px 4px !important;
+  font-size:8px !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+ }
 }
