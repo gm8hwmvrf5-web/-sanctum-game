@@ -264,8 +264,9 @@ function rogueRelicXpNeed(){
  return Math.max(1,original-((S?.activeRelics||[]).includes('saintAbacus')?5:0));
 }
 function rogueKillXpValue(d){
- if(!d)return 0;
+ if(!d||d.status?.lawSpectral)return 0;
  let base=demonBlood(d),extra=demonCode(d)==='defeatBlood'?demonValue(d):0;
+ extra+=d.status?.lawGreaterCalling?5:0;
  if(bossIs("soulTyrant")&&!d.greater)return Math.max(0,base+extra-1);
  return Math.max(0,base+extra);
 }
@@ -398,6 +399,7 @@ function rogueOtherModalOpen(){
  return [...document.querySelectorAll('.modal')].some(el=>!ignore.has(el.id)&&!el.classList.contains('hidden'));
 }
 function rogueWhenClear(fn,attempt=0){if(!S?.rogue?.enabled)return;if(rogueOtherModalOpen()&&attempt<120){setTimeout(()=>rogueWhenClear(fn,attempt+1),100);return}fn()}
+window.__sanctumLawShowChoice=(eyebrow,title,text,choices)=>rogueShowChoice(eyebrow,title,text,choices);
 function rogueShowChoice(eyebrow,title,text,choices){
  clearTurnTimerInterval();
  if(typeof window.__sanctumMultiplayerGroupChoice==='function'){
@@ -616,10 +618,15 @@ function rogueliteRouteOptions(){
  const battles=rogueShuffle(['battle','elite','swarm']);
  return sanctuaryEligible?rogueShuffle([...battles.slice(0,2),'sanctuary']):battles;
 }
+window.__sanctumLawResumeRoute=()=>rogueliteOpenRoute();
+window.__sanctumLawResumeCycleCheckpoint=()=>rogueliteCycleCheckpoint();
 function rogueliteFinishRepository(){
  const r=rogueState(),resume=r.repositoryResume||'route';
  r.repositoryResume=null;r.repositoryOffer=null;
- if(resume==='cycleCheckpoint'){rogueliteCycleCheckpoint();return;}
+ if(resume==='cycleCheckpoint'){
+  if(typeof window.__sanctumLawInterceptCycleCheckpoint==='function'&&window.__sanctumLawInterceptCycleCheckpoint())return;
+  rogueliteCycleCheckpoint();return;
+ }
  rogueliteOpenRoute();
 }
 function rogueliteEnterBossRepository(resume='route'){
@@ -636,6 +643,7 @@ function rogueliteEnterBossRepository(resume='route'){
 }
 function rogueliteOpenRoute(){
  let r=rogueState();
+ if(typeof window.__sanctumLawInterceptRoute==='function'&&window.__sanctumLawInterceptRoute())return;
  if(r.repositoryPendingBossFloor===r.floor){
   rogueliteEnterBossRepository('route');
   return;

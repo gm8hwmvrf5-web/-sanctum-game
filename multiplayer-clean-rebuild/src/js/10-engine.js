@@ -1852,6 +1852,7 @@ async function playCard(card,emp=false){
  let bloodCost=prepaid?0:storedEmpowered
    ?Math.max(0,empowerBloodCost(card)-storedBloodDiscount)
    :(forcedEmpower||emp)?Math.max(0,empowerBloodCost(card)-S.mergeBloodDiscount):0;
+ if(typeof window.__sanctumLawCardManaCost==='function')manaCost=window.__sanctumLawCardManaCost(manaCost,useEmpowered);
  if(S.mana<manaCost){alert(`Not enough shared Mana. This card needs ${manaCost}.`);return}
  if(bloodCost&&p.blood<bloodCost){alert(`Not enough Demon Blood. This card needs ${bloodCost}.`);return}
 
