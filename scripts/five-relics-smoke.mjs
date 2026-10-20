@@ -67,20 +67,23 @@ try{
   defeatDemon(xpVictim);
   assert(S.rogue.relicXp===expectedXp,'Ledger should add +5 XP to actual defeat XP');
   assert(S.rogue.passageXpEarned===expectedXp,'Elite passage records Ledger XP');
-  // XP milestone jumps remain intact; only the first five per-Relic
-  // increments fall from +10 to +3. Passage rewards share the same tiers.
+  // Check every one of the first nine rewards and the +20 milestones
+  // after the ninth; passages share XP-earned Relic progression.
   reset();
-  for(const [earned,need] of [[0,35],[1,38],[4,47],[5,50],[6,70],[10,150],[11,180],[15,300],[16,340]]){
+  for(const [earned,need] of [[0,20],[1,30],[2,40],[3,50],[4,60],[5,70],[6,80],[7,90],[8,100],[9,120],[10,140],[11,160],[12,180],[16,260]]){
    S.rogue.xpRelics=earned;
    assert(window.__sanctumBalanceReadouts().relicXpRequired===need,
     'Base Relic XP tier '+earned+': expected '+need);
   }
-  S.rogue.xpRelics=3;S.rogue.passageRelics=2;
-  assert(window.__sanctumBalanceReadouts().relicXpRequired===50,
-   'Passage Relics must advance the same 5-Relic threshold');
+  S.rogue.xpRelics=5;S.rogue.passageRelics=3;
+  assert(window.__sanctumBalanceReadouts().relicXpRequired===100,
+   'Passage Relics must share the ninth Relic cost');
+  S.rogue.passageRelics=4;
+  assert(window.__sanctumBalanceReadouts().relicXpRequired===120,
+   'Passage Relic crossing ninth threshold must add 20 XP');
   // Saint's Abacus keeps its -5 discount at every tier.
   reset();applyRelic(relics[3]);
-  for(const [earned,need] of [[0,30],[1,33],[4,42],[5,45],[6,65],[10,145],[11,175],[15,295],[16,335]]){
+  for(const [earned,need] of [[0,15],[1,25],[2,35],[3,45],[4,55],[5,65],[6,75],[7,85],[8,95],[9,115],[10,135],[11,155],[16,255]]){
    S.rogue.xpRelics=earned;
    assert(window.__sanctumBalanceReadouts().relicXpRequired===need,'Saint Abacus XP tier '+earned+': got '+window.__sanctumBalanceReadouts().relicXpRequired);
   }

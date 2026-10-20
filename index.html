@@ -144,10 +144,10 @@
       </div>
       <span>Run Progress</span>
     </div>
-    <div class="stat relicXpMeterStat meterStat" id="relicXpMeterStat" role="meter" aria-label="Relic XP" aria-valuemin="0" aria-valuemax="15" aria-valuenow="0">
+    <div class="stat relicXpMeterStat meterStat" id="relicXpMeterStat" role="meter" aria-label="Relic XP" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0">
       <div class="relicXpMeterFill meterFill" id="relicXpMeterFill"></div>
       <div class="meterGlass"></div>
-      <b id="relicXpMeterValue">0 / 15</b>
+      <b id="relicXpMeterValue">0 / 20</b>
       <span>Relic XP</span>
     </div>
     <div class="stat turnTimerStat meterStat compactTimerStat" id="turnTimerStat" role="meter" aria-label="Turn Timer" aria-valuemin="0" aria-valuemax="60" aria-valuenow="45">
@@ -175,7 +175,7 @@
 
   <section class="rogueHud rogueHudCompact" id="rogueHud" aria-label="Roguelite encounter status">
     <div class="rogueHudCard route"><b id="rogueRoute">Standard Battle</b><span>Current Route</span></div>
-    <span id="rogueRelicXp" class="rogueDataGhost" aria-hidden="true">0 / 15</span>
+    <span id="rogueRelicXp" class="rogueDataGhost" aria-hidden="true">0 / 20</span>
     <span id="rogueCinders" class="rogueDataGhost" aria-hidden="true">0</span>
     <span id="rogueLegacyCinders" class="rogueDataGhost" aria-hidden="true">0</span>
     <div class="rogueProgress"><div class="rogueProgressFill" id="rogueProgressFill"></div></div>
@@ -387,7 +387,7 @@
       <div class="rogueGuideStep"><b>15 Floors • 3 Acts.</b> Floors 5, 10, and 15 are Boss floors. Your Altar, Blood, cards, Corruption, and Relics carry through the run.</div>
       <div class="rogueGuideStep"><b>Branching routes.</b> After combat you choose among Standard Battles, Elite Battles, Hellgate Swarms, and non-combat Sanctuaries.</div>
       <div class="rogueGuideStep"><b>Gatewalker Demons.</b> Each Demon has a 10% chance to enter directly in the Hall, Chapel, or Crypt instead of the Gateway. A small grey outlined gate on its artwork identifies a Gatewalker. The marker remains as the Demon moves.</div>
-      <div class="rogueGuideStep"><b>Relics are Blood XP rewards.</b> Every Demon kill grants Relic XP equal to the Demon Blood earned from that kill. The first XP Relic costs 35 XP. The cost rises by 10 XP per Relic for the first 5, then by 20 for Relics 6–10, 30 for Relics 11–15, and 40 for each Relic afterward.</div>
+      <div class="rogueGuideStep"><b>Relics are Blood XP rewards.</b> Every Demon kill grants Relic XP equal to the Demon Blood earned from that kill. The first nine XP Relics cost 20, 30, 40, 50, 60, 70, 80, 90, and 100 XP. The tenth costs 120 XP, followed by 140, 160, 180, and +20 XP for each additional Relic.</div>
       <div class="rogueGuideStep"><b>Elite Relic XP rewards.</b> Choosing the XP reward after an Elite passage grants bonus Relic XP equal to all Relic XP earned from kills during that passage plus the current floor number. It does not award a Relic directly. Boss reward Relics still count toward future XP requirements; starting Legacy and purchased Repository Relics do not.</div>
       <div class="rogueGuideStep"><b>Build during the run.</b> Rewards still include Priest-card drafts using the original card pool/art, recovery, Demon Blood, and bonus Relics.</div>
       <div class="rogueGuideStep"><b>Cinders bank every 3 Acts.</b> Defeat the third Boss of a cycle to secure the Cinders you earned, open the Legacy shop, then continue the same run at double the previous cycle difficulty.</div>
@@ -692,7 +692,7 @@
 <script src="./src/js/15-asset-loader.js?v=clean23"></script>
 <script src="./src/js/20-ui-foundation.js?v=clean23"></script>
 <script src="./src/js/25-font-settings.js?v=clean23"></script>
-<script src="./src/js/30-roguelite.js?v=clean76"></script>
+<script src="./src/js/30-roguelite.js?v=clean77"></script>
 <script src="./src/js/35-difficulty.js?v=clean70"></script>
 <script src="./src/js/40-priest-ui.js?v=clean25"></script>
 <script src="./src/js/50-mobile.js?v=clean23"></script>

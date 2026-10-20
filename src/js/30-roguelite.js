@@ -246,25 +246,21 @@ function rogueCleanseAll(){for(let i=0;i<4;i++){S.corruption[i]=0;S.desecratedRo
 function rogueGiveBlood(n){S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+n));log(`Each Priest gains ${n} Demon Blood.`,'good')}
 // Each XP-earned OR passage-reward Relic raises the next XP threshold by one tier.
 // Keep separate counters so older browser/cloud saves retain their earned XP tier.
-/* Relic XP tiers: initial 35, +3 for Relics 1–5 (7 less per tier),
- * then the existing milestone modifiers: +20 for 6–10, +30 for 11–15,
- * and +40 afterward. Both XP-earned and passage-reward Relics count;
- * starting/Repository Relics do not. Saint's Abacus still grants -5. */
-function rogueRelicXpNextIncrease(){
+/* Relic XP thresholds: rewards #1–9 cost 20, 30 ... 100; #10
+ * costs 120, with +20 for every further Relic. XP-earned and passage
+ * rewards share the counter. Starting/Repository Relics do not count.
+ * Saint's Abacus continues to reduce each threshold by 5 XP. */
+function rogueRelicXpCount(){
  const r=rogueState();
- const owned=Math.max(0,Math.floor(Number(r.xpRelics)||0))+
+ return Math.max(0,Math.floor(Number(r.xpRelics)||0))+
   Math.max(0,Math.floor(Number(r.passageRelics)||0));
- return owned<5?3:owned<10?20:owned<15?30:40;
+}
+function rogueRelicXpNextIncrease(){
+ return rogueRelicXpCount()<8?10:20;
 }
 function rogueRelicXpNeed(){
- const r=rogueState();
- const earned=Math.max(0,Math.floor(Number(r.xpRelics)||0))+
-  Math.max(0,Math.floor(Number(r.passageRelics)||0));
- const original=35+
-  3*Math.min(earned,5)+
-  20*Math.max(0,Math.min(earned-5,5))+
-  30*Math.max(0,Math.min(earned-10,5))+
-  40*Math.max(0,earned-15);
+ const earned=rogueRelicXpCount();
+ const original=20+10*Math.min(earned,8)+20*Math.max(0,earned-8);
  return Math.max(1,original-((S?.activeRelics||[]).includes('saintAbacus')?5:0));
 }
 function rogueKillXpValue(d){
@@ -761,8 +757,8 @@ window.__sanctumBalanceReadouts=()=>({
 });
 
 // Setup/rules copy: clarify the new run structure without disturbing the original controls.
-const setupBox=document.querySelector('#setupModal .modalbox');if(setupBox&&!document.getElementById('rogueSetupNotice')){let n=document.createElement('div');n.id='rogueSetupNotice';n.className='notice';n.innerHTML='<b>Endless Roguelite:</b> Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss, Cinders bank, the Legacy shop opens, and the same run continues into a new cycle at 1.5× difficulty. Each fresh 100-card Demon deck secretly marks exactly 15 Demons with a Crucifix. Defeating a marked Demon or allowing it to reach the Altar draws one random Crucifix card. Demon Blood earned from kills also becomes Relic XP: the first XP Relic requires 35, then +3 XP for each of the first five Relics, +20 for Relics 6–10, +30 for 11–15, and +40 afterward. XP-earned and passage-reward Relics count; Legacy starting and Repository-purchased Relics do not. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle; direct Boss Altar drain follows separate party/Act/Cycle pacing. The online Priest run deck is built per player: <b>one of every Priest card + 15 randomized duplicate cards for each player</b>, all combined into one shared shuffled draw deck. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies. The Sinking Repository opens automatically after every Boss (Floors 5, 10, and 15 of each cycle), offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio for unbanked Cinders. After the third Boss, shop before banking Cinders at the Legacy checkpoint. Choose a 30–120 second Priest turn timer before starting the run.';let h=setupBox.querySelector('h2');h?.insertAdjacentElement('afterend',n)}
-const rules=document.getElementById('rulesText');if(rules){rules.innerHTML=`<div class="notice"><b>Endless Roguelite Structure:</b> Clear short encounters, choose a reward, then choose the next route. Every cycle has Bosses on Floors 5, 10, and 15. The Sinking Repository opens after every Boss. The third Boss opens the Repository before remaining Cinders are banked at the Legacy checkpoint; continuing starts another 3 Acts at 1.5× base cycle difficulty. Demon Blood from kills doubles as Relic XP. XP Relics start at 35 XP, then increase by +3 per Relic for the first five; the milestone increases remain +20 for Relics 6–10, +30 for 11–15, and +40 after 15. XP-earned and passage-reward Relics raise the requirement; Legacy starting and Repository-purchased Relics do not. Exactly 15% of each fresh Demon deck secretly carries Crucifix triggers; defeating a marked Demon or letting it reach the Altar draws a Crucifix card. Altar Protection, Priest hands, Blood, XP progress, Corruption, Relics, and your evolving Priest run deck persist between floors. Drafted Priest cards are shuffled into future random draws. Cinders spent in The Sinking Repository are removed from the run balance and therefore are not banked at the cycle checkpoint. Unspent Cinders also bank at the end of every 15-floor cycle.</div>`+rules.innerHTML;rules.innerHTML=rules.innerHTML.replace(/The Boss appears after the 13th base Demon defeat\./g,'In Roguelite mode, Bosses appear on Floors 5, 10, and 15.').replace(/progress toward the 13 required base-Demon defeats/g,'progress toward the current encounter-clear requirement')}
+const setupBox=document.querySelector('#setupModal .modalbox');if(setupBox&&!document.getElementById('rogueSetupNotice')){let n=document.createElement('div');n.id='rogueSetupNotice';n.className='notice';n.innerHTML='<b>Endless Roguelite:</b> Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss, Cinders bank, the Legacy shop opens, and the same run continues into a new cycle at 1.5× difficulty. Each fresh 100-card Demon deck secretly marks exactly 15 Demons with a Crucifix. Defeating a marked Demon or allowing it to reach the Altar draws one random Crucifix card. Demon Blood earned from kills also becomes Relic XP: the first nine XP Relics cost 20, 30, 40, 50, 60, 70, 80, 90, and 100 XP; the tenth costs 120 and each further Relic costs 20 XP more. XP-earned and passage-reward Relics count; Legacy starting and Repository-purchased Relics do not. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle; direct Boss Altar drain follows separate party/Act/Cycle pacing. The online Priest run deck is built per player: <b>one of every Priest card + 15 randomized duplicate cards for each player</b>, all combined into one shared shuffled draw deck. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies. The Sinking Repository opens automatically after every Boss (Floors 5, 10, and 15 of each cycle), offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio for unbanked Cinders. After the third Boss, shop before banking Cinders at the Legacy checkpoint. Choose a 30–120 second Priest turn timer before starting the run.';let h=setupBox.querySelector('h2');h?.insertAdjacentElement('afterend',n)}
+const rules=document.getElementById('rulesText');if(rules){rules.innerHTML=`<div class="notice"><b>Endless Roguelite Structure:</b> Clear short encounters, choose a reward, then choose the next route. Every cycle has Bosses on Floors 5, 10, and 15. The Sinking Repository opens after every Boss. The third Boss opens the Repository before remaining Cinders are banked at the Legacy checkpoint; continuing starts another 3 Acts at 1.5× base cycle difficulty. Demon Blood from kills doubles as Relic XP. Relic XP requirements are 20, 30, 40, 50, 60, 70, 80, 90, and 100 for Relics 1–9, then 120 for the tenth and +20 per Relic afterward. XP-earned and passage-reward Relics raise the requirement; Legacy starting and Repository-purchased Relics do not. Exactly 15% of each fresh Demon deck secretly carries Crucifix triggers; defeating a marked Demon or letting it reach the Altar draws a Crucifix card. Altar Protection, Priest hands, Blood, XP progress, Corruption, Relics, and your evolving Priest run deck persist between floors. Drafted Priest cards are shuffled into future random draws. Cinders spent in The Sinking Repository are removed from the run balance and therefore are not banked at the cycle checkpoint. Unspent Cinders also bank at the end of every 15-floor cycle.</div>`+rules.innerHTML;rules.innerHTML=rules.innerHTML.replace(/The Boss appears after the 13th base Demon defeat\./g,'In Roguelite mode, Bosses appear on Floors 5, 10, and 15.').replace(/progress toward the 13 required base-Demon defeats/g,'progress toward the current encounter-clear requirement')}
 const bossDeckP=document.querySelector('#bossDeckModal p');if(bossDeckP)bossDeckP.textContent='10 unique Boss Demons from the original Boss deck. In this Roguelite Edition, a randomized Boss guards Floors 5, 10, and 15. Boss identity, artwork, abilities, and the existing hidden Boss bag are preserved.';
 
 document.title='Sanctum of the Damned — Compact Card Carousel Edition';
