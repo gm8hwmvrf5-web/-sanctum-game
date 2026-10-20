@@ -38,9 +38,11 @@ function drawChoices(count){
  for(let i=pool.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
  return pool.slice(0,count);
 }
-let retry=null,shownOffer='';
+let retry=null;
 function defer(ms=180){
- if(retry)clearTimeout(retry);
+ // Never postpone an already scheduled opening because rendering refreshed.
+ // Fast multiplayer state updates previously restarted the delay indefinitely.
+ if(retry!=null)return;
  retry=setTimeout(showPending,ms);
 }
 function offer(kind){
@@ -51,7 +53,12 @@ function offer(kind){
  if(kind==='start')S.phase='Law Draft';
  clearTurnTimerInterval();
  log('LAWS OF DAMNATION — Choose '+(kind==='start'?'one of three starting Laws':'one of two new Laws')+'.','info');
- defer(kind==='start'?420:140);
+ // The opening choice is part of new-game startup, not a background event.
+ // Local games show it immediately. Online games wait until game_start has
+ // synchronized, so a host-created multiplayer choice is authoritative.
+ const online=window.__sanctumWardOnlineInfo?.();
+ if(kind==='start'&&!online?.online)showPending();
+ else defer(kind==='start'?180:140);
  return true;
 }
 function showPending(){
@@ -83,9 +90,20 @@ function showPending(){
    ?'The third Boss has fallen. Choose a new Law to replace your oldest Law. Only three may remain active.'
    :'The Boss has fallen. Choose one new Law to add to your run. You may hold up to three active Laws.';
  window.__sanctumLawShowChoice('Laws of Damnation • Floor '+o.floor,title,msg,choices);
- if(online?.online){if(!S.multiplayerVote?.open){defer(350);return}}
- else if(modal)modal.dataset.lawOffer=o.id;
- shownOffer=o.id;
+ if(S.multiplayerVote?.open){
+  // Multiplayer uses the shared authoritative selection. A normal local
+  // modal is not needed on the other clients.
+  return;
+ }
+ // The shared chooser deliberately falls back to a local modal for
+ // hosted single-player games. Mark this one as ours so a render or
+ // multiplayer status refresh cannot start a competing popup.
+ if(modal&&!modal.classList.contains('hidden')){
+  modal.dataset.lawOffer=o.id;
+  modal.dataset.lawChoice='1';
+ }else{
+  defer(350);
+ }
 }
 function choose(key){
  const s=get(),o=s?.offer;
@@ -96,9 +114,8 @@ function choose(key){
  s.active.push(key);
  if(o.kind!=='start'&&!s.completedBossFloors.includes(o.floor))s.completedBossFloors.push(o.floor);
  s.offer=null;
- shownOffer='';
  const modal=document.getElementById('rogueChoiceModal');
- if(modal)delete modal.dataset.lawOffer;
+ if(modal){delete modal.dataset.lawOffer;delete modal.dataset.lawChoice;}
  log('LAW OF DAMNATION — '+LOOKUP[key].name+' now rules the Sanctum. '+LOOKUP[key].desc,'bad');
  if(o.kind==='start'){
   S.phase='Priest';
@@ -325,11 +342,25 @@ render=function(){
    if(rail.dataset.signature!==signature){
     rail.dataset.signature=signature;
     rail.innerHTML=(s?.active||[]).map(key=>'<span class="sanctumLawChip" title="'+LOOKUP[key].desc+'">'+LOOKUP[key].icon+' '+LOOKUP[key].name+'</span>').join('')
-      +(s?.offer?'<span class="sanctumLawChip sanctumLawPending">Choose a Law</span>':'');
+      +(s?.offer?'<button type="button" class="sanctumLawChip sanctumLawPending" id="sanctumOpenLawDraft">Choose a Law</button>':'');
     rail.hidden=!s||(s.active.length===0&&!s.offer);
+    const button=rail.querySelector('#sanctumOpenLawDraft');
+    if(button)button.onclick=()=>{
+     if(S.multiplayerVote?.open){render();return;}
+     const info=window.__sanctumWardOnlineInfo?.();
+     if(info?.online&&!info.canChoose)return;
+     const existing=document.getElementById('rogueChoiceModal');
+     if(existing?.dataset.lawOffer===s.offer?.id)existing.classList.add('hidden');
+     if(retry!=null){clearTimeout(retry);retry=null}
+     showPending();
+    };
    }
   }
-  if(s?.offer&&!S.multiplayerVote?.open&&!retry)defer(260);
+  if(s?.offer&&!S.multiplayerVote?.open){
+   const modal=document.getElementById('rogueChoiceModal');
+   const visible=!!(modal&&!modal.classList.contains('hidden')&&modal.dataset.lawOffer===s.offer.id);
+   if(!visible)defer(160);
+  }
  }catch(error){console.warn('Law display skipped',error)}
  return out;
 };
