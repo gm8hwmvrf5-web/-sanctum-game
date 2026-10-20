@@ -2281,9 +2281,11 @@ async function resolveRitual(r,full){
  switch(r.kind){
   case'castHell':{let x=await chooseDamageTarget(`${r.n} — choose target`);if(x){const bonus=Math.max(0,Number(S.relicMods?.ritual)||0);if(x.kind==='boss')damageBoss((full?6:3)+bonus,r.n,true);else{let halved=ritualIsHalved(x.d),effFull=full&&!halved;damageDemon(x.d,(effFull?6:3)+bonus,r.n,{ritual:true,suppressNegativeDefeat:effFull,allowOverflow:true})}}break}
   case'severUnholy':{
-   // Sever is battlefield control only: it never inflicts Ritual damage.
+   // Lesser: convert up to two Greater Demons; Greater: convert those
+   // Demons AND prevent their next Demon Phase movement. Reuse applyStop
+   // so existing movement-stop resistance and multiplayer state still work.
    const greater=allDemons().filter(x=>x.d.greater);
-   const used=new Set(),max=Math.min(ritualScale(1),greater.length);
+   const used=new Set(),max=Math.min(2,greater.length);
    for(let i=0;i<max;i++){
     const opts=allDemons().filter(x=>x.d.greater&&!used.has(x.d.id));
     if(!opts.length)break;
@@ -2294,7 +2296,8 @@ async function resolveRitual(r,full){
     used.add(x.d.id);
     x.d.greater=false;
     x.d.cur=Math.min(x.d.cur,x.d.hp);
-    log(`${x.d.n} is severed back to Lesser form without damage.`,'good');
+    log(`${x.d.n} is severed back to Lesser form.`,'good');
+    if(full)applyStop(x.d);
    }
    break;
   }

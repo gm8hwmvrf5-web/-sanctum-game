@@ -111,6 +111,11 @@ let damageCalls=0,damageChoiceCalls=0;
 ctx.damageDemon=()=>{damageCalls++};
 ctx.dealDamageTarget=()=>{damageCalls++};
 ctx.chooseDamageTarget=async()=>{damageChoiceCalls++;return target};
+ctx.demonCode=()=>'';ctx.demonValue=()=>0;
+ctx.demonName=d=>d.n;
+ctx.render=()=>{};
+for(const fn of ['stopIsBlocked','applyStop','moveDemons'])
+ vm.runInContext(extract(engine,fn),ctx,{timeout:5000});
 ctx.allDemons=()=>[];
 assert.match(ctx.ritualUnavailableReason({kind:'severUnholy'}),/no Greater Demons/i);
 await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},false);
@@ -127,6 +132,51 @@ for(const full of [false,true]){
  assert.equal(greater.greater,false,'Sever converts Greater to Lesser');
  assert.equal(greater.cur,20,'Sever preserves HP if within lesser maximum');
  assert.equal(damageCalls,0,'Sever '+full+' must not damage');
+ assert.equal(!!greater.status.stop,full,
+  'Only the Greater roll should prevent movement');
+}
+// Two distinct targets may be converted. Greater stops exactly those
+// targets; Lesser converts the same number without stopping them.
+for(const full of [false,true]){
+ const targets=Array.from({length:3},(_,i)=>({
+  id:'sever-target-'+i,n:'Sever Target '+i,greater:true,hp:12,cur:12,
+  status:{}
+ }));
+ const choices=[];
+ ctx.allDemons=()=>targets.map(d=>({d,r:0}));
+ ctx.chooseVisualDemonTargets=async (_,options)=>{
+  const first=options.find(x=>x.d?.greater);
+  if(first)choices.push(first.d.id);
+  return first||null;
+ };
+ damageCalls=0;
+ await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},full);
+ assert.deepEqual(choices,['sever-target-0','sever-target-1'],
+  'Sever must select at most 2 distinct Greater Demons');
+ assert.equal(targets[0].greater,false);
+ assert.equal(targets[1].greater,false);
+ assert.equal(targets[2].greater,true,'Unselected Greater Demon is unchanged');
+ assert.equal(targets[0].status.stop===true,full);
+ assert.equal(targets[1].status.stop===true,full);
+ assert.equal(!!targets[2].status.stop,false);
+ assert.equal(damageCalls,0);
+ if(full){
+  // Exercise the actual Demon movement function to show both converted
+  // Demons remain in their rooms during the next Demon Phase.
+  ctx.S.rooms=[targets,[],[],[]];ctx.S.roomStop={};
+  ctx.findDemonLocation=d=>{
+   const i=ctx.S.rooms[0].findIndex(x=>x.id===d.id);
+   return i>=0?{r:0,i}:null;
+  };
+  const moving=[];
+  ctx.moveOneForward=d=>{moving.push(d.id);return true};
+  ctx.moveDemons();
+  assert.deepEqual(moving,['sever-target-2'],
+   'Only the unselected Greater Demon should move');
+  assert.equal(!!targets[0].status.stop,false,
+   'Temporary movement-stop status is consumed after Demon Phase');
+  assert.equal(!!targets[1].status.stop,false);
+ }
 }
 ctx.allDemons=()=>[];
 ctx.dealDamageTarget=(x,n)=>{amount=n};
@@ -175,7 +225,9 @@ target={kind:'boss'};amount=null;
 await ctx.resolveRitual({kind:'finalExorcism',n:'Final Exorcism'},false);
 assert.equal(amount,8,'Ritual-power bonus remains applied');
 assert(data.includes('h:"Deal 3 damage to a Demon or Boss.",f:"Deal 6 damage to a Demon or Boss.'));
-assert(data.includes('Turn up to 2 Greater Demons back into their Lesser forms. Deal no damage.'));
+assert(data.includes('h:"Turn up to 2 Greater Demons into Lesser forms.",f:"Turn up to 2 Greater Demons into Lesser forms. They do not move this Demon Phase."'));
+assert(!data.match(/Sever the Unholy[^\n]*Deal no damage/),
+ 'Sever must no longer display a damage disclaimer');
 assert(data.includes('h:"Deal 2 damage to a normal Demon; deal +4 damage to Greater Demons, Ultra Demons, and Bosses (6 total).'));
 assert(/sanctum-clean-v\d+/.test(worker),"A versioned service-worker cache is required");
 assert(engine.includes('Basic Attack is capped at 8 on Easy/Standard or 10 on Hard/Hell/Tormented;'));
