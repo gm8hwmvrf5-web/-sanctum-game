@@ -142,8 +142,8 @@ activate('relentlessNight');S.round=3;S.mana=6;S.rooms=[[d('night')],[],[],[]];
 ctx.endRound();
 assert.equal(S.mana,8,'Relentless Night grants +2 Mana on fourth round');
 assert.equal(ctx.demonAttack(S.rooms[0][0]),4,'Fourth round gives Demon +1 Attack');
-assert(html.includes('89-laws-damnation.js?v=clean80'));
-assert(html.includes('laws-damnation.css?v=clean80'));
+assert(/89-laws-damnation\.js\?v=clean\d+/.test(html),'Versioned Laws script asset is loaded');
+assert(/laws-damnation\.css\?v=clean\d+/.test(html),'Versioned Laws styles are loaded');
 assert(mp.includes("key.startsWith('law:')"),'Multiplayer must rebuild Law actions');
  // Isolate the actual multiplayer scheduling function: a generic state_sync
  // render right after game_start must not cancel the startup RPC.
