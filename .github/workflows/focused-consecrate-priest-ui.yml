@@ -1,0 +1,32 @@
+name: Focused Consecrate Priest UI
+
+on:
+  push:
+    branches: [multiplayer-clean-rebuild]
+  workflow_dispatch:
+
+jobs:
+  consecrate-priest-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate scripts
+        run: |
+          node --check src/js/10-engine.js
+          node --check src/js/40-priest-ui.js
+          node --check src/js/80-wards.js
+          node --check scripts/consecrate-priest-ui-smoke.mjs
+      - name: Install browser test dependency
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install chromium
+      - name: Validate Consecration buttons, room effects and ritual heights in real browser
+        run: |
+          python3 -m http.server 4173 >/tmp/consecrate-ui-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 1
+          node scripts/consecrate-priest-ui-smoke.mjs
