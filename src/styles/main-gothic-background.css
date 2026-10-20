@@ -1,12 +1,12 @@
 /* Sanctum of the Damned — original Gothic ritual-chamber art.
-   Compressed 1672×941 WebP preserves the selected illustration at full
-   resolution. Background only; no card, Ritual, room art or UI geometry changes.
+   High-quality 3840×2162 WebP is carefully upscaled from the original
+   uncompressed illustration for sharper high-density displays. Background only; no card, Ritual, room art or UI geometry changes.
    The Priest/hand containers remain transparent so the scene is visible below. */
 body::before{
   background-color:#0b0709 !important;
   background-image:
     linear-gradient(180deg,rgba(4,3,5,.20),rgba(4,3,5,.12) 44%,rgba(4,3,5,.23)),
-    url("../../assets/backgrounds/sanctum-ritual-chamber-bg.webp") !important;
+    url("../../assets/backgrounds/sanctum-ritual-chamber-bg-4k.webp") !important;
   background-position:center center !important;
   background-size:cover !important;
   background-attachment:scroll !important;
