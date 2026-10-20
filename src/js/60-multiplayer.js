@@ -325,6 +325,7 @@
     delete modal.dataset.mpGroupVote;
     delete modal.dataset.mpChoiceId;
     delete modal.dataset.mpChoiceSignature;
+    delete modal.dataset.lawChoice;
   }
 
   function transitionChoiceOwnerSeat(choice){
@@ -444,8 +445,11 @@
     }
 
     modal.dataset.mpGroupVote='1';
+    const isLawChoice=(choice.options||[]).some(o=>String(o.actionKey||'').startsWith('law:'));
+    if(isLawChoice)modal.dataset.lawChoice='1';
+    else delete modal.dataset.lawChoice;
 
-    const kind=choice.category==='passage'?'PASSAGE CHOICE':'REWARD CHOICE';
+    const kind=isLawChoice?'LAW CHOICE':choice.category==='passage'?'PASSAGE CHOICE':'REWARD CHOICE';
     const eyebrow=document.getElementById('rogueChoiceEyebrow');
     const title=document.getElementById('rogueChoiceTitle');
     const textEl=document.getElementById('rogueChoiceText');
@@ -455,7 +459,9 @@
     if(title)title.textContent=choice.title||'Choose for the Group';
     if(textEl){
       textEl.innerHTML=(choice.text||'')+
-        '<div class="mpGroupVoteIntro"><b>You cleared the passage, so you choose for the group.</b> The selected reward and passage are synchronized to every player.</div>';
+        (isLawChoice
+         ?'<div class="mpGroupVoteIntro"><b>You choose this Law for the whole party.</b> The selected Law is synchronized to every player.</div>'
+         :'<div class="mpGroupVoteIntro"><b>You cleared the passage, so you choose for the group.</b> The selected reward and passage are synchronized to every player.</div>');
     }
 
     if(grid){
