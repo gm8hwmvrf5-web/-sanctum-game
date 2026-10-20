@@ -40,30 +40,12 @@
  color:#bfae98;
  margin:6px 0 0;
 }
-/* Each profile limits the game width using the screen HEIGHT as its frame.
- * Game content can still scroll vertically: never crop game controls.
- * For short landscape phones, 720px is the minimum readable width.
- * The mode is purely CSS and does not touch synchronized game state. */
-html[data-sanctum-aspect="19.5:9"] .app{
- width:100% !important;
- max-width:min(100%,calc(100dvh * 19.5 / 9)) !important;
- margin-left:auto !important;
- margin-right:auto !important;
-}
-html[data-sanctum-aspect="4:3"] .app{
- width:100% !important;
- max-width:min(100%,max(720px,calc(100dvh * 4 / 3))) !important;
- margin-left:auto !important;
- margin-right:auto !important;
-}
-/* On portrait screens, retain the full available width rather than force
- * landscape-width cards into a narrow strip. */
-@media(orientation:portrait){
- html[data-sanctum-aspect="19.5:9"] .app,
- html[data-sanctum-aspect="4:3"] .app{
-  max-width:100% !important;
- }
-}
+/* Profiles now tune minimum room depth, not the width of the whole app.
+ * The board always spans the actual visible viewport in every mode.
+ * Responsive full-screen sizing is in full-viewport-board.css. */
+html{--sanctum-room-min:clamp(200px,28dvh,295px)}
+html[data-sanctum-aspect="19.5:9"]{--sanctum-room-min:clamp(170px,24dvh,260px)}
+html[data-sanctum-aspect="4:3"]{--sanctum-room-min:clamp(215px,30dvh,320px)}
 @media(max-width:620px){
  #pauseOverlay .aspectRatioMenuPanel{padding:9px 10px}
  #pauseOverlay .aspectRatioMenuPanel label{
