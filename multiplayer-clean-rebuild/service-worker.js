@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v87';
+const CACHE_NAME='sanctum-clean-v88';
 const CORE=[
   './',
   './index.html',
@@ -17,6 +17,7 @@ const CORE=[
   './src/styles/difficulty.css',
   './src/styles/consecrate-priest-ui.css',
   './src/styles/aspect-ratio.css',
+  './src/styles/priest-button-height.css',
   './src/js/00-data.js',
   './src/js/10-engine.js',
   './src/js/15-asset-loader.js',
