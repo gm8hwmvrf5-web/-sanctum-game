@@ -6,6 +6,9 @@ const errors=[];
 page.on('pageerror',error=>errors.push(error.message));
 try{
  await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'networkidle',timeout:60000});
+ // Verify exact new-game synopsis without changing game mechanics.
+ assert.equal(await page.locator('#rogueSetupNotice').textContent(),
+  "Endless Roguelite: Each cycle is 15 floors across 3 Acts, with Bosses on Floors 5, 10, and 15. After the third Boss you can use cinders for permanent buffs, after that the same run continues into a new cycle at 1.5× difficulty. Each Defeat of a Demon or allowing them to reach the Altar has a 15 percent chance to  draw one random Crucifix card these can be damaging or helpful to your run. Demon Blood earned from kills also becomes Relic XP. Demon and Boss HP and damage gain +3% per floor within each cycle, then scale by 1.5× per completed cycle. Opening hands and future draws are random; drafted reward cards are shuffled into that run deck as extra copies . Multiple copies of cards in your hand can be merged to become stronger. The Sinking Repository opens automatically after every Boss offering three random Relics, a Votive Candle Bundle, and a Forbidden Folio that can be bought for unbanked Cinders. After the third boss the Legacy checkpoint opens.",'New-game synopsis must match requested copy');
  const result=await page.evaluate(async()=>{
   window.alert=()=>{};
   const el=id=>document.getElementById(id);
