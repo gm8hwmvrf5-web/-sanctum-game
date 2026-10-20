@@ -41,7 +41,7 @@ try {
       parentGood:buttons.every(x=>x?.parentElement===tracker),
       consecrateAfterEnd:end?.nextElementSibling===document.getElementById('consecrateBtn'),
       playerVisible:!!player, cinderVisible:!!badge&&badge.getClientRects().length>0,
-      cinderLast:badge===tracker.lastElementChild,
+      cinderRightAligned:badge&&getComputedStyle(badge).order==='999',
       trackedBlood:document.querySelector('.ritualBloodGauge')?.getAttribute('aria-valuenow'),
       calculated:CHARACTERS[char].rituals.map(r=>[
         ritualDisplayedEffect(r,false),ritualDisplayedEffect(r,true)
@@ -51,7 +51,7 @@ try {
     assert.equal(result.buttonCount,3,'Priest actions remain '+m);
     assert(result.parentGood&&result.consecrateAfterEnd,'Actions remain beside End Turn '+m);
     assert(result.labels.every(x=>x.startsWith('Cinders:')),'Only Cinders remains in tracker '+m);
-    assert(result.cinderVisible&&result.cinderLast,'Cinders stays at right '+m);
+    assert(result.cinderVisible&&result.cinderRightAligned,'Cinders stays at right '+m);
     assert(result.playerVisible,'Priest label remains '+m);
     assert.equal(result.trackedBlood,'0','Demon Blood gauge remains functional '+m);
     assert(result.note?.includes('Relic Power +3'),'Ritual power label reflects relics '+m);
