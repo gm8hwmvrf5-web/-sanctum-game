@@ -241,6 +241,14 @@
       eyebrow:vote?.eyebrow||''
     },opt,index)||'');
 
+    if(key.startsWith('law:')){
+      return ()=>{
+        const fn=window.__sanctumLawChoose;
+        if(typeof fn!=='function')throw new Error('Law of Damnation choice handler unavailable.');
+        return fn(key.slice(4));
+      };
+    }
+
     if(key.startsWith('ward:')){
       return ()=>{
         const fn=window.__sanctumWardChoose;
