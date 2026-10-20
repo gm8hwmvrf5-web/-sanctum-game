@@ -441,6 +441,10 @@
       if(end&&end.parentElement===tracker)end.insertAdjacentElement('afterend',demonBlood);
       else if(basic&&basic.parentElement===tracker)basic.insertAdjacentElement('afterend',demonBlood);
     }
+    // Consecrate is the next Priest action after End Turn, before Wardcraft.
+    const consecrate=document.getElementById('consecrateBtn');
+    if(consecrate&&end&&end.parentElement===tracker)
+      end.insertAdjacentElement('afterend',consecrate);
     // Cinders is physically last so it stays pinned to the far right by existing CSS.
     if(cinder&&cinder.parentElement===tracker)tracker.appendChild(cinder);
   }

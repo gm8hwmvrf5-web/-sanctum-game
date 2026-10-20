@@ -190,13 +190,66 @@ const CONSECRATE_EFFECTS=[
  'Cleanse all Corruption. Until the round ends, Demon merging is prevented.'
 ];
 let pendingConsecrateRoom=null;
+function consecrateManaCost(){
+ // The Last Benediction Law raises Consecration from 3 to 4 Mana.
+ return window.__sanctumLaws?.has('lastBenediction')?4:3;
+}
+function openConsecratePicker(){
+ const modal=document.getElementById('consecrateModal');
+ if(!modal)return;
+ pendingConsecrateRoom=null;
+ modal.classList.add('consecrate-picker-mode');
+ modal.querySelector('.consecrateSummary')?.classList.add('hidden');
+ document.getElementById('consecratePlay')?.classList.add('hidden');
+ document.getElementById('consecrateTitle').textContent='Choose a Room to Consecrate';
+ const grid=document.getElementById('consecrateRoomChoices');
+ if(!grid)return;
+ grid.replaceChildren();
+ const cost=consecrateManaCost();
+ for(let i=0;i<ROOM_NAMES.length;i++){
+  const reason=consecrateUnavailableReason(i);
+  const btn=document.createElement('button');
+  btn.type='button';
+  btn.className='consecrate-room-choice';
+  btn.dataset.consecrateRoom=String(i);
+  const title=document.createElement('strong');
+  title.textContent=ROOM_NAMES[i];
+  const effect=document.createElement('span');
+  effect.className='consecrate-room-effect';
+  effect.textContent=CONSECRATE_EFFECTS[i];
+  const price=document.createElement('span');
+  price.className='consecrate-room-cost';
+  price.textContent='Cost: '+cost+' Shared Mana + 1 Demon Blood';
+  btn.append(title,effect,price);
+  if(reason){
+   btn.disabled=true;
+   btn.title=reason;
+   const blocked=document.createElement('small');
+   blocked.className='consecrate-room-unavailable';
+   blocked.textContent=reason;
+   btn.appendChild(blocked);
+  }else btn.onclick=()=>{
+   // Revalidate on click in case multiplayer state changed while open.
+   if(consecrateUnavailableReason(i)){openConsecratePicker();return}
+   consecrateRoom(i);
+  };
+  grid.appendChild(btn);
+ }
+ modal.classList.remove('hidden');
+ if(typeof pauseTurnTimer==='function')pauseTurnTimer();
+}
 function openConsecrateModal(i){
  pendingConsecrateRoom=i;
  let modal=document.getElementById('consecrateModal');
+ modal.classList.remove('consecrate-picker-mode');
+ modal.querySelector('.consecrateSummary')?.classList.remove('hidden');
+ document.getElementById('consecratePlay')?.classList.remove('hidden');
+ document.getElementById('consecrateTitle').textContent='Consecrate Room';
  let p=currentPlayer();
  let reason=consecrateUnavailableReason(i);
  document.getElementById('consecrateRoomName').textContent=ROOM_NAMES[i];
  document.getElementById('consecrateEffect').textContent=CONSECRATE_EFFECTS[i];
+ modal.querySelector('.consecrateCost').textContent='Cost: '+consecrateManaCost()+' Shared Mana + 1 Demon Blood';
  let status=document.getElementById('consecrateStatus');
  let mana=S.mana||0,blood=p?p.blood:0,corruption=roomCorruption(i);
  if(reason){
@@ -208,13 +261,17 @@ function openConsecrateModal(i){
  }
  let play=document.getElementById('consecratePlay');
  play.disabled=!!reason;
- play.textContent=reason?'Cannot Play':'Play — Pay 3 Mana + 1 Blood';
+ play.textContent=reason?'Cannot Play':'Play — Pay '+consecrateManaCost()+' Mana + 1 Blood';
  modal.classList.remove('hidden');
  setTimeout(()=>document.getElementById(reason?'consecrateClose':'consecratePlay').focus(),0);
 }
 function closeConsecrateModal(){
  pendingConsecrateRoom=null;
- document.getElementById('consecrateModal').classList.add('hidden');
+ const modal=document.getElementById('consecrateModal');
+ modal.classList.add('hidden');
+ modal.classList.remove('consecrate-picker-mode');
+ modal.querySelector('.consecrateSummary')?.classList.remove('hidden');
+ document.getElementById('consecratePlay')?.classList.remove('hidden');
 }
 function consecrateRoom(i){
  let reason=consecrateUnavailableReason(i);
@@ -2745,17 +2802,16 @@ function boardDemonAbilityText(d){
 function render(){normalizeSanctumState();document.getElementById('roundStat').textContent=S.round;updateTurnTimerDisplay();document.getElementById('manaStat').textContent=S.mana;let manaBox=document.getElementById('manaStatBox'),manaFill=document.getElementById('manaOrbFill'),manaCap=typeof sharedManaRoundValue==='function'?sharedManaRoundValue():10;if(manaFill)manaFill.style.height=`${clamp(S.mana,0,manaCap)/manaCap*100}%`;if(manaBox){manaBox.setAttribute('aria-valuenow',S.mana);manaBox.setAttribute('aria-valuemax',manaCap);manaBox.classList.toggle('empty',S.mana<=0)}document.getElementById('altarStat').textContent=S.altar;let altarBox=document.getElementById('altarStatBox'),altarFill=document.getElementById('altarMeterFill');if(altarFill)altarFill.style.height=`${clamp(S.altar,0,30)/30*100}%`;if(altarBox){altarBox.setAttribute('aria-valuenow',S.altar);altarBox.classList.toggle('empty',S.altar<=0)}document.getElementById('defeatStat').textContent=`${S.defeats} / 13`;
  for(let r=0;r<4;r++){
    let el=document.getElementById(`room${r}`);
-   el.innerHTML=S.rooms[r].map(d=>`<div class="demon ${d.greater?'greater':''} ${d.status?.ultraForm?'ultra':''} ${selectedDemonId===d.id?'selected':''}" data-demon="${d.id}" data-key="${d.key}"><button type="button" class="mpDemonTapTarget" data-demon-open="${d.id}" aria-label="Open ${demonName(d)} card"></button><div class="demonArtWrap"><img class="demonArt" decoding="async" fetchpriority="high" src="${demonArt(d)}" alt="${demonName(d)}"></div><div class="demonBody"><div class="name">${demonName(d)}</div><div class="demonStats" aria-label="Health ${d.cur}, Demon Blood ${demonBlood(d)}, Attack ${demonAttack(d)}"><span class="hp" title="Health"><span class="statLabel">HP</span><span class="statValue">${d.cur}</span></span><span class="blood" title="Demon Blood"><span class="statLabel">BLD</span><span class="statValue">${demonBlood(d)}</span></span><span class="attack" title="Attack"><span class="statLabel">ATK</span><span class="statValue">${demonAttack(d)}</span></span></div><div class="familyTag">${d.family}${d.status?.ultraForm?' • ULTRA':demonHasGreaterStat(d)?' • GREATER':''}</div><div class="abilityText">${boardDemonAbilityText(d)}</div></div></div>`).join('')||'<div class="cap">Empty</div>';
+   el.innerHTML=S.rooms[r].map(d=>`<div class="demon ${d.greater?'greater':''} ${d.status?.ultraForm?'ultra':''} ${selectedDemonId===d.id?'selected':''}" data-demon="${d.id}" data-key="${d.key}"><button type="button" class="mpDemonTapTarget" data-demon-open="${d.id}" aria-label="Open ${demonName(d)} card"></button><div class="demonArtWrap"><img class="demonArt" decoding="async" fetchpriority="high" src="${demonArt(d)}" alt="${demonName(d)}"></div><div class="demonBody"><div class="name">${demonName(d)}</div><div class="demonStats" aria-label="Health ${d.cur}, Demon Blood ${demonBlood(d)}, Attack ${demonAttack(d)}"><span class="hp" title="Health"><span class="statLabel">HP</span><span class="statValue">${d.cur}</span></span><span class="blood" title="Demon Blood"><span class="statLabel">BLD</span><span class="statValue">${demonBlood(d)}</span></span><span class="attack" title="Attack"><span class="statLabel">ATK</span><span class="statValue">${demonAttack(d)}</span></span></div><div class="familyTag">${d.family}${d.status?.ultraForm?' • ULTRA':demonHasGreaterStat(d)?' • GREATER':''}</div><div class="abilityText">${boardDemonAbilityText(d)}</div></div></div>`).join('');
    let roomEl=el.closest('.room');
    if(roomEl){
      roomEl.classList.toggle('desecrated',roomDesecrated(r));
      roomEl.classList.toggle('consecrated',roomConsecrated(r));
    }
    let meta=document.getElementById(`roomMeta${r}`);
-   if(meta)meta.innerHTML=`<div class="cap">${roomStateHtml(r)}</div><button class="btn" data-cons="${r}">Consecrate</button>`;
+   if(meta)meta.innerHTML=`<div class="cap">${roomStateHtml(r)}</div>`;
  }
  document.querySelectorAll('[data-demon-open]').forEach(btn=>{let lastOpen=0;const open=e=>{if(e){e.preventDefault();e.stopPropagation()}let now=Date.now();if(now-lastOpen<350)return;lastOpen=now;selectedDemonId=btn.dataset.demonOpen;if(typeof window.__sanctumOpenDemonReader==='function')window.__sanctumOpenDemonReader(btn.dataset.demonOpen)};btn.onclick=open;btn.ontouchend=open;btn.onpointerup=open;});
- document.querySelectorAll('[data-cons]').forEach(el=>el.onclick=()=>openConsecrateModal(+el.dataset.cons));
  document.querySelectorAll('[data-desecrate-info]').forEach(el=>el.onclick=e=>{e.stopPropagation();openDesecrationInfo(+el.dataset.desecrateInfo)});
  const guardStatus=document.getElementById('altarGuardStatus');
  if(guardStatus){
@@ -2777,9 +2833,9 @@ function renderPlayer(){
  }
  let ritualSpent=p.ritualUsed&&p.ritualUsed.some(Boolean),slot=`Player ${S.current+1}`,displayPlayer=p.name&&p.name!==slot?`${slot} • ${p.name}`:slot;
  if(ritualEl){
-   ritualEl.innerHTML=`<div class="ritualTracker"><span class="badge">Demon Blood: <b>${p.blood}/10</b></span><span class="badge">Hand: <b>${p.hand.length}/${handLimit()}</b></span><span class="badge">Discard: <b>${p.discardUsed?'Used':'Ready'}</b></span><span class="badge">Ritual: <b>${ritualSpent?'Used':'Available'}</b></span><span class="badge">Ritual Power: <b>+${(S.relicMods&&S.relicMods.ritual)||0}</b></span><button class="btn red trackerAction" id="basicBtn" ${p.basic?'disabled':''}>${p.basic?'Basic Attack Used':`Basic Attack (${basicAttackDamage()})`}</button><button class="btn green trackerAction" id="endBtn">End Turn</button><span class="playerTurnTag"><b>${displayPlayer}</b><small>${p.char}</small></span></div><h3 class="ritualTitleWithBlood"><span>Rituals</span><span class="ritualBloodGauge" role="meter" aria-label="Demon Blood" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${Math.max(0,Math.min(10,p.blood||0))}" title="Demon Blood ${Math.max(0,Math.min(10,p.blood||0))}/10"><span class="ritualBloodGaugeFill" style="width:${Math.max(0,Math.min(10,p.blood||0))*10}%"></span><em>${Math.max(0,Math.min(10,p.blood||0))}/10</em></span></h3><div class="rituals">${ch.rituals.map((r,i)=>`<div class="ritual ${ritualSpent?'used':''}"><b>${r.n}</b> — ${r.b} Demon Blood<small><b>Lesser (1–9):</b> ${r.h}<br><b>Greater (10–19):</b> ${r.f}<br><b class="ritualFreeRoll">Free - (20)</b></small><button class="btn" data-rit="${i}">${ritualSpent?'Ritual Used — Tap for reason':'Roll d20 & Use'}</button></div>`).join('')}</div>`;
+   ritualEl.innerHTML=`<div class="ritualTracker"><span class="badge">Demon Blood: <b>${p.blood}/10</b></span><span class="badge">Hand: <b>${p.hand.length}/${handLimit()}</b></span><span class="badge">Discard: <b>${p.discardUsed?'Used':'Ready'}</b></span><span class="badge">Ritual: <b>${ritualSpent?'Used':'Available'}</b></span><span class="badge">Ritual Power: <b>+${(S.relicMods&&S.relicMods.ritual)||0}</b></span><button class="btn red trackerAction" id="basicBtn" ${p.basic?'disabled':''}>${p.basic?'Basic Attack Used':`Basic Attack (${basicAttackDamage()})`}</button><button class="btn green trackerAction" id="endBtn">End Turn</button><button class="btn trackerAction" id="consecrateBtn" ${S.phase!=='Priest'||p.consecrateUsed?'disabled':''}>Consecrate</button><span class="playerTurnTag"><b>${displayPlayer}</b><small>${p.char}</small></span></div><h3 class="ritualTitleWithBlood"><span>Rituals</span><span class="ritualBloodGauge" role="meter" aria-label="Demon Blood" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${Math.max(0,Math.min(10,p.blood||0))}" title="Demon Blood ${Math.max(0,Math.min(10,p.blood||0))}/10"><span class="ritualBloodGaugeFill" style="width:${Math.max(0,Math.min(10,p.blood||0))*10}%"></span><em>${Math.max(0,Math.min(10,p.blood||0))}/10</em></span></h3><div class="rituals">${ch.rituals.map((r,i)=>`<div class="ritual ${ritualSpent?'used':''}"><b>${r.n}</b> — ${r.b} Demon Blood<small><b>Lesser (1–9):</b> ${r.h}<br><b>Greater (10–19):</b> ${r.f}<br><b class="ritualFreeRoll">Free - (20)</b></small><button class="btn" data-rit="${i}">${ritualSpent?'Ritual Used — Tap for reason':'Roll d20 & Use'}</button></div>`).join('')}</div>`;
  }
- if(ritualEl){let basic=ritualEl.querySelector('#basicBtn'),endBtn=ritualEl.querySelector('#endBtn');if(basic)basic.onclick=basicAttack;if(endBtn)endBtn.onclick=endTurn;ritualEl.querySelectorAll('[data-rit]').forEach(b=>b.onclick=()=>useRitual(+b.dataset.rit));}
+ if(ritualEl){let basic=ritualEl.querySelector('#basicBtn'),endBtn=ritualEl.querySelector('#endBtn');if(basic)basic.onclick=basicAttack;if(endBtn)endBtn.onclick=endTurn;let consecrateBtn=ritualEl.querySelector('#consecrateBtn');if(consecrateBtn)consecrateBtn.onclick=openConsecratePicker;ritualEl.querySelectorAll('[data-rit]').forEach(b=>b.onclick=()=>useRitual(+b.dataset.rit));}
  if(handEl){handEl.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>playCard(b.dataset.play));handEl.querySelectorAll('[data-emp]').forEach(b=>b.onclick=()=>empowerCard(b.dataset.emp));handEl.querySelectorAll('[data-disc]').forEach(b=>b.onclick=()=>discardCard(b.dataset.disc));}
 }
 function renderLog(){let el=document.getElementById('log');el.innerHTML=S.log.map(x=>`<div class="${x.type}">${x.msg}</div>`).join('')}

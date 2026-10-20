@@ -61,7 +61,7 @@ const result=await page.evaluate(async()=>{
  if(document.getElementById('wardcraftBar'))throw new Error('Obsolete Wardcraft bar is still above the board');
  const tracker=document.querySelector('#handPanel .handCharacterPriest .ritualTracker');
  const endTurn=tracker?.querySelector('#endBtn'),placeWard=document.getElementById('wardcraftCast');
- if(!endTurn||endTurn.nextElementSibling!==placeWard||placeWard?.hidden||placeWard?.disabled||placeWard.textContent.trim()!=='Place Ward')
+ if(!endTurn||endTurn.nextElementSibling?.id!=='consecrateBtn'||endTurn.nextElementSibling?.nextElementSibling!==placeWard||placeWard?.hidden||placeWard?.disabled||placeWard.textContent.trim()!=='Place Ward')
    throw new Error('Place Ward is not enabled immediately after End Turn in the Priest UI');
  placeWard.click();
  const castModal=document.getElementById('wardCastModal');
