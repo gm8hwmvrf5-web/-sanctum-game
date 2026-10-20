@@ -20,6 +20,7 @@ jobs:
           node --check scripts/full-viewport-board-smoke.mjs
           node --check scripts/priest-brick-background-smoke.mjs
           node --check scripts/main-gothic-background-smoke.mjs
+          node --check scripts/popup-centering-smoke.mjs
       - name: Install browser test dependency
         run: |
           npm install --no-save playwright@1.63.0
@@ -34,3 +35,4 @@ jobs:
           node scripts/full-viewport-board-smoke.mjs
           node scripts/priest-brick-background-smoke.mjs
           node scripts/main-gothic-background-smoke.mjs
+          node scripts/popup-centering-smoke.mjs
