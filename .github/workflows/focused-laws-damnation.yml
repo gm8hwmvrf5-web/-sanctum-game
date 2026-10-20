@@ -1,0 +1,25 @@
+name: Focused Laws of Damnation Check
+
+on:
+  push:
+    branches:
+      - multiplayer-clean-rebuild
+  workflow_dispatch:
+
+jobs:
+  laws:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax check
+        run: |
+          node --check src/js/89-laws-damnation.js
+          node --check src/js/10-engine.js
+          node --check src/js/30-roguelite.js
+          node --check src/js/60-multiplayer.js
+          node --check scripts/laws-damnation-smoke.mjs
+      - name: Run focused Laws of Damnation checks
+        run: node scripts/laws-damnation-smoke.mjs
