@@ -288,8 +288,9 @@ function mountPriestWardControls(){
  const tracker=document.querySelector('#handPanel .handCharacterPriest .ritualTracker');
  const end=tracker?.querySelector('#endBtn');
  if(!tracker||!end)return;
- if(priestWardButton&&end.nextElementSibling!==priestWardButton)
-   end.insertAdjacentElement('afterend',priestWardButton);
+ const anchor=tracker.querySelector('#consecrateBtn')||end;
+ if(priestWardButton&&anchor.nextElementSibling!==priestWardButton)
+   anchor.insertAdjacentElement('afterend',priestWardButton);
  const ritualMain=tracker.closest('.ritualMain');
  if(priestWardDraft&&ritualMain&&priestWardDraft.previousElementSibling!==tracker)
    tracker.insertAdjacentElement('afterend',priestWardDraft);
