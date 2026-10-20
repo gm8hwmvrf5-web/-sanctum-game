@@ -49,11 +49,10 @@ try{
    assert.equal(tablet.mode,'4:3');
    assert.equal(tablet.root,'4:3');
    assert.equal(tablet.saved,'4:3');
-   assert(tablet.width<=wide.width+1,label+' 4:3 should not be wider than 19.5:9');
-   if(label==='desktop'){
-    assert(wide.width>tablet.width+150,
-     'Wide vs tablet should make a visible game width difference on desktop '+JSON.stringify({wide,tablet}));
-   }
+   // Neither preset may letterbox or shrink the playable area.
+   assert(Math.abs(tablet.width-wide.width)<=1,label+' selecting 4:3 must not narrow the game');
+   assert(Math.abs(tablet.width-initial.width)<=1,label+' the board keeps its full-screen width');
+   assert(tablet.width>=viewport.width*.97,label+' game must occupy the available screen width');
    await page.reload({waitUntil:'networkidle'});
    await page.evaluate(()=>document.getElementById('pauseOverlay').classList.remove('hidden'));
    const persisted=await page.evaluate(()=>({

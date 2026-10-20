@@ -1,0 +1,118 @@
+/* Full-viewport Clean Rebuild layout: expand the five Gothic rooms into unused
+   vertical space and place the Priest hand below the status row, at screen bottom.
+   No transforms/scaling on cards, artwork or clickable controls. Display-only. */
+html,body{
+ width:100%;
+ min-width:0;
+}
+body > .app,
+html[data-sanctum-aspect="19.5:9"] body > .app,
+html[data-sanctum-aspect="4:3"] body > .app{
+ display:flex !important;
+ flex-direction:column !important;
+ box-sizing:border-box !important;
+ width:100% !important;
+ max-width:none !important;
+ min-height:var(--sanctum-viewport-height,100dvh) !important;
+ height:auto !important;
+ margin:0 !important;
+ padding:clamp(5px,.9vw,16px) clamp(6px,1vw,20px) max(6px,env(safe-area-inset-bottom)) !important;
+}
+body > .app > #boardSection.board{
+ display:grid !important;
+ grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+ grid-template-rows:minmax(var(--sanctum-room-min),1fr) !important;
+ width:100% !important;
+ flex:1 0 auto !important;
+ min-height:var(--sanctum-room-min) !important;
+ align-content:stretch !important;
+ align-items:stretch !important;
+ overflow:visible !important;
+}
+body > .app > #boardSection.board > .room{
+ box-sizing:border-box !important;
+ width:auto !important;
+ min-width:0 !important;
+ height:auto !important;
+ min-height:var(--sanctum-room-min) !important;
+ align-self:stretch !important;
+ /* Backgrounds use cover: no stretched illustrations or demon cards. */
+ background-repeat:no-repeat !important;
+}
+body > .app > #topStatusBar{
+ width:100% !important;
+ flex:0 0 auto !important;
+}
+body > .app > #handPanel{
+ box-sizing:border-box !important;
+ width:100% !important;
+ flex:0 0 auto !important;
+ margin-top:5px !important;
+ margin-bottom:0 !important;
+}
+/* Ritual and log nodes have already been reparented to the hand / Pause Menu.
+   Do not leave an invisible placeholder consuming screen height. */
+body > .app > #mainSection:empty{
+ display:none !important;
+ margin:0 !important;
+ padding:0 !important;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ html{
+  --sanctum-room-min:138px !important;
+ }
+ html,body{
+  height:auto !important;
+  min-height:100% !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+ }
+ body > .app{
+  padding:max(4px,env(safe-area-inset-top))
+          max(5px,env(safe-area-inset-right))
+          max(5px,env(safe-area-inset-bottom))
+          max(5px,env(safe-area-inset-left)) !important;
+ }
+ body > .app > #boardSection.board{
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  grid-template-rows:minmax(var(--sanctum-room-min),1fr) !important;
+ }
+ body > .app > #boardSection.board > .room{
+  height:auto !important;
+  min-height:var(--sanctum-room-min) !important;
+ }
+ body > .app > #handPanel{
+  flex:0 0 auto !important;
+  margin-top:3px !important;
+  margin-bottom:0 !important;
+ }
+}
+@media (orientation:landscape) and (max-height:380px) and (max-width:850px){
+ html{--sanctum-room-min:126px !important}
+}
+/* Portrait screens need multiple rows rather than five unreadably thin rooms.
+   Preserve all five locations and allow normal page scrolling if necessary. */
+@media (orientation:portrait) and (max-width:900px){
+ body > .app > #boardSection.board{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  grid-template-rows:none !important;
+  grid-auto-rows:minmax(170px,auto) !important;
+  flex:0 0 auto !important;
+  align-content:start !important;
+ }
+ body > .app > #boardSection.board > .room{
+  height:auto !important;
+  min-height:170px !important;
+ }
+ body > .app > #boardSection.board > .room.boss{
+  grid-column:1/-1 !important;
+ }
+}
+@media (orientation:portrait) and (max-width:540px){
+ body > .app > #boardSection.board{
+  grid-template-columns:minmax(0,1fr) !important;
+ }
+ body > .app > #boardSection.board > .room.boss{
+  grid-column:auto !important;
+ }
+}

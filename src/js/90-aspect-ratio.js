@@ -5,9 +5,9 @@
  const KEY='sanctum_display_aspect_v1';
  const OPTIONS=new Set(['auto','19.5:9','4:3']);
  const NOTES={
-  auto:'Automatic matches your screen. Change this at any time; it only affects your device, not multiplayer gameplay.',
-  '19.5:9':'Widescreen layout selected. The game uses a 19.5:9 display width when space allows; menus and cards stay scrollable.',
-  '4:3':'Tablet layout selected. The game uses a compact 4:3 display width when space allows; menus and cards stay scrollable.'
+  auto:'Auto fills your screen. Rooms expand into available space, with Priest cards and controls at the bottom.',
+  '19.5:9':'iPhone landscape spacing selected. The board still fills the full screen without letterboxing.',
+  '4:3':'Tablet spacing selected. Rooms fill the full screen; no width is cut off.'
  };
  const sanitize=value=>OPTIONS.has(value)?value:'auto';
  let current='auto';

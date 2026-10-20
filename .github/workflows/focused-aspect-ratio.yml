@@ -17,6 +17,7 @@ jobs:
         run: |
           node --check src/js/90-aspect-ratio.js
           node --check scripts/aspect-ratio-menu-smoke.mjs
+          node --check scripts/full-viewport-board-smoke.mjs
       - name: Install browser test dependency
         run: |
           npm install --no-save playwright@1.63.0
@@ -28,3 +29,4 @@ jobs:
           trap 'kill "$server_pid"' EXIT
           sleep 1
           node scripts/aspect-ratio-menu-smoke.mjs
+          node scripts/full-viewport-board-smoke.mjs
