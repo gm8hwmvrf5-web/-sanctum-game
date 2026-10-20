@@ -8,3 +8,7 @@
 #rogueChoiceModal .lawDraftChoice .nodeIcon{color:#db9299}
 #rogueChoiceModal .lawDraftChoice .nodeReward{color:#d9b49f}
 @media(max-width:700px),(max-height:510px){#rogueHud .sanctumLawRail{gap:2px;padding:1px 0}#rogueHud .sanctumLawChip{font-size:8px;padding:1px 3px}}
+
+/* Start-of-run law choices must be above setup/menu layers on small phones. */
+#rogueChoiceModal[data-law-choice="1"]{z-index:360!important}
+#rogueHud button.sanctumLawPending{cursor:pointer;min-height:22px;font:inherit;font-weight:700}
