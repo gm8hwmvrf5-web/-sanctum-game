@@ -1,0 +1,36 @@
+/* Clean Rebuild: Priest cards and controls float directly on the existing
+   Gothic brick wall. Remove only the large rectangular backplates/negative
+   space. Never alter the artwork, interactive card faces or control hit areas. */
+body > .app > #handPanel.panel,
+#handPanel .handCharacterPriest.panel,
+#handPanel .handCharacterPriest > #ritualPanel.panel {
+  background:transparent !important;
+  background-image:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+  outline:0 !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+/* The carousel and its layout wrappers must not paint an opaque rectangle
+   behind the visible (and rear) Priest cards. Keep card face backgrounds. */
+#handPanel .handCharacterStage,
+#handPanel .handCharacterCards,
+#handPanel .handCharacterCards #handContent,
+#handPanel .handCharacterCards #handContent .handCarousel,
+#handPanel .handCharacterCards #handContent .hand.carouselTrack,
+#handPanel .handCharacterPriest .ritualMain,
+#handPanel .handCharacterPriest .priestRelicTopStack {
+  background:transparent !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+/* Retain solid Gothic surfaces for the three Ritual cards and actual controls:
+   their normal fills and outlines continue to ensure readable white/gold text.
+   Use a subtle shadow only on the section title that now sits over brick. */
+#handPanel .handCharacterPriest .ritualMain h3,
+#handPanel .handCharacterPriest .ritualTitleWithBlood {
+  text-shadow:0 1px 3px #050405,0 0 7px rgba(0,0,0,.85);
+}
