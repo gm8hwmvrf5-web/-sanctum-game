@@ -28,7 +28,7 @@ try{
    });
    assert(report.image.includes('sanctum-ritual-chamber-bg.webp'),label+' selected new art must be the actual body background');
    assert(report.image.includes('linear-gradient'),label+' subtle dark overlay retained for readability');
-   assert.equal(report.size,'cover',label+' art scales proportionally with cover');
+   assert(report.size.split(',').every(s=>s.trim()==='cover'),label+' art scales proportionally with cover: '+report.size);
    assert.equal(report.opacity,'1',label+' art should be visible and not dimmed by old brick opacity');
    assert.deepEqual(report.dimensions,[1672,941],label+' full-resolution illustration must decode');
    assert(report.appWidth>=report.viewportWidth*.97,label+' keep full-width responsive layout');
