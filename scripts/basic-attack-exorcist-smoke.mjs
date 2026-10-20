@@ -123,7 +123,7 @@ await ctx.resolveRitual({kind:'severUnholy',n:'Sever the Unholy'},true);
 assert.equal(damageCalls,0,'No fallback or direct Sever damage');
 assert.equal(damageChoiceCalls,0,'Sever should not show fallback damage targeting');
 for(const full of [false,true]){
- const greater={id:'greater1',greater:true,hp:20,cur:20,n:'Test Greater Demon'};
+ const greater={id:'greater1',greater:true,hp:20,cur:20,n:'Test Greater Demon',status:{}};
  ctx.allDemons=()=>[{d:greater}];
  ctx.chooseVisualDemonTargets=async()=>({d:greater});
  assert.equal(ctx.ritualUnavailableReason({kind:'severUnholy'}),'');
