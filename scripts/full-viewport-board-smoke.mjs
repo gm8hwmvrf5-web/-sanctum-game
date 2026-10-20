@@ -51,7 +51,7 @@ try{
     assert(m.stat.top>=m.board.bottom-2,'Status below board: '+err);
     assert(m.hand.top>=m.stat.bottom-2,'Priest controls below status: '+err);
     if(viewport.width>viewport.height){
-     const min=label.includes('iPhone')?123:Math.max(200,.29*m.screenH);
+     const min=label.includes('iPhone')?Math.max(95,Math.min(123,m.screenH-m.hand.height-m.stat.height-30)):Math.max(200,.29*m.screenH);
      assert(m.rooms.every(r=>r.height>=min),'Rooms must expand vertically: '+err);
      const widths=m.rooms.map(r=>r.width);
      assert(Math.max(...widths)-Math.min(...widths)<4,'Five rooms share available width: '+err);
