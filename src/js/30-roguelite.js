@@ -315,6 +315,8 @@ function rogueFlushBasicRelicXp(){
 }
 window.__sanctumFlushBasicRelicXp=rogueFlushBasicRelicXp;
 function rogueAwardKillXp(amount,d){
+ // Spectral companions are never XP rewards, even with Legacy Communion or Ledger.
+ if(d?.status?.lawSpectral)return;
  const r=rogueState(),legacyBonus=rogueLegacyRelicXpBonus();
  const relicBonus=(S?.activeRelics||[]).includes('soulHarvestLedger')?5:0;
  amount=Math.max(0,Math.floor(Number(amount)||0))+legacyBonus+relicBonus;

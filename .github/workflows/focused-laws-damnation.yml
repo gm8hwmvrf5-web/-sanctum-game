@@ -23,3 +23,14 @@ jobs:
           node --check scripts/laws-damnation-smoke.mjs
       - name: Run focused Laws of Damnation checks
         run: node scripts/laws-damnation-smoke.mjs
+      - name: Install focused browser test dependency
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install chromium
+      - name: Test three-choice startup in the real game browser
+        run: |
+          python3 -m http.server 4173 >/tmp/sanctum-laws-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 1
+          node scripts/laws-damnation-browser-smoke.mjs
