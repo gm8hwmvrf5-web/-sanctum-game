@@ -2,7 +2,7 @@
 const CHARACTERS = {
   "Exorcist": {img:"./assets/embedded/d106eea5-50272.webp", subtitle:"Demon Slayer", rituals:[
     {n:"Cast Into Hell",m:0,b:3,h:"Deal 3 damage to a Demon or Boss.",f:"Deal 6 damage to a Demon or Boss. If a normal Demon is defeated, its negative defeat ability does not trigger.",kind:"castHell"},
-    {n:"Sever the Unholy",m:0,b:2,h:"Turn up to 2 Greater Demons back into their Lesser forms. Deal no damage.",f:"Turn up to 2 Greater Demons back into their Lesser forms. Deal no damage.",kind:"severUnholy"},
+    {n:"Sever the Unholy",m:0,b:2,h:"Turn up to 2 Greater Demons into Lesser forms.",f:"Turn up to 2 Greater Demons into Lesser forms. They do not move this Demon Phase.",kind:"severUnholy"},
     {n:"Final Exorcism",m:0,b:4,h:"Deal 2 damage to a normal Demon; deal +4 damage to Greater Demons, Ultra Demons, and Bosses (6 total).",f:"Deal 4 damage to a normal Demon; deal +4 damage to Greater Demons, Ultra Demons, and Bosses (8 total).",kind:"finalExorcism"}
   ]},
   "Oracle": {img:"./assets/embedded/f029f4d7-55968.webp", subtitle:"Seer and Controller", rituals:[
