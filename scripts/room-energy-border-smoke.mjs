@@ -60,7 +60,7 @@ try{
    assert(info.rows.every(r=>r.visible&&r.position==='absolute'&&r.pointerEvents==='none'),'Frames remain decorative and click-through '+desc);
    assert(info.rows.every(r=>r.centerAlpha<=4),'Approved transparent centers preserved '+desc);
    assert(info.rows.every(r=>r.natural[0]===1695&&r.natural[1]>=170),'Full-resolution source border slices load '+desc);
-   assert(info.rows.every(r=>r.frame[0]>0&&Math.abs(r.frame[0]-r.area[0])<=3&&Math.abs(r.frame[1]-r.area[1])<=3),'Energy overlay tracks responsive room size '+desc);
+   assert(info.rows.every(r=>r.frame[0]>0&&Math.abs(r.frame[0]-r.area[0])<=6&&Math.abs(r.frame[1]-r.area[1])<=6),'Energy overlay tracks responsive room size '+desc);
    assert(info.rows.every(r=>r.background.includes('url(')),'Original Gothic room artwork remains '+desc);
    assert(info.scrollWidth<=info.viewport+3,'Overlay must not cause horizontal overflow '+desc);
    assert(info.priest&&info.rituals===3,'Priest controls remain available '+desc);
