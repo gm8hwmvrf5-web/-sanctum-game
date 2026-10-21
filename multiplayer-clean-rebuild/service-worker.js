@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v97';
+const CACHE_NAME='sanctum-clean-v98';
 const CORE=[
   './',
   './index.html',
@@ -23,6 +23,12 @@ const CORE=[
   './src/styles/main-gothic-background.css',
   './src/styles/centered-popups.css',
   './src/styles/ritual-power-readout.css',
+  './src/styles/room-energy-borders.css',
+  './assets/room-borders/energy-gateway.webp',
+  './assets/room-borders/energy-hall.webp',
+  './assets/room-borders/energy-chapel.webp',
+  './assets/room-borders/energy-crypt.webp',
+  './assets/room-borders/energy-boss.webp',
   './assets/backgrounds/sanctum-handcrafted-stone-wall-4k.webp',
   './src/js/00-data.js',
   './src/js/10-engine.js',
