@@ -22,6 +22,7 @@ jobs:
           node --check scripts/main-gothic-background-smoke.mjs
           node --check scripts/popup-centering-smoke.mjs
           node --check scripts/ritual-power-readout-smoke.mjs
+          node --check scripts/room-energy-border-smoke.mjs
       - name: Install browser test dependency
         run: |
           npm install --no-save playwright@1.63.0
@@ -38,3 +39,4 @@ jobs:
           node scripts/main-gothic-background-smoke.mjs
           node scripts/popup-centering-smoke.mjs
           node scripts/ritual-power-readout-smoke.mjs
+          node scripts/room-energy-border-smoke.mjs

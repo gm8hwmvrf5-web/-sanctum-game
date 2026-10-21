@@ -1,0 +1,44 @@
+/* Minimal translucent energy borders taken directly from the five approved
+   swirling energy outlines. Each image is a separately cropped transparent
+   WebP and scales as a nine-slice frame, not a stretched room illustration.
+   This decorative layer leaves ALL room backgrounds, demon cards, status
+   effects, ward overlays and game interactions unchanged. */
+#boardSection > .room.gateway{--roomEnergyArt:url("../../assets/room-borders/energy-gateway.webp");--roomEnergyGlow:rgba(207,45,48,.4)}
+#boardSection > .room.hall{--roomEnergyArt:url("../../assets/room-borders/energy-hall.webp");--roomEnergyGlow:rgba(61,137,241,.38)}
+#boardSection > .room.chapel{--roomEnergyArt:url("../../assets/room-borders/energy-chapel.webp");--roomEnergyGlow:rgba(231,174,48,.36)}
+#boardSection > .room.crypt{--roomEnergyArt:url("../../assets/room-borders/energy-crypt.webp");--roomEnergyGlow:rgba(184,190,201,.24)}
+#boardSection > .room.boss{--roomEnergyArt:url("../../assets/room-borders/energy-boss.webp");--roomEnergyGlow:rgba(239,44,53,.45)}
+#boardSection > .room > .roomEnergyFrame{
+ position:absolute !important;
+ inset:0 !important;
+ z-index:9 !important;
+ box-sizing:border-box !important;
+ width:100% !important;
+ height:100% !important;
+ margin:0 !important;
+ padding:0 !important;
+ border:11px solid transparent !important;
+ border-image-source:var(--roomEnergyArt) !important;
+ border-image-slice:60 112 60 112 !important;
+ border-image-width:11px !important;
+ border-image-outset:0 !important;
+ border-image-repeat:stretch !important;
+ pointer-events:none !important;
+ user-select:none !important;
+ touch-action:auto !important;
+ opacity:.97 !important;
+ filter:drop-shadow(0 0 1.5px var(--roomEnergyGlow));
+}
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+ #boardSection > .room > .roomEnergyFrame{
+  border-width:7px !important;
+  border-image-width:7px !important;
+  filter:drop-shadow(0 0 1px var(--roomEnergyGlow));
+ }
+}
+@media(orientation:portrait) and (max-width:540px){
+ #boardSection > .room > .roomEnergyFrame{
+  border-width:8px !important;
+  border-image-width:8px !important;
+ }
+}

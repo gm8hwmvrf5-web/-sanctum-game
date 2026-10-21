@@ -127,17 +127,18 @@
 <link rel="stylesheet" href="./src/styles/main-gothic-background.css?v=clean95">
 <link rel="stylesheet" href="./src/styles/centered-popups.css?v=clean96">
 <link rel="stylesheet" href="./src/styles/ritual-power-readout.css?v=clean97">
+<link rel="stylesheet" href="./src/styles/room-energy-borders.css?v=clean98">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
 <div class="app">
 
   <section class="board" id="boardSection">
-    <div class="room gateway"><h3>GATEWAY</h3><div class="roomMeta" id="roomMeta0"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room0"></div></div>
-    <div class="room hall"><h3>HALL</h3><div class="roomMeta" id="roomMeta1"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room1"></div></div>
-    <div class="room chapel"><h3>CHAPEL</h3><div class="roomMeta" id="roomMeta2"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room2"></div></div>
-    <div class="room crypt"><h3>CRYPT</h3><div class="roomMeta" id="roomMeta3"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room3"></div></div>
-    <div class="room boss"><h3>BOSS ROOM</h3><div id="bossArea"></div></div>
+    <div class="room gateway"><h3>GATEWAY</h3><div class="roomMeta" id="roomMeta0"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room0"></div><div class="roomEnergyFrame" aria-hidden="true"></div></div>
+    <div class="room hall"><h3>HALL</h3><div class="roomMeta" id="roomMeta1"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room1"></div><div class="roomEnergyFrame" aria-hidden="true"></div></div>
+    <div class="room chapel"><h3>CHAPEL</h3><div class="roomMeta" id="roomMeta2"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room2"></div><div class="roomEnergyFrame" aria-hidden="true"></div></div>
+    <div class="room crypt"><h3>CRYPT</h3><div class="roomMeta" id="roomMeta3"><div class="cap">Maximum 4 Demons</div></div><div class="demons" id="room3"></div><div class="roomEnergyFrame" aria-hidden="true"></div></div>
+    <div class="room boss"><h3>BOSS ROOM</h3><div id="bossArea"></div><div class="roomEnergyFrame" aria-hidden="true"></div></div>
   </section>
 
   <section class="stats compactRunStats" id="topStatusBar">
