@@ -25,6 +25,7 @@ jobs:
           node --check scripts/room-energy-border-smoke.mjs
           node --check scripts/sanctuary-blessing-smoke.mjs
           node --check scripts/site-icon-smoke.mjs
+          node --check scripts/ios-home-icon-smoke.mjs
       - name: Install browser test dependency
         run: |
           npm install --no-save playwright@1.63.0
@@ -44,3 +45,4 @@ jobs:
           node scripts/room-energy-border-smoke.mjs
           node scripts/sanctuary-blessing-smoke.mjs
           node scripts/site-icon-smoke.mjs
+          node scripts/ios-home-icon-smoke.mjs
