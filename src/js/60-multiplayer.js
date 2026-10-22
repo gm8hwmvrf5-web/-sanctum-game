@@ -292,7 +292,7 @@
       'reward:blood':()=>{rogueGiveBlood(2);rogueAddCinders(1,'Blood Cache');rogueliteOpenRoute()},
       'sanctuary:confession':()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()},
       'sanctuary:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
-      'sanctuary:sacrament':()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()},
+      'sanctuary:sacrament':()=>rogueliteTakeSacrament(),
       'boss_reward:reliquary':()=>{restoreAltarLogged(4,'Boss reward');const rel=rogueSilentRelic('Boss room-clear reward','rogueRoute');if(!rel)rogueliteOpenRoute()},
       'boss_reward:purification':()=>{restoreAltarLogged(10,'Boss purification');rogueCleanseAll();render();rogueliteOpenRoute()},
       'boss_reward:arsenal':()=>{rogueGiveBlood(2);rogueliteOpenDraft(rogueliteOpenRoute)},
