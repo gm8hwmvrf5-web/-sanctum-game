@@ -41,6 +41,13 @@ jobs:
           cp -R clean/src "$target/src"
           cp -R clean/assets "$target/assets"
           cp -R clean/icons "$target/icons"
+          # iOS Safari searches the web app directory for Apple touch icons.
+          # Publish the files referenced by the Clean Rebuild HTML as well.
+          for icon in apple-touch-icon.png apple-touch-icon-precomposed.png sanctum-iphone-icon-v101.png; do
+            test -s "clean/$icon"
+            cp "clean/$icon" "$target/$icon"
+            cmp "clean/$icon" "$target/$icon"
+          done
 
       - name: Publish latest clean build
         shell: bash
