@@ -258,6 +258,20 @@ function rogueliteTakeSacrament(){
  rogueliteOpenRoute();
 }
 
+function rogueliteSanctuaryConfession(){
+ restoreAltarLogged(8,'Sanctuary Confession');
+ rogueCleanseAll();
+ log('All room Corruption is cleansed.','good');
+ render();
+ rogueliteOpenRoute();
+}
+// Multiplayer vote recovery happens in a separate scoped module. Publish only
+// these two shared reward handlers so reconnects use identical game logic.
+window.__sanctumSanctuaryRewards={
+ sacrament:rogueliteTakeSacrament,
+ confession:rogueliteSanctuaryConfession
+};
+
 // Each XP-earned OR passage-reward Relic raises the next XP threshold by one tier.
 // Keep separate counters so older browser/cloud saves retain their earned XP tier.
 /* Relic XP thresholds: rewards #1–9 cost 20, 30 ... 100; #10
@@ -619,7 +633,7 @@ function rogueliteOpenDraft(after){
 function rogueliteOpenSanctuary(){
  let r=rogueState();
  rogueShowChoice(`Act ${r.act} • Floor ${r.floor}`,'Ruined Sanctuary','No Demons attack here. Take one blessing, then choose the next descent.',[
-  {icon:'✚',title:'Confession',cls:'sanctuary',desc:'Restore 8 Altar Protection and cleanse all Corruption from every room.',reward:'Strong defensive reset',action:()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()}},
+  {icon:'✚',title:'Confession',cls:'sanctuary',desc:'Restore 8 Altar Protection and cleanse all Corruption from every room.',reward:'+8 Altar Protection • cleanse Corruption',action:rogueliteSanctuaryConfession},
   {icon:'✠',title:'Study the Reliquary',cls:'sanctuary',desc:'Draft one Priest card from three choices.',reward:'Improve your run deck',action:()=>rogueliteOpenDraft(rogueliteOpenRoute)},
   {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood and draws 1 random Priest card from the run deck.',reward:'+3 Blood and 1 card each',action:rogueliteTakeSacrament}
  ]);
