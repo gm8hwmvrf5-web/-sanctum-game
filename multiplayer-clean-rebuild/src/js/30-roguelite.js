@@ -244,6 +244,20 @@ function rogueClearRooms(){
 }
 function rogueCleanseAll(){for(let i=0;i<4;i++){S.corruption[i]=0;S.desecratedRooms[i]=false}}
 function rogueGiveBlood(n){S.players.forEach(p=>p.blood=Math.min(10,(p.blood||0)+n));log(`Each Priest gains ${n} Demon Blood.`,'good')}
+// Ruined Sanctuary: add one random card from the current shuffled run deck to
+// each Priest's hand, observing the normal hand limit and Priest deck recycling.
+// Kept in one shared handler so local and reconstructed multiplayer rewards
+// always resolve identically without restoring shared Mana.
+function rogueliteTakeSacrament(){
+ rogueGiveBlood(3);
+ for(const player of S.players){
+  const cardsDrawn=drawPriest(player,1);
+  if(cardsDrawn)log(`${player.name} draws 1 random Priest card from the run deck (Sanctuary Sacrament).`,'good');
+ }
+ render();
+ rogueliteOpenRoute();
+}
+
 // Each XP-earned OR passage-reward Relic raises the next XP threshold by one tier.
 // Keep separate counters so older browser/cloud saves retain their earned XP tier.
 /* Relic XP thresholds: rewards #1–9 cost 20, 30 ... 100; #10
@@ -607,7 +621,7 @@ function rogueliteOpenSanctuary(){
  rogueShowChoice(`Act ${r.act} • Floor ${r.floor}`,'Ruined Sanctuary','No Demons attack here. Take one blessing, then choose the next descent.',[
   {icon:'✚',title:'Confession',cls:'sanctuary',desc:'Restore 8 Altar Protection and cleanse all Corruption from every room.',reward:'Strong defensive reset',action:()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()}},
   {icon:'✠',title:'Study the Reliquary',cls:'sanctuary',desc:'Draft one Priest card from three choices.',reward:'Improve your run deck',action:()=>rogueliteOpenDraft(rogueliteOpenRoute)},
-  {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood. Shared Mana is restored to the current player-count baseline.',reward:'Ritual preparation',action:()=>{rogueGiveBlood(3);S.mana=Math.max(sharedManaRoundValue(),S.mana);render();rogueliteOpenRoute()}}
+  {icon:'♦',title:'Take Sacrament',cls:'sanctuary',desc:'Each Priest gains 3 Demon Blood and draws 1 random Priest card from the run deck.',reward:'+3 Blood and 1 card each',action:rogueliteTakeSacrament}
  ]);
 }
 function rogueliteRouteOptions(){
