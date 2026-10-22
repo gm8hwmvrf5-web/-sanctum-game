@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v100';
+const CACHE_NAME='sanctum-clean-v101';
 const CORE=[
   './',
   './index.html',
@@ -72,7 +72,12 @@ const CORE=[
   './assets/embedded/new_censer_tyrant.webp',
   './icons/icon-180.png',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './apple-touch-icon.png',
+  './apple-touch-icon-precomposed.png',
+  './sanctum-iphone-icon-v101.png',
+  './icons/sanctum-icon-192-v101.png',
+  './icons/sanctum-icon-512-v101.png'
 ];
 
 self.addEventListener('install',event=>{
