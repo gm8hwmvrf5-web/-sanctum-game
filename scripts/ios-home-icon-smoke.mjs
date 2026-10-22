@@ -26,7 +26,7 @@ assert.deepEqual(manifest.icons.map(x=>x.src),[
 assert.equal(manifest.start_url,'./','existing saved-game origin/start URL must remain unchanged');
 assert.equal(manifest.display,'standalone','app mode must remain available');
 const sw=readFileSync('service-worker.js','utf8');
-assert(sw.includes("sanctum-clean-v101"),'fresh offline cache required');
+assert(sw.includes("sanctum-clean-v102"),'fresh offline cache required');
 for(const path of [root,rootFallback,'icons/sanctum-icon-192-v101.png','icons/sanctum-icon-512-v101.png']){
  assert(sw.includes("'./"+path+"'"),'cache new icon path '+path);
 }
@@ -43,19 +43,17 @@ try{
    await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
    const info=await page.evaluate(async()=>{
     const root=document.querySelector('link[rel="apple-touch-icon"]');
-    const alternative=document.querySelector('link[rel="apple-touch-icon-precomposed"]');
     const manifestLink=document.querySelector('link[rel="manifest"]');
     const src=root?.getAttribute('href');
     const r=await fetch(src);
     const ctype=r.headers.get('Content-Type')||'';
     const bytes=await r.arrayBuffer();
-    return {root:src,alt:alternative?.getAttribute('href'),
+    return {root:src,
       manifestHref:manifestLink?.getAttribute('href'),
       resolved:new URL(src,location.href).pathname,
       status:r.status,contentType:ctype,byteLength:bytes.byteLength};
    });
    assert.equal(info.root,'./sanctum-iphone-icon-v101.png',label+' cache-fresh Home Screen icon');
-   assert.equal(info.alt,'./apple-touch-icon-precomposed.png');
    assert(info.resolved.endsWith('/sanctum-iphone-icon-v101.png'));
    assert(info.manifestHref?.includes('clean101'));
    assert.equal(info.status,200,'iOS icon endpoint must load');

@@ -49,6 +49,13 @@ jobs:
             cmp "clean/$icon" "$target/$icon"
           done
 
+      - name: Embed original icon in published HTML for iOS Home Screen
+        shell: bash
+        run: |
+          python3 clean/scripts/embed_ios_home_icon.py \
+            site/multiplayer-clean-rebuild/index.html \
+            site/multiplayer-clean-rebuild/icons/icon-180.png
+
       - name: Publish latest clean build
         shell: bash
         run: |
