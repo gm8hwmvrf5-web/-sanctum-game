@@ -24,6 +24,7 @@ jobs:
           node --check scripts/ritual-power-readout-smoke.mjs
           node --check scripts/room-energy-border-smoke.mjs
           node --check scripts/sanctuary-blessing-smoke.mjs
+          node --check scripts/site-icon-smoke.mjs
       - name: Install browser test dependency
         run: |
           npm install --no-save playwright@1.63.0
@@ -42,3 +43,4 @@ jobs:
           node scripts/ritual-power-readout-smoke.mjs
           node scripts/room-energy-border-smoke.mjs
           node scripts/sanctuary-blessing-smoke.mjs
+          node scripts/site-icon-smoke.mjs

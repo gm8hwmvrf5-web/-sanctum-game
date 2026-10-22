@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v99';
+const CACHE_NAME='sanctum-clean-v100';
 const CORE=[
   './',
   './index.html',
