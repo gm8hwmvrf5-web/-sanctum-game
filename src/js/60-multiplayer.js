@@ -290,9 +290,9 @@
       'reward:elite_xp':()=>rogueliteClaimEliteXpReward(),
       'reward:relic':()=>rogueliteClaimEliteXpReward(), // old in-flight choices
       'reward:blood':()=>{rogueGiveBlood(2);rogueAddCinders(1,'Blood Cache');rogueliteOpenRoute()},
-      'sanctuary:confession':()=>{restoreAltarLogged(8,'Sanctuary Confession');rogueCleanseAll();log('All room Corruption is cleansed.','good');rogueliteOpenRoute()},
+      'sanctuary:confession':()=>window.__sanctumSanctuaryRewards.confession(),
       'sanctuary:draft':()=>rogueliteOpenDraft(rogueliteOpenRoute),
-      'sanctuary:sacrament':()=>rogueliteTakeSacrament(),
+      'sanctuary:sacrament':()=>window.__sanctumSanctuaryRewards.sacrament(),
       'boss_reward:reliquary':()=>{restoreAltarLogged(4,'Boss reward');const rel=rogueSilentRelic('Boss room-clear reward','rogueRoute');if(!rel)rogueliteOpenRoute()},
       'boss_reward:purification':()=>{restoreAltarLogged(10,'Boss purification');rogueCleanseAll();render();rogueliteOpenRoute()},
       'boss_reward:arsenal':()=>{rogueGiveBlood(2);rogueliteOpenDraft(rogueliteOpenRoute)},

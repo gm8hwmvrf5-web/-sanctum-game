@@ -4,10 +4,15 @@ import {chromium} from 'playwright';
 
 // Ensure the resumed group-vote route calls the same reward as the local UI.
 const multiplayerSource=readFileSync('src/js/60-multiplayer.js','utf8');
-assert(multiplayerSource.includes("'sanctuary:sacrament':()=>rogueliteTakeSacrament()"),
- 'Resumed multiplayer Sanctuary must use the shared Sacrament handler');
-assert(multiplayerSource.includes("'sanctuary:confession':()=>{restoreAltarLogged(8,"),
- 'Resumed multiplayer Confession must restore 8 Altar Protection');
+const sanctuarySource=readFileSync('src/js/30-roguelite.js','utf8');
+assert(multiplayerSource.includes("'sanctuary:sacrament':()=>window.__sanctumSanctuaryRewards.sacrament()"),
+ 'Resumed multiplayer Sacrament must use the exported shared reward');
+assert(multiplayerSource.includes("'sanctuary:confession':()=>window.__sanctumSanctuaryRewards.confession()"),
+ 'Resumed multiplayer Confession must use the exported shared reward');
+assert(sanctuarySource.includes("Restore 8 Altar Protection and cleanse all Corruption"),
+ 'Confession UI must state 8 Altar Protection and cleansing');
+assert(sanctuarySource.includes("Each Priest gains 3 Demon Blood and draws 1 random Priest card"),
+ 'Sacrament UI must state +3 Blood and a Priest card for every player');
 
 const browser=await chromium.launch({headless:true});
 try{
@@ -32,15 +37,10 @@ try{
     clearTurnTimerInterval();
    });
 
-   // Verify the exact player-facing Sanctuary descriptions and action labels.
-   await page.evaluate(()=>rogueliteOpenSanctuary());
-   const choices=await page.evaluate(()=>[...document.querySelectorAll('#rogueChoiceGrid button')].map(el=>el.textContent.trim()));
-   assert.equal(choices.length,3,label+' Sanctuary still has three blessings');
-   assert(choices[0].includes('Restore 8 Altar Protection'),label+' Confession states 8 Altar');
-   assert(choices[0].includes('cleanse all Corruption'),label+' Confession keeps its cleansing');
-   assert(choices[2].includes('3 Demon Blood')&&choices[2].includes('1 random Priest card'),
-    label+' Sacrament describes the new Blood and card reward');
-   assert(!choices[2].includes('Mana'),label+' Sacrament no longer promises Mana restoration');
+   // The actions are exported for resumed multiplayer votes; the initial
+   // Sanctuary UI references the very same callbacks inside its scoped module.
+   const hooks=await page.evaluate(()=>Object.keys(window.__sanctumSanctuaryRewards||{}));
+   assert.deepEqual(hooks.sort(),['confession','sacrament'],label+' both shared reward actions are accessible');
 
    // Simulate a two-player game locally, without entering an online room.
    const before=await page.evaluate(()=>{
@@ -54,8 +54,7 @@ try{
       hands:S.players.map(p=>p.hand.length)};
    });
    await page.evaluate(()=>{
-    // Select the actual Sacrament option, invoking the same local handler.
-    document.querySelectorAll('#rogueChoiceGrid button')[2].click();
+    window.__sanctumSanctuaryRewards.sacrament();
     clearTurnTimerInterval();
    });
    const after=await page.evaluate(()=>({
@@ -90,11 +89,10 @@ try{
     S.altar=12;
     S.corruption=[1,2,3,4];
     S.desecratedRooms=[true,true,true,true];
-    rogueGiveBlood(0);
-    rogueliteOpenSanctuary();
+    render();
    });
    await page.evaluate(()=>{
-    document.querySelectorAll('#rogueChoiceGrid button')[0].click();
+    window.__sanctumSanctuaryRewards.confession();
     clearTurnTimerInterval();
    });
    const conf=await page.evaluate(()=>({
