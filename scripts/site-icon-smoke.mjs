@@ -11,17 +11,17 @@ const pngDimension=(p)=>{
 for(const n of [180,192,512]){
  assert.deepEqual(pngDimension('icons/icon-'+n+'.png'),[n,n],n+'px original app artwork');
 }
-assert(html.includes('rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=clean100"'),'browser favicon');
-assert(html.includes('rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png?v=clean100"'),'iPhone/iPad saved shortcut');
-assert(html.includes('rel="manifest" href="./manifest.webmanifest?v=clean100"'),'PWA manifest');
+assert(html.includes('rel="icon" type="image/png" sizes="192x192" href="./icons/sanctum-icon-192-v101.png"'),'browser favicon');
+assert(html.includes('rel="apple-touch-icon" sizes="180x180" href="./sanctum-iphone-icon-v101.png"'),'iPhone/iPad saved shortcut');
+assert(html.includes('rel="manifest" href="./manifest.webmanifest?v=clean101"'),'PWA manifest');
 assert(html.includes('<meta property="og:image" content="'+prefix+'icons/icon-512.png"'),'sharing preview icon');
 assert(html.includes('<meta property="og:url" content="'+prefix+'"'),'live link identity');
 assert(html.includes('<meta name="twitter:image" content="'+prefix+'icons/icon-512.png"'),'sharing fallback icon');
 assert.deepEqual(manifest.icons.map(i=>i.src),[
- './icons/icon-192.png?v=clean100',
- './icons/icon-512.png?v=clean100'
+ './icons/sanctum-icon-192-v101.png',
+ './icons/sanctum-icon-512-v101.png'
 ]);
 assert.equal(manifest.start_url,'./','existing install destination retained');
 assert.equal(manifest.display,'standalone','existing PWA behavior retained');
-assert(readFileSync('service-worker.js','utf8').includes("const CACHE_NAME='sanctum-clean-v100'"),'service worker icon cache update');
+assert(readFileSync('service-worker.js','utf8').includes("const CACHE_NAME='sanctum-clean-v101'"),'service worker icon cache update');
 console.log('PASS: Sanctum icon used by favicon, iOS Home Screen, PWA manifest and link preview; all original icon assets valid.');
