@@ -17,7 +17,7 @@
             inset 0 0 12px rgba(0,0,0,.46),
             0 1px 5px rgba(0,0,0,.53)!important;
 }
-/* A single crisp sapphire medallion, with the ruby/red gem removed. */
+/* Gothic crystal, now filled with the actual matching gel texture and cyan veins. */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
  content:""!important;display:block!important;position:absolute!important;
  z-index:9!important;pointer-events:none!important;
@@ -38,7 +38,8 @@
  position:absolute!important;z-index:1!important;display:block!important;
  left:1px!important;right:1px!important;bottom:1px!important;
  width:auto!important;min-height:0!important;
- max-height:calc(100% - 5px)!important;
+ /* Full reservoir touches the inside of the top border at 100% Mana. */
+ max-height:calc(100% - 2px)!important;
  box-sizing:border-box!important;overflow:hidden!important;
  border-radius:2px 2px 3px 3px!important;
  opacity:1!important;pointer-events:none!important;
@@ -130,7 +131,8 @@
   box-shadow:none!important;
  }
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill{
-  max-height:calc(100% - 3px)!important;
+  /* Match the full-height reservoir on iPhone landscape. */
+  max-height:calc(100% - 2px)!important;
  }
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat{
   font-size:clamp(8px,1.05vw,10px)!important;
