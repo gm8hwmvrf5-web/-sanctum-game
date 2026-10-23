@@ -1511,6 +1511,22 @@ function choosePriestCard(title,items,ownerLabel=''){
    top.append(name,cost);
    el.appendChild(top);
 
+   // Render each eligible Priest card's own artwork in the choice popup.
+   // Use its deck definition as a fallback for older saved-game cards.
+   if(!c.done){
+    const definition=PRIEST.find(card=>card.n===c.n);
+    const artwork=c.art||definition?.art||'';
+    if(artwork){
+     const portrait=document.createElement('img');
+     portrait.className='priestChoiceArtwork';
+     portrait.src=artwork;
+     portrait.alt=c.n+' card artwork';
+     portrait.loading='eager';
+     portrait.decoding='async';
+     el.appendChild(portrait);
+    }
+   }
+
    let normal=document.createElement('div');
    normal.className='priestChoiceEffect';
    let nb=document.createElement('b');
