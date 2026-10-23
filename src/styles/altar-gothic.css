@@ -1,0 +1,200 @@
+/* Sanctum of the Damned — Gothic Altar Protection HUD.
+ * Dark gilded reliquary, luminous amber protection, and sacred shield.
+ * Presentation only: #altarMeterFill height and #altarStat remain game-owned.
+ * No changes to protection math, multiplayer, or HUD dimensions. */
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+ position:relative!important;
+ isolation:isolate!important;
+ display:flex!important;
+ flex-direction:column!important;
+ justify-content:center!important;
+ align-items:center!important;
+ gap:1px!important;
+ box-sizing:border-box!important;
+ min-width:0!important;
+ overflow:hidden!important;
+ padding:2px 4px!important;
+ border:1px solid #b38a4a!important;
+ border-radius:5px!important;
+ background:
+   radial-gradient(ellipse at 80% 55%,rgba(93,56,20,.3),transparent 70%),
+   linear-gradient(180deg,#281b11 0%,#10100e 49%,#19130e 100%)!important;
+ box-shadow:
+   inset 0 0 0 1px rgba(13,10,8,.91),
+   inset 0 0 0 3px rgba(198,147,65,.2),
+   inset 0 0 11px rgba(0,0,0,.59),
+   0 1px 4px rgba(0,0,0,.43)!important;
+}
+/* Left sacred protection emblem echoes the sapphire/gold Mana medallion. */
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat::before{
+ content:""!important;
+ position:absolute!important;
+ z-index:8!important;
+ top:50%!important;
+ left:4px!important;
+ transform:translateY(-50%)!important;
+ width:clamp(24px,3vw,38px)!important;
+ height:clamp(24px,3vw,38px)!important;
+ max-height:calc(100% - 5px)!important;
+ border:0!important;
+ border-radius:50%!important;
+ background:url('../../assets/hud/altar-shield-gothic.svg') center/contain no-repeat!important;
+ box-shadow:0 0 6px rgba(235,176,77,.19)!important;
+ pointer-events:none!important;
+}
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat::after{
+ content:""!important;
+ position:absolute!important;
+ z-index:2!important;
+ inset:3px!important;
+ border:1px solid rgba(235,178,90,.25)!important;
+ border-radius:3px!important;
+ box-shadow:inset 0 0 0 1px rgba(17,9,7,.48)!important;
+ background:
+   linear-gradient(90deg,transparent,rgba(246,206,124,.2),transparent) center top/82% 1px no-repeat,
+   linear-gradient(90deg,transparent,rgba(174,105,47,.26),transparent) center bottom/82% 1px no-repeat!important;
+ pointer-events:none!important;
+}
+/* Dynamic protection reservoir: molten-gold stained glass rather than a
+   featureless bright-yellow tile. Remains driven by engine's percent fill. */
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarMeterFill.altarMeterFill{
+ position:absolute!important;
+ display:block!important;
+ z-index:1!important;
+ left:1px!important;
+ right:1px!important;
+ bottom:1px!important;
+ width:auto!important;
+ min-height:0!important;
+ max-height:calc(100% - 2px)!important;
+ border:0!important;
+ border-radius:2px 2px 3px 3px!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ opacity:1!important;
+ pointer-events:none!important;
+ background:
+   radial-gradient(ellipse at 11% 20%,rgba(255,236,151,.55),transparent 31%),
+   radial-gradient(ellipse at 84% 76%,rgba(228,149,45,.35),transparent 44%),
+   radial-gradient(ellipse at 58% 14%,rgba(236,183,82,.34),transparent 49%),
+   repeating-linear-gradient(122deg,transparent 0 26px,rgba(255,232,149,.045) 27px 29px,transparent 30px 56px),
+   linear-gradient(180deg,#bb8138 0%,#89551e 22%,#583817 54%,#322415 81%,#1f1b14 100%)!important;
+ background-size:100% 100%!important;
+ box-shadow:
+   inset 0 3px 4px rgba(255,232,174,.21),
+   inset 0 -5px 9px rgba(16,11,7,.5),
+   inset 4px 0 8px rgba(6,6,4,.23),
+   inset -4px 0 8px rgba(6,6,4,.23),
+   0 -1px 5px rgba(232,172,70,.32)!important;
+ transition:height .3s ease!important;
+}
+/* A slim illuminated edge where the sacred protection level meets the air. */
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarMeterFill::before{
+ content:""!important;
+ position:absolute!important;
+ display:block!important;
+ top:1px!important;
+ left:7px!important;
+ right:7px!important;
+ height:2px!important;
+ border-radius:50%!important;
+ background:linear-gradient(90deg,transparent,rgba(255,235,172,.75),rgba(252,203,106,.7),transparent)!important;
+ box-shadow:0 0 3px rgba(248,206,127,.18)!important;
+ opacity:.75!important;
+}
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarMeterFill::after{
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ background:
+   radial-gradient(circle at 22% 63%,rgba(253,224,134,.21) 0 1.2px,transparent 2.2px),
+   radial-gradient(circle at 66% 34%,rgba(253,222,142,.26) 0 1px,transparent 2px),
+   radial-gradient(circle at 90% 59%,rgba(246,204,111,.19) 0 1.4px,transparent 2.5px),
+   linear-gradient(114deg,transparent 10%,rgba(255,229,157,.1) 37%,transparent 49%,rgba(255,205,123,.07) 71%,transparent 88%)!important;
+ pointer-events:none!important;
+}
+/* Keep the live value central, readable, and distinct from the artwork. */
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarStat,
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > span{
+ position:relative!important;
+ z-index:10!important;
+ inset:auto!important;
+ display:block!important;
+ flex:0 0 auto!important;
+ box-sizing:border-box!important;
+ min-width:0!important;
+ width:100%!important;
+ max-width:100%!important;
+ padding:0 2px!important;
+ margin:0!important;
+ transform:none!important;
+ overflow:hidden!important;
+ white-space:nowrap!important;
+ text-align:center!important;
+ letter-spacing:0!important;
+ line-height:1!important;
+ pointer-events:none!important;
+ text-shadow:0 1px 3px #130a05,0 0 5px rgba(14,9,5,.95)!important;
+}
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarStat{
+ font:700 clamp(14px,1.35vw,19px)/1 Georgia,'Times New Roman',serif!important;
+ color:#fff1ce!important;
+}
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > span{
+ font:700 clamp(7px,.68vw,9px)/1 Georgia,'Times New Roman',serif!important;
+ color:#f3d8a4!important;
+}
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > .meterGlass{
+ position:absolute!important;
+ inset:0!important;
+ z-index:3!important;
+ background:linear-gradient(180deg,rgba(255,241,196,.06),transparent 42%,rgba(0,0,0,.14))!important;
+ opacity:.16!important;
+ pointer-events:none!important;
+}
+/* Cleared protection loses its gilded core, but keeps the Gothic shell. */
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat.empty{
+ border-color:#685438!important;
+}
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat.empty > #altarStat,
+#topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat.empty > span{
+ color:#b7a17e!important;
+}
+@media (orientation:landscape) and (max-height:520px){
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+  padding:1px 2px!important;
+  gap:0!important;
+  border-radius:3px!important;
+ }
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat::before{
+  left:2px!important;
+  width:clamp(12px,2vw,18px)!important;
+  height:clamp(12px,2vw,18px)!important;
+  max-height:calc(100% - 2px)!important;
+ }
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat::after{
+  inset:2px!important;
+ }
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarStat{
+  font-size:clamp(8px,1.05vw,10px)!important;
+ }
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > span{
+  font-size:clamp(4.5px,.65vw,5.5px)!important;
+ }
+}
+@media (orientation:portrait) and (max-width:520px){
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat::before{
+  left:2px!important;
+  width:23px!important;
+  height:23px!important;
+ }
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarStat{
+  font-size:14px!important;
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarMeterFill{
+  transition:none!important;
+ }
+}

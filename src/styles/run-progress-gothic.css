@@ -23,7 +23,7 @@
     inset 0 0 13px 3px rgba(29,12,7,.68),
     0 0 0 1px #1b100c,
     0 2px 6px rgba(0,0,0,.48)!important;
-  padding:3px 7px 3px!important;
+  padding:4px 6px 3px!important;
   text-align:center!important;
 }
 /* Gold engraved inner track, filigree corners, inset ruby accents; no candles. */
@@ -75,8 +75,9 @@
   display:flex!important;
   align-items:center!important;
   justify-content:space-between!important;
-  gap:2px!important;
-  margin:1px 0 0!important;
+  gap:1px!important;
+  height:27px!important;
+  margin:0 0 1px!important;
 }
 #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk{
   display:flex!important;
@@ -85,7 +86,7 @@
   flex-direction:column!important;
   align-items:center!important;
   justify-content:center!important;
-  gap:2px!important;
+  gap:1px!important;
   line-height:1!important;
   white-space:nowrap!important;
 }
@@ -93,16 +94,16 @@
   display:block!important;
   margin:0!important;
   color:#fde0a6!important;
-  font:700 clamp(6px,.7vw,9px)/1 Georgia,'Times New Roman',serif!important;
+  font:700 clamp(5.7px,.5vw,7.2px)/1 Georgia,'Times New Roman',serif!important;
   font-style:normal!important;
-  letter-spacing:.45px!important;
+  letter-spacing:.12px!important;
   text-transform:uppercase!important;
   text-shadow:0 1px 2px #210e09,0 0 4px #4c2517!important;
 }
 #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{
   display:block!important;
   color:#fff1d2!important;
-  font:700 clamp(11px,1.15vw,16px)/1.08 Georgia,'Times New Roman',serif!important;
+  font:700 clamp(9px,.91vw,13px)/1.05 Georgia,'Times New Roman',serif!important;
   letter-spacing:0!important;
   text-shadow:0 1px 3px #140b07,0 0 5px rgba(69,32,12,.65)!important;
   white-space:nowrap!important;
@@ -112,7 +113,7 @@
   flex:0 0 1px!important;
   width:1px!important;
   min-width:1px!important;
-  height:26px!important;
+  height:24px!important;
   align-self:center!important;
   margin:0 1px!important;
   background:linear-gradient(180deg,transparent,#ffe0a4 20%,#5d2c1a 52%,#f5c87d 80%,transparent)!important;
@@ -133,12 +134,12 @@
   position:relative!important;
   z-index:3!important;
   width:100%!important;
-  margin:2px 0 0!important;
-  padding-top:2px!important;
+  margin:0!important;
+  padding-top:1px!important;
   border-top:1px solid rgba(113,52,22,.38)!important;
   color:#ffdc9f!important;
-  font:700 clamp(6px,.65vw,9px)/1 Georgia,'Times New Roman',serif!important;
-  letter-spacing:.75px!important;
+  font:700 clamp(5.7px,.48vw,7px)/1 Georgia,'Times New Roman',serif!important;
+  letter-spacing:.3px!important;
   text-transform:uppercase!important;
   text-shadow:0 1px 2px #250e0a!important;
 }
