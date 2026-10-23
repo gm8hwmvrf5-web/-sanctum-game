@@ -103,26 +103,34 @@ checkMerge=function(){
  return result;
 };
 const CHAIN='<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9.2 8.5 7.7 7A4 4 0 0 0 2 12.7l3.8 3.8a4 4 0 0 0 5.7-5.7l-1.1-1.1M14.8 15.5l1.5 1.5a4 4 0 0 0 5.7-5.7l-3.8-3.8a4 4 0 0 0-5.7 5.7l1.1 1.1M9 15l6-6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const FLAME='<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C11 7 6.5 9.2 6.5 14.3a5.5 5.5 0 0 0 11 0c0-3.5-2.2-5.5-3.2-6.8.2 3-1 4.3-2.3 5.3.4-4.1-.1-7.1 0-10.8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+const DEMON_HEAD='<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 8 3 2l7 3M18 8l3-6-7 3M6 8c-2 2-2 6 0 9l4 4h4l4-4c2-3 2-7 0-9-3-3-9-3-12 0Z M8 12l3 1-2 2M16 12l-3 1 2 2M10 18l2-2 2 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Anatomical heart silhouette: vessels at the crown, asymmetric ventricles.
+const HEART='<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 7V3c0-1.3 2-1.3 2 0v3M13 7V2c0-1.3 2-1.3 2 0v6M16 8l3-3c1-1 2.6.3 1.6 1.6L18 10M9 7C5 5 3 8 4 12c.6 2.4 3 3.5 4.3 5.9L11 22l3-3c2.7-2.5 5.2-5 4-9-1-3-3.2-4-5-3l-2 2-2-2Z M9 11c-2 1-2 3-1 5M14 11c2 1 2 4 0 6" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function decorate(){
  if(typeof document==='undefined')return;
  for(const card of document.querySelectorAll('#boardSection .demons .demon[data-demon]')){
   const d=byId(card.dataset.demon);
-  const linked=d&&isLinked(d),enraged=!!d?.status?.bloodBondRageAttack;
-  card.classList.toggle('sanctum-blood-linked',!!linked);
-  card.classList.toggle('sanctum-blood-enraged',enraged);
+  const linked=!!(d&&isLinked(d)),rage=!!d?.status?.bloodBondRageAttack;
+  const turnHp=Math.max(0,Number(d?.status?.enrageHpBonus)||0);
+  card.classList.toggle('sanctum-blood-linked',linked);
+  card.classList.toggle('sanctum-blood-enraged',rage);
   card.querySelectorAll('.sanctum-blood-marker').forEach(el=>el.remove());
-  if(!linked&&!enraged)continue;
+  if(!linked&&!rage&&!turnHp)continue;
   const art=card.querySelector('.demonArtWrap')||card;
-  const icon=document.createElement('span');
-  icon.className='sanctum-blood-marker '+(enraged?'sanctum-blood-marker-rage':'sanctum-blood-marker-link');
-  icon.innerHTML=(enraged?FLAME:CHAIN)+
-   '<span>'+(enraged?'RAGE':'LINK')+'</span>';
-  icon.title=enraged
-   ?'Blood Bond Rage: +'+RAGE_ATTACK+' Attack, +'+d.status.bloodBondRageHp+' HP'
-   :'Blood Bond: +'+LINK_ATTACK+' Attack each while both survive; defeating one enrages the other';
-  icon.setAttribute('aria-label',icon.title);
-  art.appendChild(icon);
+  const group=document.createElement('span');
+  group.className='sanctum-blood-marker-group';
+  const marker=(type,svg,label)=>{
+   const icon=document.createElement('span');
+   icon.className='sanctum-blood-marker sanctum-blood-marker-'+type;
+   icon.innerHTML=svg;
+   icon.title=label;
+   icon.setAttribute('aria-label',label);
+   group.appendChild(icon);
+  };
+  if(linked)marker('link',CHAIN,'Blood Bond: +'+LINK_ATTACK+' Attack while linked');
+  if(rage)marker('rage',DEMON_HEAD,'Blood Bond Rage: +'+RAGE_ATTACK+' Attack, +'+d.status.bloodBondRageHp+' HP');
+  if(turnHp)marker('heart',HEART,'Kill Enrage: +'+turnHp+' HP and Attack this turn from '+turnHp+' prior kill'+(turnHp===1?'':'s'));
+  art.appendChild(group);
  }
 }
 const rawRender=render;
