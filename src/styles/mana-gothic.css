@@ -25,7 +25,7 @@
  width:clamp(24px,3vw,38px)!important;height:clamp(24px,3vw,38px)!important;
  max-height:calc(100% - 4px)!important;
  border:0!important;border-radius:50%!important;
- background:url('../../assets/hud/mana-crystal-gothic.svg') center/contain no-repeat!important;
+ background:url('../../assets/hud/mana-crystal-gothic.svg?v=gel132') center/contain no-repeat!important;
  box-shadow:0 0 9px rgba(31,141,238,.3)!important;filter:none!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::after{
