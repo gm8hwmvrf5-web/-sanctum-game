@@ -1,0 +1,328 @@
+/* PASS 1 — Gothic status HUD, purely presentational.
+   Preserve existing IDs, meter fill values, tutorial, Supabase and turn timer.
+   Loaded last to override historical mobile/compact HUD patches. */
+#topStatusBar.stats.compactRunStats {
+ display:grid !important;
+ grid-template-columns:minmax(215px,1.72fr) repeat(4,minmax(0,1fr)) !important;
+ align-items:stretch !important;
+ gap:3px !important;
+ box-sizing:border-box;
+ position:relative !important;
+ width:100% !important;
+ margin:4px 0 6px !important;
+ padding:3px !important;
+ top:auto !important;
+ background:linear-gradient(180deg,#38291a 0%,#a77c40 4%,#26180f 9%,#090909 50%,#51351b 93%,#bb9250 100%) !important;
+ border:1px solid #5b4123 !important;
+ border-radius:6px !important;
+ box-shadow:inset 0 0 0 1px #070606,0 2px 9px rgba(0,0,0,.7) !important;
+ overflow:visible !important;
+}
+#topStatusBar.stats.compactRunStats > .stat {
+ position:relative !important;
+ isolation:isolate;
+ box-sizing:border-box !important;
+ display:flex !important;
+ flex-direction:column !important;
+ align-items:center !important;
+ justify-content:center !important;
+ gap:1px !important;
+ min-width:0 !important;
+ min-height:55px !important;
+ height:55px !important;
+ padding:5px 7px !important;
+ margin:0 !important;
+ border:1px solid #896938 !important;
+ border-radius:4px !important;
+ overflow:hidden !important;
+ background:
+   repeating-linear-gradient(108deg,transparent 0 16px,rgba(208,173,104,.017) 16px 17px),
+   radial-gradient(ellipse at 50% 0%,rgba(111,75,45,.2),transparent 74%),
+   linear-gradient(180deg,#201b18 0%,#0a0b0d 58%,#15100e 100%) !important;
+ box-shadow:inset 0 1px 0 rgba(243,205,135,.17),inset 0 0 14px rgba(0,0,0,.88),0 0 0 1px #0b0807 !important;
+ text-align:center !important;
+}
+#topStatusBar.stats.compactRunStats > .stat::before {
+ content:"" !important;
+ display:block !important;
+ position:absolute !important;
+ inset:3px !important;
+ z-index:3;
+ pointer-events:none;
+ border-top:1px solid rgba(207,158,76,.55);
+ border-bottom:1px solid rgba(207,158,76,.48);
+ border-left:1px solid rgba(148,108,57,.28);
+ border-right:1px solid rgba(148,108,57,.28);
+ border-radius:2px;
+ box-shadow:inset 0 0 7px rgba(0,0,0,.45);
+}
+#topStatusBar.stats.compactRunStats > .stat::after {
+ content:"◆" !important;
+ display:block !important;
+ position:absolute;
+ z-index:5;
+ right:2px;
+ top:50%;
+ transform:translate(50%,-50%) rotate(45deg);
+ font:9px/1 Georgia,serif;
+ color:#c69a4d;
+ text-shadow:0 1px 1px #000,0 0 4px #e5b764;
+ pointer-events:none;
+}
+#topStatusBar.stats.compactRunStats > .stat:last-child::after {content:"✦" !important;transform:translate(20%,-50%)}
+#topStatusBar.stats.compactRunStats .stat > b,
+#topStatusBar.stats.compactRunStats .stat > span:not(.meterFill) {
+ position:relative !important;
+ z-index:6 !important;
+ white-space:nowrap !important;
+ pointer-events:none;
+}
+#topStatusBar.stats.compactRunStats .stat > b {
+ display:block;
+ margin:0 !important;
+ font-family:Georgia,"Times New Roman",serif;
+ font-size:clamp(15px,1.36vw,23px) !important;
+ font-weight:700;
+ line-height:1.07 !important;
+ letter-spacing:.15px;
+ color:#f2d7a5 !important;
+ text-shadow:0 2px 2px #000,0 0 10px rgba(196,125,49,.3) !important;
+}
+#topStatusBar.stats.compactRunStats .stat > span:not(.runProgressPair) {
+ display:block;
+ margin:1px 0 0 !important;
+ color:#ddbf81 !important;
+ font-family:Georgia,"Times New Roman",serif;
+ font-size:clamp(7px,.66vw,10px) !important;
+ font-weight:700;
+ letter-spacing:.35px !important;
+ line-height:1.05 !important;
+ text-transform:uppercase;
+ text-shadow:0 1px 2px #000 !important;
+}
+#topStatusBar.stats.compactRunStats .runProgressStat {
+ flex-direction:column !important;
+ padding:4px 10px !important;
+}
+#topStatusBar.stats.compactRunStats .runProgressStat .runProgressPair{
+ width:100%;
+ flex:0 0 auto;
+ min-height:0 !important;
+ height:auto !important;
+ margin:0 !important;
+ padding:0 !important;
+ display:flex;
+ justify-content:space-between !important;
+ align-items:center !important;
+ gap:2px !important;
+}
+#topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk{
+ display:flex;
+ flex:1 1 0;
+ min-width:0;
+ flex-direction:column;
+ gap:3px !important;
+ align-items:center;
+ justify-content:center;
+}
+#topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk em{
+ color:#ccb17d !important;
+ font-family:Georgia,"Times New Roman",serif;
+ font-weight:700;
+ font-size:clamp(7px,.65vw,10px) !important;
+ letter-spacing:.35px !important;
+ line-height:1 !important;
+ font-style:normal;
+}
+#topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{
+ color:#f4ddb2 !important;
+ font:700 clamp(11px,.96vw,17px)/1.05 Georgia,serif !important;
+ text-shadow:0 1px 3px #000,0 0 7px rgba(190,146,67,.32);
+}
+#topStatusBar.stats.compactRunStats .runProgressStat .runProgressDivider{
+ flex:0 0 1px;
+ width:1px;
+ height:28px !important;
+ background:linear-gradient(180deg,transparent,#be985a 23%,#b8894c 75%,transparent) !important;
+ box-shadow:1px 0 3px rgba(0,0,0,.7);
+}
+#topStatusBar.stats.compactRunStats .runProgressStat > span{
+ position:relative !important;
+ z-index:5 !important;
+ color:#c5a06b !important;
+ font-size:8px !important;
+ letter-spacing:1px !important;
+ margin-top:4px !important;
+}
+#topStatusBar.stats.compactRunStats #relicXpMeterStat{display:none !important}
+/* Colored enamel plaques — fill heights remain controlled by the engine. */
+#topStatusBar.stats.compactRunStats #turnTimerStat {
+ background:
+  radial-gradient(circle at 24% 50%,rgba(157,68,25,.2),transparent 50%),
+  linear-gradient(180deg,#251a15,#0e0e11 62%,#1b1110) !important;
+ border-color:#9a6b3c !important;
+}
+#topStatusBar.stats.compactRunStats #manaStatBox{
+ background:
+  radial-gradient(ellipse at 24% 50%,rgba(26,138,231,.3),transparent 62%),
+  repeating-linear-gradient(132deg,transparent 0 17px,rgba(87,162,239,.05) 17px 19px),
+  linear-gradient(180deg,#102942,#071422 58%,#0b1c32) !important;
+ border-color:#5986a5 !important;
+}
+#topStatusBar.stats.compactRunStats #altarStatBox{
+ background:
+  radial-gradient(ellipse at 24% 50%,rgba(217,162,52,.23),transparent 60%),
+  repeating-linear-gradient(124deg,transparent 0 18px,rgba(222,184,92,.04) 18px 20px),
+  linear-gradient(180deg,#423018,#1b160e 58%,#2f2413) !important;
+ border-color:#b38a43 !important;
+}
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat{
+ background:
+  radial-gradient(ellipse at 20% 50%,rgba(153,28,38,.22),transparent 55%),
+  linear-gradient(180deg,#211316,#0d0a0e 60%,#170e10) !important;
+ border-color:#82464a !important;
+}
+#topStatusBar.stats.compactRunStats #turnTimerStat .meterGlass,
+#topStatusBar.stats.compactRunStats #manaStatBox .meterGlass,
+#topStatusBar.stats.compactRunStats #altarStatBox .meterGlass{
+ z-index:2 !important;
+ opacity:.30 !important;
+}
+#topStatusBar.stats.compactRunStats #turnTimerFill{
+ z-index:1 !important;
+ opacity:.17;
+ background:linear-gradient(180deg,#d5b874,#a97632) !important;
+ box-shadow:0 -1px 5px rgba(205,142,62,.55) !important;
+}
+#topStatusBar.stats.compactRunStats #manaOrbFill{
+ z-index:1 !important;
+ opacity:.36;
+ background:linear-gradient(180deg,#3aadeb,#104d8f) !important;
+ box-shadow:0 -1px 6px rgba(35,144,240,.5) !important;
+}
+#topStatusBar.stats.compactRunStats #altarMeterFill{
+ z-index:1 !important;
+ opacity:.36;
+ background:linear-gradient(180deg,#e7bf67,#7b501b) !important;
+ box-shadow:0 -1px 6px rgba(219,169,74,.5) !important;
+}
+#topStatusBar.stats.compactRunStats #turnTimerStat b{color:#ffdeb2 !important}
+#topStatusBar.stats.compactRunStats #manaStatBox #manaStat{color:#d5eeff !important;text-shadow:0 1px 2px #000,0 0 9px rgba(45,149,241,.65) !important}
+#topStatusBar.stats.compactRunStats #manaStatBox > span{color:#c7e5f9 !important}
+#topStatusBar.stats.compactRunStats #altarStatBox #altarStat{color:#ffe8ae !important;text-shadow:0 1px 2px #000,0 0 8px rgba(227,174,68,.62) !important}
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat > b{color:#f5d7bb !important}
+/* Each emblem is fixed decorative SVG, not an interactive control. */
+#topStatusBar.stats.compactRunStats .sanctumHudEmblem{
+ position:absolute !important;
+ left:7px;
+ top:50%;
+ transform:translateY(-50%);
+ z-index:5;
+ display:grid !important;
+ place-items:center;
+ width:34px;height:34px;
+ border:1px solid #a37c43;
+ border-radius:50%;
+ color:#e5b966;
+ background:radial-gradient(circle at 35% 30%,#4c3821,#0b0b0c 70%);
+ box-shadow:inset 0 0 0 2px #15100c,inset 0 0 0 3px rgba(183,130,57,.35),0 1px 5px #000;
+ pointer-events:none;
+ font-style:normal;
+}
+#topStatusBar.stats.compactRunStats .sanctumHudEmblem svg{
+ display:block;width:22px;height:22px;
+ stroke:currentColor;fill:none;stroke-width:1.65;
+ stroke-linejoin:round;stroke-linecap:round;
+ filter:drop-shadow(0 0 2px rgba(244,189,91,.37));
+}
+#topStatusBar.stats.compactRunStats #manaStatBox .sanctumHudEmblem{
+ color:#64c5ff;border-color:#5da3cf;
+ box-shadow:inset 0 0 0 2px #06101b,inset 0 0 0 3px rgba(42,142,214,.38),0 0 7px rgba(27,102,160,.4);
+}
+#topStatusBar.stats.compactRunStats #altarStatBox .sanctumHudEmblem{
+ color:#f1c45d;border-color:#c4a052;
+}
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat .sanctumHudEmblem{
+ color:#e87979;border-color:#9a5150;background:radial-gradient(circle at 38% 35%,#35191c,#0c0a0b 74%);
+}
+#topStatusBar.stats.compactRunStats .stat:has(> .sanctumHudEmblem) > b,
+#topStatusBar.stats.compactRunStats .stat:has(> .sanctumHudEmblem) > span:not(.meterFill){
+ padding-left:26px !important;
+}
+/* Use the non-:has fallbacks for older WebKit. */
+#topStatusBar.stats.compactRunStats #turnTimerStat > b,
+#topStatusBar.stats.compactRunStats #turnTimerStat > span,
+#topStatusBar.stats.compactRunStats #manaStatBox > b,
+#topStatusBar.stats.compactRunStats #manaStatBox > span,
+#topStatusBar.stats.compactRunStats #altarStatBox > b,
+#topStatusBar.stats.compactRunStats #altarStatBox > span,
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat > b,
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat > span{
+ padding-left:27px !important;
+}
+#topStatusBar.stats.compactRunStats #turnTimerStat.warning{
+ border-color:#c18a47 !important;
+}
+#topStatusBar.stats.compactRunStats #turnTimerStat.critical{
+ border-color:#cd5960 !important;
+ background:linear-gradient(180deg,#371619,#100a0c) !important;
+}
+#topStatusBar.stats.compactRunStats #turnTimerStat.critical .sanctumHudEmblem{color:#ed7171;border-color:#bd5857}
+/* iPhone landscape: remain a single 5-panel row, matching the current HUD footprint. */
+@media (orientation:landscape) and (max-height:520px){
+ #topStatusBar.stats.compactRunStats{
+  position:sticky !important;top:0 !important;z-index:45 !important;
+  grid-template-columns:minmax(172px,1.65fr) repeat(4,minmax(0,1fr)) !important;
+  gap:2px !important;padding:2px !important;margin:2px 0 3px !important;
+ }
+ #topStatusBar.stats.compactRunStats > .stat{
+  height:34px !important;min-height:34px !important;
+  padding:2px 2px !important;
+ }
+ #topStatusBar.stats.compactRunStats .stat > b{font-size:clamp(11px,1.8vw,15px) !important}
+ #topStatusBar.stats.compactRunStats .stat > span:not(.runProgressPair){font-size:clamp(6px,1vw,7px) !important;letter-spacing:0 !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat{padding:2px 5px !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressPair{height:auto !important;gap:1px !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk{gap:1px !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk em{font-size:clamp(5.5px,.85vw,7px) !important;letter-spacing:0 !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{font-size:clamp(9px,1.35vw,11px) !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressDivider{height:17px !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat > span{margin-top:0 !important;font-size:5.5px !important}
+ #topStatusBar.stats.compactRunStats .sanctumHudEmblem{left:3px;width:23px;height:23px}
+ #topStatusBar.stats.compactRunStats .sanctumHudEmblem svg{width:15px;height:15px}
+ #topStatusBar.stats.compactRunStats #turnTimerStat > b,
+ #topStatusBar.stats.compactRunStats #turnTimerStat > span,
+ #topStatusBar.stats.compactRunStats #manaStatBox > b,
+ #topStatusBar.stats.compactRunStats #manaStatBox > span,
+ #topStatusBar.stats.compactRunStats #altarStatBox > b,
+ #topStatusBar.stats.compactRunStats #altarStatBox > span,
+ #topStatusBar.stats.compactRunStats .sanctumDefeatStat > b,
+ #topStatusBar.stats.compactRunStats .sanctumDefeatStat > span{padding-left:19px !important}
+}
+/* Tablet landscape / narrower desktop: preserve one row above 640px. */
+@media (min-height:521px) and (max-width:980px){
+ #topStatusBar.stats.compactRunStats{grid-template-columns:minmax(175px,1.6fr) repeat(4,minmax(0,1fr)) !important}
+ #topStatusBar.stats.compactRunStats > .stat{height:49px !important;min-height:49px !important}
+ #topStatusBar.stats.compactRunStats .sanctumHudEmblem{width:28px;height:28px;left:4px}
+ #topStatusBar.stats.compactRunStats .sanctumHudEmblem svg{width:19px;height:19px}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk em{font-size:7px !important;letter-spacing:0 !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{font-size:12px !important}
+ #topStatusBar.stats.compactRunStats #turnTimerStat > b,
+ #topStatusBar.stats.compactRunStats #turnTimerStat > span,
+ #topStatusBar.stats.compactRunStats #manaStatBox > b,
+ #topStatusBar.stats.compactRunStats #manaStatBox > span,
+ #topStatusBar.stats.compactRunStats #altarStatBox > b,
+ #topStatusBar.stats.compactRunStats #altarStatBox > span,
+ #topStatusBar.stats.compactRunStats .sanctumDefeatStat > b,
+ #topStatusBar.stats.compactRunStats .sanctumDefeatStat > span{padding-left:24px !important}
+}
+@media (orientation:portrait) and (max-width:640px){
+ #topStatusBar.stats.compactRunStats{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+ #topStatusBar.stats.compactRunStats > .runProgressStat{grid-column:1/-1}
+ #topStatusBar.stats.compactRunStats > .stat{height:49px !important;min-height:49px !important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{font-size:13px !important}
+}
+@media (prefers-reduced-motion:reduce){
+ #topStatusBar.stats.compactRunStats .meterFill,
+ #topStatusBar.stats.compactRunStats .manaMeterFill{transition:none !important}
+}
