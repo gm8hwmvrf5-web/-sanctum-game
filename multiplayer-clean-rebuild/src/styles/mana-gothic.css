@@ -57,31 +57,6 @@
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::after{
  content:none!important;display:none!important;
 }
-/* Two transparent curved surface ribbons shimmer WITHOUT covering the gel art. */
-#manaStatBox #manaOrbFill .manaLiquidWave{
- position:absolute!important;display:block!important;
- top:0!important;bottom:0!important;height:100%!important;
- width:155%!important;pointer-events:none!important;
- transform:translate3d(0,0,0);
-}
-#manaStatBox #manaOrbFill .manaLiquidWave svg{
- display:block!important;width:100%!important;height:100%!important;
-}
-#manaStatBox #manaOrbFill .manaLiquidWave svg path:first-of-type{
- fill-opacity:.11!important;
-}
-#manaStatBox #manaOrbFill .manaLiquidWave svg path:last-of-type{
- stroke-width:2.8!important;stroke-opacity:.9!important;
- filter:drop-shadow(0 1px 2px rgba(102,221,255,.58));
-}
-#manaStatBox #manaOrbFill .manaLiquidWaveBack{
- z-index:2!important;left:-27%!important;opacity:.67!important;
- animation:sanctumGelWaveBack 5.8s ease-in-out infinite alternate!important;
-}
-#manaStatBox #manaOrbFill .manaLiquidWaveFront{
- z-index:3!important;left:-27%!important;opacity:.89!important;
- animation:sanctumGelWaveFront 4.2s ease-in-out infinite alternate!important;
-}
 /* Scattered suspended bubbles and glossy refraction. */
 #manaStatBox #manaOrbFill .manaLiquidBubbles{
  position:absolute!important;z-index:4!important;inset:0!important;
@@ -102,12 +77,6 @@
    radial-gradient(ellipse at 75% 12%,rgba(184,249,255,.17),transparent 35%)!important;
  opacity:.46!important;
  animation:sanctumGelLight 7.8s ease-in-out infinite alternate!important;
-}
-@keyframes sanctumGelWaveBack{
- from{transform:translate3d(-2.5%,0,0)}to{transform:translate3d(3%,0,0)}
-}
-@keyframes sanctumGelWaveFront{
- from{transform:translate3d(3%,0,0)}to{transform:translate3d(-4%,0,0)}
 }
 @keyframes sanctumGelBubbles{
  from{transform:translate3d(0,2px,0);opacity:.55}
@@ -180,7 +149,6 @@
  }
 }
 @media(prefers-reduced-motion:reduce){
- #manaStatBox #manaOrbFill .manaLiquidWave,
  #manaStatBox #manaOrbFill .manaLiquidBubbles,
  #manaStatBox #manaOrbFill .manaLiquidShimmer{
   animation:none!important;
