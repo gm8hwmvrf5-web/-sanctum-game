@@ -7,7 +7,7 @@
  margin:3px 0 6px!important;padding:0!important;gap:0!important;
  position:relative!important;top:auto!important;z-index:3!important;
  border:0!important;border-radius:0!important;
- background:transparent url('../../assets/hud/sanctum-mockup-bar.webp') center center / 100% 100% no-repeat!important;
+ background:transparent url('../../assets/hud/sanctum-mockup-bar.webp?v=2') center center / 100% 100% no-repeat!important;
  box-shadow:none!important;overflow:visible!important;backdrop-filter:none!important;
 }
 #topStatusBar.stats.compactRunStats>.stat{
