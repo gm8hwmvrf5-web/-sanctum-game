@@ -61,7 +61,7 @@
 }
 #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .turnTimerSandStream {
  z-index:2!important;
- width:2.2px!important;
+ width:2.42px!important;
  opacity:.18!important;
  pointer-events:none!important;
 }
