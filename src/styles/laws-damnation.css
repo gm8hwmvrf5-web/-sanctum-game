@@ -12,3 +12,29 @@
 /* Start-of-run law choices must be above setup/menu layers on small phones. */
 #rogueChoiceModal[data-law-choice="1"]{z-index:360!important}
 #rogueHud button.sanctumLawPending{cursor:pointer;min-height:22px;font:inherit;font-weight:700}
+
+/* One lightweight parchment behind every Law of Damnation choice;
+   the original choice actions, layout and gothic modal remain intact. */
+#rogueChoiceModal .lawDraftChoice{
+ background:#d7a35a url('../../assets/laws/law-parchment.svg') center / 100% 100% no-repeat !important;
+ color:#2b180f !important;
+ border:2px solid #74411f !important;
+ box-shadow:inset 0 0 12px rgba(71,30,11,.34),0 3px 10px rgba(0,0,0,.34);
+}
+#rogueChoiceModal .lawDraftChoice h3,
+#rogueChoiceModal .lawDraftChoice p,
+#rogueChoiceModal .lawDraftChoice .nodeIcon,
+#rogueChoiceModal .lawDraftChoice .nodeReward{
+ color:#2c160e !important;
+ text-shadow:0 1px 0 rgba(255,225,162,.4);
+}
+#rogueChoiceModal .lawDraftChoice .nodeReward{
+ color:#5b1b19 !important;
+ background:rgba(247,203,127,.22);
+ border-color:rgba(100,53,28,.4);
+}
+#rogueChoiceModal .lawDraftChoice:hover,
+#rogueChoiceModal .lawDraftChoice:focus-visible{
+ border-color:#b35731 !important;
+ filter:brightness(1.065);
+}
