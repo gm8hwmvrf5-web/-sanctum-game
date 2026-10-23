@@ -151,6 +151,7 @@
 <link rel="stylesheet" href="./src/styles/active-relics.css?v=clean119">
 <link rel="stylesheet" href="./src/styles/mana-gothic.css?v=clean132">
 <link rel="stylesheet" href="./src/styles/altar-gothic.css?v=clean133">
+<link rel="stylesheet" href="./src/styles/defeat-counter-gothic.css?v=clean134">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -205,7 +206,7 @@
       <b id="altarStat">30</b>
       <span>Altar Protection</span>
     </div>
-    <div class="stat"><b id="defeatStat">0 / 13</b><span>Base Defeats</span></div>
+    <div class="stat defeatCounterStat" id="defeatCounterStat" aria-label="Encounter Defeats"><b id="defeatStat">0 / 13</b><span>Encounter Defeats</span></div>
   </section>
   <div class="altarGuardStatus" id="altarGuardStatus" role="status" hidden></div>
 
