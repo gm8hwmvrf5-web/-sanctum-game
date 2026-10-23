@@ -43,22 +43,78 @@
  content:none!important;
  display:none!important;
 }
-#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill{
- z-index:1!important;
+/* Blue liquid reservoir: the game's existing #manaOrbFill height remains
+   the source of truth. Surface and bubbles are decorative and clipped to
+   the current fill level. */
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill {
  position:absolute!important;
+ z-index:1!important;
  left:0!important;
  right:0!important;
  bottom:0!important;
  width:auto!important;
  max-height:100%!important;
  border-radius:0!important;
- opacity:.24!important;
- background:linear-gradient(180deg,#3686bf 0%,#1a518d 55%,#0b2f64 100%)!important;
- box-shadow:none!important;
+ overflow:hidden!important;
+ pointer-events:none!important;
+ opacity:.82!important;
+ background:
+  radial-gradient(ellipse at 20% 70%,rgba(131,229,255,.27),transparent 48%),
+  radial-gradient(ellipse at 83% 35%,rgba(47,161,237,.35),transparent 48%),
+  linear-gradient(180deg,#47b8ef 0%,#1374c5 36%,#0b469c 72%,#09245f 100%)!important;
+ background-size:110% 100%,110% 100%,100% 100%!important;
+ box-shadow:inset 0 2px 4px rgba(179,239,255,.26),0 -1px 5px rgba(74,173,249,.24)!important;
+ transition:height .42s cubic-bezier(.22,.75,.35,1)!important;
+}
+/* Flowing curved meniscus at the top of the liquid. */
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::before {
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ z-index:1!important;
+ top:0!important;
+ left:-18%!important;
+ right:auto!important;
+ bottom:auto!important;
+ width:136%!important;
+ height:6px!important;
+ border:0!important;
+ border-radius:45% 55% 48% 52% / 70% 65% 40% 45%!important;
+ background:linear-gradient(180deg,rgba(217,250,255,.96),rgba(115,220,255,.7) 46%,rgba(54,153,225,0) 100%)!important;
+ box-shadow:0 1px 4px rgba(132,225,255,.28)!important;
+ opacity:.85!important;
+ transform:translateX(0);
+ animation:sanctumManaSurface 4.6s ease-in-out infinite alternate;
  pointer-events:none!important;
 }
-#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::before{
- display:none!important;
+/* Sparse bubbles and caustics visibly rising through the water. */
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::after {
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ z-index:1!important;
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ pointer-events:none!important;
+ opacity:.49!important;
+ background:
+  radial-gradient(circle at 14% 83%,rgba(207,249,255,.85) 0 1px,transparent 2px),
+  radial-gradient(circle at 36% 64%,rgba(172,235,255,.6) 0 1.5px,transparent 2.6px),
+  radial-gradient(circle at 73% 79%,rgba(188,239,255,.72) 0 1px,transparent 2px),
+  radial-gradient(circle at 88% 36%,rgba(186,238,255,.68) 0 1px,transparent 2px),
+  radial-gradient(ellipse at 55% 100%,rgba(158,230,255,.13),transparent 65%)!important;
+ background-repeat:repeat-y!important;
+ background-size:100% 45px,100% 58px,100% 49px,100% 65px,100% 100%!important;
+ animation:sanctumManaBubbles 8s linear infinite!important;
+}
+@keyframes sanctumManaSurface {
+ from{transform:translateX(-2%) scaleY(.85);opacity:.7}
+ to{transform:translateX(3%) scaleY(1.1);opacity:1}
+}
+@keyframes sanctumManaBubbles {
+ from{background-position:0 15px,0 24px,0 8px,0 31px,0 0}
+ to{background-position:0 -30px,0 -34px,0 -41px,0 -34px,0 0}
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > .manaMeterGlow{
  z-index:2!important;
@@ -133,5 +189,26 @@
  }
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat{
   font-size:14px!important;
+ }
+}
+
+
+/* On tiny landscape HUDs, show the moving waterline but avoid busy bubbles. */
+@media (orientation:landscape) and (max-height:520px){
+ #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::before{
+  height:3px!important;
+  box-shadow:none!important;
+ }
+ #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::after{
+  opacity:.22!important;
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::before,
+ #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::after{
+  animation:none!important;
+ }
+ #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill{
+  transition:none!important;
  }
 }
