@@ -998,9 +998,11 @@
     padding:1px !important;
     border-radius:5px !important;
   }
+  /* Top HUD +10% height in phone landscape: 18px -> 19.8px.
+     Maintain the existing width, typography, hourglass and sand bounds. */
   #topStatusBar .stat{
-    min-height:18px !important;
-    height:18px !important;
+    min-height:19.8px !important;
+    height:19.8px !important;
     padding:0 2px !important;
     border-radius:4px !important;
   }
