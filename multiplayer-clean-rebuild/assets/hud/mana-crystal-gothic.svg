@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-label="Blue Mana crystal">
+<defs>
+ <radialGradient id="night" cx="35%" cy="32%" r="70%"><stop stop-color="#173d65"/><stop offset=".56" stop-color="#0a203b"/><stop offset="1" stop-color="#050b17"/></radialGradient>
+ <linearGradient id="gold" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f0d596"/><stop offset=".34" stop-color="#8e622b"/><stop offset=".62" stop-color="#e6b767"/><stop offset="1" stop-color="#75451d"/></linearGradient>
+ <linearGradient id="facet" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#89f1ff"/><stop offset=".36" stop-color="#218fe9"/><stop offset=".75" stop-color="#06377f"/><stop offset="1" stop-color="#021a51"/></linearGradient>
+ <linearGradient id="dark" x1="0" x2=".6" y1="0" y2="1"><stop stop-color="#073777"/><stop offset=".5" stop-color="#05235b"/><stop offset="1" stop-color="#021337"/></linearGradient>
+ <linearGradient id="ice" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#a3fbff"/><stop offset=".55" stop-color="#3db9f9"/><stop offset="1" stop-color="#155ac0"/></linearGradient>
+</defs>
+<circle cx="36" cy="36" r="33" fill="#070b10" stroke="#553715" stroke-width="2"/>
+<circle cx="36" cy="36" r="30.5" fill="url(#night)" stroke="url(#gold)" stroke-width="2.4"/>
+<circle cx="36" cy="36" r="27.5" fill="none" stroke="#886939" stroke-width=".85" opacity=".8"/>
+<path d="M36 9 21 35.5 36 63 51 35.5Z" fill="url(#facet)" stroke="#b7eaff" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M36 9 21 35.5 36 33Z" fill="#63d3fd"/>
+<path d="M36 9 51 35.5 36 33Z" fill="#104f9c"/>
+<path d="M21 35.5 36 33 36 63Z" fill="url(#dark)"/>
+<path d="M51 35.5 36 33 36 63Z" fill="#1274d5"/>
+<path d="M36 9V63M21 35.5h30" fill="none" stroke="#b6ecff" stroke-width=".8" opacity=".54"/>
+<path d="m31 20 5-8-2.4 20-7 2Z" fill="url(#ice)" opacity=".88"/>
+<path d="m42 44-6 17 10-23Z" fill="#69d8ff" opacity=".68"/>
+<path d="M36 4v5M36 63v5M3 36h8M61 36h8" stroke="#d7a75c" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M36 1.5 38 4l-2 2.5L34 4Z" fill="#e5bd71"/>
+</svg>
