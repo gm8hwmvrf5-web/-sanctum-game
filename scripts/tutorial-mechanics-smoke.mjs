@@ -72,13 +72,58 @@ try{
       images:[...document.querySelectorAll('#rogueChoiceGrid .ward-draft-art')].map(x=>getComputedStyle(x).backgroundImage)
      }));
      assert(demo.open&&demo.type===expected&&demo.names.length===3,'Correct practice choice opens automatically '+JSON.stringify(demo));
-     if(expected==='ward')assert(demo.images.length===3&&demo.images.every(x=>x.includes('ward-')),'Ward options show real artwork');
+     if(expected==='ward'){
+      const images=await page.evaluate(async()=>{
+       const imgs=[...document.querySelectorAll('#rogueChoiceGrid .rogueTutorialWardIllustration')];
+       await Promise.all(imgs.map(i=>i.decode()));
+       return imgs.map(img=>({
+        src:img.getAttribute('src'),ready:img.complete,
+        width:img.naturalWidth,height:img.naturalHeight,
+        rendered:getComputedStyle(img).display,rect:img.getBoundingClientRect().toJSON()
+       }));
+      });
+      assert.equal(images.length,3,'All three Ward cards must contain an explicit artwork image');
+      assert(images.every(x=>x.src.includes('/wards/ward-')&&x.width>40&&x.height>40&&x.rendered!=='none'&&x.rect.width>10&&x.rect.height>8),
+       'Ward illustrations must load, decode and be visible, not just a CSS fallback '+JSON.stringify(images));
+     }
      await page.locator('#rogueChoiceGrid [data-tutorial-demo-option="0"]').click();
      assert(await page.locator('#rogueChoiceModal').evaluate(el=>el.classList.contains('hidden')),'Practice choice closes after selection');
      assert((await page.locator('#rogueTutorialTask').textContent()).includes('Practice choice'),'Selection is explained');
      const untouched=await page.evaluate(()=>({laws:S.rogue.laws.active,ward:S.wardcraft?.active}));
      assert.equal(untouched.laws.length,0,'Practice Laws do not change live game state');
      assert(!untouched.ward,'Practice Wards do not consume real resources');
+    }
+    if(state.title==='Crucifix Cards — Hidden Surprises'){
+      const modal=page.locator('#crucifixModal');
+      assert(await modal.evaluate(x=>!x.classList.contains('hidden')&&x.classList.contains('rogueTutorialCrucifixDemo')),
+       'Crucifix example should open automatically');
+      const sample=await page.evaluate(async()=>{
+        const image=document.querySelector('#crucifixModal .rogueTutorialCrucifixIllustration');
+        await image.decode();
+        return {name:document.getElementById('crucifixName').textContent,
+         type:document.getElementById('crucifixType').textContent,
+         text:document.getElementById('crucifixEffect').textContent,
+         image: {source:image.getAttribute('src'),w:image.naturalWidth,h:image.naturalHeight},
+         result:document.getElementById('crucifixResult').textContent,
+         deck:S.crucifixDeck.length,discard:S.crucifixDiscard.length,
+         altar:S.altar,mana:S.mana};
+      });
+      assert(sample.name==='Sealed Passage'&&sample.type==='Blessing'&&sample.text.includes('Gateway'),JSON.stringify(sample));
+      assert(sample.image.w>40&&sample.image.h>40&&sample.image.source.endsWith('.webp'),'Existing Crucifix art loads '+JSON.stringify(sample));
+      assert(sample.result.includes('TUTORIAL ONLY'),'No side effects promised '+JSON.stringify(sample));
+      await page.locator('#crucifixModal .rogueTutorialCrucifixAgain').click();
+      const example=await page.evaluate(()=>({
+       name:document.getElementById('crucifixName').textContent,
+       type:document.getElementById('crucifixType').textContent,
+       deck:S.crucifixDeck.length,discard:S.crucifixDiscard.length,
+       altar:S.altar,mana:S.mana
+      }));
+      assert(example.name==='Shattered Reliquary'&&example.type==='Curse','Second reveal demonstrates negative Crucifix');
+      assert.deepEqual({deck:example.deck,discard:example.discard,altar:example.altar,mana:example.mana},
+       {deck:sample.deck,discard:sample.discard,altar:sample.altar,mana:sample.mana},
+       'Tutorial Crucifix must never draw a card or apply effects');
+      await page.locator('#crucifixClose').click();
+      assert(await modal.evaluate(x=>x.classList.contains('hidden')),'Demo Crucifix closes to tutorial');
     }
     if(state.title==='Linked Demons — Blood Bonds'){
      await page.locator('#rogueTutorialHelperBtn').click();

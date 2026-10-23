@@ -26,7 +26,7 @@ assert.deepEqual(manifest.icons.map(x=>x.src),[
 assert.equal(manifest.start_url,'./','existing saved-game origin/start URL must remain unchanged');
 assert.equal(manifest.display,'standalone','app mode must remain available');
 const sw=readFileSync('service-worker.js','utf8');
-assert(sw.includes("sanctum-clean-v104"),'fresh offline cache required');
+assert(sw.includes("sanctum-clean-v105"),'fresh offline cache required');
 for(const path of [root,rootFallback,'icons/sanctum-icon-192-v101.png','icons/sanctum-icon-512-v101.png']){
  assert(sw.includes("'./"+path+"'"),'cache new icon path '+path);
 }

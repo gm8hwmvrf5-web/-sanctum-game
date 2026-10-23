@@ -69,3 +69,35 @@ body.rogue-tutorial-active #rogueChoiceModal.rogueTutorialDemoModal .rogueTutori
   height:65px !important;
  }
 }
+
+/* Actual Ward artwork in practice-choice cards, independent of CSS URL
+   parsing by iOS WebKit; keep the original ward-image as a fallback. */
+body.rogue-tutorial-active #rogueChoiceModal.rogueTutorialDemoModal .ward-draft-art{
+ position:relative;overflow:hidden;
+}
+body.rogue-tutorial-active #rogueChoiceModal.rogueTutorialDemoModal .rogueTutorialWardIllustration{
+ display:block !important;
+ width:100% !important;
+ height:100% !important;
+ object-fit:cover !important;
+ object-position:center 64% !important;
+ opacity:1 !important;
+}
+/* A safe Crucifix reveal with actual existing card artwork. */
+body.rogue-tutorial-active #crucifixModal.rogueTutorialCrucifixDemo{z-index:360 !important}
+body.rogue-tutorial-active #crucifixModal.rogueTutorialCrucifixDemo .crucifixBox{
+ max-height:calc(100dvh - 14px) !important;
+ overflow-y:auto !important;
+}
+body.rogue-tutorial-active .rogueTutorialCrucifixIllustration{
+ display:block;width:100%;height:clamp(80px,20dvh,158px);
+ object-fit:cover;object-position:center 38%;
+ border:1px solid #765234;border-radius:5px;
+ margin:7px auto 9px;
+}
+body.rogue-tutorial-active .rogueTutorialCrucifixAgain{
+ display:block;margin:9px auto 0;min-height:29px;
+}
+@media(orientation:landscape) and (max-height:520px){
+ body.rogue-tutorial-active .rogueTutorialCrucifixIllustration{height:72px}
+}
