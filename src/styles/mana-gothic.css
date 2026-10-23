@@ -186,3 +186,125 @@
     font-size:7px!important;
   }
 }
+
+
+
+/* Mana centering + sharp crystal, matched to the original blue-gold
+   Gothic reference. The previously stretched banner baked in a blurry
+   blue gem and leftover lettering, so draw the enamel background with
+   CSS and render a dedicated resolution-independent crystal instead. */
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
+  position:relative!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(ellipse at 18% 47%,rgba(29,116,199,.28),transparent 42%),
+    radial-gradient(ellipse at 52% 0%,rgba(96,165,234,.18),transparent 66%),
+    repeating-linear-gradient(123deg,transparent 0 19px,rgba(151,204,249,.027) 19px 20px),
+    linear-gradient(180deg,#163a67 0%,#0d2b50 43%,#081d3d 100%)!important;
+  border-color:#a77b40!important;
+  box-shadow:inset 0 0 0 1px #071322,inset 0 0 0 3px rgba(178,127,59,.46),inset 0 0 14px rgba(0,0,0,.46),0 0 0 1px #140c09,0 2px 6px rgba(0,0,0,.45)!important;
+}
+/* Full-size faceted blue crystal in its own Gothic setting. */
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
+  content:""!important;
+  position:absolute!important;
+  display:block!important;
+  z-index:9!important;
+  pointer-events:none!important;
+  inset:auto!important;
+  top:50%!important;
+  left:5px!important;
+  transform:translateY(-50%)!important;
+  width:clamp(29px,3vw,44px)!important;
+  height:clamp(29px,3vw,44px)!important;
+  max-height:calc(100% - 4px)!important;
+  box-sizing:border-box!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:url('../../assets/hud/mana-crystal-gothic.svg') center/contain no-repeat!important;
+  box-shadow:0 1px 4px rgba(0,0,0,.7),0 0 7px rgba(23,113,209,.34)!important;
+  filter:none!important;
+}
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat,
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
+  position:absolute!important;
+  display:block!important;
+  left:0!important;
+  right:0!important;
+  top:55%!important;
+  bottom:auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:0 5px!important;
+  line-height:1!important;
+  text-align:center!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  z-index:10!important;
+  text-shadow:0 1px 3px #001020,0 0 6px rgba(0,0,0,.85)!important;
+}
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat{
+  transform:translateY(-100%)!important;
+  font-size:clamp(14px,1.28vw,19px)!important;
+  color:#eefaff!important;
+}
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
+  transform:translateY(0)!important;
+  font-size:clamp(7px,.68vw,9px)!important;
+  color:#daefff!important;
+}
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill{
+  left:0!important;
+  right:0!important;
+  max-height:100%!important;
+  opacity:.16!important;
+}
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > .manaMeterGlow{
+  opacity:.2!important;
+}
+#topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > .meterGlass{
+  opacity:.13!important;
+}
+@media (orientation:landscape) and (max-height:520px){
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
+    left:1px!important;
+    width:clamp(13px,2.3vw,19px)!important;
+    height:clamp(13px,2.3vw,19px)!important;
+    max-height:calc(100% - 2px)!important;
+    box-shadow:none!important;
+  }
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat,
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
+    left:0!important;
+    right:0!important;
+    top:60%!important;
+    width:100%!important;
+    padding:0 2px!important;
+  }
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat{
+    font-size:clamp(8px,1vw,10px)!important;
+  }
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
+    font-size:clamp(4.5px,.6vw,5.5px)!important;
+  }
+}
+@media (orientation:portrait) and (max-width:520px){
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
+    left:2px!important;
+    width:clamp(22px,6.3vw,30px)!important;
+    height:clamp(22px,6.3vw,30px)!important;
+  }
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat{
+    font-size:14px!important;
+  }
+  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
+    font-size:7px!important;
+  }
+}
