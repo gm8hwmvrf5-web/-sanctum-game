@@ -1,328 +1,156 @@
-/* PASS 1 — Gothic status HUD, purely presentational.
-   Preserve existing IDs, meter fill values, tutorial, Supabase and turn timer.
-   Loaded last to override historical mobile/compact HUD patches. */
-#topStatusBar.stats.compactRunStats {
- display:grid !important;
- grid-template-columns:minmax(215px,1.72fr) repeat(4,minmax(0,1fr)) !important;
- align-items:stretch !important;
- gap:3px !important;
- box-sizing:border-box;
- position:relative !important;
- width:100% !important;
- margin:4px 0 6px !important;
- padding:3px !important;
- top:auto !important;
- background:linear-gradient(180deg,#38291a 0%,#a77c40 4%,#26180f 9%,#090909 50%,#51351b 93%,#bb9250 100%) !important;
- border:1px solid #5b4123 !important;
- border-radius:6px !important;
- box-shadow:inset 0 0 0 1px #070606,0 2px 9px rgba(0,0,0,.7) !important;
- overflow:visible !important;
+/* Sanctum Gothic HUD — mockup-matched art, with real live values.
+   Only appearance changes. All existing timer/mana/altar/defeat bindings remain. */
+#topStatusBar.stats.compactRunStats{
+ display:grid!important;grid-template-columns:22.8fr 16.2fr 16.8fr 18.5fr 25.7fr!important;
+ width:100%!important;box-sizing:border-box!important;
+ height:clamp(78px,5.3vw,107px)!important;min-height:0!important;
+ margin:3px 0 6px!important;padding:0!important;gap:0!important;
+ position:relative!important;top:auto!important;z-index:3!important;
+ border:0!important;border-radius:0!important;
+ background:transparent url('../../assets/hud/sanctum-mockup-bar.webp') center center / 100% 100% no-repeat!important;
+ box-shadow:none!important;overflow:visible!important;backdrop-filter:none!important;
 }
-#topStatusBar.stats.compactRunStats > .stat {
- position:relative !important;
- isolation:isolate;
- box-sizing:border-box !important;
- display:flex !important;
- flex-direction:column !important;
- align-items:center !important;
- justify-content:center !important;
- gap:1px !important;
- min-width:0 !important;
- min-height:55px !important;
- height:55px !important;
- padding:5px 7px !important;
- margin:0 !important;
- border:1px solid #896938 !important;
- border-radius:4px !important;
- overflow:hidden !important;
- background:
-   repeating-linear-gradient(108deg,transparent 0 16px,rgba(208,173,104,.017) 16px 17px),
-   radial-gradient(ellipse at 50% 0%,rgba(111,75,45,.2),transparent 74%),
-   linear-gradient(180deg,#201b18 0%,#0a0b0d 58%,#15100e 100%) !important;
- box-shadow:inset 0 1px 0 rgba(243,205,135,.17),inset 0 0 14px rgba(0,0,0,.88),0 0 0 1px #0b0807 !important;
- text-align:center !important;
+#topStatusBar.stats.compactRunStats>.stat{
+ display:block!important;position:relative!important;isolation:isolate;
+ box-sizing:border-box!important;min-width:0!important;min-height:0!important;
+ height:100%!important;width:100%!important;padding:0!important;margin:0!important;
+ overflow:visible!important;border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;
 }
-#topStatusBar.stats.compactRunStats > .stat::before {
- content:"" !important;
- display:block !important;
- position:absolute !important;
- inset:3px !important;
- z-index:3;
- pointer-events:none;
- border-top:1px solid rgba(207,158,76,.55);
- border-bottom:1px solid rgba(207,158,76,.48);
- border-left:1px solid rgba(148,108,57,.28);
- border-right:1px solid rgba(148,108,57,.28);
- border-radius:2px;
- box-shadow:inset 0 0 7px rgba(0,0,0,.45);
+#topStatusBar.stats.compactRunStats>.stat::before,
+#topStatusBar.stats.compactRunStats>.stat::after{content:none!important;display:none!important}
+#topStatusBar.stats.compactRunStats>#relicXpMeterStat{display:none!important}
+#topStatusBar.stats.compactRunStats .meterGlass,
+#topStatusBar.stats.compactRunStats .manaMeterGlow{display:none!important}
+/* The old liquid meters still receive engine updates, but become subtle fill under the live labels. */
+#topStatusBar.stats.compactRunStats #turnTimerFill,
+#topStatusBar.stats.compactRunStats #manaOrbFill,
+#topStatusBar.stats.compactRunStats #altarMeterFill{
+ display:block!important;position:absolute!important;bottom:24%!important;top:auto!important;
+ height:var(--meter-height,0%);left:30%!important;right:11%!important;width:auto!important;
+ opacity:.07!important;border-radius:3px!important;box-shadow:none!important;pointer-events:none!important;z-index:1!important;
 }
-#topStatusBar.stats.compactRunStats > .stat::after {
- content:"◆" !important;
- display:block !important;
- position:absolute;
- z-index:5;
- right:2px;
- top:50%;
- transform:translate(50%,-50%) rotate(45deg);
- font:9px/1 Georgia,serif;
- color:#c69a4d;
- text-shadow:0 1px 1px #000,0 0 4px #e5b764;
- pointer-events:none;
+#topStatusBar.stats.compactRunStats #turnTimerFill{background:#b7873e!important}
+#topStatusBar.stats.compactRunStats #manaOrbFill{background:#2898f4!important}
+#topStatusBar.stats.compactRunStats #altarMeterFill{background:#e2b34b!important}
+#topStatusBar.stats.compactRunStats .meterFill::before,
+#topStatusBar.stats.compactRunStats .manaMeterFill::before{display:none!important}
+/* Reuse the original art medallions at their correct proportions. */
+#topStatusBar.stats.compactRunStats .sanctumHudEmblem{
+ display:block!important;position:absolute!important;z-index:4!important;
+ top:50%!important;transform:translate(-50%,-50%)!important;
+ width:clamp(44px,5vw,83px)!important;height:clamp(44px,5vw,83px)!important;
+ min-width:0!important;margin:0!important;padding:0!important;
+ border:none!important;border-radius:50%!important;
+ background-image:url('../../assets/hud/sanctum-mockup-emblems.webp')!important;
+ background-size:400% 100%!important;background-repeat:no-repeat!important;
+ box-shadow:none!important;pointer-events:none!important;
 }
-#topStatusBar.stats.compactRunStats > .stat:last-child::after {content:"✦" !important;transform:translate(20%,-50%)}
-#topStatusBar.stats.compactRunStats .stat > b,
-#topStatusBar.stats.compactRunStats .stat > span:not(.meterFill) {
- position:relative !important;
- z-index:6 !important;
- white-space:nowrap !important;
- pointer-events:none;
+#topStatusBar.stats.compactRunStats .sanctumHudEmblem svg{display:none!important}
+#topStatusBar.stats.compactRunStats #turnTimerStat .sanctumHudEmblem{left:17%!important;background-position:0% 0%!important}
+#topStatusBar.stats.compactRunStats #manaStatBox .sanctumHudEmblem{left:17%!important;background-position:33.333% 0%!important}
+#topStatusBar.stats.compactRunStats #altarStatBox .sanctumHudEmblem{left:20%!important;background-position:66.667% 0%!important}
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat .sanctumHudEmblem{left:15%!important;background-position:100% 0%!important}
+/* Numeric HTML stays live; the background has no baked-in numbers or text. */
+#topStatusBar.stats.compactRunStats .stat>b{
+ position:absolute!important;top:44%!important;left:60%!important;transform:translate(-50%,-50%)!important;
+ display:block!important;width:max-content!important;max-width:65%!important;
+ margin:0!important;padding:0!important;z-index:7!important;
+ font:700 clamp(16px,1.8vw,30px)/1 Georgia,'Times New Roman',serif!important;
+ letter-spacing:.1px!important;text-align:center!important;white-space:nowrap!important;
+ color:#f7deab!important;text-shadow:0 2px 3px rgba(0,0,0,.9),0 0 5px #160c06!important;
 }
-#topStatusBar.stats.compactRunStats .stat > b {
- display:block;
- margin:0 !important;
- font-family:Georgia,"Times New Roman",serif;
- font-size:clamp(15px,1.36vw,23px) !important;
- font-weight:700;
- line-height:1.07 !important;
- letter-spacing:.15px;
- color:#f2d7a5 !important;
- text-shadow:0 2px 2px #000,0 0 10px rgba(196,125,49,.3) !important;
+#topStatusBar.stats.compactRunStats #turnTimerStat>b{left:61%!important;color:#f4cf76!important}
+#topStatusBar.stats.compactRunStats #manaStatBox>b{left:64%!important;color:#e5f5ff!important}
+#topStatusBar.stats.compactRunStats #altarStatBox>b{left:64%!important;color:#fff1bd!important}
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat>b{left:54%!important;color:#f9ddc4!important}
+#topStatusBar.stats.compactRunStats .stat>span:not(.runProgressPair){
+ display:block!important;position:absolute!important;top:65%!important;left:60%!important;
+ transform:translate(-50%,-50%)!important;
+ width:max-content!important;max-width:76%!important;margin:0!important;padding:0!important;
+ font:700 clamp(8px,.77vw,13px)/1 Georgia,'Times New Roman',serif!important;
+ letter-spacing:.25px!important;text-align:center!important;text-transform:uppercase!important;
+ white-space:nowrap!important;z-index:7!important;color:#ead4a4!important;
+ text-shadow:0 1px 3px #000!important;
 }
-#topStatusBar.stats.compactRunStats .stat > span:not(.runProgressPair) {
- display:block;
- margin:1px 0 0 !important;
- color:#ddbf81 !important;
- font-family:Georgia,"Times New Roman",serif;
- font-size:clamp(7px,.66vw,10px) !important;
- font-weight:700;
- letter-spacing:.35px !important;
- line-height:1.05 !important;
- text-transform:uppercase;
- text-shadow:0 1px 2px #000 !important;
-}
-#topStatusBar.stats.compactRunStats .runProgressStat {
- flex-direction:column !important;
- padding:4px 10px !important;
-}
+#topStatusBar.stats.compactRunStats #turnTimerStat>span{left:61%!important;color:#e6c779!important}
+#topStatusBar.stats.compactRunStats #manaStatBox>span{left:64%!important;color:#c8e6fc!important}
+#topStatusBar.stats.compactRunStats #altarStatBox>span{left:64%!important;color:#5c290b!important;text-shadow:0 1px rgba(249,222,161,.5)!important}
+#topStatusBar.stats.compactRunStats .sanctumDefeatStat>span{left:54%!important;color:#e9bf8a!important}
+/* The four counters in the left parchment panel. */
 #topStatusBar.stats.compactRunStats .runProgressStat .runProgressPair{
- width:100%;
- flex:0 0 auto;
- min-height:0 !important;
- height:auto !important;
- margin:0 !important;
- padding:0 !important;
- display:flex;
- justify-content:space-between !important;
- align-items:center !important;
- gap:2px !important;
+ position:absolute!important;z-index:6!important;top:33%!important;left:13%!important;
+ width:80%!important;height:28%!important;display:flex!important;
+ justify-content:space-between!important;align-items:center!important;
+ padding:0!important;margin:0!important;gap:0!important;
 }
 #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk{
- display:flex;
- flex:1 1 0;
- min-width:0;
- flex-direction:column;
- gap:3px !important;
- align-items:center;
- justify-content:center;
+ flex:1 1 0!important;min-width:0!important;height:auto!important;
+ display:flex!important;flex-direction:column!important;gap:4px!important;
+ justify-content:center!important;align-items:center!important;
+ text-align:center!important;
 }
 #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk em{
- color:#ccb17d !important;
- font-family:Georgia,"Times New Roman",serif;
- font-weight:700;
- font-size:clamp(7px,.65vw,10px) !important;
- letter-spacing:.35px !important;
- line-height:1 !important;
- font-style:normal;
+ display:block!important;color:#613116!important;
+ font:700 clamp(7px,.68vw,12px)/1 Georgia,'Times New Roman',serif!important;
+ letter-spacing:.1px!important;text-shadow:0 1px rgba(255,231,172,.36)!important;
 }
 #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{
- color:#f4ddb2 !important;
- font:700 clamp(11px,.96vw,17px)/1.05 Georgia,serif !important;
- text-shadow:0 1px 3px #000,0 0 7px rgba(190,146,67,.32);
+ display:block!important;color:#4b1f10!important;
+ font:700 clamp(12px,1.12vw,20px)/1.05 Georgia,'Times New Roman',serif!important;
+ letter-spacing:0!important;text-shadow:0 1px rgba(244,218,156,.48)!important;
 }
 #topStatusBar.stats.compactRunStats .runProgressStat .runProgressDivider{
- flex:0 0 1px;
- width:1px;
- height:28px !important;
- background:linear-gradient(180deg,transparent,#be985a 23%,#b8894c 75%,transparent) !important;
- box-shadow:1px 0 3px rgba(0,0,0,.7);
+ display:block!important;flex:0 0 1px!important;width:1px!important;height:25px!important;
+ background:linear-gradient(transparent,#88522e,transparent)!important;
 }
-#topStatusBar.stats.compactRunStats .runProgressStat > span{
- position:relative !important;
- z-index:5 !important;
- color:#c5a06b !important;
- font-size:8px !important;
- letter-spacing:1px !important;
- margin-top:4px !important;
+#topStatusBar.stats.compactRunStats .runProgressStat>span{
+ position:absolute!important;top:67%!important;left:52%!important;
+ width:max-content!important;max-width:85%!important;
+ transform:translate(-50%,-50%)!important;
+ color:#5e3217!important;font:700 clamp(8px,.75vw,13px)/1 Georgia,'Times New Roman',serif!important;
+ text-transform:uppercase!important;letter-spacing:.25px!important;
+ text-shadow:0 1px rgba(244,218,156,.5)!important;
 }
-#topStatusBar.stats.compactRunStats #relicXpMeterStat{display:none !important}
-/* Colored enamel plaques — fill heights remain controlled by the engine. */
-#topStatusBar.stats.compactRunStats #turnTimerStat {
- background:
-  radial-gradient(circle at 24% 50%,rgba(157,68,25,.2),transparent 50%),
-  linear-gradient(180deg,#251a15,#0e0e11 62%,#1b1110) !important;
- border-color:#9a6b3c !important;
-}
-#topStatusBar.stats.compactRunStats #manaStatBox{
- background:
-  radial-gradient(ellipse at 24% 50%,rgba(26,138,231,.3),transparent 62%),
-  repeating-linear-gradient(132deg,transparent 0 17px,rgba(87,162,239,.05) 17px 19px),
-  linear-gradient(180deg,#102942,#071422 58%,#0b1c32) !important;
- border-color:#5986a5 !important;
-}
-#topStatusBar.stats.compactRunStats #altarStatBox{
- background:
-  radial-gradient(ellipse at 24% 50%,rgba(217,162,52,.23),transparent 60%),
-  repeating-linear-gradient(124deg,transparent 0 18px,rgba(222,184,92,.04) 18px 20px),
-  linear-gradient(180deg,#423018,#1b160e 58%,#2f2413) !important;
- border-color:#b38a43 !important;
-}
-#topStatusBar.stats.compactRunStats .sanctumDefeatStat{
- background:
-  radial-gradient(ellipse at 20% 50%,rgba(153,28,38,.22),transparent 55%),
-  linear-gradient(180deg,#211316,#0d0a0e 60%,#170e10) !important;
- border-color:#82464a !important;
-}
-#topStatusBar.stats.compactRunStats #turnTimerStat .meterGlass,
-#topStatusBar.stats.compactRunStats #manaStatBox .meterGlass,
-#topStatusBar.stats.compactRunStats #altarStatBox .meterGlass{
- z-index:2 !important;
- opacity:.30 !important;
-}
-#topStatusBar.stats.compactRunStats #turnTimerFill{
- z-index:1 !important;
- opacity:.17;
- background:linear-gradient(180deg,#d5b874,#a97632) !important;
- box-shadow:0 -1px 5px rgba(205,142,62,.55) !important;
-}
-#topStatusBar.stats.compactRunStats #manaOrbFill{
- z-index:1 !important;
- opacity:.36;
- background:linear-gradient(180deg,#3aadeb,#104d8f) !important;
- box-shadow:0 -1px 6px rgba(35,144,240,.5) !important;
-}
-#topStatusBar.stats.compactRunStats #altarMeterFill{
- z-index:1 !important;
- opacity:.36;
- background:linear-gradient(180deg,#e7bf67,#7b501b) !important;
- box-shadow:0 -1px 6px rgba(219,169,74,.5) !important;
-}
-#topStatusBar.stats.compactRunStats #turnTimerStat b{color:#ffdeb2 !important}
-#topStatusBar.stats.compactRunStats #manaStatBox #manaStat{color:#d5eeff !important;text-shadow:0 1px 2px #000,0 0 9px rgba(45,149,241,.65) !important}
-#topStatusBar.stats.compactRunStats #manaStatBox > span{color:#c7e5f9 !important}
-#topStatusBar.stats.compactRunStats #altarStatBox #altarStat{color:#ffe8ae !important;text-shadow:0 1px 2px #000,0 0 8px rgba(227,174,68,.62) !important}
-#topStatusBar.stats.compactRunStats .sanctumDefeatStat > b{color:#f5d7bb !important}
-/* Each emblem is fixed decorative SVG, not an interactive control. */
-#topStatusBar.stats.compactRunStats .sanctumHudEmblem{
- position:absolute !important;
- left:7px;
- top:50%;
- transform:translateY(-50%);
- z-index:5;
- display:grid !important;
- place-items:center;
- width:34px;height:34px;
- border:1px solid #a37c43;
- border-radius:50%;
- color:#e5b966;
- background:radial-gradient(circle at 35% 30%,#4c3821,#0b0b0c 70%);
- box-shadow:inset 0 0 0 2px #15100c,inset 0 0 0 3px rgba(183,130,57,.35),0 1px 5px #000;
- pointer-events:none;
- font-style:normal;
-}
-#topStatusBar.stats.compactRunStats .sanctumHudEmblem svg{
- display:block;width:22px;height:22px;
- stroke:currentColor;fill:none;stroke-width:1.65;
- stroke-linejoin:round;stroke-linecap:round;
- filter:drop-shadow(0 0 2px rgba(244,189,91,.37));
-}
-#topStatusBar.stats.compactRunStats #manaStatBox .sanctumHudEmblem{
- color:#64c5ff;border-color:#5da3cf;
- box-shadow:inset 0 0 0 2px #06101b,inset 0 0 0 3px rgba(42,142,214,.38),0 0 7px rgba(27,102,160,.4);
-}
-#topStatusBar.stats.compactRunStats #altarStatBox .sanctumHudEmblem{
- color:#f1c45d;border-color:#c4a052;
-}
-#topStatusBar.stats.compactRunStats .sanctumDefeatStat .sanctumHudEmblem{
- color:#e87979;border-color:#9a5150;background:radial-gradient(circle at 38% 35%,#35191c,#0c0a0b 74%);
-}
-#topStatusBar.stats.compactRunStats .stat:has(> .sanctumHudEmblem) > b,
-#topStatusBar.stats.compactRunStats .stat:has(> .sanctumHudEmblem) > span:not(.meterFill){
- padding-left:26px !important;
-}
-/* Use the non-:has fallbacks for older WebKit. */
-#topStatusBar.stats.compactRunStats #turnTimerStat > b,
-#topStatusBar.stats.compactRunStats #turnTimerStat > span,
-#topStatusBar.stats.compactRunStats #manaStatBox > b,
-#topStatusBar.stats.compactRunStats #manaStatBox > span,
-#topStatusBar.stats.compactRunStats #altarStatBox > b,
-#topStatusBar.stats.compactRunStats #altarStatBox > span,
-#topStatusBar.stats.compactRunStats .sanctumDefeatStat > b,
-#topStatusBar.stats.compactRunStats .sanctumDefeatStat > span{
- padding-left:27px !important;
-}
-#topStatusBar.stats.compactRunStats #turnTimerStat.warning{
- border-color:#c18a47 !important;
-}
-#topStatusBar.stats.compactRunStats #turnTimerStat.critical{
- border-color:#cd5960 !important;
- background:linear-gradient(180deg,#371619,#100a0c) !important;
-}
-#topStatusBar.stats.compactRunStats #turnTimerStat.critical .sanctumHudEmblem{color:#ed7171;border-color:#bd5857}
-/* iPhone landscape: remain a single 5-panel row, matching the current HUD footprint. */
+#topStatusBar.stats.compactRunStats #turnTimerStat.critical>b{color:#f6a0a0!important}
+#topStatusBar.stats.compactRunStats #turnTimerStat.warning>b{color:#ffe298!important}
+/* On iPhone landscape preserve a compact single row and avoid covering rooms/cards. */
 @media (orientation:landscape) and (max-height:520px){
  #topStatusBar.stats.compactRunStats{
-  position:sticky !important;top:0 !important;z-index:45 !important;
-  grid-template-columns:minmax(172px,1.65fr) repeat(4,minmax(0,1fr)) !important;
-  gap:2px !important;padding:2px !important;margin:2px 0 3px !important;
+  position:sticky!important;top:0!important;z-index:45!important;
+  height:clamp(40px,6vw,54px)!important;margin:2px 0 3px!important;
+  grid-template-columns:22.8fr 16.2fr 16.8fr 18.5fr 25.7fr!important;
  }
- #topStatusBar.stats.compactRunStats > .stat{
-  height:34px !important;min-height:34px !important;
-  padding:2px 2px !important;
+ #topStatusBar.stats.compactRunStats .sanctumHudEmblem{
+  width:clamp(26px,4vw,38px)!important;height:clamp(26px,4vw,38px)!important;
  }
- #topStatusBar.stats.compactRunStats .stat > b{font-size:clamp(11px,1.8vw,15px) !important}
- #topStatusBar.stats.compactRunStats .stat > span:not(.runProgressPair){font-size:clamp(6px,1vw,7px) !important;letter-spacing:0 !important}
- #topStatusBar.stats.compactRunStats .runProgressStat{padding:2px 5px !important}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressPair{height:auto !important;gap:1px !important}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk{gap:1px !important}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk em{font-size:clamp(5.5px,.85vw,7px) !important;letter-spacing:0 !important}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{font-size:clamp(9px,1.35vw,11px) !important}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressDivider{height:17px !important}
- #topStatusBar.stats.compactRunStats .runProgressStat > span{margin-top:0 !important;font-size:5.5px !important}
- #topStatusBar.stats.compactRunStats .sanctumHudEmblem{left:3px;width:23px;height:23px}
- #topStatusBar.stats.compactRunStats .sanctumHudEmblem svg{width:15px;height:15px}
- #topStatusBar.stats.compactRunStats #turnTimerStat > b,
- #topStatusBar.stats.compactRunStats #turnTimerStat > span,
- #topStatusBar.stats.compactRunStats #manaStatBox > b,
- #topStatusBar.stats.compactRunStats #manaStatBox > span,
- #topStatusBar.stats.compactRunStats #altarStatBox > b,
- #topStatusBar.stats.compactRunStats #altarStatBox > span,
- #topStatusBar.stats.compactRunStats .sanctumDefeatStat > b,
- #topStatusBar.stats.compactRunStats .sanctumDefeatStat > span{padding-left:19px !important}
-}
-/* Tablet landscape / narrower desktop: preserve one row above 640px. */
-@media (min-height:521px) and (max-width:980px){
- #topStatusBar.stats.compactRunStats{grid-template-columns:minmax(175px,1.6fr) repeat(4,minmax(0,1fr)) !important}
- #topStatusBar.stats.compactRunStats > .stat{height:49px !important;min-height:49px !important}
- #topStatusBar.stats.compactRunStats .sanctumHudEmblem{width:28px;height:28px;left:4px}
- #topStatusBar.stats.compactRunStats .sanctumHudEmblem svg{width:19px;height:19px}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk em{font-size:7px !important;letter-spacing:0 !important}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{font-size:12px !important}
- #topStatusBar.stats.compactRunStats #turnTimerStat > b,
- #topStatusBar.stats.compactRunStats #turnTimerStat > span,
- #topStatusBar.stats.compactRunStats #manaStatBox > b,
- #topStatusBar.stats.compactRunStats #manaStatBox > span,
- #topStatusBar.stats.compactRunStats #altarStatBox > b,
- #topStatusBar.stats.compactRunStats #altarStatBox > span,
- #topStatusBar.stats.compactRunStats .sanctumDefeatStat > b,
- #topStatusBar.stats.compactRunStats .sanctumDefeatStat > span{padding-left:24px !important}
+ #topStatusBar.stats.compactRunStats .stat>b{font-size:clamp(12px,2.0vw,18px)!important}
+ #topStatusBar.stats.compactRunStats .stat>span:not(.runProgressPair){font-size:clamp(5.8px,.91vw,9px)!important;letter-spacing:0!important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressPair{top:31%!important;left:13%!important;width:80%!important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk{gap:2px!important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk em{font-size:clamp(5px,.85vw,7px)!important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{font-size:clamp(9px,1.45vw,12px)!important}
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressDivider{height:15px!important}
+ #topStatusBar.stats.compactRunStats .runProgressStat>span{font-size:clamp(5px,.8vw,7px)!important}
 }
 @media (orientation:portrait) and (max-width:640px){
- #topStatusBar.stats.compactRunStats{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
- #topStatusBar.stats.compactRunStats > .runProgressStat{grid-column:1/-1}
- #topStatusBar.stats.compactRunStats > .stat{height:49px !important;min-height:49px !important}
- #topStatusBar.stats.compactRunStats .runProgressStat .runProgressChunk strong{font-size:13px !important}
-}
-@media (prefers-reduced-motion:reduce){
- #topStatusBar.stats.compactRunStats .meterFill,
- #topStatusBar.stats.compactRunStats .manaMeterFill{transition:none !important}
+ /* Avoid microtext and unusable 5-panel portraits. */
+ #topStatusBar.stats.compactRunStats{
+  height:auto!important;min-height:0!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  background:none!important;gap:3px!important;
+ }
+ #topStatusBar.stats.compactRunStats>.stat{
+  height:50px!important;min-height:50px!important;
+  border:1px solid #a47c41!important;border-radius:5px!important;
+  background:linear-gradient(180deg,#302016,#090a0d)!important;
+ }
+ #topStatusBar.stats.compactRunStats>.runProgressStat{
+  grid-column:1/-1;background:linear-gradient(180deg,#e7c083,#a8763d)!important;
+ }
+ #topStatusBar.stats.compactRunStats .runProgressStat .runProgressPair{top:27%!important}
+ #topStatusBar.stats.compactRunStats .runProgressStat>span{top:70%!important}
+ #topStatusBar.stats.compactRunStats .sanctumHudEmblem{height:34px!important;width:34px!important}
+ #topStatusBar.stats.compactRunStats .stat>b{font-size:17px!important}
+ #topStatusBar.stats.compactRunStats .stat>span:not(.runProgressPair){font-size:8px!important}
 }
