@@ -149,7 +149,7 @@
 <link rel="stylesheet" href="./src/styles/run-progress-gothic.css?v=clean117">
 <link rel="stylesheet" href="./src/styles/turn-timer-gothic.css?v=clean122">
 <link rel="stylesheet" href="./src/styles/active-relics.css?v=clean119">
-<link rel="stylesheet" href="./src/styles/mana-gothic.css?v=clean125">
+<link rel="stylesheet" href="./src/styles/mana-gothic.css?v=clean126">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -190,20 +190,6 @@
     </div>
     <div class="stat manaMeterStat meterStat" id="manaStatBox" role="meter" aria-label="Shared Mana" aria-valuemin="0" aria-valuemax="10" aria-valuenow="10">
       <div class="manaMeterFill" id="manaOrbFill" aria-hidden="true">
-        <div class="manaLiquidWave manaLiquidWaveBack">
-          <svg viewBox="0 0 600 100" preserveAspectRatio="none" focusable="false" aria-hidden="true">
-            <defs><linearGradient id="manaLiquidBackGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#79edff"/><stop offset="27%" stop-color="#219fe2"/><stop offset="100%" stop-color="#074078"/></linearGradient></defs>
-            <path d="M0 11 C75 -5 140 24 220 10 S375 0 455 13 S560 16 600 7 L600 100 L0 100 Z" fill="url(#manaLiquidBackGradient)"/>
-            <path d="M0 11 C75 -5 140 24 220 10 S375 0 455 13 S560 16 600 7" fill="none" stroke="#b0f3ff" stroke-width="2.2" opacity=".86"/>
-          </svg>
-        </div>
-        <div class="manaLiquidWave manaLiquidWaveFront">
-          <svg viewBox="0 0 600 100" preserveAspectRatio="none" focusable="false" aria-hidden="true">
-            <defs><linearGradient id="manaLiquidFrontGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#43bff4"/><stop offset="24%" stop-color="#1175c7"/><stop offset="70%" stop-color="#07397f"/><stop offset="100%" stop-color="#031d52"/></linearGradient></defs>
-            <path d="M0 15 C92 30 162 0 255 14 S410 28 503 11 S568 6 600 16 L600 100 L0 100 Z" fill="url(#manaLiquidFrontGradient)"/>
-            <path d="M0 15 C92 30 162 0 255 14 S410 28 503 11 S568 6 600 16" fill="none" stroke="#8beaff" stroke-width="2.4" opacity=".86"/>
-          </svg>
-        </div>
         <div class="manaLiquidBubbles"></div>
         <div class="manaLiquidShimmer"></div>
       </div>
