@@ -23,5 +23,5 @@ assert.deepEqual(manifest.icons.map(i=>i.src),[
 ]);
 assert.equal(manifest.start_url,'./','existing install destination retained');
 assert.equal(manifest.display,'standalone','existing PWA behavior retained');
-assert(readFileSync('service-worker.js','utf8').includes("const CACHE_NAME='sanctum-clean-v102'"),'service worker icon cache update');
+assert(readFileSync('service-worker.js','utf8').includes("const CACHE_NAME='sanctum-clean-v103'"),'service worker icon cache update');
 console.log('PASS: Sanctum icon used by favicon, iOS Home Screen, PWA manifest and link preview; all original icon assets valid.');
