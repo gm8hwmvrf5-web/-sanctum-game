@@ -145,6 +145,7 @@
 <link rel="stylesheet" href="./src/styles/centered-popups.css?v=clean96">
 <link rel="stylesheet" href="./src/styles/ritual-power-readout.css?v=clean97">
 <link rel="stylesheet" href="./src/styles/room-energy-borders.css?v=clean98">
+<link rel="stylesheet" href="./src/styles/tutorial-mechanics.css?v=clean103">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -410,18 +411,29 @@
 <div class="modal hidden" id="rogueGuideModal" role="dialog" aria-modal="true" aria-labelledby="rogueGuideTitle">
   <div class="modalbox rogueModalBox">
     <div class="rogueEyebrow">Roguelite Run Guide</div>
-    <h2 id="rogueGuideTitle">What Changed</h2>
+    <h2 id="rogueGuideTitle">Sanctum Field Guide</h2>
+    <p class="rogueGuideIntro">A field guide to protecting the Altar. This is the live rules reference; the optional Play Tutorial walks through the controls on a temporary board.</p>
     <div class="rogueGuideList">
-      <div class="rogueGuideStep"><b>15 Floors • 3 Acts.</b> Floors 5, 10, and 15 are Boss floors. Your Altar, Blood, cards, Corruption, and Relics carry through the run.</div>
-      <div class="rogueGuideStep"><b>Branching routes.</b> After combat you choose among Standard Battles, Elite Battles, Hellgate Swarms, and non-combat Sanctuaries.</div>
-      <div class="rogueGuideStep"><b>Gatewalker Demons.</b> Each Demon has a 10% chance to enter directly in the Hall, Chapel, or Crypt instead of the Gateway. A small grey outlined gate on its artwork identifies a Gatewalker. The marker remains as the Demon moves.</div>
-      <div class="rogueGuideStep"><b>Relics are Blood XP rewards.</b> Every Demon kill grants Relic XP equal to the Demon Blood earned from that kill. The first nine XP Relics cost 20, 30, 40, 50, 60, 70, 80, 90, and 100 XP. The tenth costs 120 XP, followed by 140, 160, 180, and +20 XP for each additional Relic.</div>
-      <div class="rogueGuideStep"><b>Elite Relic XP rewards.</b> Choosing the XP reward after an Elite passage grants bonus Relic XP equal to all Relic XP earned from kills during that passage plus the current floor number. It does not award a Relic directly. Boss reward Relics still count toward future XP requirements; starting Legacy and purchased Repository Relics do not.</div>
-      <div class="rogueGuideStep"><b>Build during the run.</b> Rewards still include Priest-card drafts using the original card pool/art, recovery, Demon Blood, and bonus Relics.</div>
-      <div class="rogueGuideStep"><b>Cinders bank every 3 Acts.</b> Defeat the third Boss of a cycle to secure the Cinders you earned, open the Legacy shop, then continue the same run at double the previous cycle difficulty.</div>
-      <div class="rogueGuideStep"><b>Enemies rise with depth.</b> Demon and Boss HP and damage both gain +5% of base per floor, stacking with Ascension-cycle difficulty.</div>
-      <div class="rogueGuideStep"><b>Hidden Crucifix Demons.</b> Every fresh 140-card Demon deck secretly marks exactly 21 Demons. If a marked Demon is defeated or reaches the Altar, draw one random Crucifix card. The mark is never shown before it triggers.</div>
-      <div class="rogueGuideStep"><b>Visual target popups for Priest cards.</b> Any Priest card that targets a Demon now opens the illustrated target popup, showing all current Demons on the board, and Boss illustrations whenever that card can legally target the Boss.</div>
+      <h3 class="rogueGuideHeading">The Sanctum &amp; Your Priest</h3>
+      <div class="rogueGuideStep"><b>15 Floors • 3 Acts.</b> Bosses guard Floors 5, 10, and 15. Clear passages to choose rewards and routes. Priest hands, the Altar, Demon Blood, corruption, Relics, and your run deck persist between passages.</div>
+      <div class="rogueGuideStep"><b>Priest cards merge into Empowered cards.</b> Combine two matching unempowered cards from your hand into one stronger version. The merge itself is free, but the Empowered card uses its own Mana cost and effect when played. Drafted rewards add more copies to your run deck.</div>
+      <div class="rogueGuideStep"><b>Basic Attack &amp; Rituals.</b> Each Priest gets a free Basic Attack during their turn. Rituals spend Demon Blood, not Mana. Read the Lesser and Greater rolls before using a Ritual; the descriptions reflect your current Relic Power.</div>
+      <h3 class="rogueGuideHeading">Wards &amp; Laws of Damnation</h3>
+      <div class="rogueGuideStep"><b>Wards — room defenses.</b> After every <b>third combat passage</b>, choose one of three shared Wards. During a Priest turn use <b>Place Ward</b> and select an eligible room, spending the Ward’s displayed shared Mana and sometimes Demon Blood. Only one Ward can be active at once. Its charges trigger when Demons enter, leave, or are defeated in that room; unused Wards expire after two Demon Phases or when the passage ends. Sanctuary and Repository visits do not count toward the three combats.</div>
+      <div class="rogueGuideStep"><b>Ward examples.</b> <b>Cinder Sigil</b> burns an entering Demon; <b>Chains of Penitence</b> stops movement; <b>Bell of Return</b> pushes a Demon backward; <b>Martyr’s Lantern</b> restores Altar Protection after a defeat. Watch the colored Ward artwork over the protected room.</div>
+      <div class="rogueGuideStep"><b>Laws of Damnation — lasting rule changes.</b> Choose one of three Laws at the start of a new run, then choose a new Law after each Boss. You can have up to <b>three active Laws</b>; choosing another replaces the oldest. Laws can help and hurt: Blood Is Power spends Blood to strengthen Basic Attacks, while Forbidden Scripture makes Empowered cards cheaper but regular cards more costly. Your active Laws appear in the run status area.</div>
+      <h3 class="rogueGuideHeading">Crucifix Cards &amp; Demon Merging</h3>
+      <div class="rogueGuideStep"><b>Hidden Crucifix cards.</b> Approximately <b>15% of a fresh Demon deck</b> secretly carry a Crucifix trigger. Defeat a marked Demon or let it reach the Altar to reveal one random Crucifix card. Some help, some harm, and some present choices. A hidden mark on a Demon left behind at passage end transfers to a future spawned Demon rather than disappearing.</div>
+      <div class="rogueGuideStep"><b>Demons also merge.</b> Two matching Lesser Demons on the board merge into a Greater Demon that <b>reappears in the Gateway</b>. On Elite passages, matching Greater Demons may merge into an Ultra form with extra HP. Ward effects, Consecration, and certain Relics can interrupt merges.</div>
+      <h3 class="rogueGuideHeading">Status Effects &amp; Combat</h3>
+      <div class="rogueGuideStep"><b>Fire / Burning (Cinderbrand Relic).</b> A Basic Attack ignites the target and schedules Fire damage at the <b>end of the attacking Priest’s turn</b>: half the current base Basic Attack damage, rounded down (minimum 1). A flame icon or fiery overlay indicates pending Fire damage. Multiple hits can queue additional burns.</div>
+      <div class="rogueGuideStep"><b>Poison (Serpent’s Fang Relic).</b> A Poison Basic Attack marks the target (1/2). A <b>second Poison Basic Attack</b> on that same target deals extra damage equal to the current Basic Attack damage and resets its count. Poison and Fire can appear together.</div>
+      <div class="rogueGuideStep"><b>Lightning (Lightning Rod Relic).</b> Basic Attack deals normal damage to the chosen Demon, then arcs to <b>every other Demon in its room</b> for half your base Basic Attack damage, rounded up. No room-wide splash when attacking a Boss. The lightning badge is a brief visual effect, not a lasting debuff.</div>
+      <div class="rogueGuideStep"><b>Enrage / Rage.</b> Each Demon killed during a Priest turn adds <b>+1 HP and +1 Attack</b> to surviving Demons on the <b>next Priest turn</b>. That bonus is temporary; without new kills, it fades on a later turn. Plan your killing blows to control the next wave.</div>
+      <div class="rogueGuideStep"><b>Other effects.</b> <b>Stop / Bind</b> prevents a Demon from advancing for its duration; <b>Marks</b> add damage to upcoming hits; <b>Silence</b> temporarily suppresses Demon abilities. <b>Gatewalkers</b> (gray gate symbol) can spawn directly in the Hall, Chapel, or Crypt instead of the Gateway.</div>
+      <h3 class="rogueGuideHeading">Relics &amp; Run Progression</h3>
+      <div class="rogueGuideStep"><b>Relic XP.</b> Demon kills add Relic XP based on Blood rewards. XP-earned Relics cost 20, 30, 40, 50, 60, 70, 80, 90, then 100 XP; the tenth costs 120 and each subsequent Relic increases the requirement by 20. Elite passage rewards grant extra Relic XP rather than a guaranteed Relic.</div>
+      <div class="rogueGuideStep"><b>Long-term progression.</b> Cinders bank after the third Boss and the Legacy checkpoint opens. The next 15-floor cycle continues the same run at <b>1.5×</b> enemy difficulty. Within a cycle, Demon and Boss HP and damage also gain approximately <b>3% per floor</b>.</div>
     </div>
     <button class="btn green" id="rogueGuideClose">Return to the Sanctum</button>
   </div>
@@ -621,7 +633,8 @@
     <div class="rogueTutorialGrid">
       <div class="rogueTutorialMini"><b>Play the Priest</b>Use a Priest card, Empower a pair, Basic Attack, and a Ritual.</div>
       <div class="rogueTutorialMini"><b>Read the Board</b>Defeat a Demon, watch Demon Blood and Relic XP, then end a turn.</div>
-      <div class="rogueTutorialMini"><b>See the Roguelite Loop</b>Watch duplicate Demons merge and learn Floors, Bosses, Relics, and Cinders.</div>
+      <div class="rogueTutorialMini"><b>Learn Wards &amp; Laws</b>See how to choose a Ward, place it in a room, and adapt to Laws of Damnation.</div>
+      <div class="rogueTutorialMini"><b>Discover the Dangers</b>Crucifix surprises, Demon merges, Fire, Poison, Lightning, Enrage, and the endless run loop.</div>
     </div>
     <div class="notice"><b>No progress is kept:</b> tutorial Cinders, Relic XP, card draws, and board state are thrown away when you return to setup. Your Legacy currency is not spent or changed.</div>
     <div class="rogueTutorialIntroActions">
@@ -632,7 +645,7 @@
 </div>
 
 <div id="rogueTutorialCoach" class="hidden" role="dialog" aria-live="polite" aria-labelledby="rogueTutorialTitle">
-  <div class="rogueTutorialCoachTop"><div id="rogueTutorialProgress">Tutorial 1 / 9</div><button class="btn" id="rogueTutorialExitBtn" type="button" style="padding:3px 8px">Exit</button></div>
+  <div class="rogueTutorialCoachTop"><div id="rogueTutorialProgress">Tutorial 1 / 15</div><button class="btn" id="rogueTutorialExitBtn" type="button" style="padding:3px 8px">Exit</button></div>
   <h3 id="rogueTutorialTitle">Welcome</h3>
   <div id="rogueTutorialBody"></div>
   <div id="rogueTutorialTask"></div>
@@ -734,7 +747,7 @@
 <script src="./src/js/25-font-settings.js?v=clean23"></script>
 <script src="./src/js/30-roguelite.js?v=clean99"></script>
 <script src="./src/js/35-difficulty.js?v=clean70"></script>
-<script src="./src/js/40-priest-ui.js?v=clean83"></script>
+<script src="./src/js/40-priest-ui.js?v=clean103"></script>
 <script src="./src/js/50-mobile.js?v=clean23"></script>
 <script src="./src/js/60-multiplayer.js?v=clean99"></script>
 <script src="./src/js/70-multiplayer-patches.js?v=clean40"></script>

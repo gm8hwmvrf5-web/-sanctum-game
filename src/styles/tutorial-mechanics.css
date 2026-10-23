@@ -1,0 +1,37 @@
+/* Focused Run Guide / interactive tutorial readability only.
+   Do not change normal Gothic layout, combat UI, or artwork. */
+#rogueGuideModal .rogueGuideIntro{
+ margin:8px 0 12px;
+ color:#cdbb98;
+ line-height:1.5;
+ font-size:13px;
+}
+#rogueGuideModal .rogueGuideHeading{
+ font-size:13px;
+ margin:12px 0 1px;
+ padding:7px 8px;
+ color:#f0d39a;
+ text-transform:uppercase;
+ letter-spacing:.6px;
+ border-bottom:1px solid #806138;
+}
+#rogueGuideModal .rogueGuideStep{font-size:12.5px;overflow-wrap:anywhere}
+#rogueTutorialCoach{
+ box-sizing:border-box;
+ max-height:calc(100dvh - 28px);
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;
+}
+@media (orientation:landscape) and (max-height:520px){
+ #rogueTutorialCoach{
+  max-height:calc(100dvh - 12px) !important;
+  bottom:6px !important;
+ }
+ #rogueTutorialBody,
+ #rogueTutorialTask{
+  font-size:11px !important;
+  line-height:1.32 !important;
+ }
+ #rogueGuideModal .rogueGuideStep{font-size:11px}
+}
