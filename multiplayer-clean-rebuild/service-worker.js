@@ -1,4 +1,4 @@
-const CACHE_NAME='sanctum-clean-v102';
+const CACHE_NAME='sanctum-clean-v103';
 const CORE=[
   './',
   './index.html',
@@ -24,6 +24,7 @@ const CORE=[
   './src/styles/centered-popups.css',
   './src/styles/ritual-power-readout.css',
   './src/styles/room-energy-borders.css',
+  './src/styles/tutorial-mechanics.css',
   './assets/room-borders/energy-gateway.webp',
   './assets/room-borders/energy-hall.webp',
   './assets/room-borders/energy-chapel.webp',
