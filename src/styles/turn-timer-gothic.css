@@ -65,6 +65,11 @@
  opacity:.18!important;
  pointer-events:none!important;
 }
+/* Approximately 10% more falling sand grains per unit distance: original
+   vertical spacing 7px / 9px, divided by 1.1. Stream width stays 2.2px. */
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .turnTimerSandStream::before {
+ background-size:4px 6.36px, 4px 8.18px!important;
+}
 #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .turnTimerSandSpecks {
  display:none!important;
 }
