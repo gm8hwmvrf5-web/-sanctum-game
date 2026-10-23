@@ -677,6 +677,16 @@
    if(n)n.value='Tutorial Priest';if(c)c.value='Exorcist';if(timer)timer.value='60';
    window.__sanctumTutorialMode=true;window.__rogueliteTutorialSession=true;
    if(!startGame()){window.__sanctumTutorialMode=false;window.__rogueliteTutorialSession=false;restoreSetup();setup?.classList.remove('hidden');return}
+   // The real run's mandatory opening Law popup would otherwise cover the
+   // practice coach and intercept Next. Leave Laws untouched for all real runs,
+   // but skip this one live-choice modal in the throwaway tutorial state.
+   if(S?.rogue?.laws){
+     S.rogue.laws.offer=null;
+     S.rogue.laws.active=[];
+     S.phase='Priest';
+     const lawModal=document.getElementById('rogueChoiceModal');
+     if(lawModal){lawModal.classList.add('hidden');delete lawModal.dataset.lawOffer;delete lawModal.dataset.lawChoice;}
+   }
    active=true;index=0;mergeShown=false;document.body.classList.add('rogue-tutorial-active');
    const p=currentPlayer();if(p){p.blood=4;seedPracticeHand()}
    seedPracticeDemon();S.mana=10;render();pause();coach.classList.remove('hidden');showStep();
