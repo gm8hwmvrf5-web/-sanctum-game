@@ -1,0 +1,147 @@
+/* Sanctum — Turn Timer segment only.
+   Original mockup hourglass medallion, dark enamel, engraved gold frame.
+   Existing countdown, warning states, meter fill, and all sibling HUD panels remain live. */
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat {
+  position:relative!important;
+  isolation:isolate!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:1px!important;
+  padding:4px 9px 4px 43px!important;
+  border:2px solid #aa8249!important;
+  border-radius:5px!important;
+  background:
+    radial-gradient(ellipse at 30% 10%,rgba(180,100,42,.13),transparent 60%),
+    repeating-linear-gradient(130deg,transparent 0 17px,rgba(206,139,79,.023) 17px 19px),
+    linear-gradient(180deg,#281911 0%,#100e0e 35%,#0b0b0d 63%,#21160e 100%)!important;
+  box-shadow:
+    inset 0 0 0 1px #180f0a,
+    inset 0 0 0 3px rgba(175,130,67,.39),
+    inset 0 1px 6px rgba(243,189,96,.13),
+    inset 0 -3px 7px rgba(0,0,0,.67),
+    0 0 0 1px #130b09,
+    0 2px 6px rgba(0,0,0,.44)!important;
+}
+/* Authentic hourglass artwork recovered from the selected HUD mockup.
+   The asset is a four-panel sprite; its first quarter contains the hourglass. */
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat::before {
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  z-index:6!important;
+  pointer-events:none!important;
+  left:2px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:43px!important;
+  height:43px!important;
+  border:0!important;
+  border-radius:0!important;
+  background-image:url('../../assets/hud/sanctum-mockup-emblems.webp')!important;
+  background-position:0% 0%!important;
+  background-size:400% 100%!important;
+  background-repeat:no-repeat!important;
+  box-shadow:none!important;
+  filter:drop-shadow(1px 0 2px rgba(0,0,0,.7));
+}
+/* An engraved cross-ruby cap; purely decorative, never intercepts clicks. */
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat::after {
+  content:"✦"!important;
+  display:block!important;
+  position:absolute!important;
+  z-index:6!important;
+  pointer-events:none!important;
+  right:2px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  color:#d29a58!important;
+  font:700 12px/1 Georgia,serif!important;
+  background:none!important;
+  border:0!important;
+  text-shadow:0 1px 2px #000,0 0 4px rgba(214,141,54,.6)!important;
+}
+/* Keep the countdown visible above the existing dynamic liquid fill. */
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat #turnTimerFill {
+  z-index:1!important;
+  opacity:.24!important;
+  background:
+    radial-gradient(ellipse at 35% 10%,rgba(250,219,155,.37),transparent 53%),
+    linear-gradient(180deg,#f3d88c,#c68d39 42%,#744414 100%)!important;
+  box-shadow:0 -1px 6px rgba(231,153,48,.48),inset 0 1px 0 rgba(255,236,169,.4)!important;
+  transition:height .28s ease!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat #turnTimerFill::before{
+  background:rgba(239,188,101,.65)!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .meterGlass {
+  z-index:2!important;
+  opacity:.21!important;
+  background:linear-gradient(180deg,rgba(255,226,170,.21),transparent 42%,rgba(0,0,0,.09))!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > #turnTimerStatValue,
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > span {
+  position:relative!important;
+  z-index:7!important;
+  margin:0!important;
+  padding:0!important;
+  white-space:nowrap!important;
+  pointer-events:none!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > #turnTimerStatValue {
+  display:block!important;
+  color:#f4d99c!important;
+  font:700 clamp(16px,1.4vw,22px)/1 Georgia,'Times New Roman',serif!important;
+  letter-spacing:.25px!important;
+  text-shadow:0 1px 3px #000,0 0 8px rgba(212,139,54,.35)!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > span {
+  display:block!important;
+  color:#d6ad69!important;
+  font:700 clamp(7px,.7vw,10px)/1 Georgia,'Times New Roman',serif!important;
+  letter-spacing:.7px!important;
+  text-transform:uppercase!important;
+  text-shadow:0 1px 2px #000!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat.warning{
+  border-color:#c39954!important;
+  box-shadow:inset 0 0 0 1px #1b1109,inset 0 0 0 3px rgba(206,150,69,.39),0 0 0 1px #130b09,0 0 8px rgba(232,154,51,.2)!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat.critical{
+  border-color:#b85850!important;
+  background:radial-gradient(ellipse at 20% 40%,rgba(139,34,32,.27),transparent 62%),linear-gradient(180deg,#2c1714,#0c0a0c 65%,#20100e)!important;
+  box-shadow:inset 0 0 0 1px #1f100f,inset 0 0 0 3px rgba(176,64,48,.29),0 0 0 1px #170a09,0 0 8px rgba(198,53,44,.29)!important;
+}
+#topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat.critical > #turnTimerStatValue{
+  color:#ffe5c6!important;
+}
+@media (orientation:landscape) and (max-height:520px) {
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat{
+   padding:0 2px 0 21px!important;
+   border-width:1px!important;
+   border-radius:4px!important;
+   gap:0!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat::before{
+   left:1px!important;width:19px!important;height:19px!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat::after{right:1px!important;font-size:7px!important}
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > #turnTimerStatValue{
+   font-size:clamp(8px,1.35vw,12px)!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > span{
+   font-size:clamp(4.8px,.68vw,6px)!important;letter-spacing:0!important;
+ }
+}
+@media (orientation:portrait) and (max-width:520px){
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat{padding-left:32px!important}
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat::before{left:2px!important;width:29px!important;height:29px!important}
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat::after{font-size:9px!important}
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > #turnTimerStatValue{font-size:14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat #turnTimerFill{transition:none!important}
+}
