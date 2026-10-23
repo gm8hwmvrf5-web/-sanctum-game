@@ -129,3 +129,19 @@
 .modal > .modalbox .choicegrid{max-width:100%;min-width:0}
 .modal > .modalbox .rogueChoice,
 .modal > .modalbox .choice{min-width:0;overflow-wrap:break-word}
+
+/* Abbess Echoed Grace and other Priest-card choices show real card art. */
+#choiceGrid .priestCardChoice .priestChoiceArtwork{
+ display:block;
+ width:100%;
+ height:clamp(94px,20vh,175px);
+ object-fit:cover;
+ object-position:center 35%;
+ margin:7px 0 9px;
+ border:1px solid #806233;
+ border-radius:5px;
+ background:#342319;
+}
+@media (orientation:landscape) and (max-height:520px){
+ #choiceGrid .priestCardChoice .priestChoiceArtwork{height:90px}
+}
