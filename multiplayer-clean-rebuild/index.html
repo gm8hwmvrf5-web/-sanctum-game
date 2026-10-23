@@ -145,7 +145,7 @@
 <link rel="stylesheet" href="./src/styles/centered-popups.css?v=clean96">
 <link rel="stylesheet" href="./src/styles/ritual-power-readout.css?v=clean97">
 <link rel="stylesheet" href="./src/styles/room-energy-borders.css?v=clean98">
-<link rel="stylesheet" href="./src/styles/tutorial-mechanics.css?v=clean103">
+<link rel="stylesheet" href="./src/styles/tutorial-mechanics.css?v=clean104">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -424,6 +424,7 @@
       <div class="rogueGuideStep"><b>Laws of Damnation — lasting rule changes.</b> Choose one of three Laws at the start of a new run, then choose a new Law after each Boss. You can have up to <b>three active Laws</b>; choosing another replaces the oldest. Laws can help and hurt: Blood Is Power spends Blood to strengthen Basic Attacks, while Forbidden Scripture makes Empowered cards cheaper but regular cards more costly. Your active Laws appear in the run status area.</div>
       <h3 class="rogueGuideHeading">Crucifix Cards &amp; Demon Merging</h3>
       <div class="rogueGuideStep"><b>Hidden Crucifix cards.</b> Approximately <b>15% of a fresh Demon deck</b> secretly carry a Crucifix trigger. Defeat a marked Demon or let it reach the Altar to reveal one random Crucifix card. Some help, some harm, and some present choices. A hidden mark on a Demon left behind at passage end transfers to a future spawned Demon rather than disappearing.</div>
+      <div class="rogueGuideStep"><b>Linked Demons — Blood Bonds.</b> A newly entering Demon has a <b>15% chance</b>, when an eligible partner exists, to link with a <b>different Demon type</b> on the board. Both display a <b>LINK</b> chain symbol and gain <b>+1 Attack</b>. Defeat either one, and the surviving partner enters persistent <b>Blood Bond Rage</b>: <b>+2 Attack</b> and <b>20% bonus maximum and current HP</b> (rounded up). If one reaches the Altar, the bond breaks without granting Rage. This Blood Bond Rage is separate from temporary Priest-kill Enrage.</div>
       <div class="rogueGuideStep"><b>Demons also merge.</b> Two matching Lesser Demons on the board merge into a Greater Demon that <b>reappears in the Gateway</b>. On Elite passages, matching Greater Demons may merge into an Ultra form with extra HP. Ward effects, Consecration, and certain Relics can interrupt merges.</div>
       <h3 class="rogueGuideHeading">Status Effects &amp; Combat</h3>
       <div class="rogueGuideStep"><b>Fire / Burning (Cinderbrand Relic).</b> A Basic Attack ignites the target and schedules Fire damage at the <b>end of the attacking Priest’s turn</b>: half the current base Basic Attack damage, rounded down (minimum 1). A flame icon or fiery overlay indicates pending Fire damage. Multiple hits can queue additional burns.</div>
@@ -645,7 +646,7 @@
 </div>
 
 <div id="rogueTutorialCoach" class="hidden" role="dialog" aria-live="polite" aria-labelledby="rogueTutorialTitle">
-  <div class="rogueTutorialCoachTop"><div id="rogueTutorialProgress">Tutorial 1 / 15</div><button class="btn" id="rogueTutorialExitBtn" type="button" style="padding:3px 8px">Exit</button></div>
+  <div class="rogueTutorialCoachTop"><div id="rogueTutorialProgress">Tutorial 1 / 16</div><button class="btn" id="rogueTutorialExitBtn" type="button" style="padding:3px 8px">Exit</button></div>
   <h3 id="rogueTutorialTitle">Welcome</h3>
   <div id="rogueTutorialBody"></div>
   <div id="rogueTutorialTask"></div>
@@ -747,7 +748,7 @@
 <script src="./src/js/25-font-settings.js?v=clean23"></script>
 <script src="./src/js/30-roguelite.js?v=clean99"></script>
 <script src="./src/js/35-difficulty.js?v=clean70"></script>
-<script src="./src/js/40-priest-ui.js?v=clean103"></script>
+<script src="./src/js/40-priest-ui.js?v=clean104"></script>
 <script src="./src/js/50-mobile.js?v=clean23"></script>
 <script src="./src/js/60-multiplayer.js?v=clean99"></script>
 <script src="./src/js/70-multiplayer-patches.js?v=clean40"></script>

@@ -35,3 +35,37 @@
  }
  #rogueGuideModal .rogueGuideStep{font-size:11px}
 }
+
+/* Tutorial lesson position: card-focused instruction stays in the upper-right
+   so the actual Priest hand and ritual card buttons remain unobstructed. */
+body.rogue-tutorial-active #rogueTutorialCoach.rogueTutorialTopRight{
+ top:max(7px,env(safe-area-inset-top)) !important;
+ right:max(7px,env(safe-area-inset-right)) !important;
+ left:auto !important;
+ bottom:auto !important;
+ width:min(350px,calc(100vw - 22px)) !important;
+ max-height:min(54dvh,290px) !important;
+ overflow-y:auto !important;
+}
+body.rogue-tutorial-active #rogueChoiceModal.rogueTutorialDemoModal{
+ z-index:350 !important;
+}
+body.rogue-tutorial-active #rogueChoiceModal.rogueTutorialDemoModal .rogueModalBox{
+ max-height:calc(100dvh - 14px) !important;
+ overflow-y:auto !important;
+}
+body.rogue-tutorial-active #rogueChoiceModal.rogueTutorialDemoModal .rogueTutorialDemoSkip{
+ display:block;
+ margin:9px auto 0;
+ min-height:30px;
+}
+@media (orientation:landscape) and (max-height:520px){
+ body.rogue-tutorial-active #rogueTutorialCoach.rogueTutorialTopRight{
+  width:min(275px,38vw) !important;
+  max-height:calc(100dvh - 12px) !important;
+  padding:7px !important;
+ }
+ body.rogue-tutorial-active #rogueChoiceModal.rogueTutorialDemoModal .ward-draft-art{
+  height:65px !important;
+ }
+}

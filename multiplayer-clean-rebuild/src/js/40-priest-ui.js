@@ -554,7 +554,8 @@
  const prev=document.getElementById('rogueTutorialPrevBtn');
  const next=document.getElementById('rogueTutorialNextBtn');
  const helper=document.getElementById('rogueTutorialHelperBtn');
- let active=false,index=0,poll=null,savedSetup=null,mergeShown=false;
+ let active=false,index=0,poll=null,savedSetup=null,mergeShown=false,linkedShown=false;
+ let demoOpen='',demoWard='',demoLaw='';
  if(setupActions&&start&&!document.getElementById('setupTutorialBtn')){
    const b=document.createElement('button');
    b.className='btn';b.id='setupTutorialBtn';b.type='button';b.textContent='Play Tutorial';b.style.flex='1';
@@ -619,14 +620,19 @@
  function showStep(){
    if(!active)return;
    const step=steps[index];
+   closeTutorialDemo();
    progress.textContent=`Tutorial ${index+1} / ${steps.length}`;
    title.textContent=step.title;body.innerHTML=step.body;
+   coach.classList.toggle('rogueTutorialTopRight',!!step.priestFocus);
    prev.disabled=index===0;helper.onclick=step.helper||null;
    focusStep();updateTask();
+   if(step.demo)openTutorialDemo(step.demo);
  }
  function finishTutorial(message='Tutorial complete — choose your real run setup.'){
-   active=false;mergeShown=false;window.__sanctumTutorialMode=false;window.__rogueliteTutorialSession=false;document.body.classList.remove('rogue-tutorial-active');
-   if(poll){clearInterval(poll);poll=null}clearFocus();coach.classList.add('hidden');intro.classList.add('hidden');
+   closeTutorialDemo();
+   active=false;mergeShown=false;linkedShown=false;demoWard='';demoLaw='';
+   window.__sanctumTutorialMode=false;window.__rogueliteTutorialSession=false;document.body.classList.remove('rogue-tutorial-active');
+   if(poll){clearInterval(poll);poll=null}clearFocus();coach.classList.remove('rogueTutorialTopRight');coach.classList.add('hidden');intro.classList.add('hidden');
    try{clearTurnTimerInterval()}catch(e){}
    S=freshState();
    restoreSetup();
@@ -651,18 +657,93 @@
    resolveBoardDuplicateMerges();mergeShown=true;render();focusStep();updateTask();
  }
 
+
+ // Use the SAME Gothic choice modal and definitions as actual Ward/Law drafts,
+ // but isolate these educational choices from the multiplayer/save state.
+ // Only a throwaway practice board is affected; an actual run uses normal drafts.
+ function closeTutorialDemo(){
+   const modal=document.getElementById('rogueChoiceModal');
+   if(!modal?.classList.contains('rogueTutorialDemoModal'))return;
+   modal.classList.add('hidden');
+   modal.classList.remove('rogueTutorialDemoModal');
+   const skip=modal.querySelector('#rogueTutorialDemoSkip');
+   if(skip)skip.remove();
+   if(demoOpen===modal.dataset.tutorialDemo)demoOpen='';
+   delete modal.dataset.tutorialDemo;
+ }
+ function openTutorialDemo(kind){
+   if(!active||!window.__sanctumTutorialMode)return;
+   const modal=document.getElementById('rogueChoiceModal');
+   if(!modal)return;
+   closeTutorialDemo();
+   const ward=kind==='ward';
+   const definitions=ward?window.__sanctumWards?.definitions:window.__sanctumLaws?.definitions;
+   if(!Array.isArray(definitions)||definitions.length<3)return;
+   const preferred=ward?['cinder','chains','lantern']:['bloodPower','forbiddenScripture','shiftingSanctum'];
+   const picks=preferred.map(key=>definitions.find(d=>d.key===key)).filter(Boolean);
+   if(picks.length!==3)return;
+   const grid=document.getElementById('rogueChoiceGrid');
+   document.getElementById('rogueChoiceEyebrow').textContent='Interactive Tutorial • Practice Only';
+   document.getElementById('rogueChoiceTitle').textContent=ward?'Choose a Ward':'Choose Your First Law';
+   document.getElementById('rogueChoiceText').textContent=ward
+    ?'This is the same Ward selection you will see every third combat passage. Try choosing a Ward; this practice selection does not use Mana or carry into your real run.'
+    :'These are real Laws of Damnation. Choose one to learn how the opening Law draft works. Practice choices do not carry into your real run.';
+   const htmlEscape=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+   grid.innerHTML=picks.map((choice,i)=>{
+     if(!ward)return '<button type="button" class="rogueChoice lawDraftChoice" data-tutorial-demo-option="'+i+'"><div class="nodeIcon">'+htmlEscape(choice.icon||'✧')+'</div><h3>'+htmlEscape(choice.name)+'</h3><p>'+htmlEscape(choice.desc)+'</p><span class="nodeReward">'+htmlEscape(choice.reward||'Run modifier')+'</span></button>';
+     const cost=choice.mana+' Mana'+(choice.blood?' + '+choice.blood+' Blood':'');
+     const art='./assets/wards/ward-'+choice.key+'.webp';
+     return '<button type="button" class="rogueChoice wardDraftChoice" data-tutorial-demo-option="'+i+'">'+
+      '<div class="ward-draft-art" style="--ward-image:url(&quot;'+art+'&quot;);--ward-color:'+choice.color+'"></div>'+
+      '<div class="ward-draft-body"><h3>'+htmlEscape(choice.name)+'</h3><small>'+htmlEscape(choice.category)+' · '+htmlEscape(cost)+'</small><p>'+htmlEscape(choice.desc)+'</p><span class="nodeReward">Practice Ward selection</span></div></button>';
+   }).join('');
+   grid.querySelectorAll('[data-tutorial-demo-option]').forEach(button=>button.onclick=()=>{
+     const choice=picks[Number(button.dataset.tutorialDemoOption)];
+     if(ward)demoWard=choice.name;
+     else demoLaw=choice.name;
+     closeTutorialDemo();
+     if(active){task.innerHTML='<b>✓ Practice choice:</b> '+htmlEscape(choice.name)+'. No real-run resources were spent.';task.classList.add('done');}
+   });
+   const skip=document.createElement('button');
+   skip.type='button';
+   skip.className='btn rogueTutorialDemoSkip';
+   skip.id='rogueTutorialDemoSkip';
+   skip.textContent='Skip Practice Choice';
+   skip.onclick=()=>closeTutorialDemo();
+   modal.querySelector('.rogueModalBox')?.appendChild(skip);
+   modal.classList.add('rogueTutorialDemoModal');
+   modal.dataset.tutorialDemo=kind;
+   demoOpen=kind;
+   modal.classList.remove('hidden');
+   pause();
+ }
+ function demonstrateLinkedDemons(){
+   if(!active||!S?.started)return;
+   const bases=[DEMON_TYPES[0],DEMON_TYPES.find(x=>x.key!==DEMON_TYPES[0]?.key)].filter(Boolean);
+   if(bases.length<2)return;
+   S.rooms=[[],[],[],[]];
+   const a=makeLesser(bases[0],'linked-a'),b=makeLesser(bases[1],'linked-b');
+   a.status.bloodBondPartnerId=String(b.id);
+   b.status.bloodBondPartnerId=String(a.id);
+   S.rooms[0].push(a);S.rooms[1].push(b);
+   linkedShown=true;
+   render();focusStep();updateTask();
+   log('Tutorial Blood Bond: two different Demons are LINKED. Each receives +1 Attack until a partner is defeated.','info');
+ }
+
  const steps=[
   {title:'The Run at a Glance',target:'.stats',body:'Protect the <b>Altar</b> and share Mana with your party. A cycle has <b>15 floors in 3 Acts</b>; Bosses guard Floors 5, 10, and 15. Choose rewards and passages as you descend.',task:null},
-  {title:'Play a Priest Card',target:'#handPanel',body:'Priest cards usually cost <b>Shared Mana</b>. Rotate through your hand and use a playable card. This practice run begins with Quick Prayer, Smite, and Divine Shield.',task:'Play one Priest card.',check:()=>Number(S?.runStats?.cardsPlayed||0)>=1},
-  {title:'Merge Priest Cards to Empower',target:'#handPanel',body:'Two matching unempowered cards can merge into one <b>Empowered</b> version. Combining them costs nothing; the stronger card uses its printed Empowered Mana cost when you play it. Drafting adds extra copies to your run deck.',task:'Empower the two matching Smite cards.',check:()=>!!currentPlayer()?.hand?.some(c=>c.empowered)},
-  {title:'Use Your Free Basic Attack',target:()=>document.getElementById('basicBtn')||document.getElementById('ritualPanel'),body:'Each Priest has <b>one Basic Attack per turn</b>. It costs no Mana. Basic Attack Relics can add Fire, Poison, Lightning or critical-hit effects.',task:'Use Basic Attack once.',check:()=>!!currentPlayer()?.basic},
-  {title:'Spend Demon Blood on a Ritual',target:'#ritualPanel',body:'Rituals spend <b>Demon Blood</b>, not Mana. You may resolve one Ritual on each Priest turn. Read its Lesser and Greater roll: current Relic Power bonuses are already included in the displayed effect.',task:'Resolve one Ritual.',check:()=>Number(S?.runStats?.ritualsUsed||0)>=1},
+  {title:'Play a Priest Card',target:'#handPanel',priestFocus:true,body:'Priest cards usually cost <b>Shared Mana</b>. Rotate through your hand and use a playable card. This practice run begins with Quick Prayer, Smite, and Divine Shield.',task:'Play one Priest card.',check:()=>Number(S?.runStats?.cardsPlayed||0)>=1},
+  {title:'Merge Priest Cards to Empower',target:'#handPanel',priestFocus:true,body:'Two matching unempowered cards can merge into one <b>Empowered</b> version. Combining them costs nothing; the stronger card uses its printed Empowered Mana cost when you play it. Drafting adds extra copies to your run deck.',task:'Empower the two matching Smite cards.',check:()=>!!currentPlayer()?.hand?.some(c=>c.empowered)},
+  {title:'Use Your Free Basic Attack',target:()=>document.getElementById('basicBtn')||document.getElementById('ritualPanel'),priestFocus:true,body:'Each Priest has <b>one Basic Attack per turn</b>. It costs no Mana. Basic Attack Relics can add Fire, Poison, Lightning or critical-hit effects.',task:'Use Basic Attack once.',check:()=>!!currentPlayer()?.basic},
+  {title:'Spend Demon Blood on a Ritual',target:'#ritualPanel',priestFocus:true,body:'Rituals spend <b>Demon Blood</b>, not Mana. You may resolve one Ritual on each Priest turn. Read its Lesser and Greater roll: current Relic Power bonuses are already included in the displayed effect.',task:'Resolve one Ritual.',check:()=>Number(S?.runStats?.ritualsUsed||0)>=1},
   {title:'Earn Blood and Relic XP',target:()=>document.getElementById('relicXpMeterStat')||document.getElementById('ritualPanel'),body:'Defeat Demons to gain <b>Demon Blood</b> and earn <b>Relic XP</b>. The first XP Relic requires <b>20 XP</b>, then 30, 40, and so on through 100 for the ninth; the tenth requires 120 XP. Relics can change damage, Rituals, resources, and status effects.',task:'Defeat at least one Demon. Use the helper for a 1-HP target.',check:()=>Number(S?.defeats||0)>=1||Number(S?.rogue?.relicXp||0)>0,helper:prepareTarget,helperLabel:'Prepare 1-HP Demon'},
   {title:'End the Turn',target:()=>document.getElementById('endBtn')||document.getElementById('ritualPanel'),body:'Press <b>End Turn</b> when finished. All Priests act before the Demon Phase, when Demons advance toward the Altar and resolve their abilities. Fire from Cinderbrand burns at the end of its owning Priest’s turn.',task:'End the turn and reach Round 2.',check:()=>Number(S?.round||1)>=2},
   {title:'Demons Merge into Greater and Ultra Forms',target:'#boardSection',body:'Two identical Lesser Demons anywhere on the board merge into a <b>Greater Demon</b> that reappears at the <b>Gateway</b>. On <b>Elite</b> passages, matching Greater Demons can become an <b>Ultra</b> form with 15% extra maximum HP. Wards, Consecration, and some Relics can stop merges.',task:'Run the safe Demon merge demonstration.',check:()=>mergeShown,helper:demonstrateMerge,helperLabel:'Show Merge Demo'},
-  {title:'Wardcraft — Protect a Room',target:()=>document.getElementById('wardcraftCast')||document.getElementById('boardSection'),body:'Every <b>third combat passage</b> offers three Wards; select one for the party. Use <b>Place Ward</b> during a Priest turn to choose an eligible room and pay Mana and sometimes Blood. A Ward triggers when Demons enter, leave or die there. Only one can be active; charges and a two-Demon-Phase duration limit its use. The glowing room overlay shows where it was placed.',task:null},
+  {title:'Wardcraft — Protect a Room',demo:'ward',helper:()=>openTutorialDemo('ward'),helperLabel:'Reopen Ward Choices',target:()=>document.getElementById('wardcraftCast')||document.getElementById('boardSection'),body:'Every <b>third combat passage</b> offers three Wards; select one for the party. Use <b>Place Ward</b> during a Priest turn to choose an eligible room and pay Mana and sometimes Blood. A Ward triggers when Demons enter, leave or die there. Only one can be active; charges and a two-Demon-Phase duration limit its use. The glowing room overlay shows where it was placed.',task:null},
   {title:'Ward Examples and Timing',target:'#boardSection',body:'<b>Cinder Sigil</b> damages an entering Demon; <b>Chains of Penitence</b> holds a Demon in place; <b>Bell of Return</b> moves one backward; <b>Martyr’s Lantern</b> heals the Altar when a Demon dies in the protected room. Place a Ward before the event you want it to respond to. Sanctuary and Repository visits do not count as combat passages.',task:null},
-  {title:'Laws of Damnation',target:()=>document.querySelector('.sanctumLawRail')||document.getElementById('rogueHud'),body:'At the beginning of each run choose <b>one of three Laws</b>. Another Law becomes available after each Boss. Keep up to <b>three active Laws</b>; new ones replace the oldest once full. For example, <b>Blood Is Power</b> uses Blood to boost Basic Attacks, while <b>Forbidden Scripture</b> makes Empowered cards cheaper and normal cards more expensive. Laws affect the whole run.',task:null},
+  {title:'Laws of Damnation',demo:'law',helper:()=>openTutorialDemo('law'),helperLabel:'Reopen Law Choices',target:()=>document.querySelector('.sanctumLawRail')||document.getElementById('rogueHud'),body:'At the beginning of each run choose <b>one of three Laws</b>. Another Law becomes available after each Boss. Keep up to <b>three active Laws</b>; new ones replace the oldest once full. For example, <b>Blood Is Power</b> uses Blood to boost Basic Attacks, while <b>Forbidden Scripture</b> makes Empowered cards cheaper and normal cards more expensive. Laws affect the whole run.',task:null},
+  {title:'Linked Demons — Blood Bonds',target:'#boardSection',body:'When a Demon enters, it may form a <b>Blood Bond</b> with a different Demon type already on the board (15% chance when eligible). Both show a <b>LINK</b> chain marker and gain <b>+1 Attack</b>. Defeat one partner and the survivor enters <b>Blood Bond RAGE</b>: <b>+2 Attack</b> and <b>20% extra maximum and current HP</b>, rounded up. This Rage remains after the link breaks. A Demon reaching the Altar breaks the bond <b>without Rage</b>. This is different from temporary kill-based Enrage.',task:'Show a linked pair and find the LINK markers on their Demon artwork.',check:()=>linkedShown,helper:demonstrateLinkedDemons,helperLabel:'Show Linked Demons'},
   {title:'Crucifix Cards — Hidden Surprises',target:'#boardSection',body:'About <b>15% of the fresh Demon deck</b> secretly carries a Crucifix. When such a Demon dies or reaches the Altar, it reveals a <b>random Crucifix card</b>. The effect might help, hurt, or ask you to choose. The hidden mark is not shown in advance; untriggered marks transfer to future Demons between passages.',task:null},
   {title:'Elemental Statuses — Fire and Poison',target:'#boardSection',body:'With <b>Cinderbrand</b>, Basic Attack applies Fire that burns at the <b>end of your turn</b> for half your base Basic Attack damage, rounded down (minimum 1). <b>Serpent’s Fang</b> applies Poison: the <b>second Poison Basic Attack</b> on the same target deals extra damage equal to your current Basic Attack and resets the counter. Fire and Poison can stack on one Demon.',task:null},
   {title:'Lightning and Other Control Effects',target:'#boardSection',body:'<b>Lightning Rod</b> makes a Basic Attack arc for <b>half base damage, rounded up</b>, to other Demons in the same room (no splash when hitting a Boss). The lightning marker fades quickly; it is not lasting damage over time. <b>Stop / Bind</b> blocks movement, <b>Silence</b> suppresses abilities, and <b>Marks</b> enhance upcoming hits.',task:null},
@@ -687,7 +768,7 @@
      const lawModal=document.getElementById('rogueChoiceModal');
      if(lawModal){lawModal.classList.add('hidden');delete lawModal.dataset.lawOffer;delete lawModal.dataset.lawChoice;}
    }
-   active=true;index=0;mergeShown=false;document.body.classList.add('rogue-tutorial-active');
+   active=true;index=0;mergeShown=false;linkedShown=false;demoWard='';demoLaw='';document.body.classList.add('rogue-tutorial-active');
    const p=currentPlayer();if(p){p.blood=4;seedPracticeHand()}
    seedPracticeDemon();S.mana=10;render();pause();coach.classList.remove('hidden');showStep();
    poll=setInterval(()=>{if(active){updateTask();if(!document.querySelector('.rogueTutorialFocus'))focusStep()}},250);
