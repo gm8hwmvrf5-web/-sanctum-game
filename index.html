@@ -146,6 +146,7 @@
 <link rel="stylesheet" href="./src/styles/ritual-power-readout.css?v=clean97">
 <link rel="stylesheet" href="./src/styles/room-energy-borders.css?v=clean98">
 <link rel="stylesheet" href="./src/styles/tutorial-mechanics.css?v=clean105">
+<link rel="stylesheet" href="./src/styles/gothic-status-hud.css?v=clean111">
 </head>
 <body>
 <div id="gameStatusToast" class="gameStatusToast hidden" role="status" aria-live="polite"></div>
@@ -181,6 +182,7 @@
     <div class="stat turnTimerStat meterStat compactTimerStat" id="turnTimerStat" role="meter" aria-label="Turn Timer" aria-valuemin="0" aria-valuemax="60" aria-valuenow="45">
       <div class="turnTimerFill meterFill" id="turnTimerFill"></div>
       <div class="meterGlass"></div>
+      <i class="sanctumHudEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12M6 21h12M7 4c0 4 1 5 5 8-4 3-5 4-5 8M17 4c0 4-1 5-5 8 4 3 5 4 5 8M9 8l3 3 3-3M9 18l3-3 3 3"/></svg></i>
       <b id="turnTimerStatValue">—</b>
       <span>Timer</span>
     </div>
@@ -188,16 +190,19 @@
       <div class="manaMeterFill" id="manaOrbFill"></div>
       <div class="manaMeterGlow"></div>
       <div class="meterGlass"></div>
+      <i class="sanctumHudEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C9 7 5 11 5 15a7 7 0 0 0 14 0c0-4-4-8-7-13Z"/><path d="M9 15c0-2 1-3 2-5M10 19c1 1 3 1 4 0"/></svg></i>
       <b id="manaStat">10</b>
       <span>Shared Mana</span>
     </div>
     <div class="stat altarMeterStat meterStat" id="altarStatBox" role="meter" aria-label="Altar Protection" aria-valuemin="0" aria-valuemax="30" aria-valuenow="30">
       <div class="altarMeterFill meterFill" id="altarMeterFill"></div>
       <div class="meterGlass"></div>
+      <i class="sanctumHudEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19M12 5l2.3 4.7L19 12l-4.7 2.3L12 19l-2.3-4.7L5 12l4.7-2.3Z"/></svg></i>
       <b id="altarStat">30</b>
       <span>Altar Protection</span>
     </div>
-    <div class="stat"><b id="defeatStat">0 / 13</b><span>Base Defeats</span></div>
+    <div class="stat sanctumDefeatStat"><i class="sanctumHudEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 18V16C5 14 4 12 4 10a8 8 0 0 1 16 0c0 2-1 4-3 6v2M7 18h10v3H7zM12 17v4"/><circle cx="9" cy="11" r="1.2"/><circle cx="15" cy="11" r="1.2"/><path d="m12 13-1 2h2l-1-2"/></svg></i>
+      <b id="defeatStat">0 / 13</b><span>Base Defeats</span></div>
   </section>
   <div class="altarGuardStatus" id="altarGuardStatus" role="status" hidden></div>
 
