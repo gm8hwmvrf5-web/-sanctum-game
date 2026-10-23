@@ -271,3 +271,52 @@
     overflow:hidden!important;
   }
 }
+
+
+/* The phone HUD is only ~20px tall. Stack the live number and label
+   around one shared baseline with explicit breathing room at each edge,
+   and dim the sand behind them (do not remove the timer animation). */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1100px){
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat{
+   overflow:hidden!important;
+   box-sizing:border-box!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > #turnTimerStatValue,
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > span{
+   top:60%!important;
+   left:clamp(18px,2.7vw,26px)!important;
+   right:7px!important;
+   width:auto!important;
+   margin:0!important;
+   padding:0!important;
+   line-height:1!important;
+   z-index:10!important;
+   overflow:hidden!important;
+   white-space:nowrap!important;
+   text-align:center!important;
+   text-shadow:0 1px 2px #000,0 0 3px #000,0 0 5px #000!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > #turnTimerStatValue{
+   transform:translateY(-100%)!important;
+   font-size:clamp(8px,1vw,10px)!important;
+   color:#ffebc1!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat > span{
+   transform:translateY(0)!important;
+   font-size:clamp(4.5px,.6vw,5.5px)!important;
+   letter-spacing:0!important;
+   color:#ffdb93!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .turnTimerSandPile{
+   opacity:.44!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .turnTimerSandSpecks{
+   opacity:.16!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .turnTimerSandStream{
+   opacity:.4!important;
+ }
+ #topStatusBar.stats.compactRunStats > #turnTimerStat.turnTimerStat .meterGlass{
+   opacity:.12!important;
+ }
+}
