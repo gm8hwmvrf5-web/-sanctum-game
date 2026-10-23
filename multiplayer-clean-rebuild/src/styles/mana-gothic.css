@@ -1,205 +1,167 @@
-/* Sanctum of the Damned — visible liquid Mana.
-   The actual shared-Mana value is still set by render() on #manaOrbFill.
-   The SVG waves are decorative, clipped inside that changing-height element.
-   Reserve a narrow air gap even at full mana so the WATERLINE is visible. */
+/* Sanctum of the Damned — gelatinous Shared Mana.
+   The texture is adapted from the approved gelatinous-cube-inspired HUD.
+   #manaOrbFill still receives its height directly from the game engine;
+   everything here is decorative and the other HUD segments are untouched. */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
- position:relative!important;
- isolation:isolate!important;
- display:flex!important;
- flex-direction:column!important;
- justify-content:center!important;
- align-items:center!important;
- gap:1px!important;
- box-sizing:border-box!important;
- min-width:0!important;
- padding:2px 4px!important;
- overflow:hidden!important;
- border:1px solid #987b4e!important;
- border-radius:5px!important;
+ position:relative!important;isolation:isolate!important;
+ display:flex!important;flex-direction:column!important;
+ justify-content:center!important;align-items:center!important;
+ gap:1px!important;box-sizing:border-box!important;min-width:0!important;
+ padding:2px 4px!important;overflow:hidden!important;
+ border:1px solid #aa8750!important;border-radius:5px!important;
  background:
-   radial-gradient(ellipse at 50% 0%,rgba(18,66,124,.17),transparent 60%),
-   linear-gradient(180deg,#051525 0%,#071e38 48%,#081b34 100%)!important;
- box-shadow:inset 0 0 0 2px rgba(157,181,203,.16),inset 0 0 9px rgba(0,9,27,.5),0 1px 4px rgba(0,0,0,.4)!important;
+  radial-gradient(ellipse at 48% 40%,rgba(14,72,129,.25),transparent 74%),
+  linear-gradient(180deg,#071421,#03111f 50%,#06192e 100%)!important;
+ box-shadow:inset 0 0 0 1px rgba(5,15,33,.95),
+            inset 0 0 0 3px rgba(194,151,84,.28),
+            inset 0 0 12px rgba(0,0,0,.46),
+            0 1px 5px rgba(0,0,0,.53)!important;
 }
-/* One crisp sapphire emblem and no ruby/red-gem decoration. */
+/* A single crisp sapphire medallion, with the ruby/red gem removed. */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
- content:""!important;
- position:absolute!important;
- z-index:8!important;
- pointer-events:none!important;
- display:block!important;
- top:50%!important;
- left:5px!important;
- transform:translateY(-50%)!important;
- width:clamp(24px,3vw,38px)!important;
- height:clamp(24px,3vw,38px)!important;
- max-height:calc(100% - 6px)!important;
- border:0!important;
- border-radius:50%!important;
+ content:""!important;display:block!important;position:absolute!important;
+ z-index:9!important;pointer-events:none!important;
+ top:50%!important;left:3px!important;transform:translateY(-50%)!important;
+ width:clamp(24px,3vw,38px)!important;height:clamp(24px,3vw,38px)!important;
+ max-height:calc(100% - 4px)!important;
+ border:0!important;border-radius:50%!important;
  background:url('../../assets/hud/mana-crystal-gothic.svg') center/contain no-repeat!important;
- box-shadow:0 0 5px rgba(19,126,210,.2)!important;
- filter:none!important;
+ box-shadow:0 0 9px rgba(31,141,238,.3)!important;filter:none!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::after{
- content:none!important;
- display:none!important;
+ content:none!important;display:none!important;
 }
-/* Animated contents rise/fall with the existing inline style.height.
-   5px of air above the FULL reservoir makes the rippling top unmistakable. */
+/* The actual reservoir: high-detail GEL TEXTURE sampled from the chosen
+   mockup, with ice-cyan luminous veins and deep ink-blue transparency.
+   Existing engine height remains authoritative (0 mana = no gel). */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill{
- position:absolute!important;
- z-index:1!important;
- left:1px!important;
- right:1px!important;
- bottom:1px!important;
- width:auto!important;
- max-height:calc(100% - 6px)!important;
- min-height:0!important;
- overflow:hidden!important;
- box-sizing:border-box!important;
- opacity:1!important;
- border-radius:0 0 3px 3px!important;
- background:transparent!important;
- box-shadow:none!important;
- pointer-events:none!important;
- transition:height .48s cubic-bezier(.25,.75,.25,1)!important;
+ position:absolute!important;z-index:1!important;display:block!important;
+ left:1px!important;right:1px!important;bottom:1px!important;
+ width:auto!important;min-height:0!important;
+ max-height:calc(100% - 5px)!important;
+ box-sizing:border-box!important;overflow:hidden!important;
+ border-radius:2px 2px 3px 3px!important;
+ opacity:1!important;pointer-events:none!important;
+ background-image:
+   linear-gradient(180deg,rgba(0,30,66,.06) 0%,rgba(0,8,30,.27) 72%,rgba(0,8,29,.36) 100%),
+   url('../../assets/hud/mana-gel-texture.webp')!important;
+ background-size:100% 100%,cover!important;
+ background-position:center,center!important;
+ background-repeat:no-repeat!important;
+ box-shadow:inset 0 1px 5px rgba(210,249,255,.37),
+            inset 0 -4px 7px rgba(2,8,40,.32),
+            0 -1px 4px rgba(52,173,251,.34)!important;
+ transition:height .52s cubic-bezier(.22,.76,.29,1)!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::before,
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill::after{
  content:none!important;display:none!important;
 }
+/* Two transparent curved surface ribbons shimmer WITHOUT covering the gel art. */
 #manaStatBox #manaOrbFill .manaLiquidWave{
- position:absolute!important;
- display:block!important;
- top:0!important;
- bottom:0!important;
- height:100%!important;
- width:155%!important;
- pointer-events:none!important;
+ position:absolute!important;display:block!important;
+ top:0!important;bottom:0!important;height:100%!important;
+ width:155%!important;pointer-events:none!important;
  transform:translate3d(0,0,0);
- will-change:transform;
 }
 #manaStatBox #manaOrbFill .manaLiquidWave svg{
- display:block!important;
- width:100%!important;
- height:100%!important;
- overflow:visible!important;
+ display:block!important;width:100%!important;height:100%!important;
+}
+#manaStatBox #manaOrbFill .manaLiquidWave svg path:first-of-type{
+ fill-opacity:.11!important;
+}
+#manaStatBox #manaOrbFill .manaLiquidWave svg path:last-of-type{
+ stroke-width:2.8!important;stroke-opacity:.9!important;
+ filter:drop-shadow(0 1px 2px rgba(102,221,255,.58));
 }
 #manaStatBox #manaOrbFill .manaLiquidWaveBack{
- z-index:1!important;
- left:-27%!important;
- opacity:.96!important;
- animation:sanctumLiquidBack 5.4s ease-in-out infinite alternate!important;
+ z-index:2!important;left:-27%!important;opacity:.67!important;
+ animation:sanctumGelWaveBack 5.8s ease-in-out infinite alternate!important;
 }
 #manaStatBox #manaOrbFill .manaLiquidWaveFront{
- z-index:2!important;
- left:-27%!important;
- opacity:.93!important;
- animation:sanctumLiquidFront 4.4s ease-in-out infinite alternate!important;
+ z-index:3!important;left:-27%!important;opacity:.89!important;
+ animation:sanctumGelWaveFront 4.2s ease-in-out infinite alternate!important;
 }
-/* Tiny blue-white bubbles and slow reflections are INSIDE the water. */
+/* Scattered suspended bubbles and glossy refraction. */
 #manaStatBox #manaOrbFill .manaLiquidBubbles{
- position:absolute!important;
- z-index:3!important;
- inset:0!important;
+ position:absolute!important;z-index:4!important;inset:0!important;
  pointer-events:none!important;
  background:
-   radial-gradient(circle,rgba(224,251,255,.92) 0 1.05px,transparent 1.8px) 12px 4px / 59px 47px repeat,
-   radial-gradient(circle,rgba(192,245,255,.64) 0 1.5px,transparent 2.2px) 33px 22px / 83px 62px repeat,
-   radial-gradient(circle,rgba(166,234,255,.53) 0 1px,transparent 1.8px) 8px 18px / 43px 39px repeat!important;
- opacity:.62!important;
- animation:sanctumLiquidBubbles 7.6s linear infinite!important;
+  radial-gradient(circle at 11% 75%,rgba(194,246,255,.85) 0 1.1px,rgba(9,81,150,.35) 2px,transparent 4px),
+  radial-gradient(circle at 69% 51%,rgba(231,253,255,.8) 0 1.2px,rgba(5,106,180,.24) 2px,transparent 4px),
+  radial-gradient(circle at 87% 83%,rgba(187,245,255,.65) 0 1.4px,rgba(10,88,159,.3) 2px,transparent 4px),
+  radial-gradient(circle at 38% 91%,rgba(178,236,255,.5) 0 .8px,transparent 2.8px)!important;
+ opacity:.8!important;
+ animation:sanctumGelBubbles 8s ease-in-out infinite alternate!important;
 }
 #manaStatBox #manaOrbFill .manaLiquidShimmer{
- position:absolute!important;
- z-index:4!important;
- inset:0!important;
+ position:absolute!important;z-index:5!important;inset:0!important;
  pointer-events:none!important;
  background:
-   radial-gradient(ellipse at 22% 50%,rgba(194,248,255,.23),transparent 34%),
-   linear-gradient(110deg,transparent 13%,rgba(205,246,255,.13) 30%,transparent 45%,rgba(151,231,255,.07) 67%,transparent 80%)!important;
- opacity:.68!important;
- animation:sanctumLiquidShimmer 6s ease-in-out infinite alternate!important;
+   linear-gradient(110deg,transparent 7%,rgba(185,246,255,.16) 30%,transparent 47%,rgba(88,190,254,.08) 70%,transparent 87%),
+   radial-gradient(ellipse at 75% 12%,rgba(184,249,255,.17),transparent 35%)!important;
+ opacity:.46!important;
+ animation:sanctumGelLight 7.8s ease-in-out infinite alternate!important;
 }
-@keyframes sanctumLiquidBack{
- from{transform:translate3d(-3%,0,0)}
- to{transform:translate3d(3%,0,0)}
+@keyframes sanctumGelWaveBack{
+ from{transform:translate3d(-2.5%,0,0)}to{transform:translate3d(3%,0,0)}
 }
-@keyframes sanctumLiquidFront{
- from{transform:translate3d(3%,0,0)}
- to{transform:translate3d(-4%,0,0)}
+@keyframes sanctumGelWaveFront{
+ from{transform:translate3d(3%,0,0)}to{transform:translate3d(-4%,0,0)}
 }
-@keyframes sanctumLiquidBubbles{
- from{background-position:12px 47px,33px 60px,8px 39px}
- to{background-position:12px 0,33px -2px,8px 0}
+@keyframes sanctumGelBubbles{
+ from{transform:translate3d(0,2px,0);opacity:.55}
+ to{transform:translate3d(0,-3px,0);opacity:.91}
 }
-@keyframes sanctumLiquidShimmer{
- from{transform:translateX(-5%);opacity:.45}
- to{transform:translateX(5%);opacity:.76}
+@keyframes sanctumGelLight{
+ from{opacity:.36;transform:translateX(-4%)}
+ to{opacity:.65;transform:translateX(4%)}
 }
-/* Lower visual intensity of obsolete glass overlays, keep clear live numbers. */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > .manaMeterGlow{
- z-index:5!important;
- opacity:.09!important;
- background:linear-gradient(180deg,rgba(184,230,255,.1),transparent 48%)!important;
- pointer-events:none!important;
+ z-index:6!important;opacity:.08!important;pointer-events:none!important;
+ background:radial-gradient(ellipse at 50% 15%,rgba(181,238,255,.33),transparent 57%)!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > .meterGlass{
- z-index:6!important;opacity:.07!important;pointer-events:none!important;
+ z-index:7!important;opacity:.09!important;pointer-events:none!important;
 }
+/* Live text in front of gel, never baked into artwork. */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat,
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
- position:relative!important;
- inset:auto!important;
- display:block!important;
- box-sizing:border-box!important;
- width:100%!important;
- max-width:100%!important;
- min-width:0!important;
- flex:0 0 auto!important;
- margin:0!important;
- padding:0 2px!important;
- transform:none!important;
- overflow:hidden!important;
- white-space:nowrap!important;
- text-align:center!important;
- letter-spacing:0!important;
- line-height:1!important;
- z-index:10!important;
+ position:relative!important;inset:auto!important;display:block!important;
+ box-sizing:border-box!important;min-width:0!important;
+ width:100%!important;max-width:100%!important;
+ flex:0 0 auto!important;margin:0!important;padding:0 3px!important;
+ transform:none!important;overflow:hidden!important;white-space:nowrap!important;
+ text-overflow:clip!important;text-align:center!important;
+ letter-spacing:0!important;line-height:1!important;z-index:11!important;
  pointer-events:none!important;
- text-shadow:0 1px 2px #05152c,0 0 4px #05152c!important;
+ text-shadow:0 1px 3px #001127,0 0 6px rgba(1,8,31,.98)!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat{
- color:#f2faff!important;
+ color:#eaf9ff!important;
  font:700 clamp(14px,1.35vw,19px)/1 Georgia,'Times New Roman',serif!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
- color:#deefff!important;
+ color:#e6d5a8!important;
  font:700 clamp(7px,.68vw,9px)/1 Georgia,'Times New Roman',serif!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat.empty{
- border-color:#647587!important;
+ border-color:#607188!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat.empty > #manaStat{
- color:#a9bac9!important;
+ color:#9baec5!important;
 }
-/* Tall iPad/desktop panels show the full wave profile; tiny phone
-   landscape panels get a smaller but visible water surface. */
-@media (orientation:landscape) and (max-height:520px){
+@media(orientation:landscape) and (max-height:520px){
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
-  padding:1px 2px!important;
-  gap:0!important;
-  border-radius:3px!important;
+  padding:1px 2px!important;gap:0!important;border-radius:3px!important;
  }
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
-  left:2px!important;
-  width:clamp(12px,2vw,18px)!important;
-  height:clamp(12px,2vw,18px)!important;
-  max-height:calc(100% - 2px)!important;
+  left:2px!important;width:clamp(12px,2vw,18px)!important;
+  height:clamp(12px,2vw,18px)!important;max-height:calc(100% - 2px)!important;
+  box-shadow:none!important;
  }
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill{
   max-height:calc(100% - 3px)!important;
-  left:1px!important;right:1px!important;bottom:1px!important;
  }
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat{
   font-size:clamp(8px,1.05vw,10px)!important;
@@ -207,9 +169,9 @@
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > span{
   font-size:clamp(4.5px,.65vw,5.5px)!important;
  }
- #manaStatBox #manaOrbFill .manaLiquidBubbles{opacity:.32!important;}
+ #manaStatBox #manaOrbFill .manaLiquidBubbles{opacity:.36!important;}
 }
-@media (orientation:portrait) and (max-width:520px){
+@media(orientation:portrait) and (max-width:520px){
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
   left:2px!important;width:23px!important;height:23px!important;
  }
@@ -217,11 +179,11 @@
   font-size:14px!important;
  }
 }
-@media (prefers-reduced-motion:reduce){
+@media(prefers-reduced-motion:reduce){
  #manaStatBox #manaOrbFill .manaLiquidWave,
  #manaStatBox #manaOrbFill .manaLiquidBubbles,
  #manaStatBox #manaOrbFill .manaLiquidShimmer{
-  animation:none!important;will-change:auto!important;
+  animation:none!important;
  }
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaOrbFill{
   transition:none!important;
