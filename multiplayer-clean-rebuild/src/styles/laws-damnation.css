@@ -39,3 +39,21 @@
  background:transparent !important;
 }
 #rogueChoiceModal .lawDraftChoice:hover{filter:brightness(1.05)}
+
+/* The Blood Covenant: replace iPadOS' blue emoji chain with a true black,
+   parchment-matched SVG. Other Law symbols are intentionally untouched. */
+#rogueChoiceModal .lawDraftChoice.lawBloodCovenant .nodeIcon{
+ display:block!important;
+ width:30px!important;
+ height:30px!important;
+ min-height:30px!important;
+ font-size:0!important;
+ line-height:0!important;
+ color:#291508!important;
+ margin-bottom:9px!important;
+ background-image:url('../../assets/laws/law-chain-black.svg')!important;
+ background-position:center!important;
+ background-size:30px 30px!important;
+ background-repeat:no-repeat!important;
+ filter:none!important;
+}

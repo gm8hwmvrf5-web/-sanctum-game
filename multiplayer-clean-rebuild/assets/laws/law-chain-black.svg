@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Black chain">
+ <g fill="none" stroke="#291508" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M18 28.5 11.6 35a8.1 8.1 0 0 1-11.4-11.4l9.4-9.4a8.1 8.1 0 0 1 11.4 0l3.7 3.7" transform="translate(7 0)"/>
+  <path d="m30 19.5 6.4-6.5a8.1 8.1 0 0 1 11.4 11.4l-9.4 9.4a8.1 8.1 0 0 1-11.4 0l-3.7-3.7" transform="translate(-7 0)"/>
+  <path d="m17.8 29.9 12.4-12.4" stroke-width="2.8"/>
+ </g>
+</svg>

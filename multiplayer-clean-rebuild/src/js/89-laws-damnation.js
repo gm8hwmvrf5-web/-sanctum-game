@@ -6,7 +6,7 @@
 if(window.__sanctumLawsInstalled)return;
 window.__sanctumLawsInstalled=true;
 const DEFINITIONS=[
- {key:'bloodCovenant',name:'The Blood Covenant',icon:'⛓',desc:'Every Demon slain strengthens the surviving Demon closest to the Altar by +2 maximum and current HP.',reward:'Kill order matters'},
+ {key:'bloodCovenant',name:'The Blood Covenant',icon:'⛓︎',desc:'Every Demon slain strengthens the surviving Demon closest to the Altar by +2 maximum and current HP.',reward:'Kill order matters'},
  {key:'shiftingSanctum',name:'The Shifting Sanctum',icon:'◈',desc:'Every three rounds another room becomes unstable. Demons entering it gain one additional movement on their next Demon Phase.',reward:'Rooms become dangerous'},
  {key:'bloodPower',name:'Blood Is Power',icon:'♦',desc:'Basic Attacks automatically spend 1 Demon Blood, if available, for +3 direct damage. Save Blood for Rituals or use it for offense.',reward:'Blood versus damage'},
  {key:'endlessProcession',name:'The Endless Procession',icon:'♜',desc:'Every fourth normally spawned Demon brings a spectral copy at half HP and Attack. Spectral Demons grant no Blood or Relic XP.',reward:'Extra bodies, no XP'},
@@ -80,7 +80,7 @@ function showPending(){
  if(typeof window.__sanctumLawShowChoice!=='function'){defer(350);return}
  const choices=o.keys.map(key=>{
   const law=LOOKUP[key];
-  return {title:law.name,icon:law.icon,cls:'lawDraftChoice',desc:law.desc,
+  return {title:law.name,icon:law.icon,cls:'lawDraftChoice'+(key==='bloodCovenant'?' lawBloodCovenant':''),desc:law.desc,
    reward:law.reward,actionKey:'law:'+key,action:()=>choose(key)};
  });
  const title=o.kind==='start'?'Choose Your First Law':o.kind==='cycle'?'Replace a Law of Damnation':'Choose Another Law';
