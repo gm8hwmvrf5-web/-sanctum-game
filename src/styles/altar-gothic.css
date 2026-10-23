@@ -1,5 +1,5 @@
 /* Sanctum of the Damned — Gothic Altar Protection HUD.
- * Dark gilded reliquary, luminous amber protection, and sacred shield.
+ * Dark gilded reliquary with carnelian-orange translucency, deep ruby shadows, and sacred shield.
  * Presentation only: #altarMeterFill height and #altarStat remain game-owned.
  * No changes to protection math, multiplayer, or HUD dimensions. */
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
@@ -17,12 +17,13 @@
  border:1px solid #b38a4a!important;
  border-radius:5px!important;
  background:
-   radial-gradient(ellipse at 80% 55%,rgba(93,56,20,.3),transparent 70%),
-   linear-gradient(180deg,#281b11 0%,#10100e 49%,#19130e 100%)!important;
+   radial-gradient(ellipse at 80% 55%,rgba(179,61,33,.26),transparent 70%),
+   radial-gradient(ellipse at 18% 5%,rgba(249,105,78,.12),transparent 48%),
+   linear-gradient(180deg,#29120f 0%,#110c0c 49%,#23100f 100%)!important;
  box-shadow:
-   inset 0 0 0 1px rgba(13,10,8,.91),
+   inset 0 0 0 1px rgba(13,8,7,.95),
    inset 0 0 0 3px rgba(198,147,65,.2),
-   inset 0 0 11px rgba(0,0,0,.59),
+   inset 0 0 12px rgba(69,19,12,.54),
    0 1px 4px rgba(0,0,0,.43)!important;
 }
 /* Left sacred protection emblem echoes the sapphire/gold Mana medallion. */
@@ -38,8 +39,8 @@
  max-height:calc(100% - 5px)!important;
  border:0!important;
  border-radius:50%!important;
- background:url('../../assets/hud/altar-shield-gothic.svg') center/contain no-repeat!important;
- box-shadow:0 0 6px rgba(235,176,77,.19)!important;
+ background:url('../../assets/hud/altar-shield-gothic.svg?v=carnelian137') center/contain no-repeat!important;
+ box-shadow:0 0 7px rgba(249,105,78,.29)!important;
  pointer-events:none!important;
 }
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat::after{
@@ -51,12 +52,13 @@
  border-radius:3px!important;
  box-shadow:inset 0 0 0 1px rgba(17,9,7,.48)!important;
  background:
-   linear-gradient(90deg,transparent,rgba(246,206,124,.2),transparent) center top/82% 1px no-repeat,
-   linear-gradient(90deg,transparent,rgba(174,105,47,.26),transparent) center bottom/82% 1px no-repeat!important;
+   linear-gradient(90deg,transparent,rgba(255,174,102,.4),transparent) center top/82% 1px no-repeat,
+   linear-gradient(90deg,transparent,rgba(150,39,26,.49),transparent) center bottom/82% 1px no-repeat!important;
  pointer-events:none!important;
 }
-/* Dynamic protection reservoir: molten-gold stained glass rather than a
-   featureless bright-yellow tile. Remains driven by engine's percent fill. */
+/* Dynamic protection reservoir: translucent orange carnelian, copper-red
+   layers and deep garnet shadows, as in the supplied stone photograph.
+   Remains driven by the engine's real protection percentage. */
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarMeterFill.altarMeterFill{
  position:absolute!important;
  display:block!important;
@@ -74,18 +76,19 @@
  opacity:1!important;
  pointer-events:none!important;
  background:
-   radial-gradient(ellipse at 11% 20%,rgba(255,236,151,.55),transparent 31%),
-   radial-gradient(ellipse at 84% 76%,rgba(228,149,45,.35),transparent 44%),
-   radial-gradient(ellipse at 58% 14%,rgba(236,183,82,.34),transparent 49%),
-   repeating-linear-gradient(122deg,transparent 0 26px,rgba(255,232,149,.045) 27px 29px,transparent 30px 56px),
-   linear-gradient(180deg,#bb8138 0%,#89551e 22%,#583817 54%,#322415 81%,#1f1b14 100%)!important;
+   radial-gradient(ellipse at 18% 4%,rgba(255,201,128,.64),rgba(249,105,78,.38) 32%,transparent 61%),
+   radial-gradient(ellipse at 91% 26%,rgba(255,169,89,.4),transparent 45%),
+   radial-gradient(ellipse at 78% 90%,rgba(91,20,18,.62),transparent 58%),
+   linear-gradient(151deg,transparent 0 14%,rgba(255,169,110,.24) 19%,transparent 35%,rgba(111,28,25,.33) 45%,transparent 59%),
+   linear-gradient(28deg,rgba(88,23,17,.26) 9%,transparent 26%,rgba(246,123,57,.17) 49%,transparent 70%),
+   linear-gradient(180deg,#ef762e 0%,#e15a27 20%,#b33d21 47%,#922819 71%,#4c1917 100%)!important;
  background-size:100% 100%!important;
  box-shadow:
-   inset 0 3px 4px rgba(255,232,174,.21),
-   inset 0 -5px 9px rgba(16,11,7,.5),
-   inset 4px 0 8px rgba(6,6,4,.23),
-   inset -4px 0 8px rgba(6,6,4,.23),
-   0 -1px 5px rgba(232,172,70,.32)!important;
+   inset 0 3px 5px rgba(255,194,137,.4),
+   inset 0 -6px 9px rgba(74,18,19,.69),
+   inset 4px 0 8px rgba(76,19,17,.28),
+   inset -4px 0 8px rgba(76,19,17,.28),
+   0 -1px 6px rgba(249,105,78,.4)!important;
  transition:height .3s ease!important;
 }
 /* A slim illuminated edge where the sacred protection level meets the air. */
@@ -98,8 +101,8 @@
  right:7px!important;
  height:2px!important;
  border-radius:50%!important;
- background:linear-gradient(90deg,transparent,rgba(255,235,172,.75),rgba(252,203,106,.7),transparent)!important;
- box-shadow:0 0 3px rgba(248,206,127,.18)!important;
+ background:linear-gradient(90deg,transparent,rgba(255,222,173,.83),rgba(255,159,98,.77),transparent)!important;
+ box-shadow:0 0 4px rgba(255,118,67,.38)!important;
  opacity:.75!important;
 }
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarMeterFill::after{
@@ -108,10 +111,10 @@
  inset:0!important;
  display:block!important;
  background:
-   radial-gradient(circle at 22% 63%,rgba(253,224,134,.21) 0 1.2px,transparent 2.2px),
-   radial-gradient(circle at 66% 34%,rgba(253,222,142,.26) 0 1px,transparent 2px),
-   radial-gradient(circle at 90% 59%,rgba(246,204,111,.19) 0 1.4px,transparent 2.5px),
-   linear-gradient(114deg,transparent 10%,rgba(255,229,157,.1) 37%,transparent 49%,rgba(255,205,123,.07) 71%,transparent 88%)!important;
+   radial-gradient(circle at 22% 63%,rgba(255,206,158,.32) 0 1.2px,transparent 2.2px),
+   radial-gradient(circle at 66% 34%,rgba(255,164,101,.3) 0 1px,transparent 2px),
+   radial-gradient(circle at 90% 59%,rgba(249,105,78,.25) 0 1.4px,transparent 2.5px),
+   linear-gradient(114deg,transparent 10%,rgba(255,212,171,.19) 37%,transparent 49%,rgba(249,105,78,.11) 71%,transparent 88%)!important;
  pointer-events:none!important;
 }
 /* Keep the live value central, readable, and distinct from the artwork. */
@@ -135,31 +138,31 @@
  letter-spacing:0!important;
  line-height:1!important;
  pointer-events:none!important;
- text-shadow:0 1px 3px #130a05,0 0 5px rgba(14,9,5,.95)!important;
+ text-shadow:0 1px 3px #32110c,0 0 5px rgba(29,7,8,.95)!important;
 }
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > #altarStat{
  font:700 clamp(14px,1.35vw,19px)/1 Georgia,'Times New Roman',serif!important;
- color:#fff1ce!important;
+ color:#fff0dc!important;
 }
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > span{
  font:700 clamp(7px,.68vw,9px)/1 Georgia,'Times New Roman',serif!important;
- color:#f3d8a4!important;
+ color:#ffd4ac!important;
 }
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat > .meterGlass{
  position:absolute!important;
  inset:0!important;
  z-index:3!important;
- background:linear-gradient(180deg,rgba(255,241,196,.06),transparent 42%,rgba(0,0,0,.14))!important;
+ background:linear-gradient(180deg,rgba(255,209,166,.1),transparent 42%,rgba(62,12,12,.18))!important;
  opacity:.16!important;
  pointer-events:none!important;
 }
 /* Cleared protection loses its gilded core, but keeps the Gothic shell. */
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat.empty{
- border-color:#685438!important;
+ border-color:#6d453a!important;
 }
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat.empty > #altarStat,
 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat.empty > span{
- color:#b7a17e!important;
+ color:#b6a094!important;
 }
 @media (orientation:landscape) and (max-height:520px){
  #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
