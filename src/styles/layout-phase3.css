@@ -1,0 +1,63 @@
+/* Phase 3 — discoverable Rituals (layout-redesign ONLY).
+   The three class Ritual definitions and their existing blood/roll logic stay
+   untouched. This layer hides unavailable ritual cards, not their data. */
+.app.layoutPhase3 #ritualPanel .rituals > .ritual[hidden]{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.app.layoutPhase3 #ritualPanel .ritualMain .layoutRitualProgress{
+  width:100%;
+  box-sizing:border-box;
+  display:block;
+  margin:4px 0 8px;
+  padding:7px 9px;
+  border:1px solid rgba(182,139,78,.57);
+  border-radius:7px;
+  background:
+    linear-gradient(90deg,rgba(29,20,17,.9),rgba(13,11,21,.9));
+  box-shadow:inset 0 1px 7px rgba(211,151,86,.09);
+  color:#e8c99b;
+  font:700 clamp(9px,.75vw,11px)/1.35 Georgia,serif;
+  letter-spacing:.04em;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.app.layoutPhase3 #ritualPanel .rituals{
+  align-content:start!important;
+  grid-auto-rows:minmax(0,auto)!important;
+}
+.app.layoutPhase3 #ritualPanel .rituals > .ritual:not([hidden]){
+  position:relative!important;
+  border-color:rgba(186,128,77,.85)!important;
+  background:
+    radial-gradient(ellipse at 50% 0,rgba(101,62,39,.23),transparent 70%),
+    linear-gradient(180deg,rgba(35,19,22,.97),rgba(17,12,19,.97))!important;
+  box-shadow:inset 0 1px 5px rgba(219,180,104,.11),
+    0 3px 8px rgba(0,0,0,.5)!important;
+}
+.app.layoutPhase3 #ritualPanel .rituals > .ritual:not([hidden]) > b{
+  color:#eed3a5!important;
+  text-shadow:0 1px 4px rgba(0,0,0,.72)!important;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .app.layoutPhase3 #ritualPanel .ritualMain .layoutRitualProgress{
+    margin:2px 0 4px!important;
+    padding:3px 4px!important;
+    font-size:8px!important;
+    line-height:1.2!important;
+    letter-spacing:0!important;
+    border-radius:4px!important;
+  }
+  .app.layoutPhase3 #ritualPanel .rituals{
+    gap:3px!important;
+  }
+}
+@media (orientation:portrait){
+  .app.layoutPhase3 #ritualPanel .ritualMain .layoutRitualProgress{
+    padding:4px 6px!important;
+    margin:3px 0 5px!important;
+    font-size:10px!important;
+  }
+}
