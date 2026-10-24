@@ -223,7 +223,7 @@ body > .app.layoutPhase2 > #boardSection.board > .room.is-focused{
   animation:layoutSpellFlicker 3s ease-in-out infinite alternate;
 }
 .app.layoutPhase2 .layoutActorIdentity{
-  position:absolute;z-index:3;bottom:-9px;left:50%;transform:translateX(-50%);
+  position:absolute;z-index:3;top:-14px;bottom:auto;left:50%;transform:translateX(-50%);
   display:flex;align-items:center;gap:7px;width:max-content;max-width:235px;
   padding:4px 11px 4px 4px;
   border:1px solid rgba(188,145,94,.6);border-radius:25px;
@@ -310,7 +310,7 @@ body > .app.layoutPhase2 > #boardSection.board > .room.is-focused{
     opacity:.83;
   }
   .app.layoutPhase2 .layoutActorIdentity{
-    bottom:-5px;padding:2px 5px 2px 2px;gap:4px;
+    top:-4px;bottom:auto;padding:2px 5px 2px 2px;gap:4px;
     max-width:135px;min-width:0;
   }
   .app.layoutPhase2 .layoutActorIdentity img{
