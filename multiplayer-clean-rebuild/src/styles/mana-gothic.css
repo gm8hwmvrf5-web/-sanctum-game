@@ -45,7 +45,7 @@
  opacity:1!important;pointer-events:none!important;
  background-image:
    linear-gradient(180deg,rgba(0,30,66,.06) 0%,rgba(0,8,30,.27) 72%,rgba(0,8,29,.36) 100%),
-   url('../../assets/hud/mana-gel-texture.webp')!important;
+   url('../../assets/hud/mana-gel-texture-clean.svg')!important;
  background-size:100% 100%,cover!important;
  background-position:center,center!important;
  background-repeat:no-repeat!important;
