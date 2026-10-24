@@ -1,0 +1,348 @@
+/* Sanctum Layout Redesign — Phase 2.
+ * A third-person silhouette, perspective floor, and enemy staging drawn around
+ * the live Phase 1 room elements. No source card art or mechanics are replaced. */
+.app.layoutPhase2{
+  --layout-priest-accent:#c9a370;
+}
+.app.layoutPhase2 #layoutBattlefieldAtmosphere{
+  position:absolute;inset:0;z-index:2;overflow:hidden;
+  pointer-events:none;isolation:isolate;
+}
+.app.layoutPhase2 .layoutDepthHaze{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 45% 46% at 50% 47%,rgba(134,106,68,.16),transparent 85%),
+    radial-gradient(ellipse 45% 55% at 48% 100%,rgba(3,5,9,.15),rgba(0,0,0,0) 85%),
+    linear-gradient(180deg,rgba(2,3,8,.30) 0,transparent 35%,rgba(3,3,9,.46) 100%);
+  opacity:.9;
+}
+.app.layoutPhase2 .layoutGroundPlane{
+  position:absolute;left:-28%;right:-28%;bottom:-44%;height:83%;
+  transform:perspective(450px) rotateX(61deg);
+  transform-origin:top center;
+  border-top:1px solid rgba(204,161,94,.24);
+  background:
+    linear-gradient(90deg,transparent 0 49.85%,rgba(224,190,127,.12) 50%,transparent 50.15%),
+    repeating-linear-gradient(90deg,transparent 0 117px,rgba(177,134,87,.09) 118px,transparent 120px),
+    repeating-linear-gradient(180deg,transparent 0 92px,rgba(189,144,90,.13) 93px,transparent 95px),
+    radial-gradient(ellipse at center,rgba(112,74,58,.24),transparent 58%);
+  mask-image:linear-gradient(transparent 0%,black 20%,black 73%,transparent 100%);
+  -webkit-mask-image:linear-gradient(transparent 0%,black 20%,black 73%,transparent 100%);
+  opacity:.78;
+}
+.app.layoutPhase2 .layoutGroundSigil{
+  position:absolute;left:50%;bottom:16%;width:clamp(165px,26vw,350px);
+  height:clamp(45px,8vh,90px);transform:translateX(-50%);
+  border:2px solid rgba(178,130,79,.15);border-radius:50%;
+  background:radial-gradient(ellipse,rgba(199,121,65,.09) 3%,transparent 68%);
+  box-shadow:0 0 29px rgba(185,108,60,.13),inset 0 0 18px rgba(162,88,58,.11);
+}
+/* The game-owned room is still in the DOM and fully handles all inputs. */
+body > .app.layoutPhase2 > #boardSection.board > .room.is-focused{
+  padding:clamp(195px,24vh,230px) clamp(184px,20vw,280px) clamp(270px,32vh,365px)!important;
+}
+.app.layoutPhase2 #boardSection .room > h3{
+  display:none!important;
+}
+.app.layoutPhase2 #boardSection .roomMeta{
+  position:relative!important;z-index:8!important;
+  margin:0 auto 6px!important;max-height:35px!important;
+  overflow:visible!important;
+}
+.app.layoutPhase2 #boardSection .demons{
+  position:relative!important;z-index:5!important;
+  display:flex!important;flex-wrap:wrap!important;
+  justify-content:center!important;align-content:center!important;
+  align-items:flex-end!important;
+  width:100%!important;max-width:950px!important;min-height:112px!important;
+  max-height:100%!important;padding:7px 12px 13px!important;
+  margin:0 auto!important;overflow:auto!important;
+  gap:clamp(6px,1.3vw,19px)!important;
+  perspective:750px;
+}
+.app.layoutPhase2 #boardSection .demons > .demon{
+  position:relative!important;isolation:isolate!important;
+  display:flex!important;flex-direction:column!important;
+  flex:0 1 clamp(112px,11vw,171px)!important;
+  width:clamp(112px,11vw,171px)!important;
+  max-width:174px!important;min-width:0!important;
+  min-height:0!important;height:auto!important;
+  max-height:none!important;
+  padding:5px!important;
+  background:linear-gradient(180deg,rgba(25,17,25,.40),rgba(8,8,13,.94))!important;
+  border:1px solid rgba(155,100,74,.75)!important;
+  border-radius:11px 11px 7px 7px!important;
+  box-shadow:inset 0 0 17px rgba(0,0,0,.8),0 18px 17px -14px rgba(0,0,0,.98),
+    0 6px 22px rgba(12,2,7,.45)!important;
+  transform:none!important;
+  transition:border-color .15s,box-shadow .15s!important;
+  overflow:hidden!important;cursor:pointer!important;
+}
+.app.layoutPhase2 #boardSection .demons > .demon:hover,
+.app.layoutPhase2 #boardSection .demons > .demon:focus-within{
+  border-color:#f0ca80!important;
+  box-shadow:0 0 13px rgba(221,152,68,.32),0 15px 22px rgba(0,0,0,.7)!important;
+}
+.app.layoutPhase2 #boardSection .demons > .demon.selected{
+  outline:2px solid #f6d58c!important;outline-offset:2px!important;
+}
+.app.layoutPhase2 #boardSection .demons > .demon.greater{
+  border-color:#c39150!important;
+}
+.app.layoutPhase2 #boardSection .demons > .demon.ultra{
+  box-shadow:0 0 17px rgba(164,54,62,.46),0 12px 18px rgba(0,0,0,.8)!important;
+}
+.app.layoutPhase2 #boardSection .demon .demonArtWrap{
+  position:relative!important;flex:0 0 auto!important;
+  width:100%!important;height:clamp(89px,14vh,165px)!important;
+  min-height:0!important;margin:0!important;
+  background:radial-gradient(ellipse at center,rgba(91,40,35,.21),rgba(3,5,9,.9))!important;
+  border:1px solid rgba(188,126,79,.5)!important;border-radius:8px 8px 3px 3px!important;
+  overflow:hidden!important;box-shadow:inset 0 0 22px rgba(0,0,0,.55)!important;
+}
+.app.layoutPhase2 #boardSection .demon .demonArt{
+  display:block!important;position:relative!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+  margin:0!important;transform:none!important;
+  object-fit:contain!important;object-position:center center!important;
+  filter:saturate(.94) contrast(1.08)!important;
+}
+.app.layoutPhase2 #boardSection .demon .demonBody{
+  position:relative!important;display:flex!important;flex-direction:column!important;
+  width:100%!important;min-width:0!important;gap:3px!important;
+  padding:5px 2px 1px!important;
+  background:linear-gradient(180deg,rgba(12,10,16,.76),rgba(4,5,10,.93))!important;
+}
+.app.layoutPhase2 #boardSection .demon .name{
+  width:100%!important;color:#f0d5ab!important;
+  font-size:clamp(9px,.85vw,12px)!important;line-height:1.13!important;
+  white-space:normal!important;overflow-wrap:break-word!important;
+  text-shadow:0 1px 3px black!important;text-align:center!important;
+}
+.app.layoutPhase2 #boardSection .demon .demonStats{
+  display:flex!important;justify-content:center!important;align-items:center!important;
+  flex-wrap:wrap!important;gap:3px!important;margin:0!important;
+  overflow:visible!important;
+}
+.app.layoutPhase2 #boardSection .demon .demonStats > span{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  gap:2px!important;min-height:18px!important;padding:2px 4px!important;
+  font-size:10px!important;line-height:1!important;
+  border:1px solid rgba(170,125,80,.46)!important;border-radius:4px!important;
+  background:rgba(4,6,10,.86)!important;
+}
+.app.layoutPhase2 #boardSection .demon .demonStats .statLabel,
+.app.layoutPhase2 #boardSection .demon .demonStats .statValue{
+  display:inline!important;font-size:inherit!important;line-height:inherit!important;
+}
+.app.layoutPhase2 #boardSection .demon .familyTag,
+.app.layoutPhase2 #boardSection .demon .abilityText{
+  display:none!important; /* Full enemy abilities remain in the clickable card reader. */
+}
+.app.layoutPhase2 #boardSection .mpDemonTapTarget{
+  cursor:pointer!important;z-index:16!important;
+}
+.app.layoutPhase2 #boardSection .mpDemonTapTarget:focus-visible{
+  outline:3px solid #f0d391!important;outline-offset:-2px!important;
+}
+.app.layoutPhase2 #boardSection .room .demons:empty::before{
+  content:'THE ROOM LIES SILENT';display:block;align-self:center;
+  padding:11px 19px;border:1px solid rgba(187,145,86,.33);
+  border-radius:6px;background:rgba(8,10,16,.62);
+  color:#cfb58b;font:700 12px Georgia,serif;letter-spacing:.19em;
+  text-shadow:0 2px 4px #000;
+}
+/* Boss gets its own larger, legible figure without changing the boss click target. */
+.app.layoutPhase2 #boardSection #bossArea{
+  position:relative!important;z-index:6!important;
+  width:100%!important;max-width:700px!important;max-height:100%!important;
+  display:flex!important;justify-content:center!important;align-items:flex-start!important;
+  padding:5px!important;overflow:auto!important;
+}
+.app.layoutPhase2 #boardSection #bossArea .bossCard{
+  position:relative!important;width:clamp(220px,33vw,420px)!important;
+  max-width:100%!important;height:auto!important;min-height:0!important;
+  background:linear-gradient(180deg,rgba(35,13,17,.40),rgba(13,7,9,.9))!important;
+  border:2px solid rgba(175,89,65,.74)!important;border-radius:11px!important;
+  box-shadow:0 14px 30px #000b,0 0 32px rgba(165,37,49,.17)!important;
+  padding:8px!important;pointer-events:auto!important;
+}
+.app.layoutPhase2 #boardSection #bossArea .bossArt{
+  display:block!important;width:100%!important;height:clamp(150px,22vh,285px)!important;
+  object-fit:contain!important;object-position:center center!important;
+  border-radius:6px!important;background:rgba(3,4,7,.62)!important;
+}
+.app.layoutPhase2 #boardSection #bossArea .bossName{
+  text-align:center!important;color:#f2d1b5!important;
+  font-size:clamp(13px,1.4vw,18px)!important;
+}
+.app.layoutPhase2 #boardSection #bossArea .bossStatLine{
+  display:flex!important;flex-wrap:wrap!important;justify-content:center!important;
+}
+.app.layoutPhase2 #boardSection #bossArea .bossAbilityMini{
+  display:none!important; /* Original tap-for-detail reader stays authoritative. */
+}
+/* Camera-facing scene widgets */
+.app.layoutPhase2 #layoutEncounterLabel{
+  position:absolute;top:163px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:max-content;max-width:min(460px,50vw);gap:1px;
+  z-index:13;pointer-events:none;text-align:center;
+  color:#ead5aa;text-shadow:0 2px 5px #000,0 0 17px #000;
+}
+.app.layoutPhase2 .layoutEncounterEyebrow{
+  font:700 8px Georgia,serif;letter-spacing:.23em;color:#aa9274;
+}
+.app.layoutPhase2 #layoutEncounterTitle{
+  font:700 clamp(12px,1.2vw,18px) Georgia,serif;letter-spacing:.18em;
+}
+.app.layoutPhase2 #layoutEncounterSubtitle{
+  font:normal 10px Georgia,serif;letter-spacing:.07em;color:#c4b09a;
+}
+/* Back-facing priest actor, located between the enemies and action cards. */
+.app.layoutPhase2 #layoutThirdPersonActor{
+  position:absolute;z-index:12;left:44%;bottom:clamp(235px,29vh,305px);
+  transform:translateX(-50%);width:clamp(160px,18vw,240px);
+  height:clamp(225px,37vh,365px);
+  isolation:isolate;pointer-events:none;
+  --layout-priest-accent:#c9a370;
+}
+.app.layoutPhase2 .layoutActorAura{
+  position:absolute;inset:12% 1% 0%;z-index:0;
+  background:radial-gradient(ellipse at 50% 56%,var(--layout-priest-accent),transparent 64%);
+  opacity:.2;filter:blur(18px);
+  animation:layoutBreath 4.2s ease-in-out infinite alternate;
+}
+.app.layoutPhase2 .layoutActorFigure{
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;
+  overflow:visible;filter:drop-shadow(2px 9px 11px rgba(0,0,0,.92));
+  transform-origin:center 85%;
+  animation:layoutActorBreathe 4s ease-in-out infinite alternate;
+}
+.app.layoutPhase2 .layoutSpellGlow{
+  animation:layoutSpellFlicker 3s ease-in-out infinite alternate;
+}
+.app.layoutPhase2 .layoutActorIdentity{
+  position:absolute;z-index:3;bottom:-9px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:7px;width:max-content;max-width:235px;
+  padding:4px 11px 4px 4px;
+  border:1px solid rgba(188,145,94,.6);border-radius:25px;
+  background:linear-gradient(90deg,rgba(29,21,25,.95),rgba(7,8,14,.95));
+  box-shadow:0 3px 15px rgba(0,0,0,.67);color:#f2dcad;
+  text-shadow:0 1px 3px #000;
+}
+.app.layoutPhase2 .layoutActorIdentity img{
+  width:30px;height:30px;flex:0 0 30px;border-radius:50%;
+  object-fit:cover;object-position:center 22%;
+  border:1px solid var(--layout-priest-accent);background:#1b1821;
+}
+.app.layoutPhase2 .layoutActorIdentity span{
+  display:flex;flex-direction:column;min-width:0;max-width:180px;
+}
+.app.layoutPhase2 .layoutActorIdentity strong{
+  display:block;font:bold 10px Georgia,serif;letter-spacing:.09em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.app.layoutPhase2 .layoutActorIdentity small{
+  display:block;font:9px Georgia,serif;color:#b7a493;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.app.layoutPhase2 #layoutThirdPersonActor.layoutActorWaiting{opacity:.4;}
+@keyframes layoutActorBreathe{from{transform:translateY(0) rotate(-.6deg)}to{transform:translateY(-4px) rotate(.6deg)}}
+@keyframes layoutBreath{from{opacity:.11}to{opacity:.26}}
+@keyframes layoutSpellFlicker{from{opacity:.62}to{opacity:1}}
+/* Room UI remains foreground and priest/demon art is never blurred or rescaled
+ * via page-level filters: only pure CSS atmosphere is softened. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  body > .app.layoutPhase2 > #boardSection.board > .room.is-focused{
+    padding:98px clamp(117px,17vw,170px) clamp(98px,28vh,135px)!important;
+  }
+  .app.layoutPhase2 #layoutEncounterLabel{
+    top:77px;max-width:55vw;gap:0;
+  }
+  .app.layoutPhase2 .layoutEncounterEyebrow{display:none;}
+  .app.layoutPhase2 #layoutEncounterTitle{font-size:10px;line-height:1;}
+  .app.layoutPhase2 #layoutEncounterSubtitle{font-size:8px;line-height:1.15;}
+  .app.layoutPhase2 #boardSection .roomMeta{
+    margin:0 auto 2px!important;max-height:23px!important;
+  }
+  .app.layoutPhase2 #boardSection .demons{
+    gap:3px!important;padding:2px 3px!important;
+    min-height:0!important;align-content:flex-start!important;align-items:flex-start!important;
+  }
+  .app.layoutPhase2 #boardSection .demons > .demon{
+    flex:0 1 clamp(66px,9vw,88px)!important;width:clamp(66px,9vw,88px)!important;
+    max-width:88px!important;height:auto!important;min-height:0!important;
+    max-height:128px!important;overflow:hidden!important;
+    padding:3px!important;border-radius:6px!important;
+  }
+  .app.layoutPhase2 #boardSection .demon .demonArtWrap{
+    height:clamp(43px,15vh,66px)!important;min-height:0!important;
+  }
+  .app.layoutPhase2 #boardSection .demon .name{
+    font-size:7px!important;line-height:1.1!important;
+  }
+  .app.layoutPhase2 #boardSection .demon .demonBody{
+    padding:2px 1px!important;gap:2px!important;
+  }
+  .app.layoutPhase2 #boardSection .demon .demonStats{
+    display:flex!important;gap:1px!important;
+  }
+  .app.layoutPhase2 #boardSection .demon .demonStats > span{
+    min-height:14px!important;font-size:7px!important;
+    padding:1px 2px!important;border-radius:3px!important;
+  }
+  .app.layoutPhase2 #boardSection .demon .demonStats .statLabel,
+  .app.layoutPhase2 #boardSection .demon .demonStats .statValue{
+    font-size:7px!important;
+  }
+  .app.layoutPhase2 #boardSection #bossArea .bossCard{
+    width:min(210px,52vw)!important;padding:4px!important;
+  }
+  .app.layoutPhase2 #boardSection #bossArea .bossArt{
+    height:clamp(78px,26vh,120px)!important;
+  }
+  .app.layoutPhase2 #boardSection #bossArea .bossName{font-size:10px!important;}
+  .app.layoutPhase2 #layoutThirdPersonActor{
+    left:46%;bottom:clamp(93px,28vh,141px);
+    width:clamp(92px,15vw,140px);
+    height:clamp(118px,38vh,178px);
+    opacity:.83;
+  }
+  .app.layoutPhase2 .layoutActorIdentity{
+    bottom:-5px;padding:2px 5px 2px 2px;gap:4px;
+    max-width:135px;min-width:0;
+  }
+  .app.layoutPhase2 .layoutActorIdentity img{
+    width:19px;height:19px;flex-basis:19px;
+  }
+  .app.layoutPhase2 .layoutActorIdentity strong{
+    font-size:7px;max-width:105px;
+  }
+  .app.layoutPhase2 .layoutActorIdentity small{
+    font-size:6.5px;max-width:105px;
+  }
+  .app.layoutPhase2 .layoutGroundPlane{bottom:-54%;height:83%;}
+  .app.layoutPhase2 .layoutGroundSigil{bottom:17%;height:40px;width:150px;}
+}
+@media(orientation:portrait){
+  body > .app.layoutPhase2 > #boardSection.board > .room.is-focused{
+    padding:145px 12px 46vh!important;
+  }
+  .app.layoutPhase2 #layoutEncounterLabel{top:112px;max-width:90vw;}
+  .app.layoutPhase2 #layoutEncounterSubtitle{font-size:9px;}
+  .app.layoutPhase2 #layoutThirdPersonActor{
+    left:50%;bottom:34%;width:min(200px,35vw);height:min(275px,29vh);opacity:.86;
+  }
+  .app.layoutPhase2 #boardSection .demons > .demon{
+    flex-basis:clamp(95px,28vw,150px)!important;width:clamp(95px,28vw,150px)!important;
+  }
+  .app.layoutPhase2 #boardSection .demon .demonArtWrap{
+    height:clamp(86px,13vh,145px)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .app.layoutPhase2 .layoutActorFigure,
+  .app.layoutPhase2 .layoutActorAura,
+  .app.layoutPhase2 .layoutSpellGlow{animation:none!important;}
+}
