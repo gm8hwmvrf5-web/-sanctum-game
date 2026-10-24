@@ -48,7 +48,8 @@
     nav.appendChild(button);
     return button;
   });
-  board.prepend(nav);
+  // Keep the board's original five direct children and their indices unchanged.
+  board.insertAdjacentElement('afterend',nav);
   let focused=0;
   function focus(index){
     focused=index;
