@@ -20,7 +20,7 @@ body > .app.layoutPhase1 > #boardSection.board > .room{
   display:none!important;position:absolute!important;inset:0!important;
   box-sizing:border-box!important;width:100%!important;height:100%!important;
   min-height:0!important;margin:0!important;border:0!important;
-  border-radius:0!important;padding:clamp(150px,19vh,190px) clamp(190px,21vw,290px) 315px!important;
+  border-radius:0!important;padding:clamp(162px,20vh,195px) clamp(190px,21vw,290px) 315px!important;
   overflow:hidden!important;align-self:auto!important;grid-column:auto!important;
   background-size:cover!important;background-position:center center!important;
   box-shadow:inset 0 0 85px rgba(0,0,0,.88)!important;
@@ -30,7 +30,7 @@ body > .app.layoutPhase1 > #boardSection.board > .room.is-focused{
 }
 /* Readable encounter region, without changing demon card art or hit targets. */
 .app.layoutPhase1 #boardSection .room > h3{
-  position:absolute!important;top:140px!important;left:50%!important;
+  position:absolute!important;top:155px!important;left:50%!important;
   transform:translateX(-50%)!important;margin:0!important;
   padding:4px 18px!important;font-size:clamp(12px,1.25vw,18px)!important;
   letter-spacing:.16em!important;white-space:nowrap!important;
@@ -56,7 +56,7 @@ body > .app.layoutPhase1 > #boardSection.board > .room.is-focused{
 .app.layoutPhase1 #boardSection .roomEnergyFrame{pointer-events:none!important;}
 /* The five live engine rooms remain selectable. These tabs switch VIEW only. */
 .app.layoutPhase1 #layoutRoomNav{
-  position:absolute;z-index:25;top:94px;left:50%;transform:translateX(-50%);
+  position:absolute;z-index:25;top:113px;left:50%;transform:translateX(-50%);
   display:flex;align-items:center;justify-content:center;gap:5px;
   width:max-content;max-width:calc(100% - 20px);padding:5px;
   border:1px solid rgba(166,129,77,.47);border-radius:9px;
@@ -138,7 +138,7 @@ body > .app.layoutPhase1 > #handPanel.panel{
   display:contents!important;margin:0!important;padding:0!important;
 }
 .app.layoutPhase1 #handPanel .handCharacterCards{
-  position:absolute!important;z-index:3!important;left:50%!important;
+  position:absolute!important;z-index:3!important;left:53%!important;
   bottom:max(5px,env(safe-area-inset-bottom))!important;top:auto!important;
   transform:translateX(-50%)!important;display:block!important;
   width:min(560px,58vw)!important;max-width:calc(100vw - 310px)!important;
@@ -256,7 +256,7 @@ body > .app.layoutPhase1 > #handPanel.panel{
   }
   .app.layoutPhase1 #handPanel .handCharacterPriest .ritual{height:auto!important;min-height:0!important;}
   .app.layoutPhase1 #handPanel .handCharacterCards{
-    bottom:max(3px,env(safe-area-inset-bottom))!important;
+    left:56%!important;bottom:max(3px,env(safe-area-inset-bottom))!important;
     width:min(460px,67vw)!important;
     max-width:calc(100vw - 190px)!important;
   }
