@@ -1,0 +1,304 @@
+/* Layout Redesign — Phase 1: presentation only.
+   The engine still owns all five rooms, their demons, HUD values, card actions,
+   multiplayer state and progression. Room tabs change only which lane is viewed. */
+html,body{min-width:0;}
+body > .app.layoutPhase1,
+html[data-sanctum-aspect="19.5:9"] body > .app.layoutPhase1,
+html[data-sanctum-aspect="4:3"] body > .app.layoutPhase1{
+  position:relative!important;isolation:isolate!important;display:block!important;
+  width:100%!important;max-width:none!important;height:100dvh!important;
+  min-height:100dvh!important;margin:0!important;padding:0!important;
+  overflow:hidden!important;background:#08090d!important;
+}
+body > .app.layoutPhase1 > #boardSection.board{
+  position:absolute!important;inset:0!important;display:block!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;
+  border:0!important;z-index:1!important;
+}
+body > .app.layoutPhase1 > #boardSection.board > .room{
+  display:none!important;position:absolute!important;inset:0!important;
+  box-sizing:border-box!important;width:100%!important;height:100%!important;
+  min-height:0!important;margin:0!important;border:0!important;
+  border-radius:0!important;padding:clamp(150px,19vh,190px) clamp(190px,21vw,290px) 315px!important;
+  overflow:hidden!important;align-self:auto!important;grid-column:auto!important;
+  background-size:cover!important;background-position:center center!important;
+  box-shadow:inset 0 0 85px rgba(0,0,0,.88)!important;
+}
+body > .app.layoutPhase1 > #boardSection.board > .room.is-focused{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+}
+/* Readable encounter region, without changing demon card art or hit targets. */
+.app.layoutPhase1 #boardSection .room > h3{
+  position:absolute!important;top:140px!important;left:50%!important;
+  transform:translateX(-50%)!important;margin:0!important;
+  padding:4px 18px!important;font-size:clamp(12px,1.25vw,18px)!important;
+  letter-spacing:.16em!important;white-space:nowrap!important;
+  text-shadow:0 2px 6px #050505,0 0 15px #000!important;
+}
+.app.layoutPhase1 #boardSection .roomMeta{
+  flex:none!important;min-height:0!important;margin:4px auto 8px!important;
+  width:max-content!important;max-width:100%!important;
+  display:flex!important;justify-content:center!important;flex-wrap:wrap!important;
+}
+.app.layoutPhase1 #boardSection .demons,
+.app.layoutPhase1 #boardSection #bossArea{
+  display:flex!important;flex-wrap:wrap!important;justify-content:center!important;
+  align-content:flex-start!important;align-items:flex-start!important;
+  gap:8px!important;width:100%!important;max-height:100%!important;
+  margin:0 auto!important;overflow:auto!important;overscroll-behavior:contain!important;
+}
+.app.layoutPhase1 #boardSection .demons > .demon{
+  flex:0 1 155px!important;min-width:100px!important;max-width:168px!important;
+  width:155px!important;height:auto!important;max-height:none!important;
+  overflow:visible!important;
+}
+.app.layoutPhase1 #boardSection .roomEnergyFrame{pointer-events:none!important;}
+/* The five live engine rooms remain selectable. These tabs switch VIEW only. */
+.app.layoutPhase1 #layoutRoomNav{
+  position:absolute;z-index:25;top:94px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  width:max-content;max-width:calc(100% - 20px);padding:5px;
+  border:1px solid rgba(166,129,77,.47);border-radius:9px;
+  background:linear-gradient(180deg,rgba(25,20,22,.93),rgba(6,7,11,.92));
+  box-shadow:0 5px 20px rgba(0,0,0,.64);pointer-events:auto;
+}
+.app.layoutPhase1 #layoutRoomNav .layoutRoomTab{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  min-width:66px;min-height:32px;padding:5px 10px;
+  border:1px solid rgba(158,120,71,.28);border-radius:5px;
+  background:rgba(19,15,18,.8);color:#dac39b;
+  font:700 10px Georgia,serif;letter-spacing:.05em;cursor:pointer;
+}
+.app.layoutPhase1 #layoutRoomNav .layoutRoomTab[aria-selected="true"]{
+  background:linear-gradient(#493227,#21161b);color:#fff0c7;
+  border-color:#c69a5d;box-shadow:inset 0 0 10px rgba(224,169,87,.16);
+}
+.app.layoutPhase1 #layoutRoomNav .layoutRoomTab:focus-visible{
+  outline:2px solid #f2ca83;outline-offset:2px;
+}
+.app.layoutPhase1 #layoutRoomNav .roomCount{
+  display:inline-block;min-width:15px;padding:1px 3px;border-radius:20px;
+  background:rgba(151,49,54,.33);font-size:9px;text-align:center;
+}
+/* Status plaques float over the scene, while their original IDs stay live. */
+body > .app.layoutPhase1 > #topStatusBar.stats.compactRunStats{
+  position:absolute!important;inset:0!important;z-index:16!important;
+  display:block!important;width:100%!important;height:100%!important;
+  padding:0!important;margin:0!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;
+  pointer-events:none!important;backdrop-filter:none!important;
+}
+.app.layoutPhase1 #topStatusBar.stats.compactRunStats > .stat{
+  position:absolute!important;box-sizing:border-box!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;min-width:0!important;min-height:0!important;
+  margin:0!important;padding:3px 6px!important;pointer-events:auto!important;
+}
+.app.layoutPhase1 #topStatusBar.stats.compactRunStats > .runProgressStat{
+  top:max(7px,env(safe-area-inset-top))!important;left:max(8px,env(safe-area-inset-left))!important;
+  width:clamp(195px,23vw,290px)!important;height:47px!important;
+}
+.app.layoutPhase1 #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+  top:max(7px,env(safe-area-inset-top))!important;left:50%!important;
+  transform:translateX(-50%)!important;width:clamp(220px,31vw,425px)!important;
+  height:47px!important;max-height:47px!important;
+}
+.app.layoutPhase1 #topStatusBar.stats.compactRunStats > #turnTimerStat{
+  top:max(7px,env(safe-area-inset-top))!important;right:max(8px,env(safe-area-inset-right))!important;
+  width:clamp(94px,13vw,155px)!important;height:47px!important;
+}
+.app.layoutPhase1 #topStatusBar.stats.compactRunStats > #defeatCounterStat{
+  top:63px!important;left:max(8px,env(safe-area-inset-left))!important;
+  width:140px!important;height:43px!important;
+}
+.app.layoutPhase1 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
+  top:auto!important;bottom:max(8px,env(safe-area-inset-bottom))!important;
+  left:max(8px,env(safe-area-inset-left))!important;right:auto!important;
+  width:clamp(145px,17vw,205px)!important;height:59px!important;
+}
+.app.layoutPhase1 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+  top:auto!important;bottom:max(8px,env(safe-area-inset-bottom))!important;
+  right:max(8px,env(safe-area-inset-right))!important;left:auto!important;
+  width:clamp(145px,17vw,205px)!important;height:59px!important;
+}
+.app.layoutPhase1 > #altarGuardStatus:not([hidden]){
+  position:absolute!important;z-index:28!important;right:12px!important;
+  bottom:76px!important;max-width:210px!important;
+}
+/* The hand panel spans the scene invisibly; only its actual controls receive taps. */
+body > .app.layoutPhase1 > #handPanel.panel{
+  position:absolute!important;inset:0!important;z-index:17!important;
+  box-sizing:border-box!important;width:100%!important;height:100%!important;
+  min-height:0!important;margin:0!important;padding:0!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;
+  overflow:visible!important;pointer-events:none!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterStage{
+  display:contents!important;margin:0!important;padding:0!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterCards{
+  position:absolute!important;z-index:3!important;left:50%!important;
+  bottom:max(5px,env(safe-area-inset-bottom))!important;top:auto!important;
+  transform:translateX(-50%)!important;display:block!important;
+  width:min(560px,58vw)!important;max-width:calc(100vw - 310px)!important;
+  height:auto!important;min-width:0!important;min-height:0!important;
+  align-self:auto!important;overflow:visible!important;pointer-events:auto!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterCards #handContent{
+  width:100%!important;max-width:100%!important;
+}
+.app.layoutPhase1 #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+  left:0!important;margin:0 auto!important;
+  width:min(560px,100%)!important;max-width:100%!important;
+}
+/* Rituals, actions, Blood gauge, Cinders and active Relics remain on the left. */
+.app.layoutPhase1 #handPanel .handCharacterPriest{
+  position:absolute!important;z-index:4!important;
+  top:clamp(155px,25vh,235px)!important;left:max(9px,env(safe-area-inset-left))!important;
+  width:clamp(180px,18vw,240px)!important;max-width:23vw!important;
+  max-height:calc(100% - clamp(155px,25vh,235px) - 75px)!important;
+  min-height:0!important;min-width:0!important;grid-row:auto!important;
+  display:flex!important;flex-direction:column!important;
+  overflow:auto!important;overscroll-behavior:contain!important;
+  padding:7px!important;box-sizing:border-box!important;pointer-events:auto!important;
+  background:linear-gradient(90deg,rgba(10,9,14,.89),rgba(19,13,17,.73))!important;
+  border:1px solid rgba(190,147,87,.48)!important;
+  border-radius:8px!important;box-shadow:0 5px 24px rgba(0,0,0,.48)!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterPriest .priestRelicTopStack{
+  flex:0 0 auto!important;order:2!important;margin:5px 0 0!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterPriest > #ritualPanel{
+  order:1!important;width:100%!important;min-width:0!important;padding:0!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterPriest .ritualTracker{
+  align-items:flex-start!important;gap:4px!important;margin-bottom:6px!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterPriest .ritualTracker .badge{
+  order:-1!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterPriest .ritualTracker .trackerAction{
+  min-width:0!important;max-width:none!important;width:calc(50% - 3px)!important;
+  flex:1 1 calc(50% - 3px)!important;white-space:normal!important;
+  min-height:28px!important;max-height:none!important;font-size:9px!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterPriest .rituals{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  gap:5px!important;min-width:0!important;
+}
+.app.layoutPhase1 #handPanel .handCharacterPriest .ritual{
+  width:100%!important;min-width:0!important;min-height:0!important;
+  height:auto!important;max-height:none!important;
+}
+/* Do not let old top-bar / placeholder sections consume room space. */
+.app.layoutPhase1 > #rogueHud,
+.app.layoutPhase1 > #mainSection:empty,
+.app.layoutPhase1 > #infoSection.hidden{display:none!important;}
+.app.layoutPhase1 > #topMenuBar{
+  position:absolute!important;top:63px!important;right:8px!important;z-index:26!important;
+  width:max-content!important;max-width:calc(100vw - 160px)!important;
+  margin:0!important;padding:2px 4px!important;transform:scale(.78);
+  transform-origin:top right;
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  body > .app.layoutPhase1{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;}
+  body > .app.layoutPhase1 > #boardSection.board{display:block!important;}
+  body > .app.layoutPhase1 > #boardSection.board > .room{
+    min-height:0!important;height:100%!important;
+    padding:87px clamp(116px,17vw,185px) 132px!important;
+  }
+  .app.layoutPhase1 #layoutRoomNav{top:47px;gap:2px;padding:2px;max-width:calc(100% - 190px);}
+  .app.layoutPhase1 #layoutRoomNav .layoutRoomTab{
+    min-width:0;min-height:26px;padding:3px 5px;font-size:8px;gap:2px;
+  }
+  .app.layoutPhase1 #layoutRoomNav .roomCount{font-size:7px;min-width:10px;padding:1px 2px;}
+  .app.layoutPhase1 #boardSection .room > h3{
+    top:80px!important;font-size:10px!important;padding:2px 5px!important;
+  }
+  .app.layoutPhase1 #boardSection .roomMeta{margin:2px auto 4px!important;}
+  .app.layoutPhase1 #boardSection .roomMeta .cap{display:none!important;}
+  .app.layoutPhase1 #boardSection .demons{gap:3px!important;align-content:flex-start!important;}
+  .app.layoutPhase1 #boardSection .demons > .demon{
+    flex:0 1 78px!important;width:78px!important;min-width:68px!important;
+    max-width:88px!important;height:70px!important;max-height:70px!important;
+    overflow:hidden!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > .runProgressStat{
+    width:155px!important;height:35px!important;top:4px!important;left:5px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+    top:4px!important;width:clamp(152px,28vw,245px)!important;height:35px!important;
+    min-height:35px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #turnTimerStat{
+    top:4px!important;right:5px!important;width:94px!important;height:35px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #defeatCounterStat{
+    top:43px!important;left:5px!important;width:91px!important;height:31px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat,
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    bottom:max(4px,env(safe-area-inset-bottom))!important;
+    width:clamp(95px,15vw,138px)!important;height:41px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{left:max(5px,env(safe-area-inset-left))!important;}
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{right:max(5px,env(safe-area-inset-right))!important;}
+  .app.layoutPhase1 #handPanel .handCharacterPriest{
+    top:81px!important;left:max(5px,env(safe-area-inset-left))!important;
+    width:clamp(108px,17vw,156px)!important;max-width:21vw!important;
+    max-height:calc(100% - 130px)!important;
+    padding:3px!important;border-radius:5px!important;
+  }
+  .app.layoutPhase1 #handPanel .handCharacterPriest .ritualTracker .trackerAction{
+    width:calc(50% - 2px)!important;min-height:21px!important;height:auto!important;
+    font-size:7px!important;padding:3px 2px!important;
+  }
+  .app.layoutPhase1 #handPanel .handCharacterPriest .ritual{height:auto!important;min-height:0!important;}
+  .app.layoutPhase1 #handPanel .handCharacterCards{
+    bottom:max(3px,env(safe-area-inset-bottom))!important;
+    width:min(460px,67vw)!important;
+    max-width:calc(100vw - 190px)!important;
+  }
+  .app.layoutPhase1 #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    left:0!important;max-width:100%!important;
+  }
+  .app.layoutPhase1 > #topMenuBar{display:none!important;}
+  .app.layoutPhase1 > #altarGuardStatus:not([hidden]){bottom:49px!important;font-size:9px!important;}
+}
+@media (orientation:portrait){
+  /* Portrait remains scrollable and all controls remain accessible. */
+  body > .app.layoutPhase1{overflow-y:auto!important;height:100dvh!important;}
+  .app.layoutPhase1 #layoutRoomNav{
+    top:71px;max-width:calc(100vw - 10px);gap:2px;padding:3px;
+  }
+  .app.layoutPhase1 #layoutRoomNav .layoutRoomTab{
+    font-size:8px;min-width:0;min-height:32px;padding:3px 5px;
+  }
+  body > .app.layoutPhase1 > #boardSection.board > .room{
+    padding:145px 8px 360px!important;
+  }
+  .app.layoutPhase1 #boardSection .room > h3{top:116px!important;}
+  .app.layoutPhase1 #handPanel .handCharacterPriest{
+    top:42%!important;left:8px!important;width:calc(100% - 16px)!important;
+    max-width:none!important;max-height:17%!important;
+  }
+  .app.layoutPhase1 #handPanel .handCharacterCards{
+    width:min(560px,95vw)!important;max-width:95vw!important;
+    bottom:65px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > .runProgressStat{
+    width:33%!important;height:50px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+    width:32%!important;height:50px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #turnTimerStat{
+    width:27%!important;height:50px!important;
+  }
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat,
+  .app.layoutPhase1 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    width:31%!important;height:52px!important;
+  }
+  .app.layoutPhase1 > #topMenuBar{display:none!important;}
+}
