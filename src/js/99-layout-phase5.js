@@ -35,6 +35,31 @@
     app.appendChild(menu);
   }
 
+  // In portrait, the hand and Rituals are stacked below a 440px room view.
+  // Absolutely positioned panels do not contribute to the app's scroll height;
+  // measure the real panel so the final Ritual button stays reachable.
+  function updatePortraitScrollSpace(){
+    const isPortrait=typeof window.matchMedia==='function'&&
+      window.matchMedia('(orientation:portrait) and (max-width:760px)').matches;
+    if(!isPortrait){
+      app.style.removeProperty('min-height');
+      return;
+    }
+    const panel=document.getElementById('handPanel');
+    if(!panel)return;
+    const appRect=app.getBoundingClientRect();
+    const bottom=panel.getBoundingClientRect().bottom-appRect.top;
+    if(Number.isFinite(bottom)&&bottom>0)
+      app.style.setProperty('min-height',Math.max(1150,Math.ceil(bottom+36))+'px','important');
+  }
+  if(typeof ResizeObserver==='function'){
+    const panel=document.getElementById('handPanel');
+    if(panel)new ResizeObserver(updatePortraitScrollSpace).observe(panel);
+  }
+  window.addEventListener('resize',updatePortraitScrollSpace);
+  window.addEventListener('orientationchange',updatePortraitScrollSpace);
+  if(typeof requestAnimationFrame==='function')requestAnimationFrame(updatePortraitScrollSpace);
+
   // Phase 2 overlays and Phase 4 cinematic are deliberately click-through.
   // Confirming keyboard/touch semantics for the existing room tabs requires
   // only ARIA text changes, never a replacement of their click handlers.
