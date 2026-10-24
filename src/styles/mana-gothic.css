@@ -9,13 +9,19 @@
  gap:1px!important;box-sizing:border-box!important;min-width:0!important;
  padding:2px 4px!important;overflow:hidden!important;
  border:1px solid #aa8750!important;border-radius:5px!important;
+ /* Cool sapphire light catches on the same beveled glass as the Timer.
+    Reservoir artwork remains on #manaOrbFill, unfiltered. */
  background:
-  radial-gradient(ellipse at 48% 40%,rgba(14,72,129,.25),transparent 74%),
-  linear-gradient(180deg,#071421,#03111f 50%,#06192e 100%)!important;
- box-shadow:inset 0 0 0 1px rgba(5,15,33,.95),
-            inset 0 0 0 3px rgba(194,151,84,.28),
-            inset 0 0 12px rgba(0,0,0,.46),
-            0 1px 5px rgba(0,0,0,.53)!important;
+   radial-gradient(ellipse 95% 80% at 16% 2%,rgba(203,244,255,.17),transparent 59%),
+   radial-gradient(ellipse 75% 75% at 88% 100%,rgba(48,114,181,.18),transparent 70%),
+   linear-gradient(180deg,rgba(28,51,75,.88) 0%,rgba(10,24,43,.92) 45%,rgba(7,17,32,.96) 62%,rgba(12,37,65,.94) 100%)!important;
+ box-shadow:
+   inset 0 0 0 1px rgba(5,15,33,.95),
+   inset 0 0 0 3px rgba(194,151,84,.24),
+   inset 0 2px 2px rgba(221,246,255,.23),
+   inset 0 -2px 3px rgba(155,207,255,.09),
+   inset 0 -10px 15px rgba(1,9,22,.35),
+   0 1px 4px rgba(0,0,0,.46)!important;
 }
 /* Gothic crystal, now filled with the actual matching gel texture and cyan veins. */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
@@ -29,7 +35,20 @@
  box-shadow:0 0 9px rgba(31,141,238,.3)!important;filter:none!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::after{
- content:none!important;display:none!important;
+ /* Curved glass reflection above the gel, below the gemstone and text. */
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ z-index:8!important;
+ pointer-events:none!important;
+ left:13%!important;
+ top:3px!important;
+ width:75%!important;
+ height:46%!important;
+ border-radius:0 0 65% 28%!important;
+ background:linear-gradient(106deg,transparent 2%,rgba(223,247,255,.09) 14%,rgba(225,250,255,.15) 32%,rgba(255,255,255,.025) 61%,transparent 86%)!important;
+ opacity:.65!important;
+ transform:skewX(-13deg)!important;
 }
 /* The actual reservoir: high-detail GEL TEXTURE sampled from the chosen
    mockup, with ice-cyan luminous veins and deep ink-blue transparency.
@@ -92,7 +111,21 @@
  background:radial-gradient(ellipse at 50% 15%,rgba(181,238,255,.33),transparent 57%)!important;
 }
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > .meterGlass{
- z-index:7!important;opacity:.09!important;pointer-events:none!important;
+ /* Full clear-glass pane: frosted edges only; do not obscure blue gel. */
+ position:absolute!important;
+ inset:3px!important;
+ z-index:7!important;
+ border-radius:2px!important;
+ border:1px solid rgba(192,228,255,.18)!important;
+ background:
+   linear-gradient(180deg,rgba(242,252,255,.16) 0%,rgba(219,245,255,.065) 8%,rgba(255,255,255,0) 27%,rgba(255,255,255,.012) 51%,rgba(203,238,255,.055) 100%),
+   linear-gradient(118deg,transparent 5%,rgba(228,249,255,.07) 26%,transparent 43%,rgba(255,255,255,.02) 61%,transparent 80%)!important;
+ box-shadow:
+   inset 0 1px 0 rgba(244,254,255,.22),
+   inset 0 -1px 0 rgba(159,208,243,.12),
+   inset 1px 0 0 rgba(224,246,255,.045)!important;
+ opacity:1!important;
+ pointer-events:none!important;
 }
 /* Live text in front of gel, never baked into artwork. */
 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > #manaStat,
@@ -141,6 +174,10 @@
   font-size:clamp(4.5px,.65vw,5.5px)!important;
  }
  #manaStatBox #manaOrbFill .manaLiquidBubbles{opacity:.36!important;}
+ #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat > .meterGlass{inset:2px!important;}
+ #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::after{
+  top:2px!important;height:40%!important;opacity:.45!important;
+ }
 }
 @media(orientation:portrait) and (max-width:520px){
  #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat::before{
