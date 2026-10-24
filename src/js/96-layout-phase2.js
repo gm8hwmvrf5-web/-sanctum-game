@@ -140,6 +140,16 @@
     let count=0;
     if(active&&index<4&&Array.isArray(S.rooms)&&Array.isArray(S.rooms[index]))count=S.rooms[index].length;
     if(active&&index===4&&S.bossRevealed&&S.boss&&Number(S.boss.cur)>0)count=1;
+    // Navigation counters reflect the live board even though the engine
+    // redraws the demon nodes directly (rather than via renderBoard).
+    const tabs=document.querySelectorAll('#layoutRoomNav .layoutRoomTab');
+    tabs.forEach((tab,i)=>{
+      const amount=active?(i<4?(Array.isArray(S.rooms?.[i])?S.rooms[i].length:0)
+        :(S.bossRevealed&&S.boss&&Number(S.boss.cur)>0?1:0)):0;
+      const badge=tab.querySelector('.roomCount');
+      if(badge)badge.textContent=String(amount);
+      tab.setAttribute('aria-label',roomNames[i]+', '+amount+' '+(amount===1?'enemy':'enemies')+', inspect room');
+    });
     encounterSubtitle.textContent=!active?'Choose a priest to begin':count>0
       ?count+' '+(count===1?'demon':'demons')+' in sight • Tap to inspect'
       :'No demons in sight • Watch the next spawn';
