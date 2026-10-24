@@ -1,0 +1,340 @@
+/* Sanctum Phase 4 — physical passage presentation. All route interactions
+ * remain on the ORIGINAL rogueChoice buttons, including multiplayer ownership. */
+.app.layoutPhase4 #layoutPassagePlaque{
+  position:absolute;z-index:13;top:157px;right:max(12px,env(safe-area-inset-right));
+  width:clamp(155px,17vw,245px);max-width:22vw;
+  min-height:43px;padding:7px 12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  border:1px solid rgba(160,113,65,.58);border-radius:7px;
+  background:linear-gradient(105deg,rgba(11,9,12,.83),rgba(40,22,24,.72),rgba(11,9,12,.85));
+  box-shadow:0 6px 18px #0009,inset 0 0 13px rgba(175,107,63,.12);
+  text-align:center;pointer-events:none;color:#f2d7aa;text-shadow:0 1px 3px #000;
+}
+.app.layoutPhase4 #layoutPassagePlaque[hidden]{display:none!important;}
+.app.layoutPhase4 #layoutPassagePlaque small{
+  font:700 9px Georgia,serif;letter-spacing:.12em;color:#b8a083;
+  line-height:1.25;
+}
+.app.layoutPhase4 #layoutPassagePlaque strong{
+  font:700 clamp(10px,.92vw,13px) Georgia,serif;
+  letter-spacing:.08em;line-height:1.2;
+}
+/* Each route creates a different chamber mood, WITHOUT swapping art or
+ * changing the original Gateway/Hall/Chapel/Crypt/Boss game locations. */
+.app.layoutPhase4[data-layout-node="elite"] .layoutDepthHaze{
+  background:
+   radial-gradient(ellipse 50% 66% at 51% 28%,rgba(177,117,44,.22),transparent 78%),
+   linear-gradient(180deg,rgba(12,6,4,.14),transparent 43%,rgba(26,12,7,.51));
+}
+.app.layoutPhase4[data-layout-node="swarm"] .layoutDepthHaze{
+  background:
+    radial-gradient(ellipse 75% 58% at 47% 44%,rgba(127,35,38,.23),transparent 76%),
+    linear-gradient(180deg,rgba(7,1,3,.12),transparent 37%,rgba(27,2,10,.53));
+}
+.app.layoutPhase4[data-layout-node="sanctuary"] .layoutDepthHaze{
+  background:
+    radial-gradient(ellipse 53% 62% at 52% 37%,rgba(141,166,170,.21),transparent 75%),
+    linear-gradient(180deg,rgba(1,9,15,.1),transparent 45%,rgba(10,25,30,.41));
+}
+.app.layoutPhase4[data-layout-node="boss"] .layoutDepthHaze{
+  background:
+    radial-gradient(ellipse 65% 60% at 50% 35%,rgba(181,26,27,.28),transparent 78%),
+    linear-gradient(180deg,rgba(19,1,3,.24),transparent 35%,rgba(25,1,4,.54));
+}
+/* Route selection becomes a set of Gothic doorways. The existing action
+ * buttons, content, indices, disabled flags and onclick remain untouched. */
+#rogueChoiceModal.layoutDoorChoice{
+  background:
+    radial-gradient(ellipse at 50% 40%,rgba(9,8,15,.28),rgba(0,0,0,.63) 72%)!important;
+  backdrop-filter:none!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueModalBox{
+  width:min(1040px,96vw)!important;max-height:94dvh!important;
+  border:1px solid rgba(164,120,69,.76)!important;
+  padding:clamp(12px,2.5vw,24px)!important;
+  background:
+    radial-gradient(ellipse at 50% 0,rgba(93,55,31,.42),transparent 60%),
+    linear-gradient(180deg,rgba(16,12,17,.94),rgba(7,8,13,.96))!important;
+  box-shadow:0 14px 70px #000,inset 0 1px 28px rgba(192,121,69,.12)!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueEyebrow{
+  text-align:center!important;color:#d0af80!important;
+  letter-spacing:.19em!important;
+}
+#rogueChoiceModal.layoutDoorChoice #rogueChoiceTitle{
+  text-align:center!important;font:700 clamp(21px,2.3vw,34px) Georgia,serif!important;
+  color:#f1d4a2!important;letter-spacing:.13em!important;
+  text-shadow:0 3px 12px #000!important;margin:4px 0!important;
+}
+#rogueChoiceModal.layoutDoorChoice #rogueChoiceText{
+  text-align:center!important;
+  max-width:720px!important;margin:2px auto 16px!important;
+  font-size:12px!important;line-height:1.45!important;
+}
+#rogueChoiceModal.layoutDoorChoice #rogueChoiceGrid{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))!important;
+  justify-content:center!important;
+  gap:clamp(8px,1.5vw,18px)!important;
+  align-items:stretch!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice{
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:flex-start!important;
+  width:100%!important;min-width:0!important;min-height:305px!important;
+  border:1px solid rgba(176,119,66,.63)!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,rgba(48,32,28,.89),rgba(14,12,18,.99))!important;
+  padding:13px 11px 12px!important;
+  overflow:hidden!important;
+  text-align:center!important;cursor:pointer!important;
+  box-shadow:0 11px 23px rgba(0,0,0,.63),inset 0 1px 14px rgba(208,137,75,.14)!important;
+  transition:transform .16s,border-color .16s,box-shadow .16s!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice:not(:disabled):hover,
+#rogueChoiceModal.layoutDoorChoice .rogueChoice:focus-visible{
+  transform:translateY(-4px)!important;border-color:#f2ce88!important;
+  box-shadow:0 11px 27px #0009,0 0 25px rgba(205,142,73,.2)!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice:focus-visible{
+  outline:2px solid #ffdda0!important;outline-offset:2px!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice:disabled{
+  opacity:.56!important;cursor:not-allowed!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice .nodeIcon{
+  display:none!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalArch{
+  position:relative;isolation:isolate;
+  flex:none;display:block;width:min(165px,78%);
+  height:clamp(117px,19vh,176px);
+  margin:5px auto 13px;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 25px,rgba(5,5,7,.7) 26px,transparent 29px),
+    linear-gradient(145deg,#98816d,#584736 24%,#1e1b20 55%,#806342 80%,#382d2b);
+  clip-path:polygon(0 100%,0 32%,3% 22%,12% 10%,30% 2%,50% 0,70% 2%,88% 10%,97% 22%,100% 32%,100% 100%);
+  box-shadow:inset 0 0 0 3px #6c523a,inset 0 0 16px #000;
+  filter:drop-shadow(0 6px 9px rgba(0,0,0,.8));
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalArch::before{
+  content:"";position:absolute;inset:6px 7px 0;
+  background:linear-gradient(115deg,#33261d,#b4986f 25%,#27242a 52%,#98704c 83%,#161217);
+  clip-path:polygon(0 100%,0 31%,5% 19%,16% 8%,36% 0,64% 0,84% 8%,95% 19%,100% 31%,100% 100%);
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalInner{
+  position:absolute;z-index:1;inset:13px 15px 5px;
+  border-radius:48% 48% 0 0 / 32% 32% 0 0;
+  background:
+    radial-gradient(ellipse at 50% 50%,rgba(198,144,78,.34),transparent 62%),
+    linear-gradient(90deg,rgba(3,3,6,.93),rgba(9,10,18,.41),rgba(2,2,6,.91)),
+    url('../../assets/embedded/c2a344d9-76644.webp') center/cover no-repeat;
+  box-shadow:inset 0 0 18px #000,inset 0 0 0 1px rgba(238,205,160,.31);
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalInner::after{
+  content:"";position:absolute;inset:5px;
+  border-left:1px solid rgba(229,194,137,.37);
+  border-right:1px solid rgba(229,194,137,.3);
+  border-top:1px solid rgba(229,194,137,.2);
+  border-radius:inherit;pointer-events:none;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalSteps{
+  position:absolute;z-index:2;bottom:0;left:7%;width:86%;height:26%;
+  background:repeating-linear-gradient(180deg,rgba(201,164,110,.25) 0 2px,rgba(15,12,16,.87) 4px 10px);
+  clip-path:polygon(37% 0,63% 0,100% 100%,0 100%);
+  box-shadow:0 0 17px rgba(210,167,100,.26);
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice[data-layout-door="elite"] .layoutPortalInner{
+  background:
+    radial-gradient(ellipse at center,rgba(229,158,64,.36),transparent 68%),
+    linear-gradient(90deg,rgba(5,4,8,.76),rgba(37,19,13,.42),rgba(5,4,8,.78)),
+    url('../../assets/embedded/077337c6-106892.webp') center/cover;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice[data-layout-door="swarm"] .layoutPortalInner{
+  background:
+    radial-gradient(ellipse at center,rgba(176,42,53,.37),transparent 75%),
+    linear-gradient(90deg,rgba(7,3,5,.79),rgba(26,10,15,.35),rgba(5,3,7,.8)),
+    url('../../assets/embedded/cd2c7e94-85940.webp') center/cover;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice[data-layout-door="sanctuary"] .layoutPortalInner{
+  background:
+    radial-gradient(ellipse at center,rgba(136,174,192,.42),transparent 75%),
+    linear-gradient(90deg,rgba(5,10,17,.81),rgba(12,29,38,.35),rgba(5,9,15,.78)),
+    url('../../assets/embedded/75b9c42a-109948.webp') center/cover;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice[data-layout-door="boss"] .layoutPortalInner{
+  background:
+    radial-gradient(ellipse at center,rgba(191,34,45,.58),transparent 76%),
+    linear-gradient(90deg,rgba(19,3,5,.79),rgba(39,8,15,.4),rgba(12,4,6,.85)),
+    url('../../assets/embedded/42ae99c1-94260.webp') center/cover;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice h3{
+  font:700 clamp(12px,1.3vw,17px)/1.25 Georgia,serif!important;
+  color:#f2d2a1!important;letter-spacing:.07em!important;
+  margin:0 0 7px!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice p{
+  color:#cdbda2!important;font-size:11px!important;
+  line-height:1.35!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+#rogueChoiceModal.layoutDoorChoice .rogueChoice .nodeReward{
+  display:block!important;width:100%!important;
+  margin-top:auto!important;padding:9px 0 0!important;
+  color:#e6b87a!important;font-size:9px!important;letter-spacing:.05em!important;
+}
+/* Cinematic bridge while a chosen passage is committed by the original code.
+ * Overlay never receives input and does not hold a route choice or timer. */
+.app.layoutPhase4 #layoutTravelVeil{
+  position:absolute;inset:0;z-index:45;
+  display:block;visibility:hidden;opacity:0;
+  background:radial-gradient(ellipse at center,rgba(4,3,6,.52),rgba(0,0,0,.98) 85%);
+  pointer-events:none!important;overflow:hidden;
+}
+.app.layoutPhase4 #layoutTravelVeil.is-travelling{
+  visibility:visible;
+  animation:layoutPassageVeil 1.03s ease-in-out both;
+}
+.app.layoutPhase4 .layoutTravelHall{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  perspective:550px;
+}
+.app.layoutPhase4 .layoutTravelGate{
+  position:relative;width:clamp(185px,32vw,455px);height:clamp(210px,60vh,600px);
+  transform-origin:center 55%;opacity:.98;
+  background:
+    linear-gradient(90deg,#251c1c 1%,#897354 6%,#302628 15%,transparent 18% 82%,#312529 85%,#8a6b4f 95%,#1f1717 100%);
+  clip-path:polygon(0 100%,0 33%,3% 20%,15% 9%,33% 2%,50% 0,67% 2%,85% 9%,97% 20%,100% 33%,100% 100%);
+  box-shadow:inset 0 0 34px #000;
+}
+.app.layoutPhase4 #layoutTravelVeil.is-travelling .layoutTravelGate{
+  animation:layoutPassageApproach 1.03s cubic-bezier(.28,.6,.6,.98) both;
+}
+.app.layoutPhase4 .layoutTravelGateGlow{
+  position:absolute;inset:22px 17px 0;
+  border-radius:45% 45% 0 0 / 30% 30% 0 0;
+  background:radial-gradient(ellipse at 50% 58%,rgba(238,188,124,.4),rgba(32,22,28,.2) 35%,#030406 76%);
+  box-shadow:inset 0 0 25px #000,0 0 25px rgba(194,125,73,.13);
+}
+.app.layoutPhase4 .layoutTravelAnnouncement{
+  position:absolute;bottom:10%;left:50%;transform:translateX(-50%);
+  width:max-content;max-width:84vw;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  color:#f4d9a6;text-shadow:0 2px 6px #000;
+}
+.app.layoutPhase4 .layoutTravelAnnouncement strong{
+  font:700 clamp(14px,2.1vw,27px) Georgia,serif;letter-spacing:.16em;text-align:center;
+}
+.app.layoutPhase4 .layoutTravelAnnouncement span{
+  font:700 clamp(11px,1.25vw,15px) Georgia,serif;letter-spacing:.07em;
+  color:#d9bc91;text-align:center;
+}
+.app.layoutPhase4.layoutWalking #layoutThirdPersonActor{
+  animation:layoutPriestWalking .87s ease-in forwards;
+}
+.app.layoutPhase4.layoutWalking #layoutBattlefieldAtmosphere{
+  animation:layoutCameraApproach .89s ease-in forwards;
+}
+@keyframes layoutPassageVeil{
+  0%{opacity:0}18%{opacity:.62}39%,79%{opacity:1}100%{opacity:0}
+}
+@keyframes layoutPassageApproach{
+  0%{transform:translateY(10%) scale(.43);opacity:.15}
+  35%{transform:translateY(2%) scale(.86);opacity:1}
+  100%{transform:translateY(0) scale(3.2);opacity:1}
+}
+@keyframes layoutPriestWalking{
+  0%{transform:translateX(-50%) translateY(0) scale(1)}
+  50%{transform:translateX(-50%) translateY(-4%) scale(.87)}
+  100%{transform:translateX(-50%) translateY(-12%) scale(.55)}
+}
+@keyframes layoutCameraApproach{
+  0%{transform:scale(1)}100%{transform:scale(1.10)}
+}
+@media(orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .app.layoutPhase4 #layoutPassagePlaque{
+    top:79px;right:max(4px,env(safe-area-inset-right));
+    width:clamp(72px,13vw,115px);max-width:15vw;
+    min-height:26px;padding:3px 4px;gap:1px;border-radius:4px;
+  }
+  .app.layoutPhase4 #layoutPassagePlaque small{
+    font-size:6px;letter-spacing:.01em;line-height:1.1;
+  }
+  .app.layoutPhase4 #layoutPassagePlaque strong{
+    font-size:7px;letter-spacing:.01em;line-height:1.1;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueModalBox{
+    width:min(760px,96vw)!important;max-height:94dvh!important;
+    padding:7px 10px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueEyebrow{
+    font-size:8px!important;margin:0!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice #rogueChoiceTitle{
+    font-size:17px!important;margin:2px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice #rogueChoiceText{
+    font-size:9px!important;line-height:1.25!important;
+    margin:0 auto 6px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice #rogueChoiceGrid{
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr))!important;
+    gap:6px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice{
+    min-height:173px!important;
+    padding:5px 6px!important;border-radius:5px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalArch{
+    width:min(70px,55%)!important;height:69px!important;margin:0 auto 5px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalInner{
+    inset:8px 8px 2px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice h3{
+    font-size:11px!important;margin:0 0 2px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice p{
+    font-size:8.5px!important;line-height:1.2!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice .nodeReward{
+    font-size:7.5px!important;padding-top:4px!important;
+  }
+  .app.layoutPhase4 .layoutTravelAnnouncement{bottom:7%;gap:2px;}
+  .app.layoutPhase4 .layoutTravelAnnouncement strong{font-size:13px;}
+  .app.layoutPhase4 .layoutTravelAnnouncement span{font-size:10px;}
+  .app.layoutPhase4 .layoutTravelGate{
+    width:min(220px,30vw);height:75vh;
+  }
+}
+@media(orientation:portrait){
+  .app.layoutPhase4 #layoutPassagePlaque{
+    top:151px;right:8px;width:min(180px,37vw);max-width:37vw;
+  }
+  .app.layoutPhase4 #layoutPassagePlaque small{font-size:8px;}
+  .app.layoutPhase4 #layoutPassagePlaque strong{font-size:10px;}
+  #rogueChoiceModal.layoutDoorChoice .rogueModalBox{
+    width:95vw!important;max-height:90dvh!important;
+    overflow-y:auto!important;padding:12px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice #rogueChoiceGrid{
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,144px),1fr))!important;gap:8px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice{
+    min-height:240px!important;padding:8px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice .layoutPortalArch{
+    width:min(115px,68%)!important;height:110px!important;margin:3px auto 8px!important;
+  }
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice h3{font-size:13px!important;}
+  #rogueChoiceModal.layoutDoorChoice .rogueChoice p{font-size:10px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  .app.layoutPhase4 #layoutTravelVeil.is-travelling{
+    animation:none!important;opacity:.84!important;
+  }
+  .app.layoutPhase4 #layoutTravelVeil.is-travelling .layoutTravelGate,
+  .app.layoutPhase4.layoutWalking #layoutThirdPersonActor,
+  .app.layoutPhase4.layoutWalking #layoutBattlefieldAtmosphere{
+    animation:none!important;
+  }
+}
