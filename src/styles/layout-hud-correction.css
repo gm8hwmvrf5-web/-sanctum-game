@@ -1,0 +1,262 @@
+/* Sanctum Layout Redesign — user-requested HUD correction.
+   One screen of live game controls, no third-person priest. Original art and
+   all current engine IDs remain authoritative. Loaded AFTER Phase 1–5 CSS.
+*/
+
+/* Never show the former 3D actor even if an older cached script runs. */
+body > .app.layoutHudCorrected #layoutThirdPersonActor,
+body > .app.layoutHudCorrected .layoutThirdPersonActor,
+body > .app.layoutHudCorrected .layoutActorIdentity{
+  display:none!important;visibility:hidden!important;
+}
+
+/* HUD shell owns the full room. Do not inherit a grid flow or translated HUD. */
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats{
+  position:absolute!important;top:0!important;bottom:0!important;
+  left:0!important;right:0!important;inset:0!important;
+  display:block!important;grid-template-columns:none!important;
+  width:100%!important;height:100%!important;
+  max-width:none!important;margin:0!important;padding:0!important;
+  transform:none!important;pointer-events:none!important;
+  z-index:16!important;
+}
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > .stat{
+  position:absolute!important;float:none!important;
+  margin:0!important;box-sizing:border-box!important;
+  pointer-events:auto!important;
+}
+/* RELIC XP — TOP CENTER */
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+  position:absolute!important;
+  top:max(8px,env(safe-area-inset-top))!important;
+  left:50%!important;right:auto!important;bottom:auto!important;
+  transform:translateX(-50%)!important;
+  width:clamp(210px,27vw,378px)!important;
+  max-width:34vw!important;
+  height:47px!important;min-height:47px!important;
+  max-height:47px!important;
+  z-index:5!important;opacity:1!important;visibility:visible!important;
+}
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > .runProgressStat{
+  top:max(8px,env(safe-area-inset-top))!important;
+  left:max(9px,env(safe-area-inset-left))!important;right:auto!important;
+  width:clamp(190px,22vw,280px)!important;
+  height:47px!important;transform:none!important;
+}
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #turnTimerStat{
+  top:max(8px,env(safe-area-inset-top))!important;
+  right:max(9px,env(safe-area-inset-right))!important;left:auto!important;
+  width:clamp(96px,12vw,152px)!important;
+  height:47px!important;transform:none!important;
+}
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #defeatCounterStat{
+  top:65px!important;bottom:auto!important;
+  left:max(9px,env(safe-area-inset-left))!important;right:auto!important;
+  width:140px!important;height:42px!important;transform:none!important;
+}
+/* MANA — BOTTOM LEFT */
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
+  position:absolute!important;
+  top:auto!important;bottom:max(9px,env(safe-area-inset-bottom))!important;
+  left:max(9px,env(safe-area-inset-left))!important;right:auto!important;
+  transform:none!important;
+  width:clamp(145px,17vw,210px)!important;
+  height:59px!important;min-height:59px!important;max-height:59px!important;
+  z-index:5!important;
+}
+/* ALTAR PROTECTION — BOTTOM RIGHT */
+body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+  position:absolute!important;
+  top:auto!important;bottom:max(9px,env(safe-area-inset-bottom))!important;
+  right:max(9px,env(safe-area-inset-right))!important;left:auto!important;
+  transform:none!important;
+  width:clamp(145px,17vw,210px)!important;
+  height:59px!important;min-height:59px!important;max-height:59px!important;
+  z-index:5!important;
+}
+/* Cards belong to the middle of the screen, not inside a priest model.
+   The center stays free of overlapping side UI. */
+body > .app.layoutHudCorrected #handPanel .handCharacterCards{
+  position:absolute!important;top:56%!important;bottom:auto!important;
+  left:50%!important;right:auto!important;
+  transform:translate(-50%,-48%)!important;
+  width:min(560px,50vw)!important;
+  max-width:calc(100vw - 505px)!important;
+  min-width:0!important;display:block!important;
+  pointer-events:auto!important;z-index:3!important;
+}
+body > .app.layoutHudCorrected #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+  left:0!important;margin-left:auto!important;margin-right:auto!important;
+  max-width:100%!important;
+}
+/* Rituals occupy the MID-LEFT rail, blood reads ABOVE the Rituals title. */
+body > .app.layoutHudCorrected #handPanel .handCharacterPriest{
+  position:absolute!important;
+  top:51%!important;bottom:auto!important;
+  left:max(10px,env(safe-area-inset-left))!important;right:auto!important;
+  transform:translateY(-50%)!important;
+  width:clamp(192px,19vw,257px)!important;
+  max-width:24vw!important;min-width:0!important;
+  max-height:min(66vh,600px)!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  z-index:4!important;
+  padding:9px!important;pointer-events:auto!important;
+}
+body > .app.layoutHudCorrected #handPanel .handCharacterPriest > #ritualPanel{
+  display:block!important;order:1!important;width:100%!important;
+  padding:0!important;margin:0!important;
+}
+body > .app.layoutHudCorrected #ritualContent .layoutBloodDock{
+  order:0;
+  width:100%;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:stretch;
+  gap:5px;margin:6px 0 9px;
+  padding:8px 9px;
+  background:linear-gradient(100deg,rgba(53,11,19,.84),rgba(23,10,14,.92));
+  border:1px solid rgba(165,68,66,.72);border-radius:7px;
+  box-shadow:inset 0 0 15px rgba(101,19,27,.2);
+}
+body > .app.layoutHudCorrected #ritualContent .layoutBloodLabel{
+  color:#eec5ba;font:700 10px/1 Georgia,serif;
+  letter-spacing:.13em;text-shadow:0 1px 3px #000;
+}
+body > .app.layoutHudCorrected #ritualContent .layoutBloodDock .ritualBloodGauge{
+  display:flex!important;position:relative!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  flex:0 0 20px!important;height:20px!important;min-height:20px!important;
+  margin:0!important;
+}
+body > .app.layoutHudCorrected #ritualContent .layoutBloodDock .ritualBloodGauge em{
+  font-size:11px!important;font-weight:700!important;letter-spacing:.04em!important;
+}
+body > .app.layoutHudCorrected #ritualContent .ritualTitleWithBlood{
+  display:block!important;margin:4px 0 8px!important;
+  font-size:16px!important;
+}
+body > .app.layoutHudCorrected #ritualContent .ritualTitleWithBlood > span{
+  display:block!important;
+}
+body > .app.layoutHudCorrected #handPanel .handCharacterPriest .priestRelicTopStack{
+  order:2!important;margin-top:8px!important;
+}
+body > .app.layoutHudCorrected #handPanel .handCharacterPriest .priestRelicTopStack:empty{
+  display:none!important;
+}
+/* The cards are the only player representation in the central viewport. */
+body > .app.layoutHudCorrected #layoutBattlefieldAtmosphere{
+  pointer-events:none!important;
+}
+body > .app.layoutHudCorrected #layoutEncounterLabel{
+  pointer-events:none!important;
+}
+
+/* Landscape phones: top-center XP, bottom-corner resources, centered cards.
+   Everything remains inside the physical viewport without whole-page scaling. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > .runProgressStat{
+    top:4px!important;left:max(4px,env(safe-area-inset-left))!important;
+    width:clamp(135px,19vw,170px)!important;height:35px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+    top:4px!important;left:50%!important;transform:translateX(-50%)!important;
+    width:clamp(145px,27vw,242px)!important;max-width:31vw!important;
+    height:35px!important;min-height:35px!important;max-height:35px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #turnTimerStat{
+    top:4px!important;right:max(4px,env(safe-area-inset-right))!important;
+    width:clamp(77px,11vw,100px)!important;height:35px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #defeatCounterStat{
+    top:42px!important;left:max(4px,env(safe-area-inset-left))!important;
+    width:clamp(92px,14vw,125px)!important;height:30px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat,
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    top:auto!important;bottom:max(4px,env(safe-area-inset-bottom))!important;
+    width:clamp(99px,16vw,145px)!important;
+    height:44px!important;min-height:44px!important;max-height:44px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
+    left:max(4px,env(safe-area-inset-left))!important;right:auto!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    right:max(4px,env(safe-area-inset-right))!important;left:auto!important;
+  }
+  body > .app.layoutHudCorrected #handPanel .handCharacterCards{
+    top:55%!important;left:50%!important;right:auto!important;bottom:auto!important;
+    transform:translate(-50%,-48%)!important;
+    width:var(--p5-hand-width)!important;
+    max-width:calc(100vw - 270px)!important;
+  }
+  body > .app.layoutHudCorrected #handPanel .handCharacterPriest{
+    top:54%!important;bottom:auto!important;
+    left:max(5px,env(safe-area-inset-left))!important;
+    transform:translateY(-50%)!important;
+    width:var(--p5-panel-width)!important;max-width:var(--p5-panel-width)!important;
+    max-height:calc(100dvh - 127px)!important;padding:5px!important;
+  }
+  body > .app.layoutHudCorrected #ritualContent .layoutBloodDock{
+    margin:3px 0 5px!important;gap:3px!important;padding:5px 6px!important;
+  }
+  body > .app.layoutHudCorrected #ritualContent .layoutBloodLabel{
+    font-size:8px!important;
+  }
+  body > .app.layoutHudCorrected #ritualContent .layoutBloodDock .ritualBloodGauge{
+    height:15px!important;min-height:15px!important;flex-basis:15px!important;
+  }
+  body > .app.layoutHudCorrected #ritualContent .layoutBloodDock .ritualBloodGauge em{
+    font-size:9px!important;
+  }
+  body > .app.layoutHudCorrected #ritualContent .ritualTitleWithBlood{
+    font-size:12px!important;margin:3px 0 5px!important;
+  }
+}
+/* Small portrait follows the existing Phase 5 scrollable sheet:
+   the battlefield remains first, with centered card hand followed by Rituals. */
+@media (orientation:portrait) and (max-width:760px){
+  body > .app.layoutHudCorrected #handPanel .handCharacterCards{
+    position:relative!important;top:auto!important;bottom:auto!important;
+    left:auto!important;right:auto!important;
+    transform:none!important;width:100%!important;
+    max-width:100%!important;margin:0 auto!important;
+  }
+  body > .app.layoutHudCorrected #handPanel .handCharacterPriest{
+    position:relative!important;top:auto!important;bottom:auto!important;
+    left:auto!important;right:auto!important;
+    transform:none!important;width:100%!important;
+    max-width:100%!important;max-height:none!important;
+    padding:12px!important;overflow:visible!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+    top:5px!important;left:50%!important;right:auto!important;
+    width:30%!important;max-width:30%!important;
+    height:45px!important;min-height:45px!important;max-height:45px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > .runProgressStat{
+    top:5px!important;left:5px!important;width:34%!important;height:45px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #turnTimerStat{
+    top:5px!important;right:5px!important;width:27%!important;height:45px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #defeatCounterStat{
+    top:151px!important;left:6px!important;width:120px!important;height:38px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat,
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    top:377px!important;bottom:auto!important;
+    width:clamp(128px,35vw,170px)!important;
+    height:53px!important;min-height:53px!important;max-height:53px!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
+    left:6px!important;right:auto!important;
+  }
+  body > .app.layoutHudCorrected > #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    right:6px!important;left:auto!important;
+  }
+  body > .app.layoutHudCorrected #ritualContent .layoutBloodDock{
+    padding:9px!important;margin:10px 0!important;
+  }
+  body > .app.layoutHudCorrected #ritualContent .layoutBloodDock .ritualBloodGauge{
+    height:22px!important;min-height:22px!important;flex-basis:22px!important;
+  }
+}
