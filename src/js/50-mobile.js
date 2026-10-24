@@ -143,6 +143,9 @@
   let fitting=false;
 
   function isPhoneLandscape(){
+    // Layout redesign's full-viewport shell already fits the screen; the old
+    // whole-app scaler makes its cards and touch targets unnecessarily tiny.
+    if(document.querySelector('body > .app.layoutPhase5'))return false;
     return matchMedia('(orientation:landscape) and (max-height:520px) and (max-width:1000px)').matches;
   }
 
