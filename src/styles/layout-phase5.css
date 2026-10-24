@@ -1,0 +1,635 @@
+/* Sanctum Layout Redesign — Phase 5: small-screen/readability pass.
+   Applied AFTER Phase 1-4 and the older mobile stylesheet. All selectors
+   are scoped to the isolated redesign branch: no baseline CSS is changed.
+   Original card art, status overlays, room artwork and buttons remain intact.
+*/
+.app.layoutPhase5{
+  --p5-ink:#eddbb9;
+  --p5-edge:rgba(194,147,86,.66);
+}
+.app.layoutPhase5 .layoutMobileMenuBtn{display:none!important;}
+/* Accessible targets without altering gameplay handlers. */
+.app.layoutPhase5 #layoutRoomNav .layoutRoomTab{
+  touch-action:manipulation;-webkit-tap-highlight-color:rgba(245,193,101,.16);
+}
+.app.layoutPhase5 #handPanel button,
+.app.layoutPhase5 #layoutMobileMenuBtn,
+.app.layoutPhase5 #layoutRoomNav button,
+.app.layoutPhase5 #boardSection button{
+  touch-action:manipulation;
+}
+.app.layoutPhase5 #handPanel button:focus-visible,
+.app.layoutPhase5 #layoutRoomNav button:focus-visible,
+.app.layoutPhase5 #layoutMobileMenuBtn:focus-visible,
+.app.layoutPhase5 #boardSection button:focus-visible{
+  outline:2px solid #f9d69a!important;outline-offset:2px!important;
+}
+/* Tablet landscape: free enough room for the encounter and the complete hand. */
+@media (orientation:landscape) and (min-height:521px) and (max-width:1280px){
+  body > .app.layoutPhase5 > #boardSection.board > .room.is-focused{
+    padding-left:clamp(208px,21vw,265px)!important;
+    padding-right:clamp(165px,17vw,235px)!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest{
+    width:clamp(205px,20vw,255px)!important;max-width:26vw!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterCards{
+    left:56%!important;
+    width:min(510px,54vw)!important;
+    max-width:calc(100vw - 330px)!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    width:min(510px,100%)!important;
+    grid-template-columns:30px minmax(0,1fr) 30px!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    width:100%!important;max-width:100%!important;
+  }
+  .app.layoutPhase5 #boardSection .demons > .demon{
+    flex-basis:clamp(108px,12vw,148px)!important;
+    width:clamp(108px,12vw,148px)!important;
+  }
+  .app.layoutPhase5 #layoutRoomNav .layoutRoomTab{
+    min-height:38px;padding:7px 10px;
+  }
+  .app.layoutPhase5 #ritualPanel .rituals > .ritual:not([hidden]) .btn{
+    min-height:32px!important;
+  }
+}
+/* iPhone + other short landscape devices. Use the actual available viewport,
+   never the old fixed-width carousel or inverse-scale whole-app workaround. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  body > .app.layoutPhase5,
+  html[data-sanctum-aspect="19.5:9"] body > .app.layoutPhase5,
+  html[data-sanctum-aspect="4:3"] body > .app.layoutPhase5{
+    position:relative!important;left:auto!important;top:auto!important;
+    width:100vw!important;max-width:none!important;
+    height:100dvh!important;min-height:100dvh!important;
+    transform:none!important;transform-origin:center center!important;
+    overflow:hidden!important;margin:0!important;padding:0!important;
+    --p5-panel-width:clamp(151px,21vw,198px);
+    --p5-hand-width:min(386px,calc(100vw - 265px));
+    --p5-front-height:clamp(164px,46dvh,208px);
+  }
+  .app.layoutPhase5 #layoutMobileMenuBtn{
+    position:absolute!important;z-index:36!important;
+    display:block!important;top:42px!important;
+    right:max(5px,env(safe-area-inset-right))!important;
+    min-width:76px!important;min-height:36px!important;
+    padding:5px 9px!important;
+    color:#f4d6a4!important;border:1px solid #b18a50!important;
+    background:linear-gradient(165deg,rgba(49,37,32,.98),rgba(14,12,16,.98))!important;
+    box-shadow:0 3px 10px #000b!important;
+    border-radius:6px!important;
+    font:700 10px Georgia,serif!important;letter-spacing:.08em!important;
+    pointer-events:auto!important;
+  }
+  /* Hide the old duplicate Menu button inside the Ritual control strip. */
+  .app.layoutPhase5 #handPanel .ritualTracker #iphonePauseMenuBtn{
+    display:none!important;
+  }
+  .app.layoutPhase5 #layoutRoomNav{
+    top:44px!important;left:50%!important;
+    width:max-content!important;max-width:calc(100vw - 206px)!important;
+    gap:3px!important;padding:3px!important;
+    transform:translateX(-50%)!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    scrollbar-width:thin!important;
+  }
+  .app.layoutPhase5 #layoutRoomNav .layoutRoomTab{
+    min-width:0!important;min-height:33px!important;flex:0 0 auto!important;
+    padding:5px clamp(4px,.85vw,9px)!important;
+    font-size:clamp(8px,.95vw,10px)!important;
+    white-space:nowrap!important;
+  }
+  .app.layoutPhase5 #layoutRoomNav .roomCount{
+    min-width:13px!important;font-size:9px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > .runProgressStat{
+    left:max(5px,env(safe-area-inset-left))!important;
+    top:4px!important;width:clamp(151px,20vw,198px)!important;
+    height:34px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+    top:4px!important;left:50%!important;
+    width:min(31vw,245px)!important;height:34px!important;
+    min-height:34px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #turnTimerStat{
+    top:4px!important;right:max(5px,env(safe-area-inset-right))!important;
+    width:clamp(77px,12vw,102px)!important;height:34px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #defeatCounterStat{
+    left:max(5px,env(safe-area-inset-left))!important;
+    top:42px!important;width:clamp(96px,15vw,132px)!important;
+    height:32px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat,
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    top:auto!important;bottom:max(4px,env(safe-area-inset-bottom))!important;
+    height:43px!important;width:clamp(110px,17vw,149px)!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
+    left:max(4px,env(safe-area-inset-left))!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    right:max(4px,env(safe-area-inset-right))!important;
+  }
+  .app.layoutPhase5 #layoutEncounterLabel{
+    top:84px!important;max-width:43vw!important;
+  }
+  .app.layoutPhase5 #layoutEncounterSubtitle{
+    font-size:8.5px!important;line-height:1.2!important;
+  }
+  .app.layoutPhase5 #layoutPassagePlaque{
+    top:84px!important;width:clamp(80px,13vw,112px)!important;
+    max-width:15vw!important;min-height:28px!important;
+  }
+  body > .app.layoutPhase5 > #boardSection.board > .room.is-focused{
+    padding-top:110px!important;
+    padding-bottom:calc(var(--p5-front-height) + 10px)!important;
+    padding-left:clamp(166px,23vw,225px)!important;
+    padding-right:clamp(103px,14vw,153px)!important;
+    overflow:hidden!important;
+  }
+  .app.layoutPhase5 #boardSection .demons{
+    max-height:100%!important;min-height:0!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch;
+    align-content:flex-start!important;
+    justify-content:center!important;
+    gap:4px!important;padding:2px 4px!important;
+    touch-action:pan-y;
+    scrollbar-width:thin;
+  }
+  .app.layoutPhase5 #boardSection .demons > .demon{
+    display:flex!important;flex-direction:column!important;
+    flex:0 0 clamp(86px,11vw,110px)!important;
+    width:clamp(86px,11vw,110px)!important;max-width:110px!important;
+    height:auto!important;max-height:none!important;
+    min-height:91px!important;padding:3px!important;
+    overflow:hidden!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonArtWrap{
+    flex:0 0 48px!important;width:100%!important;
+    min-width:0!important;max-width:100%!important;
+    height:48px!important;min-height:48px!important;max-height:48px!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonArt{
+    display:block!important;width:100%!important;height:100%!important;
+    object-fit:contain!important;object-position:center center!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonBody{
+    display:flex!important;flex-direction:column!important;
+    flex:1 1 auto!important;height:auto!important;min-height:0!important;
+    padding:3px 0 1px!important;gap:3px!important;overflow:visible!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .name{
+    font-size:8.2px!important;line-height:1.12!important;
+    text-align:center!important;white-space:normal!important;
+    overflow-wrap:anywhere!important;min-height:0!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonStats{
+    flex-wrap:wrap!important;gap:2px!important;
+    align-items:center!important;justify-content:center!important;
+    overflow:visible!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonStats > span{
+    min-height:16px!important;font-size:8.3px!important;
+    padding:2px 3px!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonStats .statLabel,
+  .app.layoutPhase5 #boardSection .demon .demonStats .statValue{
+    font-size:8.3px!important;line-height:1!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .abilityText,
+  .app.layoutPhase5 #boardSection .demon .familyTag{
+    display:none!important;
+  }
+  .app.layoutPhase5 #boardSection .mpDemonTapTarget{
+    position:absolute!important;inset:0!important;
+    min-height:44px!important;width:100%!important;height:100%!important;
+    z-index:16!important;cursor:pointer!important;
+  }
+  .app.layoutPhase5 #boardSection #bossArea{
+    align-items:flex-start!important;overflow:auto!important;
+    max-height:100%!important;
+  }
+  .app.layoutPhase5 #boardSection #bossArea .bossCard{
+    width:min(180px,42vw)!important;min-height:0!important;
+    padding:4px!important;
+  }
+  .app.layoutPhase5 #boardSection #bossArea .bossArt{
+    height:clamp(76px,23dvh,112px)!important;
+  }
+  .app.layoutPhase5 #boardSection #bossArea .bossStatLine{
+    flex-wrap:wrap!important;line-height:1.2!important;font-size:9px!important;
+  }
+  .app.layoutPhase5 #layoutThirdPersonActor{
+    left:44%!important;bottom:calc(var(--p5-front-height) - 18px)!important;
+    width:clamp(72px,12vw,105px)!important;
+    height:clamp(105px,27dvh,142px)!important;
+    opacity:.82!important;pointer-events:none!important;
+  }
+  /* Rituals stay left and independently scroll; never shrink the entire UI. */
+  .app.layoutPhase5 #handPanel .handCharacterPriest{
+    top:83px!important;left:max(6px,env(safe-area-inset-left))!important;
+    width:var(--p5-panel-width)!important;
+    max-width:var(--p5-panel-width)!important;
+    max-height:calc(100dvh - 137px)!important;
+    min-height:0!important;overflow-y:auto!important;
+    padding:6px!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTracker{
+    flex-wrap:wrap!important;justify-content:flex-start!important;
+    gap:4px!important;margin:0 0 5px!important;
+    padding:0 0 5px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTracker .trackerAction{
+    flex:1 1 calc(50% - 2px)!important;
+    width:calc(50% - 2px)!important;max-width:none!important;
+    min-width:0!important;min-height:33px!important;height:auto!important;
+    padding:5px 3px!important;font-size:9px!important;
+    line-height:1.13!important;white-space:normal!important;
+    border-radius:5px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTracker .playerTurnTag{
+    display:flex!important;flex:1 0 100%!important;
+    margin:0!important;max-width:100%!important;
+    font-size:9px!important;line-height:1.15!important;
+    overflow-wrap:anywhere!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTracker #actionCinderBadge{
+    margin:0!important;max-width:100%!important;
+    font-size:9px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTitleWithBlood{
+    display:flex!important;flex-wrap:wrap!important;
+    align-items:center!important;gap:4px!important;
+    font-size:13px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTitleWithBlood .ritualBloodGauge{
+    max-width:100%!important;min-width:90px!important;height:15px!important;
+  }
+  .app.layoutPhase5 #ritualPanel .ritualMain .layoutRitualProgress{
+    font-size:9px!important;line-height:1.25!important;
+    padding:5px!important;margin:4px 0 6px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals{
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    gap:6px!important;overflow:visible!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals > .ritual:not([hidden]){
+    font-size:10px!important;line-height:1.3!important;
+    padding:7px 6px!important;overflow-wrap:anywhere!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals > .ritual small{
+    font-size:9px!important;line-height:1.32!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals > .ritual [data-rit]{
+    min-height:33px!important;width:100%!important;
+    margin-top:6px!important;padding:5px 3px!important;
+    font-size:10px!important;white-space:normal!important;
+  }
+  /* The two actionable front cards occupy the center; side preview cards
+     are hidden at this size but ‹ › rotation remains fully functional. */
+  .app.layoutPhase5 #handPanel .handCharacterCards{
+    top:auto!important;bottom:max(1px,env(safe-area-inset-bottom))!important;
+    left:52%!important;transform:translateX(-50%)!important;
+    width:var(--p5-hand-width)!important;
+    max-width:var(--p5-hand-width)!important;
+    min-height:0!important;height:auto!important;
+    pointer-events:auto!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:32px minmax(0,1fr) 32px!important;
+    width:100%!important;max-width:100%!important;
+    gap:2px!important;margin:0 auto!important;left:0!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    position:relative!important;
+    display:block!important;
+    width:100%!important;max-width:100%!important;
+    height:var(--p5-front-height)!important;
+    min-height:var(--p5-front-height)!important;
+    overflow:visible!important;margin:0!important;padding:0!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    position:absolute!important;top:0!important;
+    display:flex!important;flex-direction:column!important;
+    width:calc(50% - 4px)!important;
+    min-width:0!important;max-width:calc(50% - 4px)!important;
+    height:calc(var(--p5-front-height) - 4px)!important;
+    min-height:calc(var(--p5-front-height) - 4px)!important;
+    max-height:calc(var(--p5-front-height) - 4px)!important;
+    margin:0!important;padding:4px!important;overflow:hidden!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{
+    left:0!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    left:calc(50% + 4px)!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    display:none!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel .carouselNav{
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    width:32px!important;min-width:32px!important;
+    min-height:44px!important;height:44px!important;
+    padding:4px 1px!important;font-size:22px!important;
+    border-radius:8px!important;
+    align-self:center!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel .carouselMeta{
+    grid-column:1/-1!important;
+    min-height:16px!important;
+    padding:1px 0!important;font-size:8px!important;line-height:1.12!important;
+    margin:0!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel .carouselHint{
+    display:none!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardArt{
+    flex:0 0 51px!important;height:51px!important;min-height:51px!important;
+    max-height:51px!important;margin:-4px -4px 2px!important;
+    background-position:center 30%!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardBottom{
+    display:block!important;flex:1 1 auto!important;
+    min-height:0!important;margin:0 -4px -4px!important;
+    padding:4px 4px 31px!important;
+    overflow-y:auto!important;overscroll-behavior:contain!important;
+    scrollbar-width:thin!important;
+    position:relative!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card h4{
+    font-size:10px!important;line-height:1.2!important;
+    margin:1px 25px 3px 0!important;
+    white-space:normal!important;overflow-wrap:anywhere!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardBottom p{
+    font-size:8.5px!important;line-height:1.26!important;
+    margin:2px 0!important;overflow-wrap:anywhere!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cost{
+    min-width:23px!important;width:auto!important;
+    height:23px!important;min-height:23px!important;
+    padding:2px!important;font-size:9px!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .actions{
+    position:absolute!important;bottom:3px!important;
+    left:3px!important;right:3px!important;z-index:20!important;
+    display:flex!important;gap:2px!important;
+    margin:0!important;background:rgba(224,202,159,.94)!important;
+    border-radius:3px!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .actions button{
+    min-height:28px!important;height:auto!important;
+    padding:3px 2px!important;font-size:8px!important;
+    line-height:1.1!important;white-space:normal!important;
+  }
+  .app.layoutPhase5 #altarGuardStatus:not([hidden]){
+    right:max(4px,env(safe-area-inset-right))!important;
+    bottom:52px!important;max-width:145px!important;
+    font-size:9px!important;pointer-events:none!important;
+  }
+}
+/* Compact landscape (iPhone SE and similar): compress ART, not button targets,
+   and keep the full Ritual panel scrollable for all three unlocked abilities. */
+@media (orientation:landscape) and (max-height:380px) and (max-width:850px){
+  body > .app.layoutPhase5{
+    --p5-panel-width:clamp(142px,22vw,174px);
+    --p5-hand-width:min(350px,calc(100vw - 250px));
+    --p5-front-height:clamp(151px,45dvh,172px);
+  }
+  .app.layoutPhase5 #layoutRoomNav{
+    top:43px!important;max-width:calc(100vw - 186px)!important;
+  }
+  .app.layoutPhase5 #layoutRoomNav .layoutRoomTab{
+    min-height:31px!important;padding:3px 4px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest{
+    top:81px!important;max-height:calc(100dvh - 125px)!important;
+    padding:4px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTracker .trackerAction{
+    min-height:30px!important;font-size:8px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals > .ritual:not([hidden]){
+    padding:5px 4px!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardArt{
+    flex-basis:44px!important;height:44px!important;
+    min-height:44px!important;max-height:44px!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardBottom p{
+    font-size:8px!important;line-height:1.23!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonArtWrap{
+    flex-basis:40px!important;height:40px!important;
+    min-height:40px!important;max-height:40px!important;
+  }
+  body > .app.layoutPhase5 > #boardSection.board > .room.is-focused{
+    padding-top:104px!important;
+    padding-bottom:calc(var(--p5-front-height) + 9px)!important;
+    padding-left:clamp(152px,23vw,194px)!important;
+    padding-right:clamp(85px,14vw,125px)!important;
+  }
+}
+/* Portrait fallback: make the viewport a vertically scrollable game sheet.
+   Don't trap the bottom buttons under an absolutely positioned full-screen hand. */
+@media (orientation:portrait) and (max-width:760px){
+  body > .app.layoutPhase5,
+  html[data-sanctum-aspect="4:3"] body > .app.layoutPhase5,
+  html[data-sanctum-aspect="19.5:9"] body > .app.layoutPhase5{
+    position:relative!important;
+    width:100vw!important;height:auto!important;min-height:1150px!important;
+    overflow:visible!important;transform:none!important;
+    padding:0 0 30px!important;
+  }
+  body > .app.layoutPhase5 > #boardSection.board{
+    position:absolute!important;top:0!important;
+    height:440px!important;min-height:440px!important;
+    overflow:hidden!important;
+  }
+  body > .app.layoutPhase5 > #boardSection.board > .room.is-focused{
+    height:440px!important;min-height:440px!important;
+    padding:140px 12px 86px!important;
+  }
+  .app.layoutPhase5 #layoutRoomNav{
+    top:60px!important;left:50%!important;
+    max-width:calc(100vw - 12px)!important;
+    overflow-x:auto!important;white-space:nowrap!important;
+    gap:3px!important;
+  }
+  .app.layoutPhase5 #layoutRoomNav .layoutRoomTab{
+    flex:0 0 auto!important;min-height:37px!important;
+    padding:6px!important;font-size:10px!important;
+  }
+  .app.layoutPhase5 #layoutMobileMenuBtn{
+    position:absolute!important;z-index:33!important;display:block!important;
+    top:109px!important;right:7px!important;
+    min-height:36px!important;padding:7px 10px!important;
+    font-size:11px!important;
+    background:rgba(20,16,20,.93)!important;
+  }
+  .app.layoutPhase5 #layoutEncounterLabel{
+    top:110px!important;left:50%!important;max-width:62vw!important;
+  }
+  .app.layoutPhase5 #layoutPassagePlaque{
+    top:158px!important;right:7px!important;width:120px!important;
+    max-width:31vw!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats{
+    height:440px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > .runProgressStat{
+    top:5px!important;left:5px!important;width:34%!important;
+    height:45px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #relicXpMeterStat{
+    top:5px!important;left:51%!important;width:30%!important;height:45px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #turnTimerStat{
+    top:5px!important;right:5px!important;width:27%!important;height:45px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #defeatCounterStat{
+    top:150px!important;left:6px!important;width:120px!important;height:38px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat,
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    top:377px!important;bottom:auto!important;
+    width:clamp(128px,35vw,170px)!important;height:53px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #manaStatBox.manaMeterStat{
+    left:6px!important;
+  }
+  .app.layoutPhase5 #topStatusBar.stats.compactRunStats > #altarStatBox.altarMeterStat{
+    right:6px!important;
+  }
+  .app.layoutPhase5 #boardSection .demons{
+    overflow-y:auto!important;overflow-x:hidden!important;
+    gap:5px!important;max-height:100%!important;
+  }
+  .app.layoutPhase5 #boardSection .demons > .demon{
+    flex:0 1 clamp(93px,27vw,140px)!important;
+    width:clamp(93px,27vw,140px)!important;max-width:140px!important;
+  }
+  .app.layoutPhase5 #boardSection .demon .demonArtWrap{
+    height:78px!important;min-height:78px!important;
+  }
+  .app.layoutPhase5 #layoutThirdPersonActor{
+    bottom:64px!important;left:45%!important;
+    width:112px!important;height:162px!important;opacity:.75!important;
+  }
+  body > .app.layoutPhase5 > #handPanel.panel{
+    position:absolute!important;inset:auto!important;
+    top:450px!important;left:0!important;
+    width:100%!important;height:auto!important;min-height:0!important;
+    display:block!important;overflow:visible!important;
+    padding:4px 8px!important;pointer-events:auto!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterStage{
+    display:flex!important;flex-direction:column!important;gap:12px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterCards{
+    position:relative!important;inset:auto!important;left:auto!important;
+    transform:none!important;width:100%!important;max-width:100%!important;
+    height:auto!important;pointer-events:auto!important;order:0!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode{
+    display:grid!important;
+    grid-template-columns:34px minmax(0,1fr) 34px!important;
+    gap:3px!important;width:100%!important;max-width:100%!important;
+    left:0!important;margin:0 auto!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack{
+    position:relative!important;display:block!important;
+    width:100%!important;max-width:100%!important;
+    height:265px!important;min-height:265px!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center,
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    position:absolute!important;top:0!important;
+    left:auto!important;width:calc(50% - 4px)!important;
+    min-width:0!important;max-width:calc(50% - 4px)!important;
+    min-height:252px!important;max-height:252px!important;height:252px!important;
+    padding:4px!important;overflow:hidden!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-center{
+    left:0!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-right{
+    left:calc(50% + 4px)!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-left,
+  .app.layoutPhase5 #handContent .handCarousel.twoFrontMode.fourVisibleMode .hand.carouselTrack > .card.carouselCard.is-back-right{
+    display:none!important;
+  }
+  .app.layoutPhase5 #handContent .handCarousel .carouselNav{
+    min-width:34px!important;width:34px!important;
+    min-height:48px!important;height:48px!important;
+    padding:5px 2px!important;font-size:22px!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardArt{
+    height:93px!important;min-height:93px!important;
+    max-height:93px!important;margin:-4px -4px 3px!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardBottom{
+    display:block!important;flex:1 1 auto!important;min-height:0!important;
+    margin:0 -4px -4px!important;padding:4px 4px 37px!important;
+    overflow-y:auto!important;position:relative!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card h4{
+    font-size:11px!important;white-space:normal!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .cardBottom p{
+    font-size:9px!important;line-height:1.3!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .actions{
+    position:absolute!important;left:3px!important;right:3px!important;
+    bottom:3px!important;z-index:12!important;display:flex!important;
+    gap:2px!important;background:rgba(231,207,164,.93)!important;
+  }
+  .app.layoutPhase5 #handContent .hand.carouselTrack > .card .actions button{
+    min-height:32px!important;font-size:8px!important;padding:4px 2px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest{
+    position:relative!important;inset:auto!important;left:auto!important;
+    top:auto!important;width:100%!important;max-width:100%!important;
+    height:auto!important;max-height:none!important;
+    padding:12px!important;overflow:visible!important;
+    order:1!important;pointer-events:auto!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .ritualTracker .trackerAction{
+    min-height:43px!important;font-size:12px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals > .ritual:not([hidden]){
+    font-size:12px!important;line-height:1.35!important;
+    padding:10px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals > .ritual small{
+    font-size:11px!important;
+  }
+  .app.layoutPhase5 #handPanel .handCharacterPriest .rituals > .ritual [data-rit]{
+    min-height:42px!important;font-size:12px!important;
+  }
+  .app.layoutPhase5 #handPanel .ritualTracker #iphonePauseMenuBtn{
+    display:none!important;
+  }
+  .app.layoutPhase5 #altarGuardStatus:not([hidden]){bottom:auto!important;top:339px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  .app.layoutPhase5 #handPanel .handCarousel .carouselNav,
+  .app.layoutPhase5 #boardSection .demon{
+    transition:none!important;
+  }
+}
